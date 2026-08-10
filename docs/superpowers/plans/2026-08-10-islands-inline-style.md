@@ -214,7 +214,7 @@ grep -c 'filter-card' resources/css/app.css                                     
 - Modify: `resources/css/app.css` (`:root` — เพิ่ม token ที่ขาด)
 
 **Interfaces:**
-- Produces: `.tbl` `.tbl--center` `.tbl-wrap` `.icon-btn` (+ `--green --red --gray --neutral`) `.toast` `.pager` `.pager-btn` `.form-input--sm` `.pill--sm` `.pill--green` `.pill--amber` `.pill--red`
+- Produces: `.tbl` `.tbl--center` `.tbl-wrap` `.icon-btn` (ตัวฐาน = โทนเทากลาง; + `--green --red --gray`) `.toast` `.pager` `.pager-btn` `.form-input--sm` `.pill--sm` `.pill--green` `.pill--amber` `.pill--red`
 
 - [ ] **Step 1:** เพิ่ม token ที่ขาดใน `:root` ของ `app.css`
 
