@@ -2194,6 +2194,129 @@
   gap: 6px;
 }
 
+/* ประวัติการใช้งาน (ActivityLog) — แถบฟิลเตอร์ชิดขอบล่างรับกับปุ่ม Export ข้าง ๆ */
+.al-filter {
+  align-items: flex-end;
+}
+
+/* แถวช่องวันที่เริ่ม-สิ้นสุด + ลูกศรคั่นกลาง */
+.al-date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ช่องวันที่ — กว้างคงที่ ไม่ยืดตามแถบฟิลเตอร์ */
+.al-date-input {
+  width: 185px;
+}
+
+/* ลูกศรคั่นระหว่างวันที่เริ่ม-สิ้นสุด */
+.al-arrow {
+  color: var(--text-faint);
+  font-size: 15px;
+  flex: none;
+}
+
+/* ปุ่ม Export CSV — ใช้ฐานจาก .btn-primary ดันไปชิดขวาแถบฟิลเตอร์ */
+.al-export-btn {
+  margin-left: auto;
+}
+
+/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
+.al-load-err {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--danger-soft);
+  color: #9a3b34;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* สถานะกำลังโหลด */
+.al-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+/* การ์ดว่างเมื่อไม่มีข้อมูลในช่วงวันที่ที่เลือก */
+.al-empty-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+/* รายการการ์ดบนมือถือ (แทนตาราง) */
+.al-mobile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* การ์ดรายการเดียว (มือถือ) */
+.al-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 15px;
+}
+
+.al-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.al-card-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.al-card-action {
+  font-size: 13.5px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.al-card-time {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* กล่องครอบตารางเดสก์ท็อป — บังคับความกว้างขั้นต่ำกันตารางบีบแคบเกินไป */
+.al-table-wrap .tbl {
+  min-width: 640px;
+}
+
+/* เซลล์ตาราง — จัดข้อความชิดขอบบนของแถว */
+.al-td {
+  vertical-align: top;
+}
+
+/* คอลัมน์เวลา — ไม่ตัดบรรทัด สีจาง */
+.al-td-time {
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+/* คอลัมน์ผู้ใช้ */
+.al-td-actor {
+  font-weight: 500;
+}
+
+/* สรุปจำนวนรายการใต้ตาราง/รายการการ์ด */
+.al-summary {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
 /* การ์ดรถ (จัดการรถ) — ลอยเด่นเหนือพื้น + hover ยกขึ้น */
 .car-card {
   display: flex;
