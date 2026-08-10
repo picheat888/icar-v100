@@ -1,0 +1,1709 @@
+/* ==========================================================================
+   style.css — CSS ของหน้า view ทั้งหมด (app/Views)
+   ถูก @import จาก app.css จึงรวมอยู่ใน bundle เดียวกัน ไม่ต้องเพิ่ม entry ใน vite.config.js
+
+   สารบัญ
+   ------
+   1. Components   ชิ้นส่วนใช้ร่วมหลายหน้า
+      1.1 โลโก้แบรนด์ .brand
+      1.2 กล่องไอคอน  .icon-box (+ --round --teal)
+      1.3 ป้ายกลม     .pill (+ --teal --orange --gray)
+      1.4 ปุ่ม        .btn-primary .btn-ghost .btn-block
+      1.5 ฟอร์ม       .form-label .form-input .field .field-eye
+      1.6 แจ้งเตือน   .alert-error .alert-success
+      1.7 การ์ด       .card
+      1.8 การ์ดว่าง   .empty-card .empty-icon
+      1.9 หัวเรื่อง   .title (+ --xl --lg --md --sm)
+      1.10 ข้อความรอง .subtext (+ --lg --sm --faint)
+   2. Shell        โครง app shell (templates/)
+      2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
+      2.2 Sidebar     .app-sidebar .nav-*
+      2.3 Sidebar ยุบ/drawer
+      2.4 Header      .app-header .hdr-*
+      2.5 ตัวสลับภาษา .lang-switch .lang-btn
+   3. Auth         หน้า login / register / สมัครสำเร็จ
+   4. Profile      หน้าข้อมูลส่วนตัว / เปลี่ยนรหัสผ่าน
+   5. Pages        ส่วนย่อยเฉพาะหน้า
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. COMPONENTS
+   หน้าไหนต้องการขนาดต่างไป ให้ใส่ class ของหน้านั้นทับอีกชั้น
+   เช่น class="alert-error pf-err"
+   ========================================================================== */
+
+/* ----- 1.1 โลโก้แบรนด์ (iCar / INABA) -----
+   ปรับขนาดผ่าน custom property ที่ modifier ตั้งให้ */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--brand-gap, 12px);
+}
+
+.brand-icon {
+  --icon-size: var(--brand-size, 40px);
+  --icon-radius: var(--brand-radius, 11px);
+  background: linear-gradient(145deg, var(--teal), var(--teal-deep));
+}
+
+.brand-text {
+  line-height: 1;
+}
+
+.brand-name {
+  font-size: var(--brand-name-size, 19px);
+  font-weight: 700;
+  color: #21215c;
+  letter-spacing: var(--brand-name-ls, 1.5px);
+}
+
+.brand-sub {
+  font-size: var(--brand-sub-size, 9px);
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: var(--brand-sub-ls, 2.5px);
+  margin-top: var(--brand-sub-mt, 4px);
+}
+
+/* เล็ก — sidebar */
+.brand--sm {
+  --brand-gap: 10px;
+  --brand-size: 36px;
+  --brand-radius: 10px;
+  --brand-name-size: 17px;
+  --brand-name-ls: 1.2px;
+  --brand-sub-size: 8.5px;
+  --brand-sub-ls: 2px;
+  --brand-sub-mt: 3px;
+}
+
+/* ใหญ่ — แผงฟอร์มหน้า login */
+.brand--lg {
+  --brand-gap: 11px;
+  --brand-size: 44px;
+  --brand-radius: 12px;
+  --brand-name-size: 20px;
+  --brand-sub-ls: 2px;
+  --brand-sub-mt: 3px;
+}
+
+/* วางบนพื้น teal — หน้า register (ไอคอนโปร่ง + ตัวอักษรขาว) */
+.brand--on-teal {
+  --brand-size: 44px;
+  --brand-radius: 12px;
+}
+
+.brand--on-teal .brand-icon {
+  background: rgba(255, 255, 255, .14);
+}
+
+.brand--on-teal .brand-name {
+  color: #fff;
+}
+
+.brand--on-teal .brand-sub {
+  color: inherit;
+  opacity: .85;
+}
+
+/* ----- 1.2 กล่องไอคอน (จัตุรัส จัดกลางทั้งแนวตั้ง/แนวนอน) -----
+   คุมขนาดผ่าน --icon-size / --icon-radius ที่ class ของแต่ละที่ตั้งให้ */
+.icon-box {
+  flex: none;
+  width: var(--icon-size, 40px);
+  height: var(--icon-size, 40px);
+  border-radius: var(--icon-radius, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* วงกลม */
+.icon-box--round {
+  border-radius: 50%;
+}
+
+/* โทน teal อ่อน — ไอคอนหัวข้อกลุ่มฟิลด์ */
+.icon-box--teal {
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+}
+
+/* ----- 1.3 ป้ายกลม (pill) ----- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill--teal {
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+}
+
+.pill--orange {
+  background: #e08a1e;
+  color: #fff;
+}
+
+.pill--gray {
+  background: #eef1f4;
+  color: #5b6b7a;
+}
+
+/* ----- 1.4 ปุ่ม ----- */
+/* ปุ่มหลัก (teal) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  padding: 12px 26px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.btn-primary:hover {
+  background: var(--teal-hover);
+}
+
+/* ปุ่มรอง (ขาว/ขอบเทา) */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff;
+  color: var(--text-soft);
+  border: 1px solid #d8dee3;
+  border-radius: 9px;
+  padding: 12px 22px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* ปุ่มกว้างเต็มบรรทัด */
+.btn-block {
+  width: 100%;
+}
+
+/* ----- 1.5 ฟอร์ม ----- */
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 7px;
+}
+
+.form-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d8dee3;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: border-color .15s;
+}
+
+/* ช่องอ่านอย่างเดียว */
+.form-input[readonly] {
+  background: #f4f5f7;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* ช่องที่กรอกผิดรูปแบบ (สลับด้วย JS) */
+.form-input.is-invalid {
+  border-color: var(--danger);
+}
+
+/* ช่องรหัสผ่านที่มีปุ่มลูกตา — ตัวครอบให้ปุ่มวางทับด้านขวา */
+.field {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.field .form-input {
+  padding-right: 42px;
+}
+
+.field-eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  line-height: 0;
+}
+
+/* ----- 1.6 กล่องข้อความแจ้งเตือน ----- */
+.alert-error {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid #f3cfca;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.alert-success {
+  background: #e7f4ee;
+  color: #16855a;
+  border: 1px solid #c4e6d4;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ----- 1.7 การ์ดขาว ----- */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(20, 30, 40, .05);
+  padding: 26px 30px;
+}
+
+/* ----- 1.8 การ์ด placeholder "กำลังพัฒนา" ----- */
+.empty-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+  padding: 48px 32px;
+  text-align: center;
+}
+
+/* การ์ดแบบไม่มีเงา */
+.empty-card--flat {
+  box-shadow: none;
+}
+
+.empty-icon {
+  --icon-size: 64px;
+  --icon-radius: 16px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  margin: 0 auto 18px;
+}
+
+/* ไอคอนโทนเทา */
+.empty-icon--gray {
+  background: #eef2f4;
+  color: #5b6b7a;
+}
+
+/* ----- 1.9 หัวเรื่อง -----
+   ขนาดคุมด้วย --title-size · แต่ละระดับพ่วงระยะห่างล่างมาด้วย
+   หน้าไหนต้องการระยะต่างไป ใส่ margin-bottom ทับใน class ของหน้านั้น */
+.title {
+  font-size: var(--title-size, 20px);
+  font-weight: 700;
+  color: var(--ink-strong);
+  margin: 0 0 var(--title-gap, 8px);
+}
+
+/* หัวหน้าหลัก — login / register */
+.title--xl {
+  --title-size: 26px;
+}
+
+/* หัวหน้า — ข้อมูลส่วนตัว */
+.title--lg {
+  --title-size: 24px;
+  --title-gap: 16px;
+}
+
+/* หัวการ์ด — สมัครสำเร็จ */
+.title--md {
+  --title-size: 22px;
+  --title-gap: 12px;
+}
+
+/* หัวข้อกลุ่มฟิลด์ */
+.title--sm {
+  --title-size: 15px;
+  --title-gap: 0px;
+}
+
+/* ----- 1.10 ข้อความรอง (คำบรรยายใต้หัวเรื่อง) ----- */
+.subtext {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.subtext--lg {
+  font-size: 14.5px;
+}
+
+.subtext--sm {
+  font-size: 13.5px;
+}
+
+/* ข้อความประกอบ/หมายเหตุ — จางกว่าและเล็กกว่า */
+.subtext--faint {
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+
+/* ==========================================================================
+   2. SHELL — templates/{shell,sidebar,header,footer,scripts,lang_switch}.php
+   ========================================================================== */
+
+/* ----- 2.1 โครงหน้า ----- */
+.app-root {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* คอลัมน์ขวาของ sidebar (header + เนื้อหา + footer) */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* พื้นที่เลื่อนได้ */
+.app-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  padding: 26px 30px;
+}
+
+.app-footer {
+  padding: 18px 30px;
+  border-top: 1px solid #eef1f3;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ----- 2.2 Sidebar ----- */
+.app-sidebar {
+  flex: none;
+  width: 250px;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  transition: width .22s ease;
+}
+
+.nav-brandwrap {
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+}
+
+.nav-footer {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+
+/* รายการเมนู */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 4px;
+  text-decoration: none;
+  color: var(--text-soft);
+  background: transparent;
+  transition: background .15s, color .15s;
+}
+
+.nav-item:hover {
+  background: var(--hover-bg);
+  color: var(--teal-hover);
+}
+
+.nav-item.active {
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  font-weight: 600;
+}
+
+/* ปุ่มออกจากระบบ (ท้าย sidebar) */
+.nav-logout {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #9a3b34;
+  text-decoration: none;
+}
+
+.nav-logout:hover {
+  background: var(--danger-soft);
+}
+
+/* เมนูที่มีเมนูย่อย */
+.nav-parent-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.nav-parent-row .nav-item {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* hover เมนูแม่ = ไฮไลต์เทาคลุมทั้งแถว (ลิงก์+ปุ่มลูกศร) เต็มความกว้าง */
+.nav-parent-row:hover {
+  background: var(--hover-bg);
+  border-radius: 8px;
+}
+
+.nav-parent-row:hover .nav-item {
+  background: transparent;
+  color: var(--teal-hover);
+}
+
+.nav-parent-row:hover .nav-caret-btn {
+  color: var(--teal-hover);
+}
+
+/* เมนูแม่ถูกเลือก = ไฮไลต์เขียวคลุมทั้งแถว */
+.nav-parent-row.active {
+  background: var(--teal-soft);
+  border-radius: 8px;
+}
+
+.nav-parent-row.active .nav-item {
+  background: transparent;
+}
+
+.nav-parent-row.active .nav-caret-btn {
+  color: var(--teal-hover);
+}
+
+.nav-parent-row.active .nav-caret-btn:hover {
+  background: transparent;
+}
+
+.nav-caret-btn {
+  flex: none;
+  width: 34px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  color: #8a97a2;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-caret-btn:hover {
+  background: var(--hover-bg);
+  color: var(--teal-hover);
+}
+
+.nav-caret {
+  transition: transform .2s;
+}
+
+.nav-group[data-open="true"] .nav-caret {
+  transform: rotate(180deg);
+}
+
+.nav-group[data-open="false"] .nav-sub {
+  display: none;
+}
+
+.nav-sub {
+  margin: 2px 0 6px;
+}
+
+.nav-subitem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px 9px 40px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7884;
+  text-decoration: none;
+  margin-bottom: 2px;
+  transition: background .15s, color .15s;
+}
+
+.nav-subitem::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c5ced5;
+  flex: none;
+}
+
+.nav-subitem:hover {
+  background: var(--hover-bg);
+  color: var(--teal-hover);
+}
+
+.nav-subitem.active {
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  font-weight: 600;
+}
+
+.nav-subitem.active::before {
+  background: var(--teal);
+}
+
+/* badge งานค้าง (วงกลมส้ม) ชิดขวาของเมนู */
+.nav-badge {
+  margin-left: auto;
+  flex: none;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ----- 2.3 Sidebar: ยุบเหลือไอคอน (จอกว้าง) ----- */
+.app-sidebar[data-collapsed="true"] {
+  width: 74px;
+}
+
+.app-sidebar[data-collapsed="true"] .nav-brandtext,
+.app-sidebar[data-collapsed="true"] .nav-label {
+  display: none;
+}
+
+.app-sidebar[data-collapsed="true"] .nav-brandrow {
+  justify-content: center;
+}
+
+.app-sidebar[data-collapsed="true"] .nav-item,
+.app-sidebar[data-collapsed="true"] .nav-logout {
+  justify-content: center;
+  gap: 0;
+}
+
+/* ฉากหลังทึบตอนเปิด drawer (จอแคบ) */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  z-index: 120;
+}
+
+/* จอแคบ: sidebar เป็น drawer เลื่อนเข้าจากซ้าย */
+@media (max-width: 860px) {
+  .app-sidebar,
+  .app-sidebar[data-collapsed="true"] {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 130;
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform .26s ease;
+    box-shadow: 0 0 50px rgba(0, 0, 0, .25);
+  }
+
+  .app-sidebar[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop[data-open="true"] {
+    display: block;
+  }
+}
+
+/* ----- 2.4 Header ----- */
+.app-header {
+  flex: none;
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ปุ่มยุบ/เปิด sidebar */
+.hdr-burger {
+  --icon-radius: 9px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* หัวเรื่อง/คำอธิบายไม่ล้นจอ — ตัด ... เมื่อพื้นที่ไม่พอ */
+.app-pagetitle {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.app-pagetitle h1 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-pagetitle p {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* เมนูโปรไฟล์ */
+.hdr-profile {
+  position: relative;
+}
+
+.hdr-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.hdr-profile-meta {
+  text-align: right;
+}
+
+.hdr-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.hdr-role {
+  padding: 1px 10px;
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.hdr-avatar {
+  --icon-size: 42px;
+  background: var(--teal);
+  color: #fff;
+}
+
+.hdr-chevron {
+  flex: none;
+}
+
+/* dropdown — ซ่อนไว้ก่อน เปิดด้วย .is-open (สลับจาก JS) */
+.hdr-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 54px;
+  width: 220px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(31, 42, 51, .12);
+  padding: 8px;
+  z-index: 90;
+}
+
+.hdr-menu.is-open {
+  display: block;
+}
+
+.hdr-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.hdr-menu-item:hover {
+  background: var(--hover-bg);
+}
+
+.hdr-menu-logout {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9a3b34;
+  text-decoration: none;
+}
+
+.hdr-menu-logout:hover {
+  background: var(--danger-soft);
+}
+
+.hdr-menu-sep {
+  height: 1px;
+  background: var(--line);
+  margin: 6px 4px;
+}
+
+/* ตัวสลับภาษาในเมนูโปรไฟล์ — โชว์เฉพาะมือถือ (บนคอมอยู่แถบบน) */
+.hdr-menu-lang,
+.hdr-menu-sep--lang {
+  display: none;
+}
+
+.hdr-menu-lang {
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.hdr-menu-lang.active {
+  color: var(--teal-hover);
+  background: var(--teal-soft);
+}
+
+/* Header: จอมือถือ */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0 12px;
+  }
+
+  .app-header-left {
+    gap: 10px;
+  }
+
+  .app-header-right {
+    gap: 8px;
+  }
+
+  .app-pagetitle h1 {
+    font-size: 16px;
+  }
+
+  .app-pagetitle p {
+    font-size: 11px;
+  }
+
+  /* ซ่อนชื่อยาว เหลือ avatar + ป้ายบทบาท */
+  .hdr-username,
+  .hdr-chevron {
+    display: none;
+  }
+
+  /* ย้ายตัวสลับภาษาจากแถบบนไปไว้ในเมนูโปรไฟล์ */
+  .hdr-lang {
+    display: none;
+  }
+
+  .hdr-menu-lang {
+    display: flex;
+  }
+
+  .hdr-menu-sep--lang {
+    display: block;
+  }
+}
+
+/* ----- 2.5 ตัวสลับภาษา TH | EN ----- */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #eef1f3;
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.lang-btn {
+  padding: 5px 11px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text-soft);
+}
+
+.lang-btn.active {
+  background: var(--teal);
+  color: #fff;
+}
+
+
+/* ==========================================================================
+   3. AUTH — auth/{login,register,register_success}.php
+   ========================================================================== */
+
+/* ----- 3.1 หน้า login: โครง ----- */
+.login-body {
+  background: #fff;
+}
+
+.login-wrap {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ตัวสลับภาษามุมขวาบน */
+.login-lang {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 10;
+}
+
+/* ----- 3.2 หน้า login: แผง hero (teal) ----- */
+.login-hero {
+  flex: 1;
+  background: linear-gradient(155deg, var(--teal) 0%, var(--teal-dark) 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 52px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+}
+
+/* วงกลมโปร่งประดับพื้นหลัง */
+.login-blob {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.login-blob--1 {
+  width: 420px;
+  height: 420px;
+  background: rgba(255, 255, 255, .06);
+  top: -160px;
+  right: -120px;
+}
+
+.login-blob--2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, .05);
+  bottom: -120px;
+  left: -80px;
+}
+
+/* ลอยเหนือวงกลมประดับ */
+.login-hero-layer {
+  position: relative;
+}
+
+/* กล่องขาวครอบโลโก้ */
+.login-brandpill {
+  display: inline-flex;
+  background: #fff;
+  padding: 12px 20px 12px 14px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .16);
+}
+
+.login-hero-title {
+  font-size: 35px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  line-height: 1.25;
+  letter-spacing: -.5px;
+}
+
+.login-hero-sub {
+  font-size: 16px;
+  opacity: .82;
+  margin: 0 0 30px;
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+.login-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 380px;
+}
+
+.login-bullet {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.login-bullet-icon {
+  --icon-size: 24px;
+  background: rgba(255, 255, 255, .2);
+}
+
+.login-bullet-text {
+  font-size: 15px;
+  opacity: .92;
+  line-height: 1.5;
+}
+
+.login-copyright {
+  font-size: 12.5px;
+  opacity: .62;
+  letter-spacing: .3px;
+}
+
+/* ----- 3.3 หน้า login: แผงฟอร์ม ----- */
+.login-form {
+  width: 452px;
+  max-width: 48%;
+  background: #fff;
+  padding: 54px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-brand {
+  margin-bottom: 26px;
+}
+
+.login-sub {
+  margin-bottom: 28px;
+}
+
+.login-input {
+  margin-bottom: 18px;
+}
+
+/* ช่องสุดท้ายก่อนปุ่ม — เว้นมากกว่า */
+.login-input--last {
+  margin-bottom: 24px;
+}
+
+.login-submit {
+  padding: 13px;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(12, 139, 135, .28);
+}
+
+/* บัญชีทดลอง */
+.login-demo {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #eef1f3;
+}
+
+.login-demo-title {
+  margin-bottom: 11px;
+  text-align: center;
+  letter-spacing: .3px;
+}
+
+.login-demo-row {
+  display: flex;
+  gap: 9px;
+}
+
+.quick-login {
+  flex: 1;
+  background: #f4f7f8;
+  color: var(--text);
+  border: 1px solid #e3e9ec;
+  border-radius: 8px;
+  padding: 9px 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-foot {
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+  margin: 26px 0 0;
+}
+
+.login-link {
+  color: var(--teal);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+/* จอแคบ: ซ่อน hero เหลือเฉพาะฟอร์ม */
+@media (max-width: 860px) {
+  .login-hero {
+    display: none;
+  }
+
+  .login-form {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* ----- 3.4 หน้า register: โครง ----- */
+.reg-wrap {
+  display: flex;
+  min-height: 100vh;
+}
+
+.reg-hero {
+  flex: 0 0 38%;
+  max-width: 470px;
+  background: linear-gradient(155deg, #0e8f8a 0%, var(--teal-deep) 42%, #053835 100%);
+  color: #fff;
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+.reg-brand {
+  margin-bottom: 56px;
+}
+
+.reg-hero-title {
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 16px;
+}
+
+.reg-hero-sub {
+  font-size: 14.5px;
+  line-height: 1.7;
+  margin: 0 0 40px;
+  opacity: .82;
+}
+
+/* จุดเด่น 3 ข้อในแผง hero */
+.reg-feats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.reg-feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.reg-feat-icon {
+  --icon-size: 38px;
+  background: rgba(255, 255, 255, .14);
+}
+
+.reg-feat-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.reg-feat-sub {
+  font-size: 13px;
+  opacity: .78;
+  margin-top: 3px;
+}
+
+/* ----- 3.5 หน้า register: แผงฟอร์ม ----- */
+.reg-main {
+  flex: 1;
+  background: #eef2f4;
+  padding: 40px 36px;
+  overflow-y: auto;
+}
+
+.reg-container {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.reg-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.reg-head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.reg-link {
+  color: var(--teal);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.reg-card {
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 22px rgba(31, 42, 51, .05);
+}
+
+.reg-cardhead {
+  padding: 15px 24px;
+  border-bottom: 1px solid #eef1f3;
+  text-align: center;
+}
+
+.reg-cardbody {
+  padding: 26px 28px;
+}
+
+/* หัวข้อกลุ่มฟิลด์ (ไอคอน + ชื่อ + เส้นคั่น) */
+.reg-sechead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.reg-sechead--mt {
+  margin-top: 30px;
+}
+
+.reg-secicon {
+  --icon-size: 30px;
+  --icon-radius: 8px;
+}
+
+.reg-sectitle {
+  white-space: nowrap;
+}
+
+.reg-secrule {
+  flex: 1;
+  height: 1px;
+  background: #eceff1;
+}
+
+/* ฟิลด์ */
+.reg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+
+.reg-label {
+  margin-bottom: 6px;
+}
+
+.reg-input {
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  color: var(--text);
+}
+
+.reg-select {
+  cursor: pointer;
+}
+
+.reg-req {
+  color: var(--danger);
+}
+
+.reg-hint {
+  font-size: 11.5px;
+  margin-top: 5px;
+}
+
+.reg-mb {
+  margin-bottom: 16px;
+}
+
+/* ข้อความเตือนใต้ช่อง — ซ่อนไว้ก่อน โชว์ด้วย .is-shown (สลับจาก JS) */
+.reg-err {
+  display: none;
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.reg-err.is-shown {
+  display: block;
+}
+
+/* ยอมรับข้อกำหนด */
+.reg-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid #e3e9ec;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 22px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.reg-checkbox {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal);
+  flex: none;
+  cursor: pointer;
+}
+
+.reg-termslink {
+  color: var(--teal);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* แถวปุ่ม */
+.reg-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.reg-actions-left {
+  display: flex;
+  gap: 10px;
+}
+
+.reg-submit {
+  padding: 12px 22px;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(12, 139, 135, .26);
+}
+
+/* ยังกรอกไม่ครบ/ไม่ถูกกติกา — ปุ่มเทา กดไม่ได้ */
+.reg-submit:disabled,
+.reg-submit:disabled:hover {
+  background: #c2cad0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* จอเล็ก: ซ่อนแผง hero + ฟอร์มคอลัมน์เดียว */
+@media (max-width: 900px) {
+  .reg-hero {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .reg-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- 3.6 หน้าสมัครสำเร็จ ----- */
+.rs-body {
+  background: #eef2f4;
+}
+
+.rs-wrap {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.rs-card {
+  padding: 48px 44px;
+  max-width: 460px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(31, 42, 51, .08);
+}
+
+.rs-icon {
+  --icon-size: 74px;
+  background: #e7f4ee;
+  margin: 0 auto 22px;
+}
+
+.rs-text {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.rs-badge {
+  padding: 6px 16px;
+  font-size: 13.5px;
+  margin-bottom: 28px;
+}
+
+.rs-back {
+  padding: 12px;
+  font-size: 15px;
+}
+
+
+/* ==========================================================================
+   4. PROFILE — profile/{index,change_password}.php
+   ========================================================================== */
+
+/* ----- 4.1 หน้าข้อมูลส่วนตัว ----- */
+/* หัวการ์ด: avatar + ชื่อ + สมาชิกเมื่อ · role badge ขวา */
+.pf-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.pf-avatar {
+  --icon-size: 72px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.pf-hmeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf-name {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  word-break: break-word;
+}
+
+.pf-since {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-faint);
+  margin-top: 5px;
+}
+
+.pf-role {
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* 2 คอลัมน์ */
+.pf-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 44px;
+  padding-top: 24px;
+}
+
+.pf-right {
+  border-left: 1px solid var(--line);
+  padding-left: 44px;
+}
+
+/* หัวข้อ section */
+.pf-sechead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pf-secsub {
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* ช่องอ่านอย่างเดียว (กล่องเทา) */
+.pf-ro {
+  background: #f4f5f7;
+  border: 1px solid #eef0f3;
+  border-radius: 9px;
+  padding: 12px 14px;
+  font-size: 14.5px;
+  color: var(--text);
+  min-height: 22px;
+  word-break: break-word;
+}
+
+.pf-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pf-mb {
+  margin-bottom: 16px;
+}
+
+.pf-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 12px;
+}
+
+.pf-err {
+  padding: 10px 13px;
+  font-size: 13.5px;
+  margin-bottom: 16px;
+}
+
+.pf-btn {
+  margin-top: 4px;
+}
+
+@media (max-width: 820px) {
+  .pf-cols {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .pf-right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+  }
+}
+
+/* ----- 4.2 โมดัลเปลี่ยนรหัสผ่าน ----- */
+.cp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 25, .5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 1000;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+
+.cp-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .32);
+  overflow: hidden;
+  margin: auto;
+}
+
+/* แถบ cover เขียว */
+.cp-cover {
+  height: 76px;
+  background: linear-gradient(90deg, #158079 0%, #0b5f5b 55%, #0a4340 100%);
+}
+
+/* ปุ่มปิด X */
+.cp-x {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  padding: 4px;
+  display: flex;
+  line-height: 0;
+}
+
+/* หัวข้อ (กึ่งกลาง ใต้แถบ) */
+.cp-titlewrap {
+  padding: 18px 28px 0;
+  text-align: center;
+}
+
+.cp-title {
+  margin-bottom: 0;
+  line-height: 1.3;
+}
+
+.cp-sub {
+  margin-top: 4px;
+}
+
+/* ไอคอนกุญแจ กึ่งกลาง คั่นระหว่างหัวข้อกับช่องแรก */
+.cp-iconwrap {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 4px;
+}
+
+.cp-icon {
+  --icon-size: 60px;
+  --icon-radius: 16px;
+  background: linear-gradient(145deg, var(--teal), var(--teal-deep));
+  box-shadow: 0 6px 16px rgba(12, 139, 135, .3);
+}
+
+.cp-body {
+  padding: 18px 28px 28px;
+}
+
+.cp-err {
+  font-size: 13.5px;
+  margin-bottom: 16px;
+}
+
+.cp-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.cp-cancel {
+  background: #f1f3f5;
+  border: none;
+  font-size: 14.5px;
+}
+
+@media (max-width: 560px) {
+  .cp-titlewrap {
+    padding: 16px 20px 0;
+  }
+
+  .cp-body {
+    padding: 16px 20px 24px;
+  }
+
+  .cp-foot {
+    justify-content: stretch;
+  }
+
+  .cp-cancel,
+  .cp-save {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+
+/* ==========================================================================
+   5. PAGES — ส่วนย่อยเฉพาะหน้า
+   ========================================================================== */
+
+/* ปุ่มย้อนกลับหน้าจองรถ */
+.book-back {
+  margin-bottom: 16px;
+  padding: 9px 16px;
+  border-color: #e3e9ec;
+  font-size: 14px;
+}

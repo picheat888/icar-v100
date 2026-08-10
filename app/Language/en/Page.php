@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'dashboard'           => 'Dashboard',
+    'dashboard_sub'       => 'Overview of the vehicle booking system',
+    'calendar'            => 'Booking Calendar',
+    'calendar_sub'        => 'See when each vehicle is free or booked',
+    'calendar_sub_driver' => 'View your assigned schedule',
+    'users'               => 'User Management',
+    'users_sub'           => 'Approve/edit members and set permissions',
+    'bookings'            => 'Booking Management',
+    'bookings_sub'        => 'Review and approve booking requests',
+    'cars'                => 'Vehicle Management',
+    'cars_sub'            => 'Company and Admin-provided vehicles',
+    'myRequests'          => 'My Requests',
+    'myRequests_sub'      => 'Track your booking requests',
+    'log'                 => 'Activity Log',
+    'log_sub'             => 'System activity records',
+    'myJobs'              => 'My Jobs',
+    'myJobs_sub'          => 'Jobs assigned to you',
+    'dept'                => 'Departments',
+    'dept_sub'            => 'Manage departments',
+    'position'            => 'Positions',
+    'position_sub'        => 'Manage positions',
+    'coming_soon_default_title' => 'This page',
+    'coming_soon_sub'          => 'This page is under development — layout and template are ready',
+];

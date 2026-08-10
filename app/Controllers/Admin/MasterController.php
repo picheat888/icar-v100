@@ -1,0 +1,182 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Controllers\BaseController;
+use App\Models\DepartmentModel;
+use App\Models\PositionModel;
+use App\Models\UserProfileModel;
+
+/**
+ * ข้อมูลหลัก (Admin) — จัดการแผนก/ตำแหน่ง + JSON endpoint ให้ React island
+ */
+class MasterController extends BaseController
+{
+    // เลือก model ตามชนิด (dept/position)
+    private function modelFor(string $type)
+    {
+        return $type === 'position' ? new PositionModel() : new DepartmentModel();
+    }
+
+    // เดิมเป็นหน้า "ข้อมูลหลัก" — แยกเป็นเมนูย่อย แผนก/ตำแหน่ง ใต้จัดการสมาชิก
+    public function index()
+    {
+        return redirect()->to(site_url('admin/departments'));
+    }
+
+    // หน้าจัดการแผนก (เมนูย่อยใต้จัดการสมาชิก)
+    public function departments()
+    {
+        return view('admin/master/single', [
+            'active'       => 'dept',
+            'pageTitle'    => lang('Page.dept'),
+            'pageSubtitle' => lang('Page.dept_sub'),
+            'only'         => 'dept',
+        ]);
+    }
+
+    // หน้าจัดการตำแหน่ง (เมนูย่อยใต้จัดการสมาชิก)
+    public function positions()
+    {
+        return view('admin/master/single', [
+            'active'       => 'position',
+            'pageTitle'    => lang('Page.position'),
+            'pageSubtitle' => lang('Page.position_sub'),
+            'only'         => 'position',
+        ]);
+    }
+
+    // หน้าประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) — เต็มรูปแบบในเฟส 6
+    public function activityLog()
+    {
+        return view('admin/master/activity_log', [
+            'active'       => 'log',
+            'pageTitle'    => 'ประวัติการใช้งาน',
+            'pageSubtitle' => 'บันทึกกิจกรรมการใช้งานระบบ',
+        ]);
+    }
+
+    // JSON: รายการแผนก + ตำแหน่ง
+    public function data()
+    {
+        // กันเปิดตรงจาก browser -> เด้งกลับหน้าหลัก (กันโชว์ JSON ดิบ)
+        if ($r = $this->blockDirectAccess()) {
+            return $r;
+        }
+
+        return $this->response->setJSON([
+            'departments' => (new DepartmentModel())->orderBy('name')->findAll(),
+            'positions'   => (new PositionModel())->orderBy('name')->findAll(),
+        ]);
+    }
+
+    // POST: เพิ่มแผนก/ตำแหน่ง
+    public function add()
+    {
+        $type  = (string) $this->request->getPost('type');
+        $name  = trim((string) $this->request->getPost('name'));
+        $model = $this->modelFor($type);
+        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+
+        if ($name === '') {
+            return $this->fail("กรุณากรอกชื่อ{$label}");
+        }
+        if (mb_strlen($name) > 150) {
+            return $this->fail("ชื่อ{$label}ยาวเกินไป (สูงสุด 150 ตัวอักษร)");
+        }
+        // เช็คชื่อซ้ำก่อน (กันชน unique constraint ที่ DB จะ throw)
+        if ($model->where('name', $name)->first()) {
+            return $this->fail("มี{$label}นี้อยู่แล้ว");
+        }
+
+        // ตรวจผลการบันทึกจริง — ถ้าไม่ผ่าน model validation/DB (เช่นชนซ้ำจาก race) อย่ารายงานว่าสำเร็จ
+        // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
+        try {
+            if ($model->insert(['name' => $name]) === false) {
+                return $this->fail("มี{$label}นี้อยู่แล้ว");
+            }
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            return $this->fail("มี{$label}นี้อยู่แล้ว");
+        }
+
+        log_activity("เพิ่ม{$label} {$name}");
+
+        return $this->ok("เพิ่ม{$label}เรียบร้อย");
+    }
+
+    // POST: แก้ไขชื่อแผนก/ตำแหน่ง
+    public function update()
+    {
+        $type  = (string) $this->request->getPost('type');
+        $id    = (int) $this->request->getPost('id');
+        $name  = trim((string) $this->request->getPost('name'));
+        $model = $this->modelFor($type);
+        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+
+        if (! $model->find($id)) {
+            return $this->fail("ไม่พบ{$label}");
+        }
+        if ($name === '') {
+            return $this->fail("กรุณากรอกชื่อ{$label}");
+        }
+        if (mb_strlen($name) > 150) {
+            return $this->fail("ชื่อ{$label}ยาวเกินไป (สูงสุด 150 ตัวอักษร)");
+        }
+        // เช็คชื่อซ้ำ (ยกเว้นตัวเอง)
+        if ($model->where('name', $name)->where('id !=', $id)->first()) {
+            return $this->fail("มี{$label}นี้อยู่แล้ว");
+        }
+
+        // ตรวจผลการบันทึกจริง — กันรายงานสำเร็จทั้งที่เขียนไม่ลง
+        // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
+        try {
+            if ($model->update($id, ['name' => $name]) === false) {
+                return $this->fail("มี{$label}นี้อยู่แล้ว");
+            }
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            return $this->fail("มี{$label}นี้อยู่แล้ว");
+        }
+
+        log_activity("แก้ไข{$label} → {$name}");
+
+        return $this->ok("บันทึก{$label}แล้ว");
+    }
+
+    // POST: ลบแผนก/ตำแหน่ง (FK ตั้ง SET NULL — ผู้ใช้ที่อ้างถึงจะถูกล้างค่า)
+    public function delete()
+    {
+        $type  = (string) $this->request->getPost('type');
+        $id    = (int) $this->request->getPost('id');
+        $model = $this->modelFor($type);
+        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+
+        $item = $model->find($id);
+        if (! $item) {
+            return $this->fail("ไม่พบ{$label}");
+        }
+
+        // กันลบถ้ายังมีพนักงานอยู่ใน แผนก/ตำแหน่ง นี้ — ต้องย้ายพนักงานออกก่อน
+        $column = $type === 'position' ? 'position_id' : 'department_id';
+        $count  = (new UserProfileModel())->where($column, $id)->countAllResults();
+        if ($count > 0) {
+            return $this->fail("ลบไม่ได้ — มีพนักงาน {$count} คนอยู่ใน{$label}นี้ กรุณาย้ายพนักงานออกให้หมดก่อน");
+        }
+
+        $model->delete($id);
+
+        log_activity("ลบ{$label} " . ($item['name'] ?? ''));
+
+        return $this->ok("ลบ{$label}แล้ว");
+    }
+
+    // ===== helper ตอบ JSON พร้อม csrf ใหม่ =====
+    private function ok(string $message)
+    {
+        return $this->response->setJSON(['ok' => true, 'message' => $message, 'csrf' => csrf_hash()]);
+    }
+
+    private function fail(string $message)
+    {
+        return $this->response->setStatusCode(422)->setJSON(['ok' => false, 'message' => $message, 'csrf' => csrf_hash()]);
+    }
+}

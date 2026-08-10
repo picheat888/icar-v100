@@ -1,0 +1,385 @@
+/* โหลดฟอนต์ดีไซน์ระบบ (IBM Plex Sans Thai) ก่อนทุกอย่าง */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* CSS ของหน้า view ทั้งหมด (ดูสารบัญใน style.css) */
+@import "./style.css";
+
+/* บอก Tailwind ให้สแกน class ในไฟล์ view ของ CI4 ด้วย (กัน class โดนตัดทิ้ง) */
+@source "../../app/Views/**/*.php";
+
+/* ===== Design tokens (อ้างอิงจาก docs/mockuo-master) ===== */
+:root {
+  /* ฟอนต์: UI ใช้ IBM Plex Sans Thai, ส่วน export PDF ค่อยใช้ Sarabun */
+  --font-ui: "IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* สีหลัก */
+  --teal: #0c8b87;
+  --teal-dark: #0a605e;
+  --teal-hover: #0a716e;
+  --teal-deep: #0a5f5c;      /* ปลาย gradient ของโลโก้/ไอคอน */
+  --teal-soft: #e6f3f2;      /* พื้นอ่อน teal (ป้าย/ไอคอน/เมนูที่เลือก) */
+  --ink: #243039;
+  --ink-strong: #1f2a33;
+  --muted: #7a8794;
+  --bg: #f3f5f7;
+  --border: #e7ebee;
+  --border-card: #e3e8ec;    /* ขอบการ์ดของ island — ต่างจาก --border เล็กน้อย ยังไม่ได้รวมเป็นสีเดียว */
+
+  /* ตัวอักษร */
+  --text: #37434d;           /* ตัวอักษรทั่วไป */
+  --text-soft: #54616c;      /* label / เมนู */
+  --text-faint: #9aa7b2;     /* ข้อความจาง / placeholder */
+
+  /* เส้น + พื้นหลัง */
+  --line: #f0f3f5;           /* เส้นคั่นอ่อน */
+  --hover-bg: #f4f6f7;       /* พื้นตอน hover */
+
+  /* สถานะผิดพลาด */
+  --danger: #c0392b;
+  --danger-soft: #fbecea;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* บังคับ element ฟอร์ม/ปุ่มให้ใช้ฟอนต์เดียวกับทั้งระบบ (ไม่ใช้ฟอนต์ default ของเบราว์เซอร์) */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+/* ปุ่มทั้งระบบ — hover สีเข้มขึ้นเล็กน้อย (สวยงามทุกสีปุ่ม) · ข้ามปุ่มที่ปิดใช้งาน */
+button {
+  transition: filter .12s ease;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(0.93);
+}
+
+/* โฟกัสช่อง input ให้ตรงดีไซน์ (ขอบ teal + เงา) */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px rgba(12, 139, 135, .12);
+}
+
+::placeholder {
+  color: var(--text-faint);
+}
+
+/* ===== แถบเตือน Dashboard: ไอคอนวงกลม ! กระเพื่อมวงแหวนออก (ripple) ===== */
+/* วงแหวนขยายจากขอบไอคอนแล้วจางหาย วนซ้ำ ดึงสายตาแบบสัญญาณเตือน */
+@keyframes icar-alert-ripple {
+  0% {
+    transform: scale(1);
+    opacity: .55;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+}
+
+/* ตัวครอบไอคอน — จุดอ้างอิงตำแหน่งให้วงแหวน */
+.icar-alert-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* วงแหวน 2 วง (::before/::after) เหลื่อมจังหวะกันครึ่งรอบ ให้กระเพื่อมต่อเนื่อง */
+.icar-alert-icon::before,
+.icar-alert-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  animation: icar-alert-ripple 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.icar-alert-icon::after {
+  animation-delay: .9s;
+}
+
+/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — ปิด animation */
+@media (prefers-reduced-motion: reduce) {
+  .icar-alert-icon::before,
+  .icar-alert-icon::after {
+    animation: none;
+  }
+}
+
+/* ===== Drawer รายละเอียด (เลื่อนจากขวา แบบ M365) ===== */
+/* ฉากหลังค่อยๆ จางเข้า */
+@keyframes icar-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* แผงเลื่อนเข้าจากขอบขวา */
+@keyframes icar-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.icar-drawer-backdrop {
+  animation: icar-fade-in .2s ease;
+}
+
+.icar-drawer {
+  animation: icar-drawer-in .28s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — ปิด animation */
+@media (prefers-reduced-motion: reduce) {
+  .icar-drawer-backdrop,
+  .icar-drawer {
+    animation: none;
+  }
+}
+
+/* ===== Dashboard: wrapper คุม layout การ์ด (responsive) ===== */
+/* แถวการ์ดสรุป — 4 คอลัมน์เท่ากัน ย่อเป็น 2 แล้ว 1 ตามจอ */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+/* พื้นที่หลัก 2 คอลัมน์ (คำขอ 2fr + สมาชิก 1fr) — ซ้อนกันบนจอเล็ก */
+.dash-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .dash-cols {
+    grid-template-columns: 1fr;
+  }
+
+  /* การ์ดสรุปกะทัดรัดขึ้นบนมือถือ */
+  .dash-card {
+    padding: 14px 15px !important;
+    min-height: 100px !important;
+  }
+
+  .dash-card-val {
+    font-size: 26px !important;
+  }
+
+  /* แถวคำขอ: ตัดบรรทัด (เวลา + ปุ่มลงบรรทัดล่าง ชิดขวา) กันล้นจอ */
+  .dash-brow {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .dash-brow-act {
+    margin-left: auto;
+  }
+}
+
+/* กล่องครอบแถบค้นหา/ฟิลเตอร์ — ใช้ร่วมทุกหน้า (จัดการสมาชิก/คำขอ/ประวัติ) ให้สม่ำเสมอ */
+.filter-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 12px 26px -10px rgba(17, 24, 39, .16);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+/* ตารางแผนก/ตำแหน่ง (MasterData) — แถบสลับสี (zebra) + ไฮไลต์ hover ให้แถวอ่านง่าย เด่นชัด */
+.md-row:nth-child(even) td {
+  background: #f8fafb;
+}
+
+.md-row:hover td {
+  background: #edf4f5;
+}
+
+/* การ์ดรถ (จัดการรถ) — ลอยเด่นเหนือพื้น + hover ยกขึ้น */
+.car-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 10px 22px -10px rgba(17, 24, 39, .14);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.car-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(17, 24, 39, .08), 0 18px 38px -12px rgba(17, 24, 39, .22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .car-card {
+    transition: none;
+  }
+
+  .car-card:hover {
+    transform: none;
+  }
+}
+
+/* การ์ดเลือกรถ (จองรถ) — hover ยกลอย + เงา + ขอบ teal สื่อว่าเลือกได้ */
+.book-card {
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px -8px rgba(17, 24, 39, .24);
+  border-color: #a9dbd5;
+}
+
+.book-card:active {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-card {
+    transition: none;
+  }
+
+  .book-card:hover,
+  .book-card:active {
+    transform: none;
+  }
+}
+
+/* ปุ่ม "เลือกคันนี้" — hover: teal เข้ม + เงาเรือง + ยกเล็กน้อย */
+.book-select-btn {
+  transition: background .16s ease, box-shadow .16s ease, transform .12s ease;
+}
+
+.book-select-btn:hover {
+  background: var(--teal-hover) !important;
+  box-shadow: 0 7px 18px -5px rgba(12, 139, 135, .5);
+  transform: translateY(-1px);
+}
+
+.book-select-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px -3px rgba(12, 139, 135, .5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-select-btn {
+    transition: none;
+  }
+
+  .book-select-btn:hover,
+  .book-select-btn:active {
+    transform: none;
+  }
+}
+
+/* มือถือ: การ์ดรถแนวนอนกะทัดรัด (รูปเล็กซ้าย + ข้อมูลขวา) ดูง่าย เลื่อนน้อย */
+@media (max-width: 720px) {
+  .car-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .car-card {
+    flex-direction: row;
+  }
+
+  .car-card-img {
+    height: auto !important;
+    width: 118px;
+    align-self: stretch;
+  }
+
+  /* เห็นรถทั้งคัน (ไม่ครอบตัด) + เว้นขอบเล็กน้อยให้สะอาด */
+  .car-photo {
+    object-fit: contain !important;
+    padding: 8px;
+  }
+
+  .car-card-body {
+    padding: 11px 13px !important;
+  }
+
+  /* หน้าเลือกรถ (จองรถ) — การ์ดแนวนอนกะทัดรัดเหมือนหน้าจัดการรถ */
+  .book-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .book-card {
+    flex-direction: row !important;
+  }
+
+  .book-card-img {
+    height: auto !important;
+    width: 120px !important;
+    flex-shrink: 0;
+  }
+
+  .book-card-body {
+    padding: 12px 14px !important;
+  }
+
+  /* รูปรถขอบโค้ง (มือถือ) — thumbnail กลมมนลอยในการ์ด */
+  .car-card-img,
+  .book-card-img {
+    border-radius: 10px !important;
+    overflow: hidden;
+    margin: 10px 0 10px 10px !important;
+  }
+}
+
+/* แถบการจองในตารางรายวัน (Timeline) — hover ยกเด่น */
+.tl-bar {
+  transition: filter .12s, box-shadow .12s;
+}
+
+.tl-bar:hover {
+  filter: brightness(.96);
+  box-shadow: 0 3px 8px rgba(17, 24, 39, .16);
+}

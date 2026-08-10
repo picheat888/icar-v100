@@ -1,0 +1,16 @@
+<?= $this->extend($layout ?? 'layouts/user') ?>
+
+<?= $this->section('content') ?>
+<?php
+$props = [
+    'endpoints' => [
+        'data'   => site_url('my-requests/data'),
+        'cancel' => site_url('my-requests/cancel'),
+        'return' => site_url('my-requests/return'),
+    ],
+    'csrf' => csrf_hash(),
+];
+?>
+<div id="my-requests" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<?= vite_asset('resources/js/entries/my-requests.jsx') ?>
+<?= $this->endSection() ?>
