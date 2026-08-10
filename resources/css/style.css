@@ -15,6 +15,10 @@
       1.8 การ์ดว่าง   .empty-card .empty-icon
       1.9 หัวเรื่อง   .title (+ --xl --lg --md --sm)
       1.10 ข้อความรอง .subtext (+ --lg --sm --faint)
+      1.11 ตาราง      .tbl .tbl-wrap (+ --center)
+      1.12 ปุ่มไอคอนในตาราง .icon-btn (+ --green --red --gray)
+      1.13 Toast      .toast
+      1.14 แบ่งหน้า    .pager .pager-btn
    2. Shell        โครง app shell (templates/)
       2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
       2.2 Sidebar     .app-sidebar .nav-*
@@ -155,6 +159,26 @@
   color: #5b6b7a;
 }
 
+.pill--sm {
+  padding: 3px 11px;
+  font-size: 12.5px;
+}
+
+.pill--green {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.pill--amber {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.pill--red {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 /* ----- 1.4 ปุ่ม ----- */
 /* ปุ่มหลัก (teal) */
 .btn-primary {
@@ -259,6 +283,13 @@
   line-height: 0;
 }
 
+/* ขนาดเล็ก — ใช้ในตาราง/ฟิลเตอร์ของ island */
+.form-input--sm {
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
 /* ----- 1.6 กล่องข้อความแจ้งเตือน ----- */
 .alert-error {
   background: var(--danger-soft);
@@ -280,6 +311,15 @@
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 16px;
+}
+
+/* แบบมีไอคอนนำหน้า — ระยะห่างล่างให้ผู้เรียกคุมเอง */
+.alert-error--icon {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 /* ----- 1.7 การ์ดขาว ----- */
@@ -371,6 +411,170 @@
 /* ข้อความประกอบ/หมายเหตุ — จางกว่าและเล็กกว่า */
 .subtext--faint {
   font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+/* ----- 1.11 ตาราง ----- */
+/* กล่องครอบ: การ์ดขาว + เลื่อนแนวนอนได้บนจอแคบ */
+.tbl-wrap {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.tbl-scroll {
+  overflow-x: auto;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tbl th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--th-text);
+  background: #fff;
+  border-bottom: 2px solid var(--border);
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+
+.tbl td {
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--text);
+  border-bottom: 1px solid var(--hover-bg);
+}
+
+/* ตารางที่จัดกึ่งกลางทุกคอลัมน์ */
+.tbl--center th,
+.tbl--center td {
+  text-align: center;
+}
+
+/* บังคับการจัดของคอลัมน์เดี่ยว */
+.ta-l { text-align: left; }
+.ta-c { text-align: center; }
+.ta-r { text-align: right; }
+
+/* แถวว่าง (ไม่พบข้อมูล) */
+.tbl-empty {
+  text-align: center;
+  color: var(--text-faint);
+  padding: 26px;
+}
+
+/* ----- 1.12 ปุ่มไอคอนในตาราง ----- */
+.icon-btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 7px;
+  background: #eef2f4;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn--green {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.icon-btn--red {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.icon-btn--gray {
+  background: #f1f3f5;
+  color: #6b7884;
+}
+
+/* ----- 1.13 Toast แจ้งผล (ลอยกลางล่าง) ----- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  background: var(--ink-strong);
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .2);
+  z-index: 200;
+}
+
+/* ----- 1.14 แบ่งหน้า (ตาม D6 — ยึดแบบ lib/Pager.jsx) ----- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* วางอยู่ในการ์ดตาราง — มีเส้นคั่นบนแทนระยะห่าง */
+.pager--incard {
+  margin-top: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.pager-range {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.pager-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pager-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid #e2e7ea;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-soft);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pager-btn.active {
+  border-color: var(--teal-hover);
+  background: var(--teal-hover);
+  color: #fff;
+}
+
+.pager-btn:disabled {
+  color: #c2cad0;
+  cursor: default;
+}
+
+/* จุดไข่ปลาคั่นเลขหน้า */
+.pager-gap {
+  min-width: 24px;
+  text-align: center;
   color: var(--text-faint);
 }
 

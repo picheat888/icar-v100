@@ -39,6 +39,20 @@
   /* สถานะผิดพลาด */
   --danger: #c0392b;
   --danger-soft: #fbecea;
+
+  /* หัวตาราง */
+  --th-text: #3d4852;
+
+  /* สถานะ */
+  --success: #16855a;
+  --success-soft: #e7f4ee;
+  --warn: #9a5a12;
+  --warn-soft: #fdf0e0;
+
+  /* เงาการ์ด */
+  --card-shadow-flat: 0 1px 2px rgba(17, 24, 39, .05);
+  --card-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 12px 26px -10px rgba(17, 24, 39, .16);
+  --card-shadow-hover: 0 4px 10px rgba(17, 24, 39, .08), 0 18px 38px -12px rgba(17, 24, 39, .22);
 }
 
 body {
