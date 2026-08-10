@@ -16,21 +16,17 @@ export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
     <div className="tl-dl-list">
       {jobs.map((b) => {
         const meta = STATUS_META[b.status] || STATUS_META.pending;
+        // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) — ใช้ต่อ class สี st-*
+        const statusKey = STATUS_META[b.status] ? b.status : 'pending';
         return (
           <div
             key={b.id}
             onClick={() => onOpenDetail(b)}
-            className="tl-dl-card"
-            // สีขอบซ้ายตามสถานะการจอง (STATUS_META) แตกต่างกันไปตาม booking ที่ runtime
-            style={{ borderLeftColor: meta.fg }}
+            className={`tl-dl-card st-${statusKey}`}
           >
             <div className="tl-dl-row">
               <div className="tl-dl-time">{hhmm(b.start_at)}–{hhmm(b.end_at)}</div>
-              <span
-                className="tl-dl-badge"
-                // สี/พื้นหลังป้ายสถานะตาม STATUS_META ของสถานะนั้นที่ runtime
-                style={{ color: meta.fg, background: meta.bg }}
-              >{meta.label}</span>
+              <span className={`tl-dl-badge st-${statusKey}`}>{meta.label}</span>
             </div>
             <div className="tl-dl-loc">{b.location}</div>
             <div className="tl-dl-meta">{t('tl.requester_colon')}{b.requester_name || '-'} · {t('req.people', { n: b.people })}</div>

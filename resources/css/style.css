@@ -19,6 +19,7 @@
       1.12 ปุ่มไอคอนในตาราง .icon-btn (+ --green --red --gray)
       1.13 Toast      .toast
       1.14 แบ่งหน้า    .pager .pager-btn
+      1.15 สีตามสถานะ  .st-pending .st-approved .st-cancel_requested .st-completed
    2. Shell        โครง app shell (templates/)
       2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
       2.2 Sidebar     .app-sidebar .nav-*
@@ -582,6 +583,25 @@
   min-width: 24px;
   text-align: center;
   color: var(--text-faint);
+}
+
+/* ----- 1.15 สีตามสถานะการจอง -----
+   ตัวคลาสจ่ายแค่คู่สี (--st-bg / --st-fg) ส่วนที่จะเอาไปทาพื้นหรือทาตัวอักษร ให้ class ของแต่ละที่กำหนดเอง
+   ใช้ร่วมกันได้ทุก island ที่แสดงป้าย/แถบตามสถานะการจอง (timeline, dashboard, คำขอของฉัน ฯลฯ) */
+.st-pending {
+  --st-bg: #fdf0e0;
+  --st-fg: #e08a1e;
+}
+
+.st-approved,
+.st-cancel_requested {
+  --st-bg: var(--success-soft);
+  --st-fg: var(--teal);
+}
+
+.st-completed {
+  --st-bg: #eef1f3;
+  --st-fg: #8a97a2;
 }
 
 
@@ -2245,10 +2265,12 @@
   gap: 10px;
 }
 
-/* การ์ดงานแต่ละใบ — สีขอบซ้ายตามสถานะกำหนดที่ inline (runtime) */
+/* การ์ดงานแต่ละใบ — สีขอบซ้ายตามสถานะ ใช้คู่กับ class .st-* (ดู §1.15) */
 .tl-dl-card {
   border: 1px solid #eef1f3;
-  border-left: 4px solid transparent;
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-left-color: var(--st-fg);
   border-radius: 10px;
   padding: 12px 14px;
   cursor: pointer;
@@ -2266,11 +2288,13 @@
   color: var(--ink-strong);
 }
 
-/* ป้ายสถานะ — สี/พื้นหลังกำหนดที่ inline ตาม STATUS_META (runtime) */
+/* ป้ายสถานะ — สี/พื้นหลังตาม class .st-* (ดู §1.15) */
 .tl-dl-badge {
   font-size: 12px;
   border-radius: 6px;
   padding: 2px 8px;
+  background: var(--st-bg);
+  color: var(--st-fg);
 }
 
 .tl-dl-loc {
@@ -2334,12 +2358,14 @@
   margin-bottom: 12px;
 }
 
-/* ป้ายสถานะ — สี/พื้นหลังกำหนดที่ inline ตาม STATUS_META (runtime) */
+/* ป้ายสถานะ — สี/พื้นหลังตาม class .st-* (ดู §1.15) */
 .tl-dm-badge {
   font-size: 12px;
   border-radius: 6px;
   padding: 3px 10px;
   font-weight: 600;
+  background: var(--st-bg);
+  color: var(--st-fg);
 }
 
 .tl-dm-rows {

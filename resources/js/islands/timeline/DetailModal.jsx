@@ -6,6 +6,8 @@ import { STATUS_META, hhmm, dmy } from './helpers';
 export default function DetailModal({ booking, role, onClose }) {
   if (!booking) return null;
   const meta = STATUS_META[booking.status] || STATUS_META.pending;
+  // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) — ใช้ต่อ class สี st-*
+  const statusKey = STATUS_META[booking.status] ? booking.status : 'pending';
   const typeLabel = booking.booking_type === 'self' ? t('req.car_self') : t('tl.type_other_provided');
 
   // ชื่อรถ/คนขับ ตามประเภท
@@ -60,11 +62,7 @@ export default function DetailModal({ booking, role, onClose }) {
           <button onClick={onClose} className="tl-dm-close">×</button>
         </div>
         <div className="tl-dm-statuswrap">
-          <span
-            className="tl-dm-badge"
-            // สี/พื้นหลังป้ายสถานะตาม STATUS_META ของสถานะการจองนั้นที่ runtime
-            style={{ color: meta.fg, background: meta.bg }}
-          >{meta.label}</span>
+          <span className={`tl-dm-badge st-${statusKey}`}>{meta.label}</span>
         </div>
         <div className="tl-dm-rows">
           {rows.map(([k, v]) => (
