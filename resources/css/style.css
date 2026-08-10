@@ -2104,6 +2104,124 @@
   background: #edf4f5;
 }
 
+/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
+.md-load-err {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--danger-soft);
+  color: #9a3b34;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* ช่องค้นหา/เพิ่มในแถบเครื่องมือ — ระยะห่างภายในต่างจาก .form-input--sm เล็กน้อย */
+.md-input {
+  padding: 10px 13px;
+}
+
+.md-input--search {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+/* กลุ่มช่องเพิ่ม + ปุ่มเพิ่ม วางเรียงกันในแถบเครื่องมือ */
+.md-add-group {
+  display: flex;
+  gap: 9px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.md-input--add {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ปุ่ม "เพิ่ม" — ใช้ฐานจาก .btn-primary แล้วปรับขนาดเฉพาะจุดของตารางนี้ */
+.md-add-btn {
+  flex: none;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.md-add-btn.is-busy {
+  cursor: wait;
+}
+
+/* กล่องครอบตาราง — ขอบใช้สีของการ์ด island (ต่างจากขอบของ .tbl-wrap เดิมเล็กน้อย) */
+.md-table .tbl-wrap {
+  border-color: var(--border-card);
+}
+
+/* หัวคอลัมน์ลำดับ — กว้างคงที่ */
+.md-th-no {
+  width: 56px;
+}
+
+/* หัวคอลัมน์ชื่อ — กดเรียงลำดับได้ */
+.md-th-name {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ลูกศรบอกทิศทางการเรียง */
+.md-sort-arrow {
+  color: var(--teal);
+}
+
+/* หัวคอลัมน์จัดการ — ชิดขวา กว้างคงที่ */
+.md-th-manage {
+  text-align: right;
+  width: 96px;
+}
+
+/* เซลล์ตารางแผนก/ตำแหน่ง — ระยะห่าง/ขนาดตัวอักษรเฉพาะตารางนี้ (ต่างจาก .tbl td เดิมเล็กน้อย) */
+.md-td {
+  padding: 11px 16px;
+  font-size: 14px;
+}
+
+/* คอลัมน์ลำดับ */
+.md-td-no {
+  color: var(--text-faint);
+}
+
+/* คอลัมน์ชื่อ */
+.md-td-name {
+  word-break: break-word;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+/* คอลัมน์จัดการ — ชิดขวา ไม่ตัดบรรทัด */
+.md-td-manage {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* แถวว่าง "ไม่พบข้อมูล" — ระยะห่างมากกว่าเซลล์ปกติ จัดกึ่งกลาง */
+.md-td-empty {
+  padding: 26px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+/* ช่องแก้ไขชื่อในแถวตาราง — ใช้ฐานจาก .form-input แล้วปรับขนาด/ขอบเฉพาะจุด */
+.md-edit-input {
+  max-width: 320px;
+  padding: 7px 10px;
+  border-color: var(--teal);
+}
+
+/* กลุ่มปุ่มไอคอนในคอลัมน์จัดการ */
+.md-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
 /* การ์ดรถ (จัดการรถ) — ลอยเด่นเหนือพื้น + hover ยกขึ้น */
 .car-card {
   display: flex;

@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import { useToast } from '../lib/Toast';
+import Table from '../lib/Table';
+import Pager from '../lib/Pager';
 
-const TEAL = '#0c8b87';
 const PAGE_SIZE = 10;
 
 const editIcon = (
@@ -17,11 +19,6 @@ const okIcon = (
 const xIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
 );
-
-const th = { textAlign: 'left', padding: '12px 16px', fontSize: 12.5, fontWeight: 700, color: '#3d4852', background: '#fff', borderBottom: '2px solid #e7ebee', letterSpacing: 0.2, whiteSpace: 'nowrap' };
-const td = { padding: '11px 16px', fontSize: 14, color: '#37434d', borderBottom: '1px solid #f4f6f7' };
-const iconBtn = (bg, c) => ({ flex: 'none', width: 30, height: 30, border: 'none', borderRadius: 7, background: bg, color: c, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' });
-const inp = { padding: '10px 13px', border: '1px solid #d8dee3', borderRadius: 8, fontSize: 14, outline: 'none', fontFamily: 'inherit', background: '#fff' };
 
 /**
  * จัดการ แผนก หรือ ตำแหน่ง — ตาราง + ค้นหา/เพิ่ม/แก้ไข/ลบ/เรียง/แบ่งหน้า
@@ -39,7 +36,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   const [newValue, setNewValue] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
-  const [toast, setToast] = useState('');
+  const { showToast, ToastView } = useToast();
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
 
@@ -53,8 +50,6 @@ export default function MasterData({ endpoints, only = 'dept' }) {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [search, sortDir]);
-
-  const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 2800); };
 
   const post = async (url, body) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
@@ -109,98 +104,69 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   return (
     <div>
       {loadErr && (
-        <div style={{ padding: '10px 14px', marginBottom: 12, background: '#fbecea', color: '#9a3b34', borderRadius: 8, fontSize: 13 }}>
+        <div className="md-load-err">
           {t('common.load_err')}
         </div>
       )}
       {/* toolbar: ค้นหา + เพิ่ม (การ์ดขาวลอยเด่น เข้าชุดกับกล่องตารางด้านล่าง) */}
       <div className="filter-card">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('master.search_placeholder', { label })}
-          style={{ ...inp, flex: '1 1 240px', minWidth: 0 }} />
-        <div style={{ display: 'flex', gap: 9, flex: '1 1 260px', minWidth: 0 }}>
+          className="form-input form-input--sm md-input md-input--search" />
+        <div className="md-add-group">
           <input value={newValue} onChange={(e) => setNewValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={t('master.add_placeholder', { label })} maxLength={150} style={{ ...inp, flex: 1, minWidth: 0 }} />
+            placeholder={t('master.add_placeholder', { label })} maxLength={150} className="form-input form-input--sm md-input md-input--add" />
           <button onClick={add} disabled={busy}
-            style={{ flex: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, background: TEAL, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 16px', fontSize: 14, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+            className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t('master.add_btn')}
           </button>
         </div>
       </div>
 
       {/* ตาราง */}
-      <div style={{ background: '#fff', border: '1px solid #e3e8ec', borderRadius: 16, boxShadow: '0 1px 2px rgba(17,24,39,.05), 0 12px 26px -10px rgba(17,24,39,.16)', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead><tr>
-              <th style={{ ...th, width: 56, whiteSpace: 'nowrap' }}>{t('master.col_no')}</th>
-              <th style={{ ...th, cursor: 'pointer', userSelect: 'none' }} onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}>
-                {t('master.col_name', { label })} <span style={{ color: '#0c8b87' }}>{sortDir === 'asc' ? '▲' : '▼'}</span>
-              </th>
-              <th style={{ ...th, textAlign: 'right', width: 96, whiteSpace: 'nowrap' }}>{t('master.col_manage')}</th>
-            </tr></thead>
-            <tbody>
-              {pageItems.length === 0 && (
-                <tr><td colSpan={3} style={{ ...td, textAlign: 'center', color: '#9aa7b2', padding: 26 }}>{search ? t('master.not_found_search') : t('master.empty')}</td></tr>
-              )}
-              {pageItems.map((it, i) => (
-                <tr key={it.id} className="md-row">
-                  <td style={{ ...td, color: '#9aa7b2' }}>{start + i + 1}</td>
-                  <td style={{ ...td, wordBreak: 'break-word', fontWeight: 600, color: '#1f2a33' }}>
-                    {editingId === it.id ? (
-                      <input value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
-                        maxLength={150}
-                        style={{ ...inp, width: '100%', maxWidth: 320, padding: '7px 10px', border: '1px solid #0c8b87' }} />
-                    ) : it.name}
-                  </td>
-                  <td style={{ ...td, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    {editingId === it.id ? (
-                      <div style={{ display: 'inline-flex', gap: 6 }}>
-                        <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} style={iconBtn('#e7f4ee', '#16855a')}>{okIcon}</button>
-                        <button onClick={cancelEdit} title={t('common.cancel')} style={iconBtn('#f1f3f5', '#6b7884')}>{xIcon}</button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'inline-flex', gap: 6 }}>
-                        <button onClick={() => startEdit(it)} title={t('common.edit')} style={iconBtn('#eef2f4', '#37434d')}>{editIcon}</button>
-                        <button onClick={() => del(it)} title={t('common.delete')} style={iconBtn('#fbecea', '#c0392b')}>{trashIcon}</button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* แบ่งหน้า */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 16px', borderTop: '1px solid #f0f3f5', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12.5, color: '#9aa7b2' }}>
-            {sorted.length === 0 ? t('master.no_items') : t('master.showing_range', { start: start + 1, end: Math.min(start + PAGE_SIZE, sorted.length), total: sorted.length })}
-          </span>
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            <PgBtn label="‹" disabled={curPage <= 1} onClick={() => setPage(curPage - 1)} />
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <PgBtn key={p} label={String(p)} active={p === curPage} onClick={() => setPage(p)} />
+      <div className="md-table">
+        <Table footer={<Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PAGE_SIZE} onPage={setPage} inCard />}>
+          <thead><tr>
+            <th className="md-th-no">{t('master.col_no')}</th>
+            <th className="md-th-name" onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}>
+              {t('master.col_name', { label })} <span className="md-sort-arrow">{sortDir === 'asc' ? '▲' : '▼'}</span>
+            </th>
+            <th className="md-th-manage">{t('master.col_manage')}</th>
+          </tr></thead>
+          <tbody>
+            {pageItems.length === 0 && (
+              <tr><td colSpan={3} className="md-td md-td-empty">{search ? t('master.not_found_search') : t('master.empty')}</td></tr>
+            )}
+            {pageItems.map((it, i) => (
+              <tr key={it.id} className="md-row">
+                <td className="md-td md-td-no">{start + i + 1}</td>
+                <td className="md-td md-td-name">
+                  {editingId === it.id ? (
+                    <input value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
+                      maxLength={150}
+                      className="form-input form-input--sm md-edit-input" />
+                  ) : it.name}
+                </td>
+                <td className="md-td md-td-manage">
+                  {editingId === it.id ? (
+                    <div className="md-actions">
+                      <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{okIcon}</button>
+                      <button onClick={cancelEdit} title={t('common.cancel')} className="icon-btn icon-btn--gray">{xIcon}</button>
+                    </div>
+                  ) : (
+                    <div className="md-actions">
+                      <button onClick={() => startEdit(it)} title={t('common.edit')} className="icon-btn">{editIcon}</button>
+                      <button onClick={() => del(it)} title={t('common.delete')} className="icon-btn icon-btn--red">{trashIcon}</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
             ))}
-            <PgBtn label="›" disabled={curPage >= totalPages} onClick={() => setPage(curPage + 1)} />
-          </div>
-        </div>
+          </tbody>
+        </Table>
       </div>
 
-      {toast && <div style={{ position: 'fixed', left: '50%', bottom: 28, transform: 'translateX(-50%)', background: '#1f2a33', color: '#fff', padding: '11px 20px', borderRadius: 10, fontSize: 14, fontWeight: 500, boxShadow: '0 8px 30px rgba(0,0,0,.2)', zIndex: 200 }}>{toast}</div>}
+      <ToastView />
     </div>
-  );
-}
-
-// ปุ่มหน้า pagination
-function PgBtn({ label, active, disabled, onClick }) {
-  return (
-    <button onClick={onClick} disabled={disabled}
-      style={{
-        minWidth: 32, height: 32, padding: '0 8px', border: '1px solid ' + (active ? '#0c8b87' : '#e3e9ec'),
-        borderRadius: 7, fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
-        background: active ? '#0c8b87' : '#fff', color: active ? '#fff' : (disabled ? '#c5ced5' : '#37434d'),
-        cursor: disabled ? 'not-allowed' : 'pointer',
-      }}>{label}</button>
   );
 }
