@@ -129,7 +129,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
           <th className="md-th-name" onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}>
             {t('master.col_name', { label })} <span className="md-sort-arrow">{sortDir === 'asc' ? '▲' : '▼'}</span>
           </th>
-          <th className="md-th-manage">{t('master.col_manage')}</th>
+          <th className="md-th-manage ta-r">{t('master.col_manage')}</th>
         </tr></thead>
         <tbody>
           {pageItems.length === 0 && (
@@ -146,7 +146,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
                     className="form-input form-input--sm md-edit-input" />
                 ) : it.name}
               </td>
-              <td className="md-td-manage">
+              <td className="md-td-manage ta-r">
                 {editingId === it.id ? (
                   <div className="md-actions">
                     <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{okIcon}</button>

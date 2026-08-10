@@ -465,10 +465,10 @@
   text-align: center;
 }
 
-/* บังคับการจัดของคอลัมน์เดี่ยว */
-.ta-l { text-align: left; }
-.ta-c { text-align: center; }
-.ta-r { text-align: right; }
+/* บังคับการจัดของคอลัมน์เดี่ยว — selector ต้องชนะ .tbl th/.tbl td ที่ตั้ง text-align ไว้ */
+.tbl .ta-l { text-align: left; }
+.tbl .ta-c { text-align: center; }
+.tbl .ta-r { text-align: right; }
 
 /* แถวว่าง (ไม่พบข้อมูล) — selector ต้องชนะ .tbl td ที่ตั้ง padding/color ไว้ */
 .tbl .tbl-empty {
@@ -2133,7 +2133,7 @@
   min-width: 0;
 }
 
-/* ปุ่ม "เพิ่ม" — ใช้ฐานจาก .btn-primary ปรับแค่ layout เฉพาะจุดของแถบเครื่องมือนี้ */
+/* ปุ่ม "เพิ่ม" — ใช้ฐานจาก .btn-primary กำหนด layout เฉพาะจุดของแถบเครื่องมือนี้ */
 .md-add-btn {
   flex: none;
   white-space: nowrap;
@@ -2159,10 +2159,10 @@
   color: var(--teal);
 }
 
-/* หัวคอลัมน์จัดการ — ชิดขวา กว้างคงที่ */
+/* หัวคอลัมน์จัดการ — กว้างคงที่ ไม่ตัดบรรทัด (ชิดขวาด้วย .ta-r) */
 .md-th-manage {
-  text-align: right;
   width: 96px;
+  white-space: nowrap;
 }
 
 /* คอลัมน์ลำดับ */
@@ -2177,13 +2177,12 @@
   color: var(--ink-strong);
 }
 
-/* คอลัมน์จัดการ — ชิดขวา ไม่ตัดบรรทัด */
+/* คอลัมน์จัดการ — ไม่ตัดบรรทัด (ชิดขวาด้วย .ta-r) */
 .md-td-manage {
-  text-align: right;
   white-space: nowrap;
 }
 
-/* ช่องแก้ไขชื่อในแถวตาราง — ใช้ฐานจาก .form-input แล้วปรับความกว้าง/สีขอบเฉพาะจุด */
+/* ช่องแก้ไขชื่อในแถวตาราง — ใช้ฐานจาก .form-input กำหนดความกว้าง/สีขอบเฉพาะจุด */
 .md-edit-input {
   max-width: 320px;
   border-color: var(--teal);
