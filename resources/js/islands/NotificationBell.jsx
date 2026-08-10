@@ -155,7 +155,7 @@ export default function NotificationBell({ endpoints }) {
                   <div key={n.id} onClick={() => onItem(n)}
                     className={`nb-item${n.isRead ? '' : ' nb-item--unread'}`}>
                     <div className="nb-item-msg">{n.message}</div>
-                    <div className="nb-item-time">{thTime(n.created_at)}</div>
+                    <div className="subtext subtext--faint nb-item-time">{thTime(n.created_at)}</div>
                   </div>
                 ))}
               </div>
