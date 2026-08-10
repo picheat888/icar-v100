@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { thTime } from '../lib/date';
 import { t } from '../lib/i18n';
 
-const TEAL = '#0c8b87';
-
 // อ่าน CSRF ล่าสุดจาก meta
 function getCsrf() {
   const el = document.querySelector('meta[name="csrf"]');
@@ -123,13 +121,12 @@ export default function NotificationBell({ endpoints }) {
   };
 
   return (
-    <div ref={boxRef} style={{ position: 'relative' }}>
+    <div ref={boxRef} className="nb-wrap">
       {/* ปุ่มกระดิ่ง + badge */}
-      <button type="button" onClick={toggle}
-        style={{ position: 'relative', width: 42, height: 42, borderRadius: 10, border: '1px solid #e7ebee', background: '#fff', color: '#37434d', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <button type="button" onClick={toggle} className="nb-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
         {unseen > 0 && (
-          <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#e5484d', color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span className="nb-badge">
             {unseen > 99 ? '99+' : unseen}
           </span>
         )}
@@ -137,35 +134,35 @@ export default function NotificationBell({ endpoints }) {
 
       {/* dropdown */}
       {open && (
-        <div style={{ position: 'absolute', right: 0, top: 52, width: 340, maxWidth: '90vw', background: '#fff', border: '1px solid #e7ebee', borderRadius: 12, boxShadow: '0 8px 30px rgba(31,42,51,.12)', zIndex: 90, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid #f0f3f5' }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#1f2a33' }}>{t('notif.title')}</span>
-            <button type="button" onClick={onReadAll} style={{ border: 'none', background: 'none', color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('notif.read_all')}</button>
+        <div className="nb-dropdown">
+          <div className="nb-head">
+            <span className="title title--sm">{t('notif.title')}</span>
+            <button type="button" onClick={onReadAll} className="nb-readall">{t('notif.read_all')}</button>
           </div>
 
-          <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+          <div className="nb-list">
             {loading && items.length === 0 && (
-              <div style={{ padding: 30, textAlign: 'center', color: '#9aa7b2', fontSize: 13 }}>{t('common.loading')}</div>
+              <div className="nb-empty">{t('common.loading')}</div>
             )}
             {items.length === 0 && !loading && (
-              <div style={{ padding: 30, textAlign: 'center', color: '#9aa7b2', fontSize: 13 }}>{t('notif.empty')}</div>
+              <div className="nb-empty">{t('notif.empty')}</div>
             )}
             {groups.map((g) => (
               <div key={g.key}>
                 {/* หัวข้อวัน */}
-                <div style={{ padding: '7px 14px', fontSize: 12, fontWeight: 700, color: '#8a97a2', background: '#fafbfc', borderBottom: '1px solid #f4f6f7' }}>{dayLabel(g.key)}</div>
+                <div className="nb-daylabel">{dayLabel(g.key)}</div>
                 {g.items.map((n) => (
                   <div key={n.id} onClick={() => onItem(n)}
-                    style={{ padding: '11px 14px', borderBottom: '1px solid #f4f6f7', cursor: 'pointer', background: n.isRead ? '#fff' : '#eef7f6' }}>
-                    <div style={{ fontSize: 13.5, color: '#1f2a33', lineHeight: 1.4 }}>{n.message}</div>
-                    <div style={{ fontSize: 11.5, color: '#9aa7b2', marginTop: 3 }}>{thTime(n.created_at)}</div>
+                    className={`nb-item${n.isRead ? '' : ' nb-item--unread'}`}>
+                    <div className="nb-item-msg">{n.message}</div>
+                    <div className="nb-item-time">{thTime(n.created_at)}</div>
                   </div>
                 ))}
               </div>
             ))}
             {hasMore && (
               <button type="button" onClick={() => fetchPage(items.length, true)} disabled={loading}
-                style={{ width: '100%', padding: '11px 0', border: 'none', borderTop: '1px solid #f0f3f5', background: '#fff', color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                className="nb-more">
                 {loading ? t('common.loading') : t('notif.load_more')}
               </button>
             )}

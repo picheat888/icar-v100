@@ -3058,3 +3058,141 @@
   color: var(--text-faint);
   text-decoration: none;
 }
+
+/* ===== NotificationBell: กระดิ่งแจ้งเตือนบน header + dropdown รายการ ===== */
+.nb-wrap {
+  position: relative;
+}
+
+/* ปุ่มกระดิ่ง */
+.nb-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ตัวเลขแจ้งเตือนค้าง มุมขวาบนของปุ่มกระดิ่ง */
+.nb-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* กล่อง dropdown รายการแจ้งเตือน */
+.nb-dropdown {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  width: 340px;
+  max-width: 90vw;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(31, 42, 51, .12);
+  z-index: 90;
+  overflow: hidden;
+}
+
+/* หัว dropdown: ชื่อหัวข้อ + ปุ่มอ่านทั้งหมด */
+.nb-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ปุ่มอ่านทั้งหมด */
+.nb-readall {
+  border: none;
+  background: none;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* พื้นที่เลื่อนรายการแจ้งเตือน */
+.nb-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+/* ข้อความสถานะกำลังโหลด / ไม่มีรายการ */
+.nb-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+/* หัวกลุ่มวัน (วันนี้ / เมื่อวาน / วันที่) */
+.nb-daylabel {
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a97a2;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--hover-bg);
+}
+
+/* แถวแจ้งเตือนแต่ละรายการ */
+.nb-item {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--hover-bg);
+  cursor: pointer;
+  background: #fff;
+}
+
+/* พื้นเขียวอ่อนตอนยังไม่ได้อ่าน */
+.nb-item--unread {
+  background: #eef7f6;
+}
+
+/* ข้อความแจ้งเตือน */
+.nb-item-msg {
+  font-size: 13.5px;
+  color: var(--ink-strong);
+  line-height: 1.4;
+}
+
+/* เวลาแจ้งเตือน */
+.nb-item-time {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+
+/* ปุ่มโหลดรายการเพิ่ม ท้ายรายการ */
+.nb-more {
+  width: 100%;
+  padding: 11px 0;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: #fff;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
