@@ -2503,7 +2503,7 @@
 .tl-mg-daynum {
   font-size: 12px;
   font-weight: 700;
-  color: #1f2a33;
+  color: var(--ink-strong);
 }
 
 .tl-mg-daynum--compact {
