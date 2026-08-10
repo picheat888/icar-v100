@@ -111,10 +111,10 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       {/* toolbar: ค้นหา + เพิ่ม (การ์ดขาวลอยเด่น เข้าชุดกับกล่องตารางด้านล่าง) */}
       <div className="filter-card">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('master.search_placeholder', { label })}
-          className="form-input form-input--sm md-input md-input--search" />
+          className="form-input form-input--sm md-input--search" />
         <div className="md-add-group">
           <input value={newValue} onChange={(e) => setNewValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={t('master.add_placeholder', { label })} maxLength={150} className="form-input form-input--sm md-input md-input--add" />
+            placeholder={t('master.add_placeholder', { label })} maxLength={150} className="form-input form-input--sm md-input--add" />
           <button onClick={add} disabled={busy}
             className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t('master.add_btn')}
@@ -123,48 +123,46 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       </div>
 
       {/* ตาราง */}
-      <div className="md-table">
-        <Table footer={<Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PAGE_SIZE} onPage={setPage} inCard />}>
-          <thead><tr>
-            <th className="md-th-no">{t('master.col_no')}</th>
-            <th className="md-th-name" onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}>
-              {t('master.col_name', { label })} <span className="md-sort-arrow">{sortDir === 'asc' ? '▲' : '▼'}</span>
-            </th>
-            <th className="md-th-manage">{t('master.col_manage')}</th>
-          </tr></thead>
-          <tbody>
-            {pageItems.length === 0 && (
-              <tr><td colSpan={3} className="md-td md-td-empty">{search ? t('master.not_found_search') : t('master.empty')}</td></tr>
-            )}
-            {pageItems.map((it, i) => (
-              <tr key={it.id} className="md-row">
-                <td className="md-td md-td-no">{start + i + 1}</td>
-                <td className="md-td md-td-name">
-                  {editingId === it.id ? (
-                    <input value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
-                      maxLength={150}
-                      className="form-input form-input--sm md-edit-input" />
-                  ) : it.name}
-                </td>
-                <td className="md-td md-td-manage">
-                  {editingId === it.id ? (
-                    <div className="md-actions">
-                      <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{okIcon}</button>
-                      <button onClick={cancelEdit} title={t('common.cancel')} className="icon-btn icon-btn--gray">{xIcon}</button>
-                    </div>
-                  ) : (
-                    <div className="md-actions">
-                      <button onClick={() => startEdit(it)} title={t('common.edit')} className="icon-btn">{editIcon}</button>
-                      <button onClick={() => del(it)} title={t('common.delete')} className="icon-btn icon-btn--red">{trashIcon}</button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
+      <Table footer={<Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PAGE_SIZE} onPage={setPage} inCard />}>
+        <thead><tr>
+          <th className="md-th-no">{t('master.col_no')}</th>
+          <th className="md-th-name" onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}>
+            {t('master.col_name', { label })} <span className="md-sort-arrow">{sortDir === 'asc' ? '▲' : '▼'}</span>
+          </th>
+          <th className="md-th-manage">{t('master.col_manage')}</th>
+        </tr></thead>
+        <tbody>
+          {pageItems.length === 0 && (
+            <tr><td colSpan={3} className="tbl-empty">{search ? t('master.not_found_search') : t('master.empty')}</td></tr>
+          )}
+          {pageItems.map((it, i) => (
+            <tr key={it.id} className="md-row">
+              <td className="md-td-no">{start + i + 1}</td>
+              <td className="md-td-name">
+                {editingId === it.id ? (
+                  <input value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
+                    maxLength={150}
+                    className="form-input form-input--sm md-edit-input" />
+                ) : it.name}
+              </td>
+              <td className="md-td-manage">
+                {editingId === it.id ? (
+                  <div className="md-actions">
+                    <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{okIcon}</button>
+                    <button onClick={cancelEdit} title={t('common.cancel')} className="icon-btn icon-btn--gray">{xIcon}</button>
+                  </div>
+                ) : (
+                  <div className="md-actions">
+                    <button onClick={() => startEdit(it)} title={t('common.edit')} className="icon-btn">{editIcon}</button>
+                    <button onClick={() => del(it)} title={t('common.delete')} className="icon-btn icon-btn--red">{trashIcon}</button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
       <ToastView />
     </div>
