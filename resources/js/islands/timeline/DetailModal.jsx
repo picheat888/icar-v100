@@ -52,21 +52,25 @@ export default function DetailModal({ booking, role, onClose }) {
   return (
     <div
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,32,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, zIndex: 50 }}
+      className="tl-dm-overlay"
     >
-      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 460, maxHeight: '90vh', overflowY: 'auto', padding: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: '#1f2a33' }}>{t('tl.detail_title', { code: booking.booking_code })}</div>
-          <button onClick={onClose} style={{ border: 'none', background: 'none', fontSize: 22, color: '#9aa7b2', cursor: 'pointer', lineHeight: 1 }}>×</button>
+      <div onClick={(e) => e.stopPropagation()} className="tl-dm-modal">
+        <div className="tl-dm-head">
+          <div className="tl-dm-title">{t('tl.detail_title', { code: booking.booking_code })}</div>
+          <button onClick={onClose} className="tl-dm-close">×</button>
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <span style={{ fontSize: 12, color: meta.fg, background: meta.bg, borderRadius: 6, padding: '3px 10px', fontWeight: 600 }}>{meta.label}</span>
+        <div className="tl-dm-statuswrap">
+          <span
+            className="tl-dm-badge"
+            // สี/พื้นหลังป้ายสถานะตาม STATUS_META ของสถานะการจองนั้นที่ runtime
+            style={{ color: meta.fg, background: meta.bg }}
+          >{meta.label}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="tl-dm-rows">
           {rows.map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', gap: 10, fontSize: 13 }}>
-              <div style={{ width: 110, flexShrink: 0, color: '#9aa7b2' }}>{k}</div>
-              <div style={{ color: '#1f2a33', wordBreak: 'break-word' }}>{v}</div>
+            <div key={k} className="tl-dm-row">
+              <div className="tl-dm-label">{k}</div>
+              <div className="tl-dm-value">{v}</div>
             </div>
           ))}
         </div>

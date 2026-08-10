@@ -2230,6 +2230,141 @@
   box-shadow: 0 3px 8px rgba(17, 24, 39, .16);
 }
 
+/* ===== DriverDayList: มุมมองรายวันของคนขับ (การ์ดงานเรียงตามเวลา) ===== */
+/* ข้อความตอนไม่มีงานในวันนั้น */
+.tl-dl-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+/* คอลัมน์การ์ดงาน เรียงตามเวลา */
+.tl-dl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* การ์ดงานแต่ละใบ — สีขอบซ้ายตามสถานะกำหนดที่ inline (runtime) */
+.tl-dl-card {
+  border: 1px solid #eef1f3;
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+/* แถวบนของการ์ด: ช่วงเวลา + ป้ายสถานะ */
+.tl-dl-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tl-dl-time {
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+/* ป้ายสถานะ — สี/พื้นหลังกำหนดที่ inline ตาม STATUS_META (runtime) */
+.tl-dl-badge {
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.tl-dl-loc {
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+.tl-dl-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+/* ===== DetailModal: โมดัลรายละเอียดการจอง (อ่านอย่างเดียว) ===== */
+/* ฉากหลังเต็มจอ กดปิดได้ */
+.tl-dm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 32, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.tl-dm-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.tl-dm-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.tl-dm-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.tl-dm-close {
+  border: none;
+  background: none;
+  font-size: 22px;
+  color: var(--text-faint);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.tl-dm-statuswrap {
+  margin-bottom: 12px;
+}
+
+/* ป้ายสถานะ — สี/พื้นหลังกำหนดที่ inline ตาม STATUS_META (runtime) */
+.tl-dm-badge {
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-weight: 600;
+}
+
+.tl-dm-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tl-dm-row {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.tl-dm-label {
+  width: 110px;
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.tl-dm-value {
+  color: var(--ink-strong);
+  word-break: break-word;
+}
+
 /* ===== ForcePasswordResetModal: popup บังคับเปลี่ยนรหัสผ่านหลัง login (ปิด/กดนอกไม่ได้) ===== */
 /* ฉากหลังเต็มจอ เบลอเล็กน้อย ลอยเหนือทุกอย่างในแอป */
 .fr-overlay {

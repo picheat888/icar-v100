@@ -9,25 +9,31 @@ export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
     .sort((a, b) => String(a.start_at).localeCompare(String(b.start_at)));
 
   if (jobs.length === 0) {
-    return <div style={{ padding: 30, textAlign: 'center', color: '#9aa7b2' }}>{t('tl.no_jobs_today')}</div>;
+    return <div className="tl-dl-empty">{t('tl.no_jobs_today')}</div>;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div className="tl-dl-list">
       {jobs.map((b) => {
         const meta = STATUS_META[b.status] || STATUS_META.pending;
         return (
           <div
             key={b.id}
             onClick={() => onOpenDetail(b)}
-            style={{ border: '1px solid #eef1f3', borderLeft: `4px solid ${meta.fg}`, borderRadius: 10, padding: '12px 14px', cursor: 'pointer' }}
+            className="tl-dl-card"
+            // สีขอบซ้ายตามสถานะการจอง (STATUS_META) แตกต่างกันไปตาม booking ที่ runtime
+            style={{ borderLeftColor: meta.fg }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-              <div style={{ fontWeight: 700, color: '#1f2a33' }}>{hhmm(b.start_at)}–{hhmm(b.end_at)}</div>
-              <span style={{ fontSize: 12, color: meta.fg, background: meta.bg, borderRadius: 6, padding: '2px 8px' }}>{meta.label}</span>
+            <div className="tl-dl-row">
+              <div className="tl-dl-time">{hhmm(b.start_at)}–{hhmm(b.end_at)}</div>
+              <span
+                className="tl-dl-badge"
+                // สี/พื้นหลังป้ายสถานะตาม STATUS_META ของสถานะนั้นที่ runtime
+                style={{ color: meta.fg, background: meta.bg }}
+              >{meta.label}</span>
             </div>
-            <div style={{ fontSize: 13, color: '#54616c', marginTop: 4 }}>{b.location}</div>
-            <div style={{ fontSize: 12, color: '#9aa7b2', marginTop: 2 }}>{t('tl.requester_colon')}{b.requester_name || '-'} · {t('req.people', { n: b.people })}</div>
+            <div className="tl-dl-loc">{b.location}</div>
+            <div className="tl-dl-meta">{t('tl.requester_colon')}{b.requester_name || '-'} · {t('req.people', { n: b.people })}</div>
           </div>
         );
       })}
