@@ -470,8 +470,8 @@
 .ta-c { text-align: center; }
 .ta-r { text-align: right; }
 
-/* แถวว่าง (ไม่พบข้อมูล) */
-.tbl-empty {
+/* แถวว่าง (ไม่พบข้อมูล) — selector ต้องชนะ .tbl td ที่ตั้ง padding/color ไว้ */
+.tbl .tbl-empty {
   text-align: center;
   color: var(--text-faint);
   padding: 26px;
