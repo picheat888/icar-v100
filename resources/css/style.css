@@ -322,6 +322,12 @@
   margin-bottom: 0;
 }
 
+/* ไอคอนเตือนในกล่อง .alert-error--icon — ไม่หด + ขยับลงเล็กน้อยให้อยู่กึ่งกลางบรรทัดแรก */
+.alert-error-icon {
+  flex: none;
+  margin-top: 1px;
+}
+
 /* ----- 1.7 การ์ดขาว ----- */
 .card {
   background: #fff;
