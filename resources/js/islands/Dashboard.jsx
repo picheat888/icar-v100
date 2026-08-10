@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t, currentLocale } from '../lib/i18n';
+import { useToast } from '../lib/Toast';
 
-const TEAL = '#0c8b87';
 const LOCALE = currentLocale();
 const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 const TH_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -11,14 +11,24 @@ const TH_MONTHS_SHORT_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.'
 const TH_MONTHS_SHORT_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const TH_MONTHS_SHORT = LOCALE === 'en' ? TH_MONTHS_SHORT_EN : TH_MONTHS_SHORT_TH;
 
-// ป้ายสถานะคำขอ [ข้อความ, พื้นหลัง, สีตัวอักษร]
-const STATUS = {
-  pending:          [t('status.pending'), '#fdf0e0', '#9a5a12'],
-  approved:         [t('status.approved'), '#e7f4ee', '#16855a'],
-  cancel_requested: [t('status.cancel_requested'), '#fdf0e0', '#9a5a12'],
-  completed:        [t('status.completed'), '#eef1f4', '#5b6b7a'],
-  rejected:         [t('status.rejected'), '#fbecea', '#c0392b'],
-  cancelled:        [t('status.cancelled'), '#fbecea', '#c0392b'],
+// ข้อความป้ายสถานะคำขอ
+const STATUS_LABEL = {
+  pending: t('status.pending'),
+  approved: t('status.approved'),
+  cancel_requested: t('status.cancel_requested'),
+  completed: t('status.completed'),
+  rejected: t('status.rejected'),
+  cancelled: t('status.cancelled'),
+};
+// class สีของป้ายสถานะ — 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
+// ส่วนที่เหลือ (rejected/cancelled) สีตรงกับ .pill--red ของกลางพอดี
+const STATUS_CLASS = {
+  pending: 'dash-status-badge st-pending',
+  approved: 'dash-status-badge st-approved',
+  cancel_requested: 'dash-status-badge st-cancel_requested',
+  completed: 'dash-status-badge st-completed',
+  rejected: 'pill--red',
+  cancelled: 'pill--red',
 };
 
 // 'YYYY-MM-DD HH:MM:SS' -> {date:'YYYY-MM-DD', hm:'HH:MM', th:'19 มิถุนายน 2026'}
@@ -36,19 +46,16 @@ const rangeShort = (start, end) => {
   return `${+sd} ${TH_MONTHS_SHORT[+sm - 1]} ${s.hm} – ${e.hm}`;
 };
 
-// เงายกลอยของการ์ด — ให้เด่นแยกจากพื้นเทา (ใช้ร่วมการ์ดสรุป + panel)
-const CARD_SHADOW = '0 1px 2px rgba(17,24,39,.05), 0 12px 26px -10px rgba(17,24,39,.16)';
-
 // การ์ดสรุปตัวเลข — เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา
-function StatCard({ label, value, sub, icon, iconBg, iconColor }) {
+function StatCard({ label, value, sub, icon, iconClass }) {
   return (
-    <div className="dash-card" style={{ background: '#fff', border: '1px solid #e3e8ec', borderRadius: 16, padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 4, minHeight: 132, boxShadow: CARD_SHADOW }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ fontSize: 13.5, color: '#7a8794', fontWeight: 500, lineHeight: 1.4 }}>{label}</div>
-        <div style={{ width: 40, height: 40, borderRadius: 11, background: iconBg, color: iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>{icon}</div>
+    <div className="dash-card">
+      <div className="dash-card-head">
+        <div className="subtext dash-card-label">{label}</div>
+        <div className={`icon-box ${iconClass}`}>{icon}</div>
       </div>
-      <div className="dash-card-val" style={{ fontSize: 34, fontWeight: 700, color: '#1f2a33', lineHeight: 1.1, marginTop: 'auto' }}>{value}</div>
-      <div style={{ fontSize: 12.5, color: '#9aa7b2' }}>{sub}</div>
+      <div className="dash-card-val">{value}</div>
+      <div className="subtext subtext--faint">{sub}</div>
     </div>
   );
 }
@@ -70,9 +77,8 @@ export default function Dashboard({ endpoints, links }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
-  const [toast, setToast] = useState('');
+  const { showToast, ToastView } = useToast(3000);
   const busyRef = useRef(false);
-  const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
 
   // โหลดข้อมูลสรุป
   const load = useCallback(() => {
@@ -111,10 +117,10 @@ export default function Dashboard({ endpoints, links }) {
   };
 
   const cards = [
-    { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconBg: '#fdf0e0', iconColor: '#e08a1e' },
-    { key: 'pendingMembers', label: t('dash.card_members'), sub: t('dash.card_members_sub'), icon: icons.person, iconBg: '#e6f3f2', iconColor: TEAL },
-    { key: 'availableCars', label: t('dash.card_cars'), sub: t('dash.card_cars_sub'), icon: icons.car, iconBg: '#e6f3f2', iconColor: TEAL },
-    { key: 'totalBookings', label: t('dash.card_total'), sub: t('dash.card_total_sub'), icon: icons.doc, iconBg: '#e6f3f2', iconColor: TEAL },
+    { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconClass: 'dash-icon--amber' },
+    { key: 'pendingMembers', label: t('dash.card_members'), sub: t('dash.card_members_sub'), icon: icons.person, iconClass: 'icon-box--teal' },
+    { key: 'availableCars', label: t('dash.card_cars'), sub: t('dash.card_cars_sub'), icon: icons.car, iconClass: 'icon-box--teal' },
+    { key: 'totalBookings', label: t('dash.card_total'), sub: t('dash.card_total_sub'), icon: icons.doc, iconClass: 'icon-box--teal' },
   ];
 
   // จัดกลุ่มคำขอตามวันเริ่ม (ใหม่สุดก่อน — ตาม order ที่ backend ส่งมา)
@@ -128,11 +134,9 @@ export default function Dashboard({ endpoints, links }) {
 
   return (
     <div>
-      {toast && (
-        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', background: '#1f2a33', color: '#fff', padding: '11px 20px', borderRadius: 9, fontSize: 14, fontWeight: 500, zIndex: 200, boxShadow: '0 8px 24px rgba(0,0,0,.2)' }}>{toast}</div>
-      )}
+      <ToastView />
       {loadErr && (
-        <div style={{ padding: '10px 14px', marginBottom: 14, background: '#fbecea', color: '#9a3b34', borderRadius: 8, fontSize: 13 }}>
+        <div className="dash-load-err">
           {t('dash.load_err')}
         </div>
       )}
@@ -155,46 +159,47 @@ export default function Dashboard({ endpoints, links }) {
       {/* 2 คอลัมน์: คำขอล่าสุด (กว้าง) + สมาชิกรออนุมัติ — wrapper ซ้อนบนมือถือ */}
       <div className="dash-cols">
         {/* ===== panel คำขอจองรถ ===== */}
-        <div style={panel}>
-          <div style={panelHead}>
-            <h3 style={panelTitle}>{t('dash.panel_bookings')}</h3>
-            <a href={links.requests} style={seeAll}>{t('dash.see_all')}</a>
+        <div className="dash-panel">
+          <div className="dash-panel-head">
+            <h3 className="title title--sm">{t('dash.panel_bookings')}</h3>
+            <a href={links.requests} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
           {loading ? <Empty text={t('dash.loading')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
-            <div style={{ margin: '10px -20px 0' }}>
+            <div className="dash-brow-list">
               {groups.map((g) => (
                 <div key={g.date}>
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: '#54616c', background: '#f4f7f8', padding: '7px 20px' }}>{g.th}</div>
+                  <div className="dash-daylabel">{g.th}</div>
                   {g.rows.map((b) => {
-                    const [sl, sb, sc] = STATUS[b.status] || STATUS.pending;
+                    const sl = STATUS_LABEL[b.status] || STATUS_LABEL.pending;
+                    const stCls = STATUS_CLASS[b.status] || STATUS_CLASS.pending;
                     const veh = b.booking_type === 'other' ? t('dash.veh_other') : (b.car_model || '-');
                     const isPending = b.status === 'pending';
                     // ทั้ง pending และ ขอยกเลิก = งานที่ต้องจัดการ → ไฮไลต์แถบซ้าย+พื้นส้มเหมือนกัน
                     const needsAction = isPending || b.status === 'cancel_requested';
                     return (
-                      <div key={b.id} className="dash-brow" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 20px', borderBottom: '1px solid #f2f5f6', borderLeft: `3px solid ${needsAction ? '#e08a1e' : 'transparent'}`, background: needsAction ? '#fff6ea' : 'transparent' }}>
-                        <div style={{ minWidth: 0, flex: '0 0 120px' }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1f2a33' }}>{b.booking_code}</div>
-                          <div style={{ fontSize: 12, color: '#9aa7b2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.requester_name || '-'}</div>
+                      <div key={b.id} className={`dash-brow ${needsAction ? 'dash-brow--action' : ''}`}>
+                        <div className="dash-brow-code">
+                          <div className="dash-brow-code-no">{b.booking_code}</div>
+                          <div className="dash-brow-code-sub">{b.requester_name || '-'}</div>
                         </div>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: 13, color: '#37434d', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{veh}</div>
-                          <div style={{ fontSize: 12, color: '#9aa7b2' }}>{b.booking_type === 'other' ? (b.car_plate || '') : (b.car_plate || '')}</div>
+                        <div className="dash-brow-veh">
+                          <div className="dash-brow-veh-name">{veh}</div>
+                          <div className="dash-brow-veh-sub">{b.booking_type === 'other' ? (b.car_plate || '') : (b.car_plate || '')}</div>
                         </div>
-                        <div style={{ flex: 'none', fontSize: 12.5, color: '#7a8794', whiteSpace: 'nowrap' }}>{rangeShort(b.start_at, b.end_at)}</div>
+                        <div className="dash-brow-time">{rangeShort(b.start_at, b.end_at)}</div>
                         {isPending ? (
                           b.booking_type === 'other' ? (
                             // รถอื่นๆ: ต้องมอบหมายคนขับก่อนอนุมัติ → ไปทำที่หน้าจัดการคำขอ (อนุมัติ inline ตรงนี้ไม่ได้)
-                            <a href={links.requests} className="dash-brow-act" style={{ flex: 'none', ...miniBtn('#e6f3f2', '#0a716e') }}>{t('dash.assign_driver')}</a>
+                            <a href={links.requests} className="dash-brow-act dash-mini-btn dash-mini-btn--teal">{t('dash.assign_driver')}</a>
                           ) : (
-                            <div className="dash-brow-act" style={{ flex: 'none', display: 'flex', gap: 7 }}>
-                              <button onClick={() => post(endpoints.requestApprove, { id: b.id })} style={miniBtn('#e7f4ee', '#16855a')}>{t('dash.approve')}</button>
+                            <div className="dash-brow-act dash-brow-btns">
+                              <button onClick={() => post(endpoints.requestApprove, { id: b.id })} className="dash-mini-btn dash-mini-btn--green">{t('dash.approve')}</button>
                               {/* ปฏิเสธต้องกรอกเหตุผล → ไปทำที่หน้าจัดการคำขอ */}
-                              <a href={links.requests} style={miniBtn('#fbecea', '#c0392b')}>{t('dash.reject')}</a>
+                              <a href={links.requests} className="dash-mini-btn dash-mini-btn--red">{t('dash.reject')}</a>
                             </div>
                           )
                         ) : (
-                          <span className="dash-brow-act" style={{ flex: 'none', ...badge(sb, sc) }}>{sl}</span>
+                          <span className={`dash-brow-act pill pill--sm ${stCls}`}>{sl}</span>
                         )}
                       </div>
                     );
@@ -206,22 +211,22 @@ export default function Dashboard({ endpoints, links }) {
         </div>
 
         {/* ===== panel สมาชิกรออนุมัติ ===== */}
-        <div style={panel}>
-          <div style={panelHead}>
-            <h3 style={panelTitle}>{t('dash.panel_members')}</h3>
-            <a href={links.members} style={seeAll}>{t('dash.see_all')}</a>
+        <div className="dash-panel">
+          <div className="dash-panel-head">
+            <h3 className="title title--sm">{t('dash.panel_members')}</h3>
+            <a href={links.members} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
           {loading ? <Empty text={t('dash.loading')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
-            <div style={{ marginTop: 4 }}>
+            <div className="dash-member-list">
               {members.map((m, i) => (
-                <div key={m.user_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 2px', background: '#fff', borderBottom: i === members.length - 1 ? 'none' : '1px solid #f0f3f5' }}>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 600, color: '#1f2a33', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.full_name}</div>
-                    <div style={{ fontSize: 12, color: '#9aa7b2', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t('dash.pos_label')}{m.position || '-'}</div>
-                    <div style={{ fontSize: 12, color: '#9aa7b2', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t('dash.dept_label')}{m.dept || '-'}</div>
+                <div key={m.user_id} className={`dash-member-row ${i === members.length - 1 ? 'dash-member-row--last' : ''}`}>
+                  <div className="dash-member-info">
+                    <div className="dash-member-name">{m.full_name}</div>
+                    <div className="dash-member-sub dash-member-sub--pos">{t('dash.pos_label')}{m.position || '-'}</div>
+                    <div className="dash-member-sub dash-member-sub--dept">{t('dash.dept_label')}{m.dept || '-'}</div>
                   </div>
-                  <button onClick={() => post(endpoints.memberApprove, { user_id: m.user_id, level: m.role || 'user' })} style={miniBtn('#e7f4ee', '#16855a')}>{t('dash.approve')}</button>
-                  <button onClick={() => post(endpoints.memberReject, { user_id: m.user_id })} style={miniBtn('#fbecea', '#c0392b')}>{t('dash.reject')}</button>
+                  <button onClick={() => post(endpoints.memberApprove, { user_id: m.user_id, level: m.role || 'user' })} className="dash-mini-btn dash-mini-btn--green">{t('dash.approve')}</button>
+                  <button onClick={() => post(endpoints.memberReject, { user_id: m.user_id })} className="dash-mini-btn dash-mini-btn--red">{t('dash.reject')}</button>
                 </div>
               ))}
             </div>
@@ -233,36 +238,23 @@ export default function Dashboard({ endpoints, links }) {
 }
 
 function Empty({ text }) {
-  return <div style={{ padding: 28, textAlign: 'center', color: '#9aa7b2', fontSize: 13.5 }}>{text}</div>;
+  return <div className="dash-empty">{text}</div>;
 }
 
-// โทนสีแถบเตือน — amber (คำขอจองรถ) / teal (สมาชิก) แยกให้ต่างกันชัด
-const ALERT_TONES = {
-  amber: { bg: '#fdf6e3', border: '#f0dca0', icon: '#e08a1e', title: '#8a5a12', sub: '#a5751f' },
-  teal:  { bg: '#e8f4f3', border: '#b3ddd9', icon: '#0c8b87', title: '#0a605e', sub: '#2f807c' },
-};
-
-// แถบเตือน — ไอคอนวงกลม ! (กระเพื่อม) + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone
+// แถบเตือน — ไอคอนวงกลม ! (กระเพื่อม) + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
 function AlertBar({ title, sub, tone = 'amber' }) {
-  const c = ALERT_TONES[tone] || ALERT_TONES.amber;
+  const cls = tone === 'teal' ? 'teal' : 'amber';
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 12, padding: '14px 18px', marginBottom: 14 }}>
-      <div style={{ flex: 'none', color: c.icon, marginTop: 1 }}>
+    <div className={`dash-alert dash-alert--${cls}`}>
+      <div className={`dash-alert-icon dash-alert-icon--${cls}`}>
         <span className="icar-alert-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
         </span>
       </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 14.5, fontWeight: 700, color: c.title }}>{title}</div>
-        <div style={{ fontSize: 13, color: c.sub, marginTop: 2 }}>{sub}</div>
+      <div className="dash-alert-body">
+        <div className={`dash-alert-title dash-alert-title--${cls}`}>{title}</div>
+        <div className={`dash-alert-sub dash-alert-sub--${cls}`}>{sub}</div>
       </div>
     </div>
   );
 }
-
-const panel = { background: '#fff', border: '1px solid #e3e8ec', borderRadius: 16, padding: '18px 20px', boxShadow: CARD_SHADOW };
-const panelHead = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' };
-const panelTitle = { fontSize: 16, fontWeight: 700, color: '#1f2a33', margin: 0 };
-const seeAll = { fontSize: 12.5, fontWeight: 600, color: TEAL, textDecoration: 'none', background: '#e6f3f2', padding: '6px 12px', borderRadius: 8 };
-const badge = (bg, color) => ({ background: bg, color, borderRadius: 999, padding: '4px 12px', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' });
-const miniBtn = (bg, color) => ({ background: bg, color, border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', display: 'inline-block', whiteSpace: 'nowrap' });

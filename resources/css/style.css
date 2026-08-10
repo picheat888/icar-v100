@@ -2081,6 +2081,316 @@
   }
 }
 
+/* ===== Dashboard: การ์ดสรุปตัวเลข (StatCard) ===== */
+.dash-card {
+  background: #fff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 132px;
+  box-shadow: var(--card-shadow);
+}
+
+.dash-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* ป้ายชื่อการ์ด — ใช้คู่กับ .subtext (สี/ขนาดฐานมาจากตรงนั้น) */
+.dash-card-label {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.dash-card-val {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  line-height: 1.1;
+  margin-top: auto;
+}
+
+/* ไอคอนกล่องโทนอำพัน — ใช้คู่กับ .icon-box (การ์ด "คำขอรออนุมัติ") */
+.dash-icon--amber {
+  background: var(--warn-soft);
+  color: #e08a1e;
+}
+
+/* ===== Dashboard: แผงข้อมูล (คำขอล่าสุด / สมาชิกรออนุมัติ) ===== */
+.dash-panel {
+  background: #fff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--card-shadow);
+}
+
+.dash-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ปุ่มลิงก์ "ดูทั้งหมด" มุมขวาบนแผง */
+.dash-see-all {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+  background: var(--teal-soft);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+/* ข้อความว่าง/กำลังโหลด ในแผงข้อมูล */
+.dash-empty {
+  padding: 28px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13.5px;
+}
+
+/* ===== Dashboard: รายการคำขอจองรถล่าสุด (จัดกลุ่มตามวัน) ===== */
+.dash-brow-list {
+  margin: 10px -20px 0;
+}
+
+.dash-daylabel {
+  padding: 7px 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-soft);
+  background: #f4f7f8;
+}
+
+.dash-brow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #f2f5f6;
+  border-left: 3px solid transparent;
+}
+
+/* แถวที่ต้องจัดการ (รออนุมัติ/ขอยกเลิก) — ไฮไลต์แถบซ้าย + พื้นส้มอ่อน */
+.dash-brow--action {
+  border-left-color: #e08a1e;
+  background: #fff6ea;
+}
+
+.dash-brow-code {
+  min-width: 0;
+  flex: 0 0 120px;
+}
+
+.dash-brow-code-no {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.dash-brow-code-sub {
+  font-size: 12px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-brow-veh {
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-brow-veh-name {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-brow-veh-sub {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.dash-brow-time {
+  flex: none;
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dash-brow-act {
+  flex: none;
+}
+
+.dash-brow-btns {
+  display: flex;
+  gap: 7px;
+}
+
+/* ปุ่มจิ๋วในแถวคำขอ (อนุมัติ/ปฏิเสธ/มอบหมายคนขับ) และในแถวสมาชิก */
+.dash-mini-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.dash-mini-btn--teal {
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+}
+
+.dash-mini-btn--green {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.dash-mini-btn--red {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ป้ายสถานะแถวคำขอ — ใช้คู่กับ .pill .pill--sm + .st-* (ชุดสีสถานะกลาง) */
+.dash-status-badge {
+  background: var(--st-bg);
+  color: var(--st-fg);
+}
+
+/* ===== Dashboard: แถบเตือนรออนุมัติ (เหนือแผงข้อมูล) ===== */
+.dash-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.dash-alert--amber {
+  background: #fdf6e3;
+  border: 1px solid #f0dca0;
+}
+
+.dash-alert--teal {
+  background: #e8f4f3;
+  border: 1px solid #b3ddd9;
+}
+
+.dash-alert-icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.dash-alert-icon--amber {
+  color: #e08a1e;
+}
+
+.dash-alert-icon--teal {
+  color: var(--teal);
+}
+
+.dash-alert-body {
+  min-width: 0;
+}
+
+.dash-alert-title {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.dash-alert-title--amber {
+  color: #8a5a12;
+}
+
+.dash-alert-title--teal {
+  color: var(--teal-dark);
+}
+
+.dash-alert-sub {
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.dash-alert-sub--amber {
+  color: #a5751f;
+}
+
+.dash-alert-sub--teal {
+  color: #2f807c;
+}
+
+/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
+.dash-load-err {
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: var(--danger-soft);
+  color: #9a3b34;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* ===== Dashboard: รายการสมาชิกรออนุมัติ ===== */
+.dash-member-list {
+  margin-top: 4px;
+}
+
+.dash-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 2px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.dash-member-row--last {
+  border-bottom: none;
+}
+
+.dash-member-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-member-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-member-sub {
+  font-size: 12px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-member-sub--pos {
+  margin-top: 3px;
+}
+
+.dash-member-sub--dept {
+  margin-top: 1px;
+}
+
 /* กล่องครอบแถบค้นหา/ฟิลเตอร์ — ใช้ร่วมทุกหน้า (จัดการสมาชิก/คำขอ/ประวัติ) ให้สม่ำเสมอ */
 .filter-card {
   display: flex;
