@@ -8,9 +8,6 @@ import DayGrid from './DayGrid';
 import DriverDayList from './DriverDayList';
 import DetailModal from './DetailModal';
 
-// เงายกลอยของการ์ด (เข้าชุดกับ Dashboard)
-const CARD_SHADOW = '0 1px 2px rgba(17,24,39,.04), 0 10px 24px -10px rgba(17,24,39,.13)';
-
 // container หน้าตารางการใช้รถ — จัดการ view/เดือน/วัน/fetch/modal
 // props: role ('admin'|'user'|'driver'), endpoint (URL JSON), book (URL หน้าจองรถ — user+admin; driver ไม่ส่ง)
 export default function Timeline({ role, endpoint, book }) {
@@ -79,43 +76,43 @@ export default function Timeline({ role, endpoint, book }) {
   const openDetail = (b) => setSelected(b);
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #e3e8ec', borderRadius: 16, padding: 18, boxShadow: CARD_SHADOW }}>
+    <div className="tl-wrap">
       {loadErr && (
-        <div style={{ padding: '10px 14px', marginBottom: 12, background: '#fbecea', color: '#9a3b34', borderRadius: 8, fontSize: 13 }}>
+        <div className="tl-load-err">
           {t('common.load_err')}
         </div>
       )}
       {/* แถบเครื่องมือ: view toggle + ปุ่มวันนี้ + นำทาง (เดือน/วัน) + ปุ่มจองรถ (ขวาสุด) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-        <div style={{ display: 'inline-flex', background: '#eef1f3', borderRadius: 9, padding: 3, gap: 2 }}>
-          <button onClick={() => setView('month')} style={segBtn(view === 'month')}>{t('tl.view_month')}</button>
-          <button onClick={showDayView} style={segBtn(view === 'day')}>{t('tl.view_day')}</button>
+      <div className="tl-toolbar">
+        <div className="tl-viewtoggle">
+          <button onClick={() => setView('month')} className={`tl-segbtn${view === 'month' ? ' tl-segbtn--active' : ''}`}>{t('tl.view_month')}</button>
+          <button onClick={showDayView} className={`tl-segbtn${view === 'day' ? ' tl-segbtn--active' : ''}`}>{t('tl.view_day')}</button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <button onClick={goToday} style={todayBtn}>{t('tl.today')}</button>
+        <div className="tl-actions">
+          <button onClick={goToday} className="tl-today-btn">{t('tl.today')}</button>
           {view === 'month' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button onClick={() => shiftMonth(-1)} style={navBtn} aria-label={t('tl.prev_month')}>‹</button>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1f2a33', minWidth: 150, textAlign: 'center' }}>
+            <div className="tl-navwrap">
+              <button onClick={() => shiftMonth(-1)} className="tl-nav-btn" aria-label={t('tl.prev_month')}>‹</button>
+              <div className="tl-month-label">
                 {TH_MONTHS[month]} {year}
               </div>
-              <button onClick={() => shiftMonth(1)} style={navBtn} aria-label={t('tl.next_month')}>›</button>
+              <button onClick={() => shiftMonth(1)} className="tl-nav-btn" aria-label={t('tl.next_month')}>›</button>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button onClick={() => shiftDay(-1)} style={navBtn} aria-label={t('tl.prev_day')}>‹</button>
-              <div style={{ fontSize: 14.5, fontWeight: 700, color: '#1f2a33', minWidth: 170, textAlign: 'center' }}>
+            <div className="tl-navwrap">
+              <button onClick={() => shiftDay(-1)} className="tl-nav-btn" aria-label={t('tl.prev_day')}>‹</button>
+              <div className="tl-day-label">
                 {thWeekday(selectedDay)} {dmy(selectedDay)}
               </div>
-              <button onClick={() => shiftDay(1)} style={navBtn} aria-label={t('tl.next_day')}>›</button>
+              <button onClick={() => shiftDay(1)} className="tl-nav-btn" aria-label={t('tl.next_day')}>›</button>
             </div>
           )}
-          {book && <a href={book} style={bookBtn}>{t('tl.book_car')}</a>}
+          {book && <a href={book} className="tl-book-btn">{t('tl.book_car')}</a>}
         </div>
       </div>
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: 'center', color: '#9aa7b2' }}>{t('common.loading')}</div>
+        <div className="tl-loading">{t('common.loading')}</div>
       ) : view === 'month' ? (
         <>
           <MonthGrid
@@ -141,70 +138,15 @@ export default function Timeline({ role, endpoint, book }) {
   );
 }
 
-// สไตล์ปุ่มจองรถ (เขียว)
-const bookBtn = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 6,
-  padding: '9px 18px',
-  borderRadius: 9,
-  background: '#0c8b87',
-  color: '#fff',
-  fontSize: 14,
-  fontWeight: 600,
-  textDecoration: 'none',
-  fontFamily: 'inherit',
-};
-
-// segment ของ view toggle (active = พื้นขาวยกนูน)
-const segBtn = (on) => ({
-  padding: '7px 18px',
-  borderRadius: 7,
-  border: 'none',
-  background: on ? '#fff' : 'transparent',
-  color: on ? '#0a716e' : '#6b7884',
-  fontWeight: 600,
-  fontSize: 14,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  boxShadow: on ? '0 1px 3px rgba(0,0,0,.10)' : 'none',
-});
-
-// ปุ่ม "วันนี้" (โทน teal อ่อน)
-const todayBtn = {
-  padding: '7px 15px',
-  borderRadius: 8,
-  border: '1px solid #cfe3e1',
-  background: '#e6f3f2',
-  color: '#0a716e',
-  fontWeight: 600,
-  fontSize: 13.5,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-
-const navBtn = {
-  width: 30,
-  height: 30,
-  border: '1px solid #e3e9ec',
-  borderRadius: 7,
-  background: '#fff',
-  color: '#54616c',
-  cursor: 'pointer',
-  fontSize: 18,
-  lineHeight: 1,
-  fontFamily: 'inherit',
-};
-
-// legend สีสถานะใต้ปฏิทิน
+// legend สีสถานะใต้ปฏิทิน — ใช้คู่กับ class .st-* (ดู §1.15)
 function Legend() {
-  const items = [STATUS_META.approved, STATUS_META.pending, STATUS_META.completed];
+  const keys = ['approved', 'pending', 'completed'];
   return (
-    <div style={{ display: 'flex', gap: 18, marginTop: 16, paddingTop: 14, borderTop: '1px solid #f2f4f6', flexWrap: 'wrap' }}>
-      {items.map((m) => (
-        <span key={m.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: '#54616c', fontWeight: 500 }}>
-          <span style={{ width: 12, height: 12, borderRadius: 4, background: m.bg, border: `1px solid ${m.fg}` }} />
-          {m.label}
+    <div className="tl-legend">
+      {keys.map((k) => (
+        <span key={k} className="tl-legend-item">
+          <span className={`tl-legend-swatch st-${k}`} />
+          {STATUS_META[k].label}
         </span>
       ))}
     </div>

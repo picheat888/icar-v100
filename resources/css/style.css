@@ -2240,6 +2240,351 @@
   }
 }
 
+/* ===== Timeline: กล่องครอบ + แถบเครื่องมือ (view toggle / นำทางเดือน-วัน / ปุ่มจองรถ) ===== */
+.tl-wrap {
+  background: #fff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 10px 24px -10px rgba(17, 24, 39, .13);
+}
+
+/* แจ้งเตือนโหลดข้อมูลไม่สำเร็จ */
+.tl-load-err {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--danger-soft);
+  color: #9a3b34;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.tl-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* กล่อง view toggle เดือน/วัน */
+.tl-viewtoggle {
+  display: inline-flex;
+  background: #eef1f3;
+  border-radius: 9px;
+  padding: 3px;
+  gap: 2px;
+}
+
+/* ปุ่ม segment เดือน/วัน — active = พื้นขาวยกนูน */
+.tl-segbtn {
+  padding: 7px 18px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #6b7884;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: none;
+}
+
+.tl-segbtn--active {
+  background: #fff;
+  color: var(--teal-hover);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .10);
+}
+
+/* กลุ่มปุ่มวันนี้ + นำทาง + จองรถ (ขวาของแถบเครื่องมือ) */
+.tl-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ปุ่ม "วันนี้" (โทน teal อ่อน) */
+.tl-today-btn {
+  padding: 7px 15px;
+  border-radius: 8px;
+  border: 1px solid #cfe3e1;
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* กลุ่มปุ่ม ‹ label › นำทางเดือน/วัน */
+.tl-navwrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tl-nav-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e3e9ec;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.tl-month-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  min-width: 150px;
+  text-align: center;
+}
+
+.tl-day-label {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  min-width: 170px;
+  text-align: center;
+}
+
+/* ปุ่มจองรถ (เขียว) มุมขวาสุดของแถบเครื่องมือ */
+.tl-book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.tl-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-faint);
+}
+
+/* legend สีสถานะใต้ปฏิทินเดือน */
+.tl-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f2f4f6;
+  flex-wrap: wrap;
+}
+
+.tl-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+/* สี่เหลี่ยมตัวอย่างสี — สี/ขอบตาม class .st-* (ดู §1.15) */
+.tl-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--st-bg);
+  border: 1px solid var(--st-fg);
+}
+
+/* ===== MonthGrid: ปฏิทินรายเดือน (grid 7x6) ===== */
+/* หัวคอลัมน์วัน */
+.tl-mg-head {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.tl-mg-dow {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a97a2;
+  padding: 9px 0;
+}
+
+.tl-mg-dow--compact {
+  font-size: 10px;
+  padding: 6px 0;
+}
+
+/* อาทิตย์ = แดง */
+.tl-mg-dow--sun {
+  font-weight: 700;
+  color: #d0555f;
+}
+
+/* เสาร์ = เหลืองทอง (อ่านออกบนพื้นขาว) */
+.tl-mg-dow--sat {
+  font-weight: 700;
+  color: #e6b500;
+}
+
+/* ตารางช่องวัน 7 คอลัมน์ */
+.tl-mg-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid #dde3e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tl-mg-cell {
+  min-height: 96px;
+  min-width: 0;
+  border-right: 1px solid var(--border-card);
+  border-bottom: 1px solid var(--border-card);
+  padding: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.tl-mg-cell--compact {
+  min-height: 66px;
+  padding: 4px;
+}
+
+.tl-mg-cell--today {
+  background: #e9f5f3;
+}
+
+.tl-mg-cell--weekend {
+  background: #f7f9fb;
+}
+
+/* แถวเลขวันที่ + ตัวนับงาน มุมบนของช่อง */
+.tl-mg-daynum-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tl-mg-daynum-row--compact {
+  gap: 4px;
+}
+
+/* วงกลมเลขวันที่ของ "วันนี้" */
+.tl-mg-today-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tl-mg-today-badge--compact {
+  min-width: 21px;
+  height: 21px;
+  font-size: 11px;
+}
+
+.tl-mg-daynum {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2a33;
+}
+
+.tl-mg-daynum--compact {
+  font-size: 11px;
+}
+
+/* เลขวันที่นอกเดือนที่ดู */
+.tl-mg-daynum--out {
+  color: #b6bec6;
+}
+
+.tl-mg-daynum--sun {
+  color: #d0555f;
+}
+
+.tl-mg-daynum--sat {
+  color: #e6b500;
+}
+
+/* ตัวนับงานต่อวัน — สีตาม class .st-* (ดู §1.15) */
+.tl-mg-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--st-fg);
+}
+
+.tl-mg-count--compact {
+  font-size: 10px;
+}
+
+.tl-mg-count-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-fg);
+}
+
+/* ป้ายการจองในช่องวัน — สี/พื้นหลังตาม class .st-* (ดู §1.15) */
+.tl-mg-pill {
+  font-size: 11px;
+  line-height: 1.5;
+  border-radius: 5px;
+  padding: 1px 5px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  background: var(--st-bg);
+  color: var(--st-fg);
+}
+
+.tl-mg-pill--compact {
+  font-size: 9.5px;
+  padding: 1px 4px;
+}
+
+/* จางลงเมื่อวันนั้นอยู่นอกเดือนที่ดู */
+.tl-mg-pill--out {
+  opacity: .45;
+}
+
+/* ป้าย "+N" เมื่อมีการจองเกิน 3 รายการ */
+.tl-mg-more {
+  font-size: 11px;
+  color: #8a97a2;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.tl-mg-more--compact {
+  font-size: 9.5px;
+}
+
+.tl-mg-more--out {
+  opacity: .45;
+}
+
 /* แถบการจองในตารางรายวัน (Timeline) — hover ยกเด่น */
 .tl-bar {
   transition: filter .12s, box-shadow .12s;
