@@ -2585,9 +2585,27 @@
   opacity: .45;
 }
 
-/* แถบการจองในตารางรายวัน (Timeline) — hover ยกเด่น */
+/* แถบการจองในตารางรายวัน (Timeline) — สี/พื้นหลังตาม class .st-* (ดู §1.15) — hover ยกเด่น */
 .tl-bar {
+  position: absolute;
+  top: 7px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 11px;
+  padding: 2px 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  background: var(--st-bg);
+  color: var(--st-fg);
+  border: 1px solid var(--st-fg);
   transition: filter .12s, box-shadow .12s;
+}
+
+/* แถบเตี้ยลงบนมือถือ ตามแถวที่เตี้ยลง */
+.tl-bar--mobile {
+  height: 24px;
 }
 
 .tl-bar:hover {
@@ -2734,6 +2752,229 @@
 .tl-dm-value {
   color: var(--ink-strong);
   word-break: break-word;
+}
+
+/* ===== DayGrid: ตารางรายวัน (รถขับเอง + รถอื่นๆ) ===== */
+/* ข้อความแจ้งว่าวันนี้รถทุกคันว่าง */
+.tl-dg-empty {
+  background: #f2f8f7;
+  border: 1px solid #cfe6e3;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  font-size: 13.5px;
+  color: #0a716e;
+  font-weight: 600;
+}
+
+/* คำแนะนำเลื่อนแนวนอนบนมือถือ */
+.tl-dg-hint {
+  font-size: 11.5px;
+  color: #9aa7b2;
+  margin-bottom: 8px;
+}
+
+/* กรอบนอกที่เลื่อนแนวนอนได้เมื่อตารางกว้างเกินจอ */
+.tl-dg-scroll {
+  overflow-x: auto;
+}
+
+/* กรอบในกำหนดความกว้างขั้นต่ำของตาราง — กว้างพอให้ 15 ช่วงเวลาไม่บีบ */
+.tl-dg-inner {
+  min-width: 940px;
+}
+
+.tl-dg-inner--tablet {
+  min-width: 820px;
+}
+
+.tl-dg-inner--mobile {
+  min-width: 760px;
+}
+
+/* แถวแกนเวลาบนสุด (ป้ายชั่วโมง) */
+.tl-dg-axis-row {
+  display: flex;
+}
+
+/* ช่องว่างเทียบตำแหน่งคอลัมน์ป้ายรถ ให้แกนเวลาเริ่มตรงกับตาราง */
+.tl-dg-axis-spacer {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.tl-dg-axis-spacer--tablet {
+  width: 116px;
+}
+
+.tl-dg-axis-spacer--mobile {
+  width: 108px;
+}
+
+/* พื้นที่วางป้ายชั่วโมง */
+.tl-dg-axis-track {
+  position: relative;
+  flex: 1;
+  height: 22px;
+}
+
+/* ป้ายชั่วโมงบนแกนเวลา */
+.tl-dg-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 11.5px;
+  color: #9aa7b2;
+  font-weight: 600;
+}
+
+.tl-dg-tick--tablet {
+  font-size: 10px;
+}
+
+.tl-dg-tick--mobile {
+  font-size: 9.5px;
+}
+
+/* จุดแดงบนแกนเวลา บอกเวลาปัจจุบัน */
+.tl-dg-now-dot {
+  position: absolute;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e5484d;
+}
+
+/* เส้นแดงแนวตั้งบอกเวลาปัจจุบัน พาดผ่านแถวรถ */
+.tl-dg-now-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5484d;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* แถวรถขับเอง 1 คัน หรือแถวคำขอรถอื่นๆ 1 รายการ */
+.tl-dg-row {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid #e3e8ec;
+}
+
+/* คอลัมน์ป้ายซ้าย (ชื่อรถ/ผู้จอง) ของแต่ละแถว */
+.tl-dg-label-col {
+  width: 150px;
+  flex-shrink: 0;
+  padding: 10px 8px;
+  font-size: 13px;
+  color: #1f2a33;
+}
+
+.tl-dg-label-col--tablet {
+  width: 116px;
+}
+
+.tl-dg-label-col--mobile {
+  width: 108px;
+  font-size: 11.5px;
+}
+
+/* คอลัมน์ป้ายของรถที่ปิดซ่อมบำรุง — ตัวหนังสือจาง */
+.tl-dg-label-col--maint {
+  color: #b0b9c0;
+}
+
+/* บรรทัดหลักของป้าย (รุ่นรถ/ชื่อผู้จอง) ตัดคำยาวด้วย ... */
+.tl-dg-label-primary {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* บรรทัดรองของป้าย (ทะเบียน/รายละเอียดการจอง) */
+.tl-dg-label-sub {
+  font-size: 11px;
+  color: #9aa7b2;
+}
+
+.tl-dg-label-sub--mobile {
+  font-size: 10px;
+}
+
+/* ตัดบรรทัดรองที่ยาวเกินคอลัมน์ด้วย ... (แถวคำขอรถอื่นๆ) */
+.tl-dg-label-sub-clip {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* พื้นที่ขวาของแถว วางเส้นเวลา/เส้นเวลาปัจจุบัน/แถบการจอง */
+.tl-dg-track {
+  position: relative;
+  flex: 1;
+  min-height: 46px;
+  background: #fff;
+}
+
+.tl-dg-track--mobile {
+  min-height: 38px;
+}
+
+/* พื้นหลังของแถวรถที่ปิดซ่อมบำรุง */
+.tl-dg-track--maint {
+  background: #f7f8f9;
+}
+
+/* เส้นบางแบ่งชั่วโมงในพื้นที่ track */
+.tl-dg-tick-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #e3e8ec;
+}
+
+/* ข้อความตอนไม่มีรถขับเองในระบบ */
+.tl-dg-no-cars {
+  padding: 30px;
+  text-align: center;
+  color: #9aa7b2;
+}
+
+/* หัวข้อส่วนคำขอ "รถอื่นๆ" */
+.tl-dg-other-head {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #e3ecec;
+  background: #f2f8f7;
+}
+
+/* ป้ายข้อความหัวข้อ "รถอื่นๆ" */
+.tl-dg-other-label {
+  width: 150px;
+  flex-shrink: 0;
+  padding: 7px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0a716e;
+}
+
+.tl-dg-other-label--tablet {
+  width: 116px;
+}
+
+.tl-dg-other-label--mobile {
+  width: 108px;
+  font-size: 10px;
+}
+
+/* ช่องว่างขวาสุดของหัวข้อ "รถอื่นๆ" */
+.tl-dg-other-head-fill {
+  flex: 1;
 }
 
 /* ===== ForcePasswordResetModal: popup บังคับเปลี่ยนรหัสผ่านหลัง login (ปิด/กดนอกไม่ได้) ===== */

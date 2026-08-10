@@ -26,23 +26,13 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
   const nowH = now.getHours() + now.getMinutes() / 60;
   const showNow = dayStr === ymd(now) && nowH >= DAY_START && nowH <= DAY_END;
   const nowLeft = ((nowH - DAY_START) / SPAN) * 100;
-  const nowLine = { position: 'absolute', top: 0, bottom: 0, left: `${nowLeft}%`, width: 2, background: '#e5484d', zIndex: 3, pointerEvents: 'none' };
 
   // มีการจองในวันนี้ไหม (self + other) — ใช้ตัดสิน empty state
   const dayCount = bookings.filter((b) => overlapsDay(b, dayStr)).length;
 
+  // ปรับขนาด/ความกว้างตามจอ — คุมด้วย class modifier ใน style.css (§6 .tl-dg-*)
   const isMobile = device === 'mobile';
   const isTablet = device === 'tablet';
-
-  // ป้ายรายชั่วโมง 15 อัน ต้องการความกว้าง — ให้เลื่อนแนวนอนได้ทุกจอถ้าไม่พอ (เดสก์ท็อปกว้างพอ)
-  const overflowX = 'auto';
-  const innerMinWidth = isMobile ? 760 : isTablet ? 820 : 940;
-  const labelW = isMobile ? 108 : isTablet ? 116 : 150;
-  const trackMinH = isMobile ? 38 : 46;
-  const barH = trackMinH - 14;
-  const tickFont = isMobile ? 9.5 : isTablet ? 10 : 11.5;
-  const labelFont = isMobile ? 11.5 : 13;
-  const subFont = isMobile ? 10 : 11;
 
   // คำขอ "รถอื่นๆ" ของวันนี้ (ไม่มีคอลัมน์รถ) — แสดงแถวละคำขอใต้ตารางรถ ตาม scoping ที่ backend ส่งมา
   const otherBookings = bookings
@@ -53,25 +43,36 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
     <div>
       {/* ยังไม่มีการจองในวันนี้ (รถทุกคันว่าง) */}
       {dayCount === 0 && (
-        <div style={{ background: '#f2f8f7', border: '1px solid #cfe6e3', borderRadius: 10, padding: '12px 16px', marginBottom: 12, fontSize: 13.5, color: '#0a716e', fontWeight: 600 }}>{t('tl.day_empty')}</div>
+        <div className="tl-dg-empty">{t('tl.day_empty')}</div>
       )}
       {/* hint สำหรับมือถือ: เลื่อนแนวนอนดูช่วงเวลา */}
       {isMobile && (
-        <div style={{ fontSize: 11.5, color: '#9aa7b2', marginBottom: 8 }}>{t('tl.scroll_hint')}</div>
+        <div className="tl-dg-hint">{t('tl.scroll_hint')}</div>
       )}
-      <div style={{ overflowX }}>
-        <div style={{ minWidth: innerMinWidth }}>
+      <div className="tl-dg-scroll">
+        <div className={`tl-dg-inner${isTablet ? ' tl-dg-inner--tablet' : isMobile ? ' tl-dg-inner--mobile' : ''}`}>
           {/* แกนเวลา */}
-          <div style={{ display: 'flex' }}>
-            <div style={{ width: labelW, flexShrink: 0 }} />
-            <div style={{ position: 'relative', flex: 1, height: 22 }}>
+          <div className="tl-dg-axis-row">
+            <div className={`tl-dg-axis-spacer${isTablet ? ' tl-dg-axis-spacer--tablet' : isMobile ? ' tl-dg-axis-spacer--mobile' : ''}`} />
+            <div className="tl-dg-axis-track">
               {ticks.map((t) => (
-                <span key={t} style={{ position: 'absolute', left: `${((t - DAY_START) / SPAN) * 100}%`, transform: 'translateX(-50%)', fontSize: tickFont, color: '#9aa7b2', fontWeight: 600 }}>
+                <span
+                  key={t}
+                  className={`tl-dg-tick${isTablet ? ' tl-dg-tick--tablet' : isMobile ? ' tl-dg-tick--mobile' : ''}`}
+                  // left คำนวณจากตำแหน่งชั่วโมงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                  style={{ left: `${((t - DAY_START) / SPAN) * 100}%` }}
+                >
                   {(t < 10 ? '0' + t : t) + ':00'}
                 </span>
               ))}
               {/* จุดแดง = เวลาตอนนี้ */}
-              {showNow && <span style={{ position: 'absolute', left: `${nowLeft}%`, transform: 'translateX(-50%)', bottom: 0, width: 8, height: 8, borderRadius: '50%', background: '#e5484d' }} />}
+              {showNow && (
+                <span
+                  className="tl-dg-now-dot"
+                  // left คำนวณจากเวลาปัจจุบันจริงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                  style={{ left: `${nowLeft}%` }}
+                />
+              )}
             </div>
           </div>
 
@@ -82,43 +83,42 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
               (b) => b.booking_type === 'self' && String(b.car_id) === String(car.id) && overlapsDay(b, dayStr),
             );
             return (
-              <div key={car.id} style={{ display: 'flex', alignItems: 'stretch', borderTop: '1px solid #e3e8ec' }}>
-                <div style={{ width: labelW, flexShrink: 0, padding: '10px 8px', fontSize: labelFont, color: maint ? '#b0b9c0' : '#1f2a33' }}>
-                  <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{car.model}</div>
-                  <div style={{ fontSize: subFont, color: '#9aa7b2' }}>{car.plate}{maint ? ' · ' + t('car.status_maintenance') : ''}</div>
+              <div key={car.id} className="tl-dg-row">
+                <div className={`tl-dg-label-col${isTablet ? ' tl-dg-label-col--tablet' : ''}${isMobile ? ' tl-dg-label-col--mobile' : ''}${maint ? ' tl-dg-label-col--maint' : ''}`}>
+                  <div className="tl-dg-label-primary">{car.model}</div>
+                  <div className={`tl-dg-label-sub${isMobile ? ' tl-dg-label-sub--mobile' : ''}`}>{car.plate}{maint ? ' · ' + t('car.status_maintenance') : ''}</div>
                 </div>
-                <div style={{ position: 'relative', flex: 1, minHeight: trackMinH, background: maint ? '#f7f8f9' : '#fff' }}>
+                <div className={`tl-dg-track${isMobile ? ' tl-dg-track--mobile' : ''}${maint ? ' tl-dg-track--maint' : ''}`}>
                   {ticks.map((t) => (
-                    <div key={t} style={{ position: 'absolute', top: 0, bottom: 0, left: `${((t - DAY_START) / SPAN) * 100}%`, width: 1, background: '#e3e8ec' }} />
+                    <div
+                      key={t}
+                      className="tl-dg-tick-line"
+                      // left คำนวณจากตำแหน่งชั่วโมงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                      style={{ left: `${((t - DAY_START) / SPAN) * 100}%` }}
+                    />
                   ))}
-                  {showNow && <div style={nowLine} />}
+                  {showNow && (
+                    <div
+                      className="tl-dg-now-line"
+                      // left คำนวณจากเวลาปัจจุบันจริงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                      style={{ left: `${nowLeft}%` }}
+                    />
+                  )}
                   {bars.map((b) => {
                     const eEnd = effectiveEnd(b);
                     const sh = clampHour(parseDT(b.start_at), dayStr);
                     const eh = clampHour(parseDT(eEnd), dayStr);
-                    const meta = STATUS_META[b.status] || STATUS_META.pending;
+                    const statusKey = STATUS_META[b.status] ? b.status : 'pending';
                     return (
                       <div
                         key={b.id}
-                        className="tl-bar"
+                        className={`tl-bar st-${statusKey}${isMobile ? ' tl-bar--mobile' : ''}`}
                         onClick={() => onOpenDetail(b)}
                         title={`${hhmm(b.start_at)}–${hhmm(eEnd)} ${bookingLabel(b)}`}
+                        // left/width คำนวณจากช่วงเวลาจองจริงบนแกนเวลาต่อเนื่อง — ค่า runtime
                         style={{
-                          position: 'absolute',
-                          top: 7,
-                          height: barH,
                           left: `${((sh - DAY_START) / SPAN) * 100}%`,
                           width: `${Math.max((eh - sh) / SPAN * 100, 2)}%`,
-                          background: meta.bg,
-                          color: meta.fg,
-                          border: `1px solid ${meta.fg}`,
-                          borderRadius: 6,
-                          fontSize: 11,
-                          padding: '2px 6px',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          cursor: 'pointer',
                         }}
                       >
                         {hhmm(b.start_at)}–{hhmm(eEnd)}
@@ -130,51 +130,50 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
             );
           })}
           {cars.length === 0 && (
-            <div style={{ padding: 30, textAlign: 'center', color: '#9aa7b2' }}>{t('tl.no_self_cars')}</div>
+            <div className="tl-dg-no-cars">{t('tl.no_self_cars')}</div>
           )}
 
           {/* รถอื่นๆ (จัดหา) — คำขอที่ไม่มีคอลัมน์รถ วางแถวละคำขอบนแกนเวลาเดียวกัน */}
           {otherBookings.length > 0 && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', borderTop: '1px solid #e3ecec', background: '#f2f8f7' }}>
-                <div style={{ width: labelW, flexShrink: 0, padding: '7px 8px', fontSize: subFont, fontWeight: 700, color: '#0a716e' }}>{t('tl.other_cars_label')}</div>
-                <div style={{ flex: 1 }} />
+              <div className="tl-dg-other-head">
+                <div className={`tl-dg-other-label${isTablet ? ' tl-dg-other-label--tablet' : ''}${isMobile ? ' tl-dg-other-label--mobile' : ''}`}>{t('tl.other_cars_label')}</div>
+                <div className="tl-dg-other-head-fill" />
               </div>
               {otherBookings.map((b) => {
                 const sh = clampHour(parseDT(b.start_at), dayStr);
                 const eh = clampHour(parseDT(b.end_at), dayStr);
-                const meta = STATUS_META[b.status] || STATUS_META.pending;
+                const statusKey = STATUS_META[b.status] ? b.status : 'pending';
                 return (
-                  <div key={b.id} style={{ display: 'flex', alignItems: 'stretch', borderTop: '1px solid #e3e8ec' }}>
-                    <div style={{ width: labelW, flexShrink: 0, padding: '10px 8px', fontSize: labelFont, color: '#1f2a33' }}>
-                      <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.requester_name || t('tl.other_car_requester_fallback')}</div>
-                      <div style={{ fontSize: subFont, color: '#9aa7b2', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{bookingLabel(b)}</div>
+                  <div key={b.id} className="tl-dg-row">
+                    <div className={`tl-dg-label-col${isTablet ? ' tl-dg-label-col--tablet' : ''}${isMobile ? ' tl-dg-label-col--mobile' : ''}`}>
+                      <div className="tl-dg-label-primary">{b.requester_name || t('tl.other_car_requester_fallback')}</div>
+                      <div className={`tl-dg-label-sub tl-dg-label-sub-clip${isMobile ? ' tl-dg-label-sub--mobile' : ''}`}>{bookingLabel(b)}</div>
                     </div>
-                    <div style={{ position: 'relative', flex: 1, minHeight: trackMinH, background: '#fff' }}>
+                    <div className={`tl-dg-track${isMobile ? ' tl-dg-track--mobile' : ''}`}>
                       {ticks.map((t) => (
-                        <div key={t} style={{ position: 'absolute', top: 0, bottom: 0, left: `${((t - DAY_START) / SPAN) * 100}%`, width: 1, background: '#e3e8ec' }} />
+                        <div
+                          key={t}
+                          className="tl-dg-tick-line"
+                          // left คำนวณจากตำแหน่งชั่วโมงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                          style={{ left: `${((t - DAY_START) / SPAN) * 100}%` }}
+                        />
                       ))}
-                      {showNow && <div style={nowLine} />}
+                      {showNow && (
+                        <div
+                          className="tl-dg-now-line"
+                          // left คำนวณจากเวลาปัจจุบันจริงบนแกนเวลาต่อเนื่อง — ค่า runtime
+                          style={{ left: `${nowLeft}%` }}
+                        />
+                      )}
                       <div
-                        className="tl-bar"
+                        className={`tl-bar st-${statusKey}${isMobile ? ' tl-bar--mobile' : ''}`}
                         onClick={() => onOpenDetail(b)}
                         title={`${hhmm(b.start_at)}–${hhmm(b.end_at)} ${bookingLabel(b)}`}
+                        // left/width คำนวณจากช่วงเวลาจองจริงบนแกนเวลาต่อเนื่อง — ค่า runtime
                         style={{
-                          position: 'absolute',
-                          top: 7,
-                          height: barH,
                           left: `${((sh - DAY_START) / SPAN) * 100}%`,
                           width: `${Math.max((eh - sh) / SPAN * 100, 2)}%`,
-                          background: meta.bg,
-                          color: meta.fg,
-                          border: `1px solid ${meta.fg}`,
-                          borderRadius: 6,
-                          fontSize: 11,
-                          padding: '2px 6px',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          cursor: 'pointer',
                         }}
                       >
                         {hhmm(b.start_at)}–{hhmm(b.end_at)}
