@@ -2,7 +2,7 @@
 
 return [
     'login_title'     => 'Log in',
-    'login_subtitle'  => 'Enter your username and password to access the system',
+    'login_subtitle'  => 'Welcome to iCar Booking',
     'username_label'  => 'Username',
     'password_label'  => 'Password',
     'username_ph'     => 'Enter your username',
@@ -64,8 +64,7 @@ return [
     'srv_phone_max'     => 'Phone number must not exceed 10 characters',
 
     // hero panel (login)
-    'hero_title_1'      => 'Vehicle Booking Management System',
-    'hero_title_2'      => 'for Factories',
+    'hero_title'        => 'Car Booking Management System',
     'hero_bullet_1'     => 'Book both self-drive and chauffeured vehicles',
     'hero_bullet_2'     => 'Track request status in real time',
     'hero_bullet_3'     => 'Admins approve and manage everything in one place',

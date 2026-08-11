@@ -3,7 +3,7 @@
 return [
     // login form
     'login_title'     => 'เข้าสู่ระบบ',
-    'login_subtitle'  => 'กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าใช้งานระบบ',
+    'login_subtitle'  => 'ยินดีต้อนรับสู่ระบบ iCar Booking',
     'username_label'  => 'ชื่อผู้ใช้ (Username)',
     'password_label'  => 'รหัสผ่าน (Password)',
     'username_ph'     => 'กรอกชื่อผู้ใช้',
@@ -67,8 +67,7 @@ return [
     'srv_phone_max'     => 'เบอร์โทรศัพท์ยาวไม่เกิน 10 ตัว',
 
     // hero panel (login)
-    'hero_title_1'      => 'ระบบจัดการการจองรถ',
-    'hero_title_2'      => 'สำหรับโรงงาน',
+    'hero_title'        => 'ระบบจัดการการจองรถ',
     'hero_bullet_1'     => 'จองรถได้ทั้งแบบขับเองและรถพร้อมคนขับ',
     'hero_bullet_2'     => 'ติดตามสถานะคำขอแบบเรียลไทม์',
     'hero_bullet_3'     => 'ผู้ดูแลระบบอนุมัติและจัดการในที่เดียว',

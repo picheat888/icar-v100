@@ -42,8 +42,7 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
       </div>
 
       <div class="login-hero-layer">
-        <h1 class="login-hero-title"><?= lang('Account.hero_title_1') ?><br><?= lang('Account.hero_title_2') ?></h1>
-        <p class="login-hero-sub">FACTORY VEHICLE BOOKING SYSTEM</p>
+        <h1 class="login-hero-title"><?= lang('Account.hero_title') ?></h1>
         <div class="login-bullets">
           <?php foreach ([
               lang('Account.hero_bullet_1'),
@@ -65,16 +64,6 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
 
     <!-- ===== Form ===== -->
     <div class="login-form">
-      <div class="brand brand--lg login-brand">
-        <div class="icon-box brand-icon">
-          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-name">iCar</div>
-          <div class="brand-sub">BOOKING</div>
-        </div>
-      </div>
-
       <h2 class="title title--xl"><?= lang('Account.login_title') ?></h2>
       <p class="subtext subtext--lg login-sub"><?= lang('Account.login_subtitle') ?></p>
 
