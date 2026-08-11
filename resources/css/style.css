@@ -1558,9 +1558,10 @@
 }
 
 /* ----- 3.5 หน้า register: แผงฟอร์ม ----- */
+/* พื้นคอลัมน์ฟอร์ม — ใช้โทนพื้นที่เนื้อหา ไม่ใช่ --surface ไม่งั้นจะกลืนกับ track ของตัวสลับภาษา */
 .reg-main {
   flex: 1;
-  background: var(--surface);
+  background: var(--bg-content);
   padding: 40px 36px;
   overflow-y: auto;
 }
@@ -1756,7 +1757,7 @@
 
 /* ----- 3.6 หน้าสมัครสำเร็จ ----- */
 .rs-body {
-  background: var(--surface);
+  background: var(--bg-content);
 }
 
 .rs-wrap {
