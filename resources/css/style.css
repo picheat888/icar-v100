@@ -6268,3 +6268,375 @@
   --st-bg: var(--danger-soft);
   --st-fg: var(--danger);
 }
+
+/* ===== RequestsManager: โมดัลอนุมัติ/ปฏิเสธ + มอบหมายคนขับ + drawer รายละเอียด (ส่วนที่ 2) ===== */
+
+/* บล็อกฟอร์ม/เนื้อหาย่อยในโมดัล ที่มีเส้นคั่นด้านบน */
+.rq-modal-section {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+/* padding บนมากขึ้น — โซนอนุมัติ/ยกเลิกที่ขอ */
+.rq-modal-section--lg {
+  padding-top: 18px;
+}
+
+/* padding บนของโซนมอบหมายคนขับ (ในโหมดดูอย่างเดียว) */
+.rq-modal-section--assign {
+  padding-top: 14px;
+}
+
+/* โซนดูอย่างเดียว — เรียงเนื้อหาเป็นคอลัมน์มีระยะห่างเท่ากัน */
+.rq-modal-section--col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ระยะห่างล่างของช่องกรอกเดี่ยวในฟอร์ม */
+.rq-field-gap {
+  margin-bottom: 14px;
+}
+
+/* ระยะห่างล่างที่กว้างกว่า .rq-field-gap — ใช้กับช่องเลือกคนขับ/ชื่อคนขับภายนอก */
+.rq-field-gap-lg {
+  margin-bottom: 16px;
+}
+
+/* แถวฟอร์ม 2 คอลัมน์เท่ากัน */
+.rq-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+/* แถวฟอร์ม 2 คอลัมน์ในกล่องข้อมูลคนขับ — ไม่มีระยะห่างล่าง เพราะกล่องแม่คุม padding ให้แล้ว */
+.rq-driver-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ช่องที่กินเต็มความกว้างในแถวฟอร์ม 2 คอลัมน์ */
+.rq-grid-full {
+  grid-column: 1 / -1;
+}
+
+/* textarea ลากเปลี่ยนความสูงแนวตั้งได้ */
+.rq-textarea {
+  resize: vertical;
+}
+
+/* select ในฟอร์ม — เคอร์เซอร์นิ้วชี้ */
+.rq-select {
+  cursor: pointer;
+}
+
+/* แถวปุ่มจัดการท้ายฟอร์ม/โมดัล ชิดขวา */
+.rq-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.rq-modal-actions--mt18 {
+  margin-top: 18px;
+}
+
+.rq-modal-actions--mt14 {
+  margin-top: 14px;
+}
+
+.rq-modal-actions--mt20 {
+  margin-top: 20px;
+}
+
+.rq-modal-actions--mt6 {
+  margin-top: 6px;
+}
+
+/* ปุ่มฐานในแถวปุ่มจัดการของโมดัล (ยกเลิก/บันทึก/อนุมัติ/ปฏิเสธ/ยืนยัน) */
+.rq-modal-btn {
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  font-size: 14.5px;
+}
+
+.rq-modal-btn:disabled {
+  cursor: wait;
+}
+
+/* ปุ่มเทาเป็นกลาง (ยกเลิก/ปิด/ย้อนกลับ) */
+.rq-modal-btn--gray {
+  background: #f1f3f5;
+  color: var(--text-soft);
+  padding: 11px 22px;
+}
+
+/* ปุ่มแดงอ่อน (ปฏิเสธในโหมดอนุมัติ) */
+.rq-modal-btn--reject-soft {
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 11px 22px;
+}
+
+/* ปุ่มแดงทึบ (ยืนยันยกเลิก/ยืนยันปฏิเสธ) */
+.rq-modal-btn--danger-solid {
+  background: var(--danger);
+  color: #fff;
+  padding: 11px 26px;
+}
+
+/* ปุ่มบันทึกแก้ไข (teal ทึบ) */
+.rq-modal-btn--save {
+  background: var(--teal-hover);
+  color: #fff;
+  padding: 11px 26px;
+}
+
+.rq-modal-btn--save:disabled {
+  cursor: not-allowed;
+}
+
+/* ปุ่มอนุมัติ/บันทึกคนขับ (เขียวทึบ) */
+.rq-modal-btn--approve {
+  background: var(--success);
+  color: #fff;
+  padding: 11px 26px;
+}
+
+.rq-modal-btn--approve:disabled {
+  cursor: not-allowed;
+}
+
+/* ปุ่ม save/approve ที่คนขับซ้อนเวลา — จางลงเตือน (ยังกดไม่ได้เพราะ disabled คุมไว้) */
+.rq-modal-btn--clash {
+  opacity: .55;
+}
+
+/* แถบปุ่มเครื่องมือด้านบนโมดัล (แก้ไขคำขอ/ยกเลิกคำขอ) */
+.rq-toolbar-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* ปุ่มในแถบเครื่องมือด้านบนโมดัล — เล็กกว่าปุ่มท้ายฟอร์ม */
+.rq-toolbar-btn {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rq-toolbar-btn--edit {
+  background: #eef4f8;
+  color: var(--text);
+  border: 1px solid #dbe4ea;
+}
+
+.rq-toolbar-btn--cancel {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: none;
+}
+
+/* กล่องแจ้งเตือนในเนื้อหาโมดัล (ไม่ใช้ .alert-error เพราะไม่มีไอคอนและใช้ได้ทั้งโทนแดง/อำพัน) */
+.rq-notice {
+  border-radius: 10px;
+  font-size: 13.5px;
+}
+
+.rq-notice--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 12px 15px;
+  margin-bottom: 14px;
+}
+
+.rq-notice--warn {
+  background: #fff3e0;
+  border: 1px solid #f0d9b5;
+  color: #8a5a12;
+  padding: 13px 15px;
+  margin-bottom: 18px;
+}
+
+/* เครื่องหมายดอกจันบอกฟิลด์บังคับกรอก */
+.rq-required {
+  color: var(--danger);
+}
+
+/* กล่องข้อมูลคนขับ (บริษัท/ภายนอก) ในฟอร์มมอบหมายคนขับ */
+.rq-driver-box {
+  border-radius: 10px;
+  padding: 15px 16px;
+  margin-bottom: 16px;
+}
+
+.rq-driver-box--company {
+  background: #f0f7f6;
+  border: 1px solid #cbe6e2;
+}
+
+.rq-driver-box--external {
+  background: #f6f9fa;
+  border: 1px solid #e3e9ec;
+}
+
+.rq-driver-box-title {
+  font-size: 12px;
+  color: var(--teal-hover);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* แถวชื่อคนขับในกล่องข้อมูลคนขับบริษัท */
+.rq-driver-box-row {
+  margin-bottom: 12px;
+}
+
+.rq-driver-box-note {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 10px;
+}
+
+/* ปุ่มปิด drawer (กากบาท) */
+.rq-drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 4px;
+  display: flex;
+}
+
+/* หัว drawer: ชื่อเรื่อง + ปุ่มปิด */
+.rq-drawer-head {
+  flex: none;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rq-drawer-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+/* พื้นที่เนื้อหา drawer — เลื่อนแนวตั้งได้ */
+.rq-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 26px;
+}
+
+/* กริดรายละเอียดคำขอ 2 คอลัมน์ บนสุดของเนื้อหา drawer */
+.rq-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
+  margin-bottom: 18px;
+}
+
+.rq-detail-label {
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.rq-detail-value {
+  font-size: 14.5px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ลิงก์เปิดแผนที่ */
+.rq-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 18px;
+}
+
+/* ลิงก์แผนที่ไม่ปลอดภัย/ไม่ถูกต้อง — สีเทาแทนสี teal */
+.rq-map-link--invalid {
+  background: #f1f3f5;
+  color: var(--text-faint);
+}
+
+/* แถวหัวข้อ "สถานะ:" + ป้ายสถานะ (โหมดดูอย่างเดียว) */
+.rq-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rq-status-row-label {
+  font-size: 13px;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+/* ข้อความคนขับที่มอบหมายแล้ว — ชื่อคนขับ (ตัวหนา) เน้นสี teal */
+.rq-assigned-note {
+  font-size: 13.5px;
+  color: #6b7884;
+}
+
+.rq-assigned-note b {
+  color: var(--teal-hover);
+}
+
+.rq-assigned-note--gap {
+  margin-bottom: 14px;
+}
+
+/* ข้อความเวลาที่คืนรถจริง */
+.rq-returned-note {
+  font-size: 13.5px;
+  color: var(--teal-hover);
+}
+
+/* กล่องหมายเหตุ Admin ในโหมดดูอย่างเดียว */
+.rq-admin-note {
+  background: #f6f8f9;
+  border-radius: 8px;
+  padding: 10px 13px;
+  font-size: 13.5px;
+  color: var(--text-soft);
+}
+
+/* ปุ่มมอบหมาย/เปลี่ยนคนขับ (โหมดดูอย่างเดียว) */
+.rq-assign-btn {
+  align-self: flex-start;
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}

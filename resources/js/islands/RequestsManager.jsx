@@ -46,7 +46,6 @@ const rangeLines = (s, e) => {
     : [`${thDate(s)} ${thTime(s)}`, `→ ${thDate(e)} ${thTime(e)}`];
 };
 const carText = (b) => (b.car_model ? `${b.car_model}${b.car_plate ? ' · ' + b.car_plate : ''}` : (b.booking_type === 'other' ? t('req.provided_by_admin') : '-'));
-const lbl = { display: 'block', fontSize: 13, fontWeight: 600, color: '#54616c', marginBottom: 6 };
 
 // ไอคอนบนปุ่ม
 const ICO = {
@@ -274,30 +273,30 @@ export default function RequestsManager({ endpoints }) {
   const editForm = () => {
     const isOther = modal.booking.booking_type === 'other';
     return (
-      <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
-        <label style={lbl}>{t('req.location_label')}</label>
-        <input value={modal.form.location} onChange={(e) => setForm({ location: e.target.value })} className="form-input form-input--sm" style={{ marginBottom: 14 }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-          <div><label style={lbl}>{t('req.start_label')}</label><input type="datetime-local" value={modal.form.start_at} onChange={(e) => setForm({ start_at: e.target.value })} className="form-input form-input--sm" /></div>
-          <div><label style={lbl}>{t('req.end_label')}</label><input type="datetime-local" value={modal.form.end_at} onChange={(e) => setForm({ end_at: e.target.value })} className="form-input form-input--sm" /></div>
+      <div className="rq-modal-section">
+        <label className="form-label">{t('req.location_label')}</label>
+        <input value={modal.form.location} onChange={(e) => setForm({ location: e.target.value })} className="form-input form-input--sm rq-field-gap" />
+        <div className="rq-form-grid">
+          <div><label className="form-label">{t('req.start_label')}</label><input type="datetime-local" value={modal.form.start_at} onChange={(e) => setForm({ start_at: e.target.value })} className="form-input form-input--sm" /></div>
+          <div><label className="form-label">{t('req.end_label')}</label><input type="datetime-local" value={modal.form.end_at} onChange={(e) => setForm({ end_at: e.target.value })} className="form-input form-input--sm" /></div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-          <div><label style={lbl}>{t('req.people_label')}</label><input type="number" min="1" value={modal.form.people} onChange={(e) => setForm({ people: e.target.value })} className="form-input form-input--sm" /></div>
-          <div><label style={lbl}>{t('req.map_label')}</label><input value={modal.form.map_link} maxLength={500} onChange={(e) => setForm({ map_link: e.target.value })} placeholder={t('req.map_placeholder')} className="form-input form-input--sm" /></div>
+        <div className="rq-form-grid">
+          <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={modal.form.people} onChange={(e) => setForm({ people: e.target.value })} className="form-input form-input--sm" /></div>
+          <div><label className="form-label">{t('req.map_label')}</label><input value={modal.form.map_link} maxLength={500} onChange={(e) => setForm({ map_link: e.target.value })} placeholder={t('req.map_placeholder')} className="form-input form-input--sm" /></div>
         </div>
-        <label style={lbl}>{t('req.purpose_label')}</label>
-        <textarea value={modal.form.purpose} onChange={(e) => setForm({ purpose: e.target.value })} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical', marginBottom: 14 }} />
+        <label className="form-label">{t('req.purpose_label')}</label>
+        <textarea value={modal.form.purpose} onChange={(e) => setForm({ purpose: e.target.value })} rows={2} className="form-input form-input--sm rq-textarea rq-field-gap" />
         {isOther ? driverPicker() : (
           <>
-            <label style={lbl}>{t('req.car_self_label')}</label>
-            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm" style={{ cursor: 'pointer' }}>
+            <label className="form-label">{t('req.car_self_label')}</label>
+            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm rq-select">
               {cars.map((c) => <option key={c.id} value={c.id}>{c.model}{c.plate ? ` — ${c.plate}` : ''} ({t('req.seats_count', { n: c.seats })})</option>)}
             </select>
           </>
         )}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 18 }}>
-          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.cancel_edit')}</button>
-          <button onClick={doUpdate} disabled={busy || !!driverClash()} style={{ background: '#0a716e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: (busy || driverClash()) ? 'not-allowed' : 'pointer', opacity: driverClash() ? 0.55 : 1, fontFamily: 'inherit' }}>{t('common.save')}</button>
+        <div className="rq-modal-actions rq-modal-actions--mt18">
+          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('req.cancel_edit')}</button>
+          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('common.save')}</button>
         </div>
       </div>
     );
@@ -323,8 +322,8 @@ export default function RequestsManager({ endpoints }) {
     const selDriver = drivers.find((d) => String(d.id) === String(modal.form.driver));
     return (
       <>
-        <label style={lbl}>{t('req.pick_driver_label')}</label>
-        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} className="form-input form-input--sm" style={{ marginBottom: 16, cursor: 'pointer' }}>
+        <label className="form-label">{t('req.pick_driver_label')}</label>
+        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} className="form-input form-input--sm rq-select rq-field-gap-lg">
           <option value="">{t('req.not_assigned_option')}</option>
           {drivers.map((d) => <option key={d.id} value={d.id}>{d.name || t('req.driver_hash', { n: d.id })}</option>)}
           <option value="external">{t('req.external_driver_option')}</option>
@@ -335,32 +334,32 @@ export default function RequestsManager({ endpoints }) {
 
         {/* คนขับบริษัท: pre-fill เบอร์โทร/รถ/ที่นั่งจากคนขับ แล้วแก้ไขได้ (เฉพาะคำขอนี้) */}
         {selDriver && (
-          <div style={{ background: '#f0f7f6', border: '1px solid #cbe6e2', borderRadius: 10, padding: '15px 16px', marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: '#0a716e', fontWeight: 700, marginBottom: 12 }}>{t('req.driver_car_info')}</div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 12, color: '#9aa7b2', fontWeight: 600, marginBottom: 3 }}>{t('req.driver_name_label')}</div>
-              <div style={{ fontSize: 14.5, color: '#37434d', fontWeight: 600 }}>{selDriver.name || '-'}</div>
+          <div className="rq-driver-box rq-driver-box--company">
+            <div className="rq-driver-box-title">{t('req.driver_car_info')}</div>
+            <div className="rq-driver-box-row">
+              <div className="rq-detail-label">{t('req.driver_name_label')}</div>
+              <div className="rq-detail-value">{selDriver.name || '-'}</div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
-              <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
+            <div className="rq-driver-grid">
+              <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+              <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+              <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
             </div>
-            <div style={{ fontSize: 11.5, color: '#9aa7b2', marginTop: 10 }}>{t('req.edit_note_driver')}</div>
+            <div className="rq-driver-box-note">{t('req.edit_note_driver')}</div>
           </div>
         )}
 
         {/* คนขับภายนอก: กรอกเอง */}
         {isExternal && (
           <>
-            <label style={lbl}>{t('req.ext_driver_name_label')} <span style={{ color: '#c0392b' }}>*</span></label>
-            <input value={modal.form.ext_name} onChange={(e) => setForm({ ext_name: e.target.value })} placeholder={t('req.name_surname_placeholder')} className="form-input form-input--sm" style={{ marginBottom: 16 }} />
-            <div style={{ background: '#f6f9fa', border: '1px solid #e3e9ec', borderRadius: 10, padding: '15px 16px', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: '#0a716e', fontWeight: 700, marginBottom: 12 }}>{t('req.driver_car_info')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
-                <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
-                <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
+            <label className="form-label">{t('req.ext_driver_name_label')} <span className="rq-required">*</span></label>
+            <input value={modal.form.ext_name} onChange={(e) => setForm({ ext_name: e.target.value })} placeholder={t('req.name_surname_placeholder')} className="form-input form-input--sm rq-field-gap-lg" />
+            <div className="rq-driver-box rq-driver-box--external">
+              <div className="rq-driver-box-title">{t('req.driver_car_info')}</div>
+              <div className="rq-driver-grid">
+                <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+                <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+                <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
               </div>
             </div>
           </>
@@ -521,91 +520,91 @@ export default function RequestsManager({ endpoints }) {
         ];
         if (b.booking_type === 'self') fields.push([t('req.car_label'), b.car_model ? `${b.car_model} (${b.car_plate})` : '-']);
         return (
-          <div onClick={() => setModal(null)} className="icar-drawer-backdrop" style={{ position: 'fixed', inset: 0, background: 'rgba(31,42,51,.45)', display: 'flex', alignItems: 'stretch', justifyContent: 'flex-end', zIndex: 150 }}>
-            <div onClick={(e) => e.stopPropagation()} className="icar-drawer" style={{ background: '#fff', width: 'min(560px, 100%)', height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '-8px 0 40px rgba(0,0,0,.22)' }}>
-              <div style={{ flex: 'none', padding: '22px 26px', borderBottom: '1px solid #f0f3f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#1f2a33' }}>{t('req.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9aa7b2', padding: 4, display: 'flex' }}>
+          <div onClick={() => setModal(null)} className="icar-drawer-backdrop">
+            <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
+              <div className="rq-drawer-head">
+                <h3 className="rq-drawer-title">{t('req.detail_title', { code: b.booking_code })}</h3>
+                <button onClick={() => setModal(null)} className="rq-drawer-close">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '24px 26px' }}>
+              <div className="rq-drawer-body">
                 {modalErr && <div className="rq-alert-gap"><Alert>{modalErr}</Alert></div>}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px', marginBottom: 18 }}>
-                  {fields.map(([k, v]) => <div key={k}><div style={{ fontSize: 12, color: '#9aa7b2', fontWeight: 600, marginBottom: 3 }}>{k}</div><div style={{ fontSize: 14.5, color: '#37434d', fontWeight: 600 }}>{v}</div></div>)}
+                <div className="rq-detail-grid">
+                  {fields.map(([k, v]) => <div key={k}><div className="rq-detail-label">{k}</div><div className="rq-detail-value">{v}</div></div>)}
                 </div>
                 {b.map_link && (isSafeUrl(b.map_link)
-                  ? <a href={b.map_link} target="_blank" rel="noopener" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#e6f3f2', color: '#0a716e', borderRadius: 8, padding: '8px 14px', fontSize: 13.5, fontWeight: 600, textDecoration: 'none', marginBottom: 18 }}>{t('req.open_in_maps')}</a>
-                  : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f1f3f5', color: '#9aa7b2', borderRadius: 8, padding: '8px 14px', fontSize: 13.5, fontWeight: 600, marginBottom: 18 }}>{t('req.invalid_map_link')}</span>)}
+                  ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link">{t('req.open_in_maps')}</a>
+                  : <span className="rq-map-link rq-map-link--invalid">{t('req.invalid_map_link')}</span>)}
 
                 {/* แถบเครื่องมือ Admin: แก้ไข/ยกเลิก คำขอที่ยัง active */}
                 {isActive && !modal.editing && !modal.cancelling && !modal.rejecting && (
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                    <button onClick={enterEdit} disabled={busy} style={{ background: '#eef4f8', color: '#37434d', border: '1px solid #dbe4ea', borderRadius: 8, padding: '8px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('req.edit_request')}</button>
-                    {canAdminCancel && <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} style={{ background: '#fbecea', color: '#c0392b', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('req.cancel_request')}</button>}
+                  <div className="rq-toolbar-row">
+                    <button onClick={enterEdit} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--edit">{t('req.edit_request')}</button>
+                    {canAdminCancel && <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--cancel">{t('req.cancel_request')}</button>}
                   </div>
                 )}
 
                 {modal.editing ? editForm() : modal.cancelling ? (
-                  <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
-                    <div style={{ background: '#fbecea', color: '#c0392b', borderRadius: 10, padding: '12px 15px', fontSize: 13.5, marginBottom: 14 }}>{t('req.confirm_cancel_msg')}</div>
-                    <label style={lbl}>{t('req.note_optional_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical' }} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
-                      <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.no_cancel')}</button>
-                      <button onClick={doCancel} disabled={busy} style={{ background: '#c0392b', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_cancel_request')}</button>
+                  <div className="rq-modal-section">
+                    <div className="rq-notice rq-notice--danger">{t('req.confirm_cancel_msg')}</div>
+                    <label className="form-label">{t('req.note_optional_label')}</label>
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} className="form-input form-input--sm rq-textarea" />
+                    <div className="rq-modal-actions rq-modal-actions--mt14">
+                      <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('req.no_cancel')}</button>
+                      <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_cancel_request')}</button>
                     </div>
                   </div>
                 ) : modal.rejecting ? (
                   // ป็อปอัปปฏิเสธ — บังคับกรอกเหตุผล (ผู้ขอจะเห็นเหตุผลนี้)
-                  <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
-                    <div style={{ background: '#fbecea', color: '#c0392b', borderRadius: 10, padding: '12px 15px', fontSize: 13.5, marginBottom: 14 }}>{t('req.reject_reason_notice')}</div>
-                    <label style={lbl}>{t('req.reject_reason_label')} <span style={{ color: '#c0392b' }}>*</span></label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} className="form-input form-input--sm" style={{ resize: 'vertical' }} autoFocus />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.back')}</button>
-                      <button onClick={doReject} disabled={busy} style={{ background: '#c0392b', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_reject')}</button>
+                  <div className="rq-modal-section">
+                    <div className="rq-notice rq-notice--danger">{t('req.reject_reason_notice')}</div>
+                    <label className="form-label">{t('req.reject_reason_label')} <span className="rq-required">*</span></label>
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} className="form-input form-input--sm rq-textarea" autoFocus />
+                    <div className="rq-modal-actions rq-modal-actions--mt14">
+                      <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.back')}</button>
+                      <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_reject')}</button>
                     </div>
                   </div>
                 ) : pending ? (
-                  <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 18 }}>
+                  <div className="rq-modal-section rq-modal-section--lg">
                     {isOther && driverPicker()}
-                    <label style={lbl}>{t('req.reply_note_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical' }} />
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} style={{ background: '#fbecea', color: '#c0392b', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.reject')}</button>
-                      <button onClick={doApprove} disabled={busy || !!driverClash()} style={{ background: '#16855a', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: (busy || driverClash()) ? 'not-allowed' : 'pointer', opacity: driverClash() ? 0.55 : 1, fontFamily: 'inherit' }}>{t('common.approve')}</button>
+                    <label className="form-label">{t('req.reply_note_label')}</label>
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} className="form-input form-input--sm rq-textarea" />
+                    <div className="rq-modal-actions rq-modal-actions--mt20">
+                      <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{t('common.reject')}</button>
+                      <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('common.approve')}</button>
                     </div>
                   </div>
                 ) : isCancelReq ? (
-                  <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 18 }}>
-                    <div style={{ background: '#fff3e0', border: '1px solid #f0d9b5', borderRadius: 10, padding: '13px 15px', fontSize: 13.5, color: '#8a5a12', marginBottom: 18 }}>
+                  <div className="rq-modal-section rq-modal-section--lg">
+                    <div className="rq-notice rq-notice--warn">
                       {t('req.cancel_req_pre')}<b>{t('req.cancel_req_mid')}</b>{t('req.cancel_req_post')}
                     </div>
-                    {driverAssigned(b) && <div style={{ fontSize: 13.5, color: '#6b7884', marginBottom: 14 }}>{t('req.assigned_driver_label')}<b style={{ color: '#0a716e' }}>{driverAssigned(b)}</b></div>}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                      <button onClick={() => setModal(null)} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.close')}</button>
-                      <button onClick={doConfirmCancel} disabled={busy} style={{ background: '#c0392b', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_cancel')}</button>
+                    {driverAssigned(b) && <div className="rq-assigned-note rq-assigned-note--gap">{t('req.assigned_driver_label')}<b>{driverAssigned(b)}</b></div>}
+                    <div className="rq-modal-actions">
+                      <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.close')}</button>
+                      <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_cancel')}</button>
                     </div>
                   </div>
                 ) : (
-                  <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ fontSize: 13, color: '#9aa7b2', fontWeight: 600 }}>{t('req.status_colon')}</span><span className={`pill pill--sm rq-badge ${sc}`}>{sl}</span></div>
-                    {driverAssigned(b) && <div style={{ fontSize: 13.5, color: '#6b7884' }}>{t('req.assigned_driver_label')}<b style={{ color: '#0a716e' }}>{driverAssigned(b)}</b></div>}
-                    {b.status === 'completed' && b.returned_at && <div style={{ fontSize: 13.5, color: '#0a716e' }}>{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
-                    {b.admin_note && <div style={{ background: '#f6f8f9', borderRadius: 8, padding: '10px 13px', fontSize: 13.5, color: '#54616c' }}>{t('req.note_label')}{b.admin_note}</div>}
+                  <div className="rq-modal-section rq-modal-section--col">
+                    <div className="rq-status-row"><span className="rq-status-row-label">{t('req.status_colon')}</span><span className={`pill pill--sm rq-badge ${sc}`}>{sl}</span></div>
+                    {driverAssigned(b) && <div className="rq-assigned-note">{t('req.assigned_driver_label')}<b>{driverAssigned(b)}</b></div>}
+                    {b.status === 'completed' && b.returned_at && <div className="rq-returned-note">{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
+                    {b.admin_note && <div className="rq-admin-note">{t('req.note_label')}{b.admin_note}</div>}
 
                     {/* มอบหมาย/เปลี่ยนคนขับ — เฉพาะคำขอรถอื่น ๆ ที่อนุมัติแล้ว (เติมกรณีอนุมัติแบบยังไม่มอบหมาย) */}
                     {b.status === 'approved' && isOther && (modal.assigning ? (
-                      <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 14 }}>
+                      <div className="rq-modal-section rq-modal-section--assign">
                         {driverPicker()}
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 6 }}>
-                          <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.cancel')}</button>
-                          <button onClick={doAssign} disabled={busy || !!driverClash()} style={{ background: '#16855a', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: (busy || driverClash()) ? 'not-allowed' : 'pointer', opacity: driverClash() ? 0.55 : 1, fontFamily: 'inherit' }}>{t('req.save_driver')}</button>
+                        <div className="rq-modal-actions rq-modal-actions--mt6">
+                          <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.cancel')}</button>
+                          <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('req.save_driver')}</button>
                         </div>
                       </div>
                     ) : (
-                      <button onClick={() => setModal((m) => ({ ...m, assigning: true }))} style={{ alignSelf: 'flex-start', background: '#e6f3f2', color: '#0a716e', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
+                      <button onClick={() => setModal((m) => ({ ...m, assigning: true }))} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
                     ))}
                   </div>
                 )}
