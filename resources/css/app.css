@@ -30,15 +30,22 @@
   /* ตัวอักษร */
   --text: #37434d;           /* ตัวอักษรทั่วไป */
   --text-soft: #54616c;      /* label / เมนู */
+  --text-mute: #6b7884;      /* ข้อความรอง (จางกว่า --text-soft) */
   --text-faint: #9aa7b2;     /* ข้อความจาง / placeholder */
 
   /* เส้น + พื้นหลัง */
   --line: #f0f3f5;           /* เส้นคั่นอ่อน */
   --hover-bg: #f4f6f7;       /* พื้นตอน hover */
+  --surface: #f1f3f5;        /* พื้นเทาอ่อน — ปุ่มรอง / track segmented / ป้ายเทา */
+  --surface-soft: #f6f8f9;   /* พื้นเทาอ่อนสุด — กล่องโน้ต / ปุ่มไอคอนเล็ก */
+  --teal-line: #cbe6e2;      /* เส้นขอบ teal อ่อน (แถบหัวข้อวัน / กล่องเน้น) */
+  --gray-soft: #c5ced5;      /* เทากลาง — toggle ปิด / วันที่ผ่านมาแล้ว / ปุ่ม disabled */
 
   /* สถานะผิดพลาด */
   --danger: #c0392b;
   --danger-soft: #fbecea;
+  --danger-text: #9a3b34;    /* ตัวอักษรสีแดงบนพื้นอ่อน */
+  --notify: #e5484d;         /* จุดแจ้งเตือน / เส้นเวลาปัจจุบัน */
 
   /* หัวตาราง */
   --th-text: #3d4852;
@@ -48,11 +55,18 @@
   --success-soft: #e7f4ee;
   --warn: #9a5a12;
   --warn-soft: #fdf0e0;
+  --amber: #e08a1e;          /* อำพันเข้ม — จุด / ไอคอน / ป้ายส้ม */
+  --amber-text: #b5701a;     /* ตัวอักษรอำพันบนพื้นอ่อน */
+  --amber-tint: #fff8ea;     /* พื้นแถวไฮไลต์ (รอดำเนินการ) */
 
   /* เงาการ์ด */
   --card-shadow-flat: 0 1px 2px rgba(17, 24, 39, .05);
   --card-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 12px 26px -10px rgba(17, 24, 39, .16);
   --card-shadow-hover: 0 4px 10px rgba(17, 24, 39, .08), 0 18px 38px -12px rgba(17, 24, 39, .22);
+
+  /* โมดัล / drawer */
+  --backdrop: rgba(31, 42, 51, .45);
+  --modal-shadow: 0 20px 60px rgba(0, 0, 0, .25);
 }
 
 body {

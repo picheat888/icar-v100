@@ -151,13 +151,13 @@
 }
 
 .pill--orange {
-  background: #e08a1e;
+  background: var(--amber);
   color: #fff;
 }
 
 .pill--gray {
   background: #eef1f4;
-  color: #5b6b7a;
+  color: var(--text-soft);
 }
 
 .pill--sm {
@@ -363,8 +363,8 @@
 
 /* ไอคอนโทนเทา */
 .empty-icon--gray {
-  background: #eef2f4;
-  color: #5b6b7a;
+  background: var(--surface);
+  color: var(--text-soft);
 }
 
 /* ----- 1.9 หัวเรื่อง -----
@@ -484,7 +484,7 @@
   height: 30px;
   border: none;
   border-radius: 7px;
-  background: #eef2f4;
+  background: var(--surface);
   color: var(--text);
   cursor: pointer;
   display: inline-flex;
@@ -503,8 +503,8 @@
 }
 
 .icon-btn--gray {
-  background: #f1f3f5;
-  color: #6b7884;
+  background: var(--surface);
+  color: var(--text-mute);
 }
 
 /* ----- 1.13 Toast แจ้งผล (ลอยกลางล่าง) ----- */
@@ -590,7 +590,7 @@
    ใช้ร่วมกันได้ทุก island ที่แสดงป้าย/แถบตามสถานะการจอง (timeline, dashboard, คำขอของฉัน ฯลฯ) */
 .st-pending {
   --st-bg: var(--warn-soft);
-  --st-fg: #e08a1e;
+  --st-fg: var(--amber);
 }
 
 .st-approved {
@@ -605,8 +605,8 @@
 }
 
 .st-completed {
-  --st-bg: #eef1f3;
-  --st-fg: #8a97a2;
+  --st-bg: var(--surface);
+  --st-fg: var(--text-faint);
 }
 
 
@@ -647,7 +647,7 @@
 
 .app-footer {
   padding: 18px 30px;
-  border-top: 1px solid #eef1f3;
+  border-top: 1px solid var(--line);
   text-align: center;
   font-size: 12px;
   color: var(--text-faint);
@@ -727,7 +727,7 @@
   font-weight: 500;
   cursor: pointer;
   background: transparent;
-  color: #9a3b34;
+  color: var(--danger-text);
   text-decoration: none;
 }
 
@@ -787,7 +787,7 @@
   height: 38px;
   border: none;
   background: transparent;
-  color: #8a97a2;
+  color: var(--text-faint);
   cursor: pointer;
   border-radius: 8px;
   display: flex;
@@ -824,7 +824,7 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #6b7884;
+  color: var(--text-mute);
   text-decoration: none;
   margin-bottom: 2px;
   transition: background .15s, color .15s;
@@ -835,7 +835,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #c5ced5;
+  background: var(--gray-soft);
   flex: none;
 }
 
@@ -1066,7 +1066,7 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #9a3b34;
+  color: var(--danger-text);
   text-decoration: none;
 }
 
@@ -1149,7 +1149,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  background: #eef1f3;
+  background: var(--surface);
   border-radius: 9px;
   padding: 3px;
 }
@@ -1325,7 +1325,7 @@
 .login-demo {
   margin-top: 26px;
   padding-top: 22px;
-  border-top: 1px solid #eef1f3;
+  border-top: 1px solid var(--line);
 }
 
 .login-demo-title {
@@ -1341,9 +1341,9 @@
 
 .quick-login {
   flex: 1;
-  background: #f4f7f8;
+  background: var(--surface-soft);
   color: var(--text);
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 9px 6px;
   font-family: inherit;
@@ -1444,7 +1444,7 @@
 /* ----- 3.5 หน้า register: แผงฟอร์ม ----- */
 .reg-main {
   flex: 1;
-  background: #eef2f4;
+  background: var(--surface);
   padding: 40px 36px;
   overflow-y: auto;
 }
@@ -1483,7 +1483,7 @@
 
 .reg-cardhead {
   padding: 15px 24px;
-  border-bottom: 1px solid #eef1f3;
+  border-bottom: 1px solid var(--line);
   text-align: center;
 }
 
@@ -1571,7 +1571,7 @@
   display: flex;
   align-items: flex-start;
   gap: 11px;
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px 16px;
   margin-top: 22px;
@@ -1640,7 +1640,7 @@
 
 /* ----- 3.6 หน้าสมัครสำเร็จ ----- */
 .rs-body {
-  background: #eef2f4;
+  background: var(--surface);
 }
 
 .rs-wrap {
@@ -1903,7 +1903,7 @@
 }
 
 .cp-cancel {
-  background: #f1f3f5;
+  background: var(--surface);
   border: none;
   font-size: 14.5px;
 }
@@ -1938,7 +1938,7 @@
 .book-back {
   margin-bottom: 16px;
   padding: 9px 16px;
-  border-color: #e3e9ec;
+  border-color: var(--border);
   font-size: 14px;
 }
 
@@ -2018,7 +2018,7 @@
   animation: icar-fade-in .2s ease;
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: stretch;
   justify-content: flex-end;
@@ -2135,7 +2135,7 @@
 /* ไอคอนกล่องโทนอำพัน — ใช้คู่กับ .icon-box (การ์ด "คำขอรออนุมัติ") */
 .dash-icon--amber {
   background: var(--warn-soft);
-  color: #e08a1e;
+  color: var(--amber);
 }
 
 /* ===== Dashboard: แผงข้อมูล (คำขอล่าสุด / สมาชิกรออนุมัติ) ===== */
@@ -2182,7 +2182,7 @@
   font-size: 12.5px;
   font-weight: 700;
   color: var(--text-soft);
-  background: #f4f7f8;
+  background: var(--surface-soft);
 }
 
 .dash-brow {
@@ -2196,7 +2196,7 @@
 
 /* แถวที่ต้องจัดการ (รออนุมัติ/ขอยกเลิก) — ไฮไลต์แถบซ้าย + พื้นส้มอ่อน */
 .dash-brow--action {
-  border-left-color: #e08a1e;
+  border-left-color: var(--amber);
   background: #fff6ea;
 }
 
@@ -2314,7 +2314,7 @@
 }
 
 .dash-alert-icon--amber {
-  color: #e08a1e;
+  color: var(--amber);
 }
 
 .dash-alert-icon--teal {
@@ -2356,7 +2356,7 @@
   padding: 10px 14px;
   margin-bottom: 14px;
   background: var(--danger-soft);
-  color: #9a3b34;
+  color: var(--danger-text);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -2437,7 +2437,7 @@
   padding: 10px 14px;
   margin-bottom: 12px;
   background: var(--danger-soft);
-  color: #9a3b34;
+  color: var(--danger-text);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -2556,7 +2556,7 @@
   padding: 10px 14px;
   margin-bottom: 12px;
   background: var(--danger-soft);
-  color: #9a3b34;
+  color: var(--danger-text);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -2714,7 +2714,7 @@
 /* กรอบรูปด้านบนการ์ดเลือกรถ */
 .book-card-img {
   height: 128px;
-  background: linear-gradient(135deg, #eef2f4, #e0e7ea);
+  background: linear-gradient(135deg, var(--surface), #e0e7ea);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2870,7 +2870,7 @@
   padding: 10px 14px;
   margin-bottom: 12px;
   background: var(--danger-soft);
-  color: #9a3b34;
+  color: var(--danger-text);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -2887,7 +2887,7 @@
 /* กล่อง view toggle เดือน/วัน */
 .tl-viewtoggle {
   display: inline-flex;
-  background: #eef1f3;
+  background: var(--surface);
   border-radius: 9px;
   padding: 3px;
   gap: 2px;
@@ -2899,7 +2899,7 @@
   border-radius: 7px;
   border: none;
   background: transparent;
-  color: #6b7884;
+  color: var(--text-mute);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
@@ -2944,7 +2944,7 @@
 .tl-nav-btn {
   width: 30px;
   height: 30px;
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
   border-radius: 7px;
   background: #fff;
   color: var(--text-soft);
@@ -3030,7 +3030,7 @@
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: #8a97a2;
+  color: var(--text-faint);
   padding: 9px 0;
 }
 
@@ -3188,7 +3188,7 @@
 /* ป้าย "+N" เมื่อมีการจองเกิน 3 รายการ */
 .tl-mg-more {
   font-size: 11px;
-  color: #8a97a2;
+  color: var(--text-faint);
   font-weight: 600;
   opacity: 1;
 }
@@ -3246,7 +3246,7 @@
 
 /* การ์ดงานแต่ละใบ — สีขอบซ้ายตามสถานะ ใช้คู่กับ class .st-* (ดู §1.15) */
 .tl-dl-card {
-  border: 1px solid #eef1f3;
+  border: 1px solid var(--line);
   border-left-width: 4px;
   border-left-style: solid;
   border-left-color: var(--st-fg);
@@ -3459,7 +3459,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #e5484d;
+  background: var(--notify);
 }
 
 /* เส้นแดงแนวตั้งบอกเวลาปัจจุบัน พาดผ่านแถวรถ */
@@ -3468,7 +3468,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #e5484d;
+  background: var(--notify);
   z-index: 3;
   pointer-events: none;
 }
@@ -3704,7 +3704,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #e5484d;
+  background: var(--notify);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -3767,7 +3767,7 @@
   padding: 7px 14px;
   font-size: 12px;
   font-weight: 700;
-  color: #8a97a2;
+  color: var(--text-faint);
   background: #fafbfc;
   border-bottom: 1px solid var(--hover-bg);
 }
@@ -3836,7 +3836,7 @@
   align-items: center;
   gap: 6px;
   background: var(--teal-soft);
-  border: 1px solid #cbe6e2;
+  border: 1px solid var(--teal-line);
   border-radius: 8px;
   padding: 8px 14px;
   margin-bottom: 10px;
@@ -3887,7 +3887,7 @@
 /* บรรทัดข้อมูลรอง (ผู้จอง/จำนวนคน) ในการ์ด */
 .dj-card-meta {
   font-size: 12.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin-top: 3px;
 }
 
@@ -3905,8 +3905,8 @@
 .tbl .dj-group-cell {
   padding: 9px 20px;
   background: var(--teal-soft);
-  border-top: 1px solid #cbe6e2;
-  border-bottom: 1px solid #cbe6e2;
+  border-top: 1px solid var(--teal-line);
+  border-bottom: 1px solid var(--teal-line);
   font-size: 12.5px;
   font-weight: 700;
   color: var(--teal-dark);
@@ -4036,7 +4036,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-faint);
   border-radius: 8px;
   padding: 9px 15px;
@@ -4047,7 +4047,7 @@
 /* กล่องหมายเหตุจาก Admin */
 .dj-admin-note {
   margin-top: 16px;
-  background: #f6f8f9;
+  background: var(--surface-soft);
   border-radius: 8px;
   padding: 11px 14px;
   font-size: 13.5px;
@@ -4068,7 +4068,7 @@
 /* กล่องครอบแท็บ รถขับเอง/รถอื่นๆ */
 .cm-segwrap {
   display: flex;
-  background: #eef2f4;
+  background: var(--surface);
   border-radius: 9px;
   padding: 4px;
   gap: 4px;
@@ -4088,7 +4088,7 @@
   cursor: pointer;
   font-family: inherit;
   background: transparent;
-  color: #6b7884;
+  color: var(--text-mute);
   box-shadow: none;
 }
 
@@ -4145,7 +4145,7 @@
 
 /* ป้ายจำนวนที่นั่ง — ทรงสี่เหลี่ยมมน ไม่ใช่ทรงเม็ดยาแบบ .pill */
 .cm-seat-tag {
-  background: #eef2f4;
+  background: var(--surface);
   color: var(--text-soft);
   border-radius: 6px;
   padding: 2px 9px;
@@ -4156,7 +4156,7 @@
 /* บรรทัดชื่อคนขับประจำ (รถอื่นๆ) */
 .cm-card-driver {
   font-size: 12.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin-top: 6px;
   line-height: 1.5;
 }
@@ -4186,9 +4186,9 @@
 
 /* ปุ่มแก้ไข — เทาอ่อน มีขอบ */
 .cm-mini-btn--edit {
-  background: #f4f7f8;
+  background: var(--surface-soft);
   color: var(--text);
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
 }
 
 /* ปุ่มลบ — แดงอ่อน ไม่มีขอบ */
@@ -4209,7 +4209,7 @@
 .cm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4225,7 +4225,7 @@
   max-width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  box-shadow: var(--modal-shadow);
 }
 
 /* หัวโมดัล: ชื่อเรื่อง + ปุ่มปิด */
@@ -4310,7 +4310,7 @@
 
 /* ปุ่มยกเลิก */
 .cm-btn-cancel {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
   border: none;
   border-radius: 8px;
@@ -4362,7 +4362,7 @@
   align-items: center;
   gap: 6px;
   background: var(--teal-soft);
-  border: 1px solid #cbe6e2;
+  border: 1px solid var(--teal-line);
   border-radius: 8px;
   padding: 10px 14px 6px;
   margin-bottom: 10px;
@@ -4410,8 +4410,8 @@
 
 /* ป้ายประเภทรถ (รถขับเอง/รถอื่น ๆ) — การ์ด/หัว drawer */
 .mr-type-badge {
-  background: #eef2f4;
-  color: #5b6b7a;
+  background: var(--surface);
+  color: var(--text-soft);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 11.5px;
@@ -4439,7 +4439,7 @@
 /* บรรทัดข้อมูลรอง (รุ่นรถ/วันเวลา) ในการ์ด */
 .mr-card-meta {
   font-size: 12.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin-top: 3px;
 }
 
@@ -4459,8 +4459,8 @@
 .tbl .mr-group-cell {
   padding: 11px 20px 7px;
   background: var(--teal-soft);
-  border-top: 1px solid #cbe6e2;
-  border-bottom: 1px solid #cbe6e2;
+  border-top: 1px solid var(--teal-line);
+  border-bottom: 1px solid var(--teal-line);
   font-size: 12.5px;
   font-weight: 700;
   color: var(--teal-dark);
@@ -4480,7 +4480,7 @@
 
 /* แถวไฮไลต์ — คำขอรอดำเนินการ (pending/cancel_requested) */
 .mr-row--highlight {
-  background: #fff8ea;
+  background: var(--amber-tint);
 }
 
 /* คอลัมน์รหัสจอง — ตัวหนา */
@@ -4621,7 +4621,7 @@
 /* กล่องหมายเหตุ Admin ทั่วไป (ไม่ใช่กรณีปฏิเสธ) */
 .mr-admin-note {
   margin-top: 14px;
-  background: #f6f8f9;
+  background: var(--surface-soft);
   border-radius: 8px;
   padding: 10px 13px;
   font-size: 13.5px;
@@ -4632,7 +4632,7 @@
 .mr-waiting-note {
   margin-top: 14px;
   font-size: 13px;
-  color: #b5701a;
+  color: var(--amber-text);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -4652,7 +4652,7 @@
 .mr-confirm-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4666,7 +4666,7 @@
   border-radius: 14px;
   width: 400px;
   max-width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  box-shadow: var(--modal-shadow);
   overflow: hidden;
 }
 
@@ -4708,7 +4708,7 @@
 /* ข้อความคำถามยืนยัน */
 .mr-confirm-msg {
   font-size: 14px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin: 0;
   line-height: 1.6;
 }
@@ -4745,7 +4745,7 @@
 
 /* ปุ่มย้อนกลับ — เทาอ่อน */
 .mr-confirm-btn--ghost {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
 }
 
@@ -4968,9 +4968,9 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #f4f7f8;
+  background: var(--surface-soft);
   color: var(--text-soft);
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
@@ -5029,7 +5029,7 @@
 
 /* กล่องสรุปตัวสมาชิกในโมดัลอนุมัติ/ปิดใช้งาน */
 .mm-member-box {
-  background: #f6f8f9;
+  background: var(--surface-soft);
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 20px;
@@ -5045,7 +5045,7 @@
 /* บรรทัดรอง (รหัสพนักงาน/แผนก/ตำแหน่ง) ในกล่องสรุป */
 .mm-member-box-sub {
   font-size: 13.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin-top: 3px;
 }
 
@@ -5060,7 +5060,7 @@
 /* แถบสลับแท็บ (ข้อมูล/รหัสผ่าน) ในโมดัลแก้ไข */
 .mm-tabs {
   display: flex;
-  background: #eef2f4;
+  background: var(--surface);
   border-radius: 9px;
   padding: 4px;
   gap: 4px;
@@ -5078,7 +5078,7 @@
   cursor: pointer;
   font-family: inherit;
   background: transparent;
-  color: #6b7884;
+  color: var(--text-mute);
 }
 
 /* ปุ่มแท็บที่เลือกอยู่ — พื้นขาวยกนูน */
@@ -5114,7 +5114,7 @@
   align-items: flex-start;
   gap: 10px;
   cursor: pointer;
-  background: #f6f8f9;
+  background: var(--surface-soft);
   border-radius: 9px;
   padding: 13px 14px;
 }
@@ -5153,7 +5153,7 @@
 .mm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5169,7 +5169,7 @@
   max-width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  box-shadow: var(--modal-shadow);
 }
 
 /* หัวโมดัล: ชื่อเรื่อง + ปุ่มปิด */
@@ -5226,7 +5226,7 @@
 
 /* ปุ่มยกเลิก/ปิดโมดัล — เทาอ่อน */
 .mm-foot-btn--cancel {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
   padding: 11px 22px;
 }
@@ -5267,7 +5267,7 @@
   border: none;
   padding: 0;
   flex: none;
-  background: #c5ced5;
+  background: var(--gray-soft);
   cursor: pointer;
   transition: background .18s;
   vertical-align: middle;
@@ -5333,7 +5333,7 @@
 /* แถบสลับ รถขับเอง/รถอื่นๆ */
 .bk-seg {
   display: inline-flex;
-  background: #eef2f4;
+  background: var(--surface);
   border-radius: 10px;
   padding: 5px;
   margin-bottom: 22px;
@@ -5350,7 +5350,7 @@
   cursor: pointer;
   font-family: inherit;
   background: transparent;
-  color: #6b7884;
+  color: var(--text-mute);
   box-shadow: none;
 }
 
@@ -5364,7 +5364,7 @@
 /* คำบรรยายใต้แท็บ "รถขับเอง" */
 .bk-self-desc {
   font-size: 14px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin: 0 0 18px;
 }
 
@@ -5399,7 +5399,7 @@
 
 .bk-card-meta-item {
   font-size: 13px;
-  color: #6b7884;
+  color: var(--text-mute);
 }
 
 .bk-card-meta-value {
@@ -5411,7 +5411,7 @@
 .bk-btn-disabled {
   margin-top: auto;
   width: 100%;
-  background: #f1f3f5;
+  background: var(--surface);
   color: #aab4bc;
   border: none;
   border-radius: 8px;
@@ -5452,7 +5452,7 @@
 .bk-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5472,7 +5472,7 @@
   max-width: 100%;
   max-height: 92vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  box-shadow: var(--modal-shadow);
 }
 
 .bk-modal-head {
@@ -5523,7 +5523,7 @@
   padding: 10px 14px;
   margin-bottom: 12px;
   background: var(--danger-soft);
-  color: #9a3b34;
+  color: var(--danger-text);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -5575,7 +5575,7 @@
 }
 
 .bk-modal-cancel {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
   border: none;
   border-radius: 8px;
@@ -5655,7 +5655,7 @@
   text-align: center;
   font-size: 11px;
   font-weight: 600;
-  color: #8a97a2;
+  color: var(--text-faint);
   padding: 7px 0;
 }
 
@@ -5667,16 +5667,16 @@
 
 .bk-cal-blank {
   aspect-ratio: 1;
-  border-right: 1px solid #eef1f3;
-  border-bottom: 1px solid #eef1f3;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   background: #fafbfc;
 }
 
 .bk-cal-day {
   aspect-ratio: 1;
   border: none;
-  border-right: 1px solid #eef1f3;
-  border-bottom: 1px solid #eef1f3;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
   font-size: 12.5px;
   font-weight: 500;
@@ -5693,7 +5693,7 @@
 /* วันในอดีต — เลือกไม่ได้ */
 .bk-cal-day--past {
   background: var(--hover-bg);
-  color: #c5ced5;
+  color: var(--gray-soft);
   cursor: not-allowed;
 }
 
@@ -5707,7 +5707,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #e08a1e;
+  background: var(--amber);
 }
 
 .bk-cal-dot--sel {
@@ -5727,7 +5727,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #e08a1e;
+  background: var(--amber);
 }
 
 /* ปุ่มเปิด datetime picker — ทับ .form-input กลาง */
@@ -5759,7 +5759,7 @@
 .bk-dtp-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(31, 42, 51, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5800,7 +5800,7 @@
   text-align: center;
   font-size: 10.5px;
   font-weight: 600;
-  color: #8a97a2;
+  color: var(--text-faint);
   padding: 6px 0;
 }
 
@@ -5822,7 +5822,7 @@
 
 /* วันในอดีต — เลือกไม่ได้ (พื้นหลังไม่เปลี่ยน ต่างจากปฏิทินในโมดัลจอง) */
 .bk-dtp-day--past {
-  color: #c5ced5;
+  color: var(--gray-soft);
   cursor: not-allowed;
 }
 
@@ -5881,7 +5881,7 @@
 }
 
 .bk-dtp-btn--cancel {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
 }
 
@@ -5891,7 +5891,7 @@
 }
 
 .bk-dtp-btn--confirm:disabled {
-  background: #c5ced5;
+  background: var(--gray-soft);
   cursor: not-allowed;
 }
 
@@ -5931,7 +5931,7 @@
 
 /* ปุ่มล้างตัวกรองวันที่ */
 .rq-clear-date {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
   font-weight: 600;
 }
@@ -5964,7 +5964,7 @@
   justify-content: space-between;
   gap: 10px;
   background: var(--teal-soft);
-  border: 1px solid #cbe6e2;
+  border: 1px solid var(--teal-line);
   border-radius: 8px;
   padding: 8px 14px;
   margin-bottom: 10px;
@@ -5986,7 +5986,7 @@
   gap: 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7884;
+  color: var(--text-mute);
   flex-wrap: wrap;
 }
 
@@ -6004,11 +6004,11 @@
 }
 
 .rq-dot--pending {
-  color: #b5701a;
+  color: var(--amber-text);
 }
 
 .rq-dot--pending .rq-dot-bullet {
-  background: #e08a1e;
+  background: var(--amber);
 }
 
 .rq-dot--approved {
@@ -6049,7 +6049,7 @@
 
 /* การ์ดไฮไลต์ — คำขอรอดำเนินการ (pending/cancel_requested) */
 .rq-card--highlight {
-  background: #fff8ea;
+  background: var(--amber-tint);
 }
 
 .rq-card-body {
@@ -6086,7 +6086,7 @@
 
 .rq-card-meta {
   font-size: 12.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   margin-top: 3px;
   line-height: 1.6;
 }
@@ -6121,7 +6121,7 @@
 /* ปุ่มยืนยันการยกเลิก (การ์ดมือถือ) — โทนอำพัน ไม่ใช่ชุดสีสถานะกลาง */
 .rq-mini-btn--warn {
   background: #fff3e0;
-  color: #b5701a;
+  color: var(--amber-text);
 }
 
 /* กล่องครอบตาราง (เดสก์ท็อป) — คุม min-width ที่ .tbl กลางไม่มีให้ */
@@ -6138,8 +6138,8 @@
 .tbl .rq-group-cell {
   padding: 9px 20px;
   background: var(--teal-soft);
-  border-top: 1px solid #cbe6e2;
-  border-bottom: 1px solid #cbe6e2;
+  border-top: 1px solid var(--teal-line);
+  border-bottom: 1px solid var(--teal-line);
 }
 
 /* ตัวจัดวางข้างใน — td ต้องคงเป็น table-cell ไม่งั้น colSpan ไม่มีผลแล้วแถบจะไม่เต็มความกว้าง */
@@ -6166,7 +6166,7 @@
   gap: 10px;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7884;
+  color: var(--text-mute);
   flex-wrap: wrap;
 }
 
@@ -6182,7 +6182,7 @@
 
 /* แถวไฮไลต์ — คำขอรอดำเนินการ (pending/cancel_requested) */
 .rq-row--highlight {
-  background: #fff8ea;
+  background: var(--amber-tint);
 }
 
 .rq-td-code {
@@ -6222,7 +6222,7 @@
 
 .tbl .rq-td-time {
   font-size: 12.5px;
-  color: #6b7884;
+  color: var(--text-mute);
   white-space: nowrap;
   line-height: 1.5;
 }
@@ -6374,7 +6374,7 @@
 
 /* ปุ่มเทาเป็นกลาง (ยกเลิก/ปิด/ย้อนกลับ) */
 .rq-modal-btn--gray {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-soft);
   padding: 11px 22px;
 }
@@ -6484,12 +6484,12 @@
 
 .rq-driver-box--company {
   background: #f0f7f6;
-  border: 1px solid #cbe6e2;
+  border: 1px solid var(--teal-line);
 }
 
 .rq-driver-box--external {
   background: #f6f9fa;
-  border: 1px solid #e3e9ec;
+  border: 1px solid var(--border);
 }
 
 .rq-driver-box-title {
@@ -6582,7 +6582,7 @@
 
 /* ลิงก์แผนที่ไม่ปลอดภัย/ไม่ถูกต้อง — สีเทาแทนสี teal */
 .rq-map-link--invalid {
-  background: #f1f3f5;
+  background: var(--surface);
   color: var(--text-faint);
 }
 
@@ -6602,7 +6602,7 @@
 /* ข้อความคนขับที่มอบหมายแล้ว — ชื่อคนขับ (ตัวหนา) เน้นสี teal */
 .rq-assigned-note {
   font-size: 13.5px;
-  color: #6b7884;
+  color: var(--text-mute);
 }
 
 .rq-assigned-note b {
@@ -6621,7 +6621,7 @@
 
 /* กล่องหมายเหตุ Admin ในโหมดดูอย่างเดียว */
 .rq-admin-note {
-  background: #f6f8f9;
+  background: var(--surface-soft);
   border-radius: 8px;
   padding: 10px 13px;
   font-size: 13.5px;
