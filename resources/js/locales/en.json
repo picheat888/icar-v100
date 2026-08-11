@@ -145,6 +145,7 @@
   "mem.col_full_name": "Full name",
   "mem.col_status": "Status",
   "mem.col_role": "Role",
+  "mem.col_active": "Active",
   "mem.col_manage": "Actions",
   "mem.title_enable": "Enable member",
   "mem.title_approve": "Approve member",

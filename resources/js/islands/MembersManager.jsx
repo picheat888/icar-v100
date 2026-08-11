@@ -229,6 +229,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
               {[t('mem.col_emp_id'), t('mem.col_full_name'), t('mem.dept_label'), t('mem.position_label'), t('mem.phone_label'), t('mem.col_status'), t('mem.col_role')].map((h) => (
                 <th key={h}>{h}</th>
               ))}
+              <th>{t('mem.col_active')}</th>
               <th>{t('mem.col_manage')}</th>
             </tr></thead>
             <tbody>
@@ -249,8 +250,10 @@ export default function MembersManager({ endpoints, departments = [], positions 
                       <span className="pill pill--sm pill--gray">{roleLabel(m.role)}</span>
                     </td>
                     <td>
+                      {activeToggle(m) || '-'}
+                    </td>
+                    <td>
                       <div className="mm-td-actions">
-                        {activeToggle(m)}
                         {actionsFor(m).map((a) => (
                           <button key={a.key} onClick={a.onClick} className={`mm-act-btn mm-act-btn--${a.kind}`}>{a.label}</button>
                         ))}

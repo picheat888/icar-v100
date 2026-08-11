@@ -145,6 +145,7 @@
   "mem.col_full_name": "ชื่อ - นามสกุล",
   "mem.col_status": "สถานะ",
   "mem.col_role": "สิทธิ์",
+  "mem.col_active": "ใช้งาน",
   "mem.col_manage": "จัดการ",
   "mem.title_enable": "เปิดใช้งานสมาชิก",
   "mem.title_approve": "อนุมัติสมาชิก",
