@@ -1994,7 +1994,7 @@
   }
 }
 
-/* ===== Drawer รายละเอียด (เลื่อนจากขวา แบบ M365) ===== */
+/* ===== Drawer รายละเอียด (เลื่อนจากขวา แบบ M365) — ใช้ร่วมกันหลาย island ===== */
 /* ฉากหลังค่อยๆ จางเข้า */
 @keyframes icar-fade-in {
   from {
@@ -2015,12 +2015,27 @@
   }
 }
 
+/* ฉากหลังมืดครึ่งจอ + ดันแผงไปชิดขวา */
 .icar-drawer-backdrop {
   animation: icar-fade-in .2s ease;
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 51, .45);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  z-index: 150;
 }
 
+/* กล่องแผงรายละเอียดสีขาว */
 .icar-drawer {
   animation: icar-drawer-in .28s cubic-bezier(.4, 0, .2, 1);
+  background: #fff;
+  width: min(560px, 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, .22);
 }
 
 /* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — ปิด animation */
@@ -3722,4 +3737,246 @@
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+}
+
+/* ===== DriverJobs: งานของฉัน (คนขับ) — ตาราง/การ์ด + drawer รายละเอียด ===== */
+/* สีเทาจางของกล่องว่าง (ไม่มีงาน) — ทับ .empty-card กลาง */
+.dj-empty {
+  color: var(--text-faint);
+}
+
+/* ไอคอนปฏิทินนำหน้าแถบวันที่ (มือถือ/เดสก์ท็อป) */
+.dj-cal-icon {
+  flex: none;
+}
+
+/* ครอบกลุ่มการ์ดตามวัน (มือถือ) */
+.dj-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* แถบหัววันที่ (มือถือ) */
+.dj-day-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--teal-soft);
+  border: 1px solid #cbe6e2;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+/* ครอบการ์ดงานภายในวันเดียวกัน (มือถือ) */
+.dj-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* การ์ดงาน 1 ใบ (มือถือ) */
+.dj-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+/* หัวการ์ด: รหัสจอง + ป้ายสถานะ */
+.dj-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+/* รหัสจองในการ์ด */
+.dj-card-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ปลายทางในการ์ด */
+.dj-card-loc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+/* บรรทัดข้อมูลรอง (ผู้จอง/จำนวนคน) ในการ์ด */
+.dj-card-meta {
+  font-size: 12.5px;
+  color: #6b7884;
+  margin-top: 3px;
+}
+
+/* บรรทัดช่วงเวลาในการ์ด — ระยะห่างบนน้อยกว่าบรรทัดแรก */
+.dj-card-meta--time {
+  margin-top: 2px;
+}
+
+/* กล่องครอบตาราง (เดสก์ท็อป) — คุม min-width ที่ .tbl กลางไม่มีให้ */
+.dj-table-wrap .tbl {
+  min-width: 760px;
+}
+
+/* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) */
+.dj-group-cell {
+  padding: 9px 20px;
+  background: var(--teal-soft);
+  border-top: 1px solid #cbe6e2;
+  border-bottom: 1px solid #cbe6e2;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+/* ไอคอน + ข้อความวันที่ในแถวคั่น */
+.dj-group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* แถวข้อมูลงานในตาราง — คลิกเปิด drawer ได้ */
+.dj-row {
+  cursor: pointer;
+}
+
+/* คอลัมน์รหัสจอง — ตัวหนา */
+.dj-td-code {
+  font-weight: 700;
+}
+
+/* คอลัมน์ปลายทาง — ตัดคำยาวด้วย ... */
+.dj-td-loc {
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* คอลัมน์ช่วงเวลา — 2 บรรทัด ไม่ตัดคำ */
+.dj-td-time {
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+/* หัว drawer: ชื่อเรื่อง + ปุ่มปิด */
+.dj-drawer-head {
+  flex: none;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ชื่อเรื่องใน drawer */
+.dj-drawer-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+/* ปุ่มปิด drawer (กากบาท) */
+.dj-drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 4px;
+  display: flex;
+}
+
+/* พื้นที่เนื้อหา drawer — เลื่อนแนวตั้งได้ */
+.dj-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+/* ป้ายสถานะบนสุดของเนื้อหา drawer */
+.dj-drawer-status {
+  margin-bottom: 16px;
+}
+
+/* กริดรายละเอียดงาน 2 คอลัมน์ */
+.dj-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px 20px;
+}
+
+/* ช่องที่กินเต็มความกว้าง 2 คอลัมน์ */
+.dj-detail-full {
+  grid-column: 1 / -1;
+}
+
+/* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
+.dj-detail-label {
+  font-size: 12px;
+  color: var(--text-faint);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+/* ค่าของฟิลด์ในกริดรายละเอียด */
+.dj-detail-value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* ครอบลิงก์/ป้ายแผนที่ */
+.dj-map-wrap {
+  margin-top: 16px;
+}
+
+/* ลิงก์เปิดแผนที่ (URL ปลอดภัย) */
+.dj-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  border-radius: 8px;
+  padding: 9px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ป้ายลิงก์แผนที่ไม่ปลอดภัย (ปิดการคลิก) */
+.dj-map-invalid {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f3f5;
+  color: var(--text-faint);
+  border-radius: 8px;
+  padding: 9px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* กล่องหมายเหตุจาก Admin */
+.dj-admin-note {
+  margin-top: 16px;
+  background: #f6f8f9;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  color: var(--text-soft);
 }
