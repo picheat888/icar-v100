@@ -1,32 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
-import { t, currentLocale } from '../lib/i18n';
+import { t } from '../lib/i18n';
+import { MONTHS, SHORT_MONTHS } from '../lib/date';
+import { STATUS_LABEL, ST_CLASS } from '../lib/status';
 import { useToast } from '../lib/Toast';
 
-const LOCALE = currentLocale();
-const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-const TH_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const TH_MONTHS = LOCALE === 'en' ? TH_MONTHS_EN : TH_MONTHS_TH;
-const TH_MONTHS_SHORT_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-const TH_MONTHS_SHORT_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const TH_MONTHS_SHORT = LOCALE === 'en' ? TH_MONTHS_SHORT_EN : TH_MONTHS_SHORT_TH;
-
-// ข้อความป้ายสถานะคำขอ
-const STATUS_LABEL = {
-  pending: t('status.pending'),
-  approved: t('status.approved'),
-  cancel_requested: t('status.cancel_requested'),
-  completed: t('status.completed'),
-  rejected: t('status.rejected'),
-  cancelled: t('status.cancelled'),
-};
 // class สีของป้ายสถานะ — 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
 // ส่วนที่เหลือ (rejected/cancelled) สีตรงกับ .pill--red ของกลางพอดี
 const STATUS_CLASS = {
-  pending: 'dash-status-badge st-pending',
-  approved: 'dash-status-badge st-approved',
-  cancel_requested: 'dash-status-badge st-cancel_requested',
-  completed: 'dash-status-badge st-completed',
+  pending: `dash-status-badge ${ST_CLASS.pending}`,
+  approved: `dash-status-badge ${ST_CLASS.approved}`,
+  cancel_requested: `dash-status-badge ${ST_CLASS.cancel_requested}`,
+  completed: `dash-status-badge ${ST_CLASS.completed}`,
   rejected: 'pill--red',
   cancelled: 'pill--red',
 };
@@ -36,14 +21,14 @@ const parseDt = (s) => {
   if (!s) return { date: '', hm: '', th: '' };
   const [d, t] = s.split(' ');
   const [y, m, dd] = d.split('-');
-  return { date: d, hm: (t || '').slice(0, 5), th: `${+dd} ${TH_MONTHS[+m - 1]} ${y}` };
+  return { date: d, hm: (t || '').slice(0, 5), th: `${+dd} ${MONTHS[+m - 1]} ${y}` };
 };
 // ช่วงเวลาแบบสั้น: "20 มิ.ย. 13:00 – 18:00"
 const rangeShort = (start, end) => {
   const s = parseDt(start);
   const e = parseDt(end);
   const [, sm, sd] = s.date.split('-');
-  return `${+sd} ${TH_MONTHS_SHORT[+sm - 1]} ${s.hm} – ${e.hm}`;
+  return `${+sd} ${SHORT_MONTHS[+sm - 1]} ${s.hm} – ${e.hm}`;
 };
 
 // การ์ดสรุปตัวเลข — เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา

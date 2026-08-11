@@ -5,12 +5,13 @@ import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { useToast } from '../lib/Toast';
 import { t } from '../lib/i18n';
+import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
+import { CloseIcon, CalIcon } from '../lib/icons';
 
-// ป้ายชื่อสถานะ (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก — ดู STATUS_CLASS ด้านล่าง)
+// ป้ายชื่อสถานะ — ใช้ชุดกลาง แล้วเขียนทับ 3 คำที่หน้านี้เรียกต่างออกไป
+// (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก — ดู STATUS_CLASS ด้านล่าง)
 const STATUS_LABEL = {
-  pending:          t('status.pending'),
-  approved:         t('status.approved'),
-  rejected:         t('status.rejected'),
+  ...BASE_LABEL,
   cancel_requested: t('myreq.status_cancel_requested'),
   cancelled:        t('myreq.status_cancelled'),
   completed:        t('myreq.status_completed'),
@@ -22,12 +23,9 @@ const DONE_LABEL = t('myreq.status_done');
 // ใช้ชุดกลาง .st-* ร่วมกับ island อื่นเสมอ (Dashboard/Timeline ใช้ enum เดียวกันนี้)
 // rejected/cancelled ไม่อยู่ในชุดกลาง (STATUS_META ตัดสองตัวนี้ออกก่อนถึง client เพราะหน้าอื่นไม่เคยแสดง) จึงมี .mr-st-* ของตัวเอง
 const STATUS_CLASS = {
-  pending:          'st-pending',
-  approved:         'st-approved',
-  cancel_requested: 'st-cancel_requested',
+  ...ST_CLASS,
   rejected:         'mr-st-rejected',
   cancelled:        'mr-st-cancelled',
-  completed:        'st-completed',
 };
 // ประเภทรถ: ระวังชื่อพารามิเตอร์ชนกับฟังก์ชัน t() แปลภาษา จึงใช้ bt แทน
 const typeLabel = (bt) => (bt === 'other' ? t('myreq.type_other') : t('myreq.type_self'));
@@ -36,11 +34,6 @@ const PER_PAGE = 20;
 // รุ่นรถที่แสดง: รถขับเอง -> car_model / รถอื่น ๆ -> รถที่ Admin จัดให้ (หลังอนุมัติ)
 const carModelLabel = (b) => (b.booking_type === 'other' ? (b.ext_driver_vehicle || '') : (b.car_model || ''));
 const driverName = (b) => (b.driver_type === 'external' ? b.ext_driver_name : (b.driver_type === 'company' ? (b.driver_name || '') : ''));
-// ไอคอนปฏิทินนำหน้าแถบวันที่
-const CAL_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-cal-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-);
-
 /**
  * คำขอของฉัน — ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกดูรายละเอียด (modal) + ยกเลิก/คืนรถ
  * props: endpoints {data, cancel, return}
@@ -178,7 +171,7 @@ export default function MyRequests({ endpoints }) {
             {groups.map((g) => (
               <div key={g.key}>
                 {/* แถบหัวข้อวัน (ไม่มีตัวนับ) */}
-                <div className="mr-day-badge">{CAL_ICON}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div>
+                <div className="mr-day-badge">{CalIcon}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div>
                 <div className="mr-cards">
                   {g.rows.map((b) => { const v = vm(b); return (
                     <div key={b.id} onClick={() => setDetail(b)} className={`mr-card ${v.stClass}`}>
@@ -225,7 +218,7 @@ export default function MyRequests({ endpoints }) {
                 <Fragment key={g.key}>
                   {/* แถบหัวข้อวัน (ไม่มีตัวนับ) */}
                   <tr>
-                    <td colSpan={8} className="mr-group-cell ta-l"><div className="mr-group-label">{CAL_ICON}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div></td>
+                    <td colSpan={8} className="mr-group-cell ta-l"><div className="mr-group-label">{CalIcon}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div></td>
                   </tr>
                   {g.rows.map((b) => { const v = vm(b); const highlight = b.status === 'pending' || b.status === 'cancel_requested'; return (
                     <tr key={b.id} onClick={() => setDetail(b)} className={highlight ? 'mr-row mr-row--highlight' : 'mr-row'}>
@@ -258,9 +251,7 @@ export default function MyRequests({ endpoints }) {
             <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
               <div className="modal-head">
                 <h3 className="modal-title">{t('myreq.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setDetail(null)} className="modal-close">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
+                <button onClick={() => setDetail(null)} className="modal-close">{CloseIcon}</button>
               </div>
               <div className="mr-drawer-body">
                 <div className="mr-drawer-status">

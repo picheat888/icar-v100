@@ -1,22 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDevice } from './timeline/useDevice';
-import { t, currentLocale } from '../lib/i18n';
+import { t } from '../lib/i18n';
+import { SHORT_MONTHS, pad } from '../lib/date';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
-
-const LOCALE = currentLocale();
-const TH_MONTHS_SHORT_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-// เดือนย่อภาษาอังกฤษ คู่ขนานกับ TH_MONTHS_SHORT_TH
-const TH_MONTHS_SHORT_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const TH_MONTHS_SHORT = LOCALE === 'en' ? TH_MONTHS_SHORT_EN : TH_MONTHS_SHORT_TH;
-const pad = (n) => (n < 10 ? '0' + n : '' + n);
 
 // 'YYYY-MM-DD HH:MM:SS' -> '21 ก.ค. 2026 · 14:30'
 const fmtTime = (s) => {
   if (!s) return '-';
   const [d, tm] = s.split(' ');
   const [y, m, dd] = d.split('-');
-  return `${+dd} ${TH_MONTHS_SHORT[+m - 1]} ${y} · ${(tm || '').slice(0, 5)}`;
+  return `${+dd} ${SHORT_MONTHS[+m - 1]} ${y} · ${(tm || '').slice(0, 5)}`;
 };
 // วันนี้/ก่อนหน้า สำหรับ default range (YYYY-MM-DD)
 const ymd = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;

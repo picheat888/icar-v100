@@ -20,7 +20,7 @@
       1.13 Toast      .toast
       1.14 แบ่งหน้า    .pager .pager-btn
       1.15 สีตามสถานะ  .st-pending .st-approved .st-cancel_requested .st-completed
-      1.16 โมดัล/drawer .modal-backdrop .modal-box .modal-head .modal-title .modal-close .detail-label
+      1.16 โมดัล/drawer .modal-backdrop .modal-box .modal-head .modal-title .modal-close .detail-label .cal-icon
       1.17 แถบสลับ     .seg .seg-btn (+ --active)
    2. Shell        โครง app shell (templates/)
       2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
@@ -688,6 +688,11 @@
   background: none;
   color: var(--text-faint);
   cursor: pointer;
+}
+
+/* ไอคอนปฏิทินนำหน้าแถบหัวข้อวัน — ไม่หดตามข้อความ */
+.cal-icon {
+  flex: none;
 }
 
 /* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
@@ -3901,11 +3906,6 @@
   color: var(--text-faint);
 }
 
-/* ไอคอนปฏิทินนำหน้าแถบวันที่ (มือถือ/เดสก์ท็อป) */
-.dj-cal-icon {
-  flex: none;
-}
-
 /* ครอบกลุ่มการ์ดตามวัน (มือถือ) */
 .dj-groups {
   display: flex;
@@ -4297,11 +4297,6 @@
 }
 
 /* ===== MyRequests: คำขอของฉัน — ตาราง/การ์ด + drawer รายละเอียด + ป็อปอัปยืนยัน ===== */
-/* ไอคอนปฏิทินนำหน้าแถบวันที่ (มือถือ/เดสก์ท็อป) */
-.mr-cal-icon {
-  flex: none;
-}
-
 /* ข้อความระหว่างโหลดข้อมูล */
 .mr-loading {
   color: var(--text-faint);
@@ -5721,10 +5716,6 @@
 /* สีข้อความกล่องว่าง (ไม่พบคำขอ) — ทับ .empty-card กลาง */
 .rq-empty {
   color: var(--text-faint);
-}
-
-.rq-cal-icon {
-  flex: none;
 }
 
 /* ครอบกลุ่มการ์ดตามวัน (มือถือ) */

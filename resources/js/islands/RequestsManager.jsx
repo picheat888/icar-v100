@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'rea
 import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import { isSafeUrl } from '../lib/url';
+import { CloseIcon, CalIcon } from '../lib/icons';
 import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
@@ -33,8 +35,6 @@ const GROUP_OF = {
 const groupOf = (s) => GROUP_OF[s] || 'pending';
 // จำนวนคำขอต่อหน้า (pagination)
 const PER_PAGE = 20;
-// ลิงก์ปลอดภัยไหม — ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น (กัน javascript: ที่หลุดชั้น validate มา)
-const isSafeUrl = (u) => /^https?:\/\//i.test(String(u || ''));
 // 'YYYY-MM-DD HH:MM:SS' → 'YYYY-MM-DDTHH:MM' (ค่าเริ่มต้นของ input datetime-local)
 const toLocalInput = (s) => (s ? String(s).slice(0, 16).replace(' ', 'T') : '');
 const typeLabel = (bt) => (bt === 'other' ? t('req.car_other') : t('req.car_self'));
@@ -52,11 +52,6 @@ const ICO = {
   check: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>,
   x: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
 };
-// ไอคอนปฏิทินนำหน้าแถบวันที่
-const CAL_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rq-cal-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-);
-
 const driverAssigned = (b) => (b.driver_type === 'company' ? (b.driver_name || t('req.driver_company')) : (b.driver_type === 'external' ? (b.ext_driver_name || t('req.driver_external')) : ''));
 // รถอื่นๆ มอบหมายคนขับครบหรือยัง — คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ)
 const driverWarn = (f) => (f.driver === '' ? t('req.warn_pick_driver') : (f.driver === 'external' && !String(f.ext_name || '').trim() ? t('req.warn_ext_name') : ''));
@@ -404,7 +399,7 @@ export default function RequestsManager({ endpoints }) {
           {groups.map((g) => (
             <div key={g.key}>
               <div className="rq-day-badge">
-                <span className="rq-day-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</span>
+                <span className="rq-day-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</span>
                 <div className="rq-day-counts">
                   <span>{t('req.total', { n: g.rows.length })}</span>
                   <Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
@@ -464,7 +459,7 @@ export default function RequestsManager({ endpoints }) {
                   <tr>
                     <td colSpan={6} className="rq-group-cell">
                       <div className="rq-group-inner">
-                        <div className="rq-group-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</div>
+                        <div className="rq-group-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</div>
                         <div className="rq-group-counts">
                           <span>{t('req.total', { n: g.rows.length })}</span>
                           <span className="rq-dot-sep">·</span><Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
@@ -526,9 +521,7 @@ export default function RequestsManager({ endpoints }) {
             <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
               <div className="modal-head">
                 <h3 className="modal-title">{t('req.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setModal(null)} className="modal-close">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
+                <button onClick={() => setModal(null)} className="modal-close">{CloseIcon}</button>
               </div>
               <div className="rq-drawer-body">
                 {modalErr && <div className="rq-alert-gap"><Alert>{modalErr}</Alert></div>}

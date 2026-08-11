@@ -1,22 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
-import { t, currentLocale } from '../lib/i18n';
+import { t } from '../lib/i18n';
+import { MONTHS, DOW, pad } from '../lib/date';
+import { CloseIcon } from '../lib/icons';
 
-const LOCALE = currentLocale();
 // สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
 const CAR_STATUS = {
   available:   ['car.status_available', 'pill--green'],
   maintenance: ['car.status_maintenance', 'pill--amber'],
 };
-const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-// ชื่อเดือนเต็มภาษาอังกฤษ คู่ขนานกับ TH_MONTHS_TH
-const TH_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const TH_MONTHS = LOCALE === 'en' ? TH_MONTHS_EN : TH_MONTHS_TH;
-const WEEKDAYS_TH = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
-// หัวคอลัมน์ปฏิทินภาษาอังกฤษ คู่ขนานกับ WEEKDAYS_TH (เริ่มวันอาทิตย์)
-const WEEKDAYS_EN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const WEEKDAYS = LOCALE === 'en' ? WEEKDAYS_EN : WEEKDAYS_TH;
-const pad = (n) => (n < 10 ? '0' + n : '' + n);
 const dateStr = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
 const carIcon = (
@@ -160,12 +152,12 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
         <div className="bk-cal-title">{modal.type === 'other' ? t('book.cal_title_other') : t('book.cal_title_self')}</div>
         <div className="bk-cal-head">
           <button onClick={prevMonth} className="bk-nav-btn">‹</button>
-          <div className="bk-cal-month">{TH_MONTHS[cal.m]} {cal.y}</div>
+          <div className="bk-cal-month">{MONTHS[cal.m]} {cal.y}</div>
           <button onClick={nextMonth} className="bk-nav-btn">›</button>
         </div>
         <div className="bk-cal-gridbox">
           <div className="bk-cal-weekrow">
-            {WEEKDAYS.map((h) => <div key={h} className="bk-cal-weekday">{h}</div>)}
+            {DOW.map((h) => <div key={h} className="bk-cal-weekday">{h}</div>)}
           </div>
           <div className="bk-cal-daygrid">
             {cells.map((d, i) => {
@@ -272,9 +264,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
           <div onClick={(e) => e.stopPropagation()} className="modal-box modal-box--wide">
             <div className={`modal-head${narrow ? ' modal-head--narrow' : ''}`}>
               <h3 className="modal-title">{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
-              <button onClick={() => setModal(null)} className="modal-close">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
+              <button onClick={() => setModal(null)} className="modal-close">{CloseIcon}</button>
             </div>
 
             {/* 2 คอลัมน์ทั้ง self และ other: ซ้าย = ข้อมูล+ปฏิทิน, ขวา = ฟอร์ม */}
@@ -385,13 +375,13 @@ function DateTimeField({ value, onChange, placeholder }) {
             {/* เลือกเดือน */}
             <div className="bk-dtp-head">
               <button onClick={prev} className="bk-nav-btn">‹</button>
-              <div className="bk-dtp-month">{TH_MONTHS[cal.m]} {cal.y}</div>
+              <div className="bk-dtp-month">{MONTHS[cal.m]} {cal.y}</div>
               <button onClick={next} className="bk-nav-btn">›</button>
             </div>
             {/* ปฏิทิน */}
             <div className="bk-dtp-gridbox">
               <div className="bk-cal-weekrow">
-                {WEEKDAYS.map((h) => <div key={h} className="bk-dtp-weekday">{h}</div>)}
+                {DOW.map((h) => <div key={h} className="bk-dtp-weekday">{h}</div>)}
               </div>
               <div className="bk-cal-daygrid">
                 {cells.map((d, i) => {

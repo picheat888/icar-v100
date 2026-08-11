@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
+import Modal from '../lib/Modal';
 
 // เก็บ key ข้อความสถานะ + สี pill กลาง (green/amber) ไว้ ใช้ t() แปลตอน render (ไม่แปลตอน module โหลด)
 const CAR_STATUS = {
@@ -151,7 +152,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
 
       {/* โมดัล เพิ่ม/แก้ไข */}
       {modal && (
-        <Modal title={modal.isEdit ? (modal.form.car_type === 'other' ? t('car.title_edit_other') : t('car.title_edit_self')) : (modal.form.car_type === 'other' ? t('car.add_other') : t('car.add_self'))} onClose={() => setModal(null)}>
+        <Modal title={modal.isEdit ? (modal.form.car_type === 'other' ? t('car.title_edit_other') : t('car.title_edit_self')) : (modal.form.car_type === 'other' ? t('car.add_other') : t('car.add_self'))} onClose={() => setModal(null)} bodyClass="cm-modal-body">
           <label className="form-label">{t('car.model_label')} <span className="cm-required">*</span></label>
           <input value={modal.form.model} onChange={(e) => setForm({ model: e.target.value })} placeholder={t('car.model_placeholder')} className="form-input form-input--sm cm-field-mb" />
           <div className="cm-grid2">
@@ -211,19 +212,4 @@ function Empty({ text }) {
 }
 function CarIcon() {
   return <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#c5ced5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /><circle cx="7" cy="16" r="1" /><circle cx="17" cy="16" r="1" /></svg>;
-}
-function Modal({ title, onClose, children }) {
-  return (
-    <div onClick={onClose} className="modal-backdrop">
-      <div onClick={(e) => e.stopPropagation()} className="modal-box">
-        <div className="modal-head">
-          <h3 className="modal-title">{title}</h3>
-          <button onClick={onClose} className="modal-close">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
-        </div>
-        <div className="cm-modal-body">{children}</div>
-      </div>
-    </div>
-  );
 }

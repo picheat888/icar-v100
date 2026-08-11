@@ -1,28 +1,18 @@
-import { t, currentLocale } from '../../lib/i18n';
-
-const LOCALE = currentLocale();
+import { t } from '../../lib/i18n';
+import { MONTHS, DOW, pad as p2 } from '../../lib/date';
+import { STATUS_LABEL } from '../../lib/status';
 
 // label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) — สีมาจาก class .st-* กลางใน CSS
 export const STATUS_META = {
-  pending:          { label: t('status.pending') },
-  approved:         { label: t('status.approved') },
+  pending:          { label: STATUS_LABEL.pending },
+  approved:         { label: STATUS_LABEL.approved },
   cancel_requested: { label: t('tl.status_cancel_requested') },
   completed:        { label: t('tl.status_completed') },
 };
 
-const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-// ชื่อเดือนเต็มภาษาอังกฤษ คู่ขนานกับ TH_MONTHS_TH
-const TH_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-export const TH_MONTHS = LOCALE === 'en' ? TH_MONTHS_EN : TH_MONTHS_TH;
-
-// หัวคอลัมน์ปฏิทิน เริ่มวันอาทิตย์ จบวันเสาร์
-const TH_DOW_TH = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
-// หัวคอลัมน์ปฏิทินภาษาอังกฤษ คู่ขนานกับ TH_DOW_TH (เริ่มวันอาทิตย์)
-const TH_DOW_EN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-export const TH_DOW = LOCALE === 'en' ? TH_DOW_EN : TH_DOW_TH;
-
-// เติม 0 หน้าเลข 1 หลัก
-const p2 = (n) => (n < 10 ? '0' + n : '' + n);
+// ชื่อเดือนเต็ม / หัวคอลัมน์ปฏิทิน — ใช้ชุดกลาง (re-export ให้ component ในโฟลเดอร์นี้เรียกได้เหมือนเดิม)
+export const TH_MONTHS = MONTHS;
+export const TH_DOW = DOW;
 
 // Date -> 'YYYY-MM-DD' (เวลาท้องถิ่น)
 export function ymd(d) {

@@ -3,6 +3,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
+import Modal from '../lib/Modal';
 
 // ป้ายสถานะสมาชิก (pending/approved/rejected) — คนละชุดกับสถานะการจอง ใช้ .pill--* ธรรมดา ไม่ใช่ .st-*
 const STATUS_LABEL = {
@@ -270,7 +271,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
 
       {/* โมดัล */}
       {modal?.type === 'approve' && (
-        <Modal title={modal.member.status === 'rejected' ? t('mem.title_enable') : t('mem.title_approve')} onClose={() => setModal(null)}>
+        <Modal title={modal.member.status === 'rejected' ? t('mem.title_enable') : t('mem.title_approve')} onClose={() => setModal(null)} bodyClass="mm-modal-body">
           <div className="mm-member-box">
             <div className="mm-member-box-name">{modal.member.full_name}</div>
             <div className="mm-member-box-sub">{modal.member.emp_id} · {modal.member.dept || '-'} · {modal.member.position || '-'}</div>
@@ -284,7 +285,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
       )}
 
       {modal?.type === 'reject' && (
-        <Modal title={modal.member.status === 'approved' ? t('mem.title_disable') : t('mem.title_reject')} onClose={() => setModal(null)}>
+        <Modal title={modal.member.status === 'approved' ? t('mem.title_disable') : t('mem.title_reject')} onClose={() => setModal(null)} bodyClass="mm-modal-body">
           <p className="mm-reject-text">
             {modal.member.status === 'approved'
               ? <>{t('mem.confirm_disable_pre')}<b>{modal.member.full_name}</b>{t('mem.confirm_disable_post', { n: modal.member.emp_id })}<br />{t('mem.confirm_disable_note')}</>
@@ -295,7 +296,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
       )}
 
       {modal?.type === 'edit' && (
-        <Modal title={t('mem.title_edit')} onClose={() => setModal(null)} lockBackdrop>
+        <Modal title={t('mem.title_edit')} onClose={() => setModal(null)} bodyClass="mm-modal-body" lockBackdrop>
           <div className="seg mm-tabs">
             <button onClick={() => setModal({ ...modal, tab: 'info' })} className={modal.tab === 'info' ? 'seg-btn seg-btn--active' : 'seg-btn'}>{t('mem.tab_info')}</button>
             <button onClick={() => setModal({ ...modal, tab: 'password' })} className={modal.tab === 'password' ? 'seg-btn seg-btn--active' : 'seg-btn'}>{t('mem.tab_password')}</button>
@@ -373,24 +374,6 @@ function EditPass({ form, set }) {
       </label>
       <div className="mm-pass-note">{t('mem.pass_optional_note')}</div>
     </>
-  );
-}
-
-// ===== โมดัลครอบ =====
-function Modal({ title, onClose, children, lockBackdrop }) {
-  return (
-    // lockBackdrop = กดพื้นที่ว่างข้างนอกไม่ปิด (กันเผลอปิดจนข้อมูลหาย) — ปิดได้เฉพาะ X / ยกเลิก
-    <div onClick={lockBackdrop ? undefined : onClose} className="modal-backdrop">
-      <div onClick={(e) => e.stopPropagation()} className="modal-box">
-        <div className="modal-head">
-          <h3 className="modal-title">{title}</h3>
-          <button onClick={onClose} className="modal-close">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-          </button>
-        </div>
-        <div className="mm-modal-body">{children}</div>
-      </div>
-    </div>
   );
 }
 

@@ -10,6 +10,21 @@ const EN_SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
 // เดือนย่อ — เลือกตาม locale (th: ค่าเดิมเป๊ะ)
 export const SHORT_MONTHS = LOCALE === 'en' ? EN_SHORT_MONTHS : TH_SHORT_MONTHS;
 
+const TH_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+// ชื่อเดือนเต็มภาษาอังกฤษ คู่ขนานกับ TH_MONTHS
+const EN_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+// ชื่อเดือนเต็ม — หัวปฏิทิน (จองรถ / timeline / dashboard)
+export const MONTHS = LOCALE === 'en' ? EN_MONTHS : TH_MONTHS;
+
+const TH_DOW = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+// หัวคอลัมน์ปฏิทินภาษาอังกฤษ คู่ขนานกับ TH_DOW (เริ่มวันอาทิตย์)
+const EN_DOW = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+// หัวคอลัมน์ปฏิทิน เริ่มวันอาทิตย์จบวันเสาร์
+export const DOW = LOCALE === 'en' ? EN_DOW : TH_DOW;
+
+// เติม 0 หน้าเลข 1 หลัก (5 -> '05')
+export const pad = (n) => (n < 10 ? '0' + n : '' + n);
+
 // "2026-06-22 ..." -> "22-06-2026"
 export const thDate = (s) => {
   const p = (s || '').slice(0, 10).split('-');
