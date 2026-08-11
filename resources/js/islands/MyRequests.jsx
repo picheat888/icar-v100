@@ -15,17 +15,19 @@ const STATUS_LABEL = {
   cancelled:        t('myreq.status_cancelled'),
   completed:        t('myreq.status_completed'),
 };
-// จบงานอัตโนมัติ (ใช้ครบ/เลยเวลา ไม่ได้กดคืนรถเอง) — ป้ายและสีแยกจาก "completed" ปกติ
+// จบงานอัตโนมัติ (ใช้ครบ/เลยเวลา ไม่ได้กดคืนรถเอง) — pseudo-status ที่คำนวณเอง ไม่ใช่ค่า status ใน DB
+// ป้ายและสีจึงแยกจาก "completed" ปกติ (ดู .mr-st-done)
 const DONE_LABEL = t('myreq.status_done');
-// คลาสสีตามสถานะ (จ่าย --st-bg/--st-fg) — pending/approved/cancel_requested ใช้ชุดกลาง .st-* ร่วมกับ island อื่น
-// rejected/cancelled/completed ไม่อยู่ในชุดกลาง (ไม่เคยแสดงในหน้าอื่น) จึงมี .mr-st-* ของตัวเอง
+// คลาสสีตามสถานะ — ตัวที่เป็นค่า status enum จริงจาก DB (pending/approved/cancel_requested/completed)
+// ใช้ชุดกลาง .st-* ร่วมกับ island อื่นเสมอ (Dashboard/Timeline ใช้ enum เดียวกันนี้)
+// rejected/cancelled ไม่อยู่ในชุดกลาง (STATUS_META ตัดสองตัวนี้ออกก่อนถึง client เพราะหน้าอื่นไม่เคยแสดง) จึงมี .mr-st-* ของตัวเอง
 const STATUS_CLASS = {
   pending:          'st-pending',
   approved:         'st-approved',
   cancel_requested: 'st-cancel_requested',
   rejected:         'mr-st-rejected',
   cancelled:        'mr-st-cancelled',
-  completed:        'mr-st-completed',
+  completed:        'st-completed',
 };
 // ประเภทรถ: ระวังชื่อพารามิเตอร์ชนกับฟังก์ชัน t() แปลภาษา จึงใช้ bt แทน
 const typeLabel = (bt) => (bt === 'other' ? t('myreq.type_other') : t('myreq.type_self'));
