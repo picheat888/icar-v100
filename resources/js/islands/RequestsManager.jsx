@@ -419,7 +419,7 @@ export default function RequestsManager({ endpoints }) {
                     <div onClick={() => openDetail(b)} className="rq-card-body">
                       <div className="rq-card-head">
                         <div className="rq-card-id"><span className="rq-card-code">{b.booking_code}</span> <span className="rq-card-requester">{b.requester_name || '-'}</span></div>
-                        <span className={`pill pill--sm ${cls}`}>{label}</span>
+                        <span className={`pill pill--sm rq-badge ${cls}`}>{label}</span>
                       </div>
                       <div className="rq-card-car">{carText(b)}</div>
                       <div className="rq-card-meta">
@@ -480,7 +480,7 @@ export default function RequestsManager({ endpoints }) {
                       <td><div className="rq-td-carmodel">{b.car_model || (b.booking_type === 'other' ? t('req.provided_by_admin') : '-')}</div><div className="rq-td-carplate">{b.car_plate || ' '}</div></td>
                       <td><div className="rq-td-loc">{b.location}</div><div className="rq-td-people">{t('req.people_count', { n: b.people })}</div></td>
                       <td className="rq-td-time">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return (<><div>{l1}</div><div>{l2}</div></>); })()}</td>
-                      <td><span className={`pill pill--sm ${cls}`}>{label}</span></td>
+                      <td><span className={`pill pill--sm rq-badge ${cls}`}>{label}</span></td>
                       <td>
                         <div className="rq-td-actions">
                           {b.status === 'pending' && (<>
@@ -590,7 +590,7 @@ export default function RequestsManager({ endpoints }) {
                   </div>
                 ) : (
                   <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ fontSize: 13, color: '#9aa7b2', fontWeight: 600 }}>{t('req.status_colon')}</span><span className={`pill pill--sm ${sc}`}>{sl}</span></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ fontSize: 13, color: '#9aa7b2', fontWeight: 600 }}>{t('req.status_colon')}</span><span className={`pill pill--sm rq-badge ${sc}`}>{sl}</span></div>
                     {driverAssigned(b) && <div style={{ fontSize: 13.5, color: '#6b7884' }}>{t('req.assigned_driver_label')}<b style={{ color: '#0a716e' }}>{driverAssigned(b)}</b></div>}
                     {b.status === 'completed' && b.returned_at && <div style={{ fontSize: 13.5, color: '#0a716e' }}>{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
                     {b.admin_note && <div style={{ background: '#f6f8f9', borderRadius: 8, padding: '10px 13px', fontSize: 13.5, color: '#54616c' }}>{t('req.note_label')}{b.admin_note}</div>}
