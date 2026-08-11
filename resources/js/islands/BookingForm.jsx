@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t, currentLocale } from '../lib/i18n';
 
-const TEAL = '#0c8b87';
 const LOCALE = currentLocale();
+// สถานะรถที่แสดงบนป้าย (คำแปล + คลาสสี) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (bk-status--busy)
 const CAR_STATUS = {
-  available:   ['car.status_available', '#e7f4ee', '#16855a'],
-  maintenance: ['car.status_maintenance', '#fde7d6', '#b5701a'],
+  available:   ['car.status_available', 'bk-status--available'],
+  maintenance: ['car.status_maintenance', 'bk-status--busy'],
 };
 const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 // ชื่อเดือนเต็มภาษาอังกฤษ คู่ขนานกับ TH_MONTHS_TH
@@ -19,12 +19,9 @@ const WEEKDAYS = LOCALE === 'en' ? WEEKDAYS_EN : WEEKDAYS_TH;
 const pad = (n) => (n < 10 ? '0' + n : '' + n);
 const dateStr = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
-const inp = { width: '100%', padding: '11px 13px', border: '1px solid #d8dee3', borderRadius: 8, fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
-const lbl = { display: 'block', fontSize: 13, fontWeight: 600, color: '#54616c', marginBottom: 6 };
 const carIcon = (
   <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#b3c0c8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /><circle cx="7" cy="16" r="1" /><circle cx="17" cy="16" r="1" /></svg>
 );
-const segTab = (active) => ({ padding: '9px 18px', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', background: active ? '#fff' : 'transparent', color: active ? TEAL : '#6b7884', boxShadow: active ? '0 1px 3px rgba(0,0,0,.08)' : 'none' });
 
 /**
  * จองรถ — grid การ์ดรถ (self) / ฟอร์ม (other) → modal จองรถขับเอง 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม)
@@ -159,36 +156,36 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
     const now = new Date();
     const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
     return (
-      <div style={{ border: '1px solid #eceff1', borderRadius: 10, padding: '14px 16px', background: '#fcfdfd' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#37434d', marginBottom: 12 }}>{modal.type === 'other' ? t('book.cal_title_other') : t('book.cal_title_self')}</div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
-          <button onClick={prevMonth} style={navBtn}>‹</button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2a33' }}>{TH_MONTHS[cal.m]} {cal.y}</div>
-          <button onClick={nextMonth} style={navBtn}>›</button>
+      <div className="bk-cal-box">
+        <div className="bk-cal-title">{modal.type === 'other' ? t('book.cal_title_other') : t('book.cal_title_self')}</div>
+        <div className="bk-cal-head">
+          <button onClick={prevMonth} className="bk-nav-btn">‹</button>
+          <div className="bk-cal-month">{TH_MONTHS[cal.m]} {cal.y}</div>
+          <button onClick={nextMonth} className="bk-nav-btn">›</button>
         </div>
-        <div style={{ border: '1px solid #e3e9ec', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', background: '#f7f9fa', borderBottom: '1px solid #e3e9ec' }}>
-            {WEEKDAYS.map((h) => <div key={h} style={{ textAlign: 'center', fontSize: 11, fontWeight: 600, color: '#8a97a2', padding: '7px 0' }}>{h}</div>)}
+        <div className="bk-cal-gridbox">
+          <div className="bk-cal-weekrow">
+            {WEEKDAYS.map((h) => <div key={h} className="bk-cal-weekday">{h}</div>)}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)' }}>
+          <div className="bk-cal-daygrid">
             {cells.map((d, i) => {
-              if (d === null) return <div key={'b' + i} style={{ aspectRatio: '1', borderRight: '1px solid #eef1f3', borderBottom: '1px solid #eef1f3', background: '#fafbfc' }} />;
+              if (d === null) return <div key={'b' + i} className="bk-cal-blank" />;
               const ds = dateStr(cal.y, cal.m, d);
               const isBooked = booked.has(ds);
               const isSel = ds === selDate;
               const isPast = ds < todayDs;   // วันในอดีต — เลือกไม่ได้
               return (
                 <button key={ds} onClick={() => !isPast && pickDay(ds)} disabled={isPast}
-                  style={{ aspectRatio: '1', border: 'none', borderRight: '1px solid #eef1f3', borderBottom: '1px solid #eef1f3', cursor: isPast ? 'not-allowed' : 'pointer', fontSize: 12.5, fontWeight: 500, fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: isSel ? '#0c8b87' : (isPast ? '#f4f6f7' : '#fff'), color: isSel ? '#fff' : (isPast ? '#c5ced5' : '#37434d') }}>
+                  className={`bk-cal-day${isPast ? ' bk-cal-day--past' : ''}${isSel ? ' bk-cal-day--sel' : ''}`}>
                   {d}
-                  {isBooked && <span style={{ width: 5, height: 5, borderRadius: '50%', background: isSel ? '#fff' : '#e08a1e' }} />}
+                  {isBooked && <span className={`bk-cal-dot${isSel ? ' bk-cal-dot--sel' : ''}`} />}
                 </button>
               );
             })}
           </div>
         </div>
-        <div style={{ fontSize: 11.5, color: '#9aa7b2', marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          {modal.type !== 'other' && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#e08a1e' }} />}
+        <div className="bk-cal-legend">
+          {modal.type !== 'other' && <span className="bk-cal-legend-dot" />}
           {modal.type === 'other' ? t('book.cal_hint_other') : t('book.cal_hint_self')}
         </div>
       </div>
@@ -197,60 +194,60 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
 
   const formFields = () => (
     <>
-      {error && <div style={{ background: '#fbecea', color: '#c0392b', borderRadius: 8, padding: '10px 13px', fontSize: 13.5, marginBottom: 16, fontWeight: 500 }}>{error}</div>}
-      <label style={lbl}>{t('book.location_label')} <span style={{ color: '#c0392b' }}>*</span></label>
-      <input value={f.location} onChange={(e) => set('location', e.target.value)} placeholder={t('book.location_placeholder')} style={{ ...inp, marginBottom: 16 }} />
-      <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 16 }}>
-        <div><label style={lbl}>{t('req.start_label')} <span style={{ color: '#c0392b' }}>*</span></label><DateTimeField value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} /></div>
-        <div><label style={lbl}>{t('req.end_label')} <span style={{ color: '#c0392b' }}>*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
+      {error && <div className="alert-error">{error}</div>}
+      <label className="form-label">{t('book.location_label')} <span className="bk-req">*</span></label>
+      <input value={f.location} onChange={(e) => set('location', e.target.value)} placeholder={t('book.location_placeholder')} className="form-input form-input--sm bk-field-mb" />
+      <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
+        <div><label className="form-label">{t('req.start_label')} <span className="bk-req">*</span></label><DateTimeField value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} /></div>
+        <div><label className="form-label">{t('req.end_label')} <span className="bk-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1fr 1fr', gap: 12, marginBottom: 16 }}>
-        <div><label style={lbl}>{t('req.people_label')}</label><input type="number" min="1" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} style={inp} /></div>
-        <div><label style={lbl}>{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} style={inp} /></div>
+      <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
+        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
+        <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
-      <label style={lbl}>{t('req.purpose_label')}</label>
-      <textarea value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} style={{ ...inp, resize: 'vertical' }} />
+      <label className="form-label">{t('req.purpose_label')}</label>
+      <textarea value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} className="form-input form-input--sm bk-textarea" />
     </>
   );
 
   return (
     <div>
-      <div style={{ display: 'inline-flex', background: '#eef2f4', borderRadius: 10, padding: 5, marginBottom: 22, gap: 4, flexWrap: 'wrap' }}>
-        <button onClick={() => setTab('self')} style={segTab(tab === 'self')}>{t('car.tab_self')}</button>
-        <button onClick={() => setTab('other')} style={segTab(tab === 'other')}>{t('book.tab_other')}</button>
+      <div className="bk-seg">
+        <button onClick={() => setTab('self')} className={`bk-seg-btn${tab === 'self' ? ' bk-seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
+        <button onClick={() => setTab('other')} className={`bk-seg-btn${tab === 'other' ? ' bk-seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
       </div>
 
       {tab === 'self' && (
         <div>
-          <p style={{ fontSize: 14, color: '#6b7884', margin: '0 0 18px' }}>{t('book.self_desc')}</p>
+          <p className="bk-self-desc">{t('book.self_desc')}</p>
           {cars.length === 0 ? (
-            <div style={{ background: '#fff', border: '1px solid #e7ebee', borderRadius: 12, padding: 40, textAlign: 'center', color: '#9aa7b2' }}>{t('book.no_self_cars')}</div>
+            <div className="empty-card bk-empty-cars">{t('book.no_self_cars')}</div>
           ) : (
-            <div className="book-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 18 }}>
+            <div className="book-grid">
               {cars.map((v) => {
                 // สถานะจากเวลาจริง: ซ่อมบำรุง > ไม่ว่าง(กำลังถูกใช้) > พร้อมใช้งาน
                 const isMaint = v.status === 'maintenance';
                 const busyNow = v.busy && !isMaint;
-                const [sl, sb, sc] = isMaint ? CAR_STATUS.maintenance : (busyNow ? ['book.status_busy', '#fde7d6', '#b5701a'] : CAR_STATUS.available);
+                const [sl, stCls] = isMaint ? CAR_STATUS.maintenance : (busyNow ? ['book.status_busy', 'bk-status--busy'] : CAR_STATUS.available);
                 const canSelect = !isMaint;   // ไม่ว่างยังจองได้ (คนละช่วงเวลา) — ซ่อมบำรุงเท่านั้นที่จองไม่ได้
                 return (
-                  <div key={v.id} className="book-card" style={{ background: '#fff', border: '1px solid #e7ebee', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    <div className="book-card-img" style={{ height: 128, background: 'linear-gradient(135deg,#eef2f4,#e0e7ea)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-                      {v.image ? <img src={baseUrl + v.image} alt={v.model} className="car-photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : carIcon}
+                  <div key={v.id} className="book-card">
+                    <div className="book-card-img">
+                      {v.image ? <img src={baseUrl + v.image} alt={v.model} className="car-photo" /> : carIcon}
                     </div>
-                    <div className="book-card-body" style={{ padding: 16, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: '#1f2a33', lineHeight: 1.25 }}>{v.model}</div>
-                        <span style={{ flex: 'none', background: sb, color: sc, borderRadius: 999, padding: '3px 11px', fontSize: 11.5, fontWeight: 600 }}>{t(sl)}</span>
+                    <div className="book-card-body">
+                      <div className="bk-card-head">
+                        <div className="bk-card-title">{v.model}</div>
+                        <span className={`bk-status ${stCls}`}>{t(sl)}</span>
                       </div>
-                      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 13, color: '#6b7884' }}>{t('car.plate_label')} <b style={{ color: '#37434d', fontWeight: 600 }}>{v.plate || '-'}</b></span>
-                        <span style={{ fontSize: 13, color: '#6b7884' }}>{t('car.seats_count', { n: v.seats })}</span>
+                      <div className="bk-card-meta">
+                        <span className="bk-card-meta-item">{t('car.plate_label')} <b className="bk-card-meta-value">{v.plate || '-'}</b></span>
+                        <span className="bk-card-meta-item">{t('car.seats_count', { n: v.seats })}</span>
                       </div>
                       {canSelect ? (
-                        <button onClick={() => openSelf(v)} className="book-select-btn" style={{ marginTop: 'auto', width: '100%', background: TEAL, color: '#fff', border: 'none', borderRadius: 8, padding: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('book.select_this')}</button>
+                        <button onClick={() => openSelf(v)} className="book-select-btn">{t('book.select_this')}</button>
                       ) : (
-                        <button disabled style={{ marginTop: 'auto', width: '100%', background: '#f1f3f5', color: '#aab4bc', border: 'none', borderRadius: 8, padding: 10, fontSize: 14, fontWeight: 600, cursor: 'not-allowed', fontFamily: 'inherit' }}>{t('book.under_maintenance')}</button>
+                        <button disabled className="bk-btn-disabled">{t('book.under_maintenance')}</button>
                       )}
                     </div>
                   </div>
@@ -262,56 +259,56 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
       )}
 
       {tab === 'other' && (
-        <div style={{ background: '#fff', border: '1px solid #e7ebee', borderRadius: 12, padding: narrow ? 18 : 28, maxWidth: 680 }}>
-          <h3 style={{ fontSize: 17, fontWeight: 700, margin: '0 0 5px', color: '#1f2a33' }}>{t('book.other_form_title')}</h3>
-          <p style={{ fontSize: 13.5, color: '#7a8794', margin: '0 0 22px' }}>{t('book.other_form_desc')}</p>
-          <button onClick={openOther} style={{ background: TEAL, color: '#fff', border: 'none', borderRadius: 9, padding: '12px 26px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('book.other_form_btn')}</button>
+        <div className={`bk-other-card${narrow ? ' bk-other-card--narrow' : ''}`}>
+          <h3 className="bk-other-title">{t('book.other_form_title')}</h3>
+          <p className="bk-other-desc">{t('book.other_form_desc')}</p>
+          <button onClick={openOther} className="btn-primary">{t('book.other_form_btn')}</button>
         </div>
       )}
 
       {/* โมดัลจอง */}
       {modal && (
-        <div onClick={() => setModal(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(31,42,51,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 150, padding: narrow ? 8 : 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, width: 960, maxWidth: '100%', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,.25)' }}>
-            <div style={{ padding: narrow ? '16px 16px' : '22px 26px', borderBottom: '1px solid #f0f3f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: '#1f2a33' }}>{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
-              <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9aa7b2', padding: 4, display: 'flex' }}>
+        <div onClick={() => setModal(null)} className={`bk-modal-backdrop${narrow ? ' bk-modal-backdrop--narrow' : ''}`}>
+          <div onClick={(e) => e.stopPropagation()} className="bk-modal">
+            <div className={`bk-modal-head${narrow ? ' bk-modal-head--narrow' : ''}`}>
+              <h3 className="bk-modal-title">{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
+              <button onClick={() => setModal(null)} className="bk-modal-close">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
 
             {/* 2 คอลัมน์ทั้ง self และ other: ซ้าย = ข้อมูล+ปฏิทิน, ขวา = ฟอร์ม */}
-            <div style={{ padding: narrow ? '18px 16px' : '24px 26px', display: 'grid', gridTemplateColumns: narrow ? '1fr' : '1.04fr .96fr', gap: narrow ? 18 : 28, alignItems: 'start' }}>
+            <div className={`bk-modal-body${narrow ? ' bk-modal-body--narrow' : ''}`}>
               <div>
                 {modal.type === 'self' ? (
                   <>
                     {loadErr && (
-                      <div style={{ padding: '10px 14px', marginBottom: 12, background: '#fbecea', color: '#9a3b34', borderRadius: 8, fontSize: 13 }}>
+                      <div className="bk-load-err">
                         {t('book.load_avail_err')}
                       </div>
                     )}
-                    <div style={{ background: '#e6f3f2', borderRadius: 9, padding: '13px 16px', marginBottom: 16 }}>
-                      <div style={{ fontSize: 12, color: '#0a716e', fontWeight: 600, marginBottom: 2 }}>{t('book.selected_car_label')}</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#1f2a33' }}>{modal.car.model} — {modal.car.plate || '-'}</div>
+                    <div className="bk-info-box">
+                      <div className="bk-info-label">{t('book.selected_car_label')}</div>
+                      <div className="bk-info-value">{modal.car.model} — {modal.car.plate || '-'}</div>
                     </div>
                   </>
                 ) : (
-                  <div style={{ background: '#e6f3f2', borderRadius: 9, padding: '13px 16px', marginBottom: 16 }}>
-                    <div style={{ fontSize: 12, color: '#0a716e', fontWeight: 600, marginBottom: 2 }}>{t('book.tab_other')}</div>
-                    <div style={{ fontSize: 13.5, color: '#37434d' }}>{t('book.other_car_note')}</div>
+                  <div className="bk-info-box">
+                    <div className="bk-info-label">{t('book.tab_other')}</div>
+                    <div className="bk-info-note">{t('book.other_car_note')}</div>
                   </div>
                 )}
                 {renderCalendar()}
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#37434d', marginBottom: 14 }}>{t('book.trip_details_title')}</div>
+                <div className="bk-section-title">{t('book.trip_details_title')}</div>
                 {formFields()}
               </div>
             </div>
 
-            <div style={{ padding: narrow ? '14px 16px' : '18px 26px', borderTop: '1px solid #f0f3f5', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button onClick={() => setModal(null)} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('common.cancel')}</button>
-              <button onClick={submit} disabled={busy} style={{ background: TEAL, color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', opacity: busy ? 0.7 : 1, fontFamily: 'inherit' }}>{t('book.submit_btn')}</button>
+            <div className={`bk-modal-foot${narrow ? ' bk-modal-foot--narrow' : ''}`}>
+              <button onClick={() => setModal(null)} className="bk-modal-cancel">{t('common.cancel')}</button>
+              <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{t('book.submit_btn')}</button>
             </div>
           </div>
         </div>
@@ -319,8 +316,6 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
     </div>
   );
 }
-
-const navBtn = { width: 28, height: 28, border: '1px solid #e3e9ec', borderRadius: 7, background: '#fff', color: '#54616c', cursor: 'pointer', fontSize: 17, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' };
 
 const HOURS = Array.from({ length: 24 }, (_, i) => pad(i));
 const MINUTES = Array.from({ length: 60 }, (_, i) => pad(i)); // 00,01,...,59 (ทุก 1 นาที)
@@ -375,56 +370,55 @@ function DateTimeField({ value, onChange, placeholder }) {
   const now = new Date();
   const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
   const selPast = selDate && new Date(`${selDate}T${hh}:${mm}:00`) < now;   // วันเวลาที่เลือกเป็นอดีต
-  const selStyle = { ...inp, padding: '9px 10px', cursor: 'pointer', flex: 1 };
 
   return (
     <>
       <button type="button" onClick={openPicker}
-        style={{ ...inp, display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', cursor: 'pointer', background: '#fff', color: value ? '#37434d' : '#9aa7b2' }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0c8b87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value ? fmtDisplay(value) : placeholder}</span>
+        className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}`}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0c8b87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bk-dt-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+        <span className="bk-dt-trigger-text">{value ? fmtDisplay(value) : placeholder}</span>
       </button>
 
       {open && (
-        <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(31,42,51,.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 160, padding: 16 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 14, width: 320, maxWidth: '100%', boxShadow: '0 20px 60px rgba(0,0,0,.28)', padding: 18 }}>
+        <div onClick={() => setOpen(false)} className="bk-dtp-backdrop">
+          <div onClick={(e) => e.stopPropagation()} className="bk-dtp-box">
             {/* เลือกเดือน */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <button onClick={prev} style={navBtn}>‹</button>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#1f2a33' }}>{TH_MONTHS[cal.m]} {cal.y}</div>
-              <button onClick={next} style={navBtn}>›</button>
+            <div className="bk-dtp-head">
+              <button onClick={prev} className="bk-nav-btn">‹</button>
+              <div className="bk-dtp-month">{TH_MONTHS[cal.m]} {cal.y}</div>
+              <button onClick={next} className="bk-nav-btn">›</button>
             </div>
             {/* ปฏิทิน */}
-            <div style={{ border: '1px solid #e3e9ec', borderRadius: 8, overflow: 'hidden', marginBottom: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', background: '#f7f9fa', borderBottom: '1px solid #e3e9ec' }}>
-                {WEEKDAYS.map((h) => <div key={h} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 600, color: '#8a97a2', padding: '6px 0' }}>{h}</div>)}
+            <div className="bk-dtp-gridbox">
+              <div className="bk-cal-weekrow">
+                {WEEKDAYS.map((h) => <div key={h} className="bk-dtp-weekday">{h}</div>)}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)' }}>
+              <div className="bk-cal-daygrid">
                 {cells.map((d, i) => {
-                  if (d === null) return <div key={'b' + i} style={{ aspectRatio: '1' }} />;
+                  if (d === null) return <div key={'b' + i} className="bk-dtp-blank" />;
                   const ds = dateStr(cal.y, cal.m, d);
                   const isSel = ds === selDate;
                   const isPast = ds < todayDs;   // วันในอดีต — เลือกไม่ได้
                   return (
                     <button key={ds} type="button" onClick={() => !isPast && setSelDate(ds)} disabled={isPast}
-                      style={{ aspectRatio: '1', border: 'none', cursor: isPast ? 'not-allowed' : 'pointer', fontSize: 12.5, fontWeight: 500, fontFamily: 'inherit', background: isSel ? '#0c8b87' : '#fff', color: isSel ? '#fff' : (isPast ? '#c5ced5' : '#37434d'), borderRadius: 6 }}>{d}</button>
+                      className={`bk-dtp-day${isPast ? ' bk-dtp-day--past' : ''}${isSel ? ' bk-dtp-day--sel' : ''}`}>{d}</button>
                   );
                 })}
               </div>
             </div>
             {/* เวลา: ชั่วโมง : นาที */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <span style={{ fontSize: 13, color: '#54616c', fontWeight: 600, flex: 'none' }}>{t('book.time_label')}</span>
-              <select value={hh} onChange={(e) => setHh(e.target.value)} style={selStyle}>{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
-              <span style={{ fontWeight: 700, color: '#9aa7b2' }}>:</span>
-              <select value={mm} onChange={(e) => setMm(e.target.value)} style={selStyle}>{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+            <div className="bk-dtp-time-row">
+              <span className="bk-dtp-time-label">{t('book.time_label')}</span>
+              <select value={hh} onChange={(e) => setHh(e.target.value)} className="form-input form-input--sm bk-dtp-select">{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
+              <span className="bk-dtp-colon">:</span>
+              <select value={mm} onChange={(e) => setMm(e.target.value)} className="form-input form-input--sm bk-dtp-select">{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
             </div>
             {/* เตือนเมื่อเลือกเวลาที่ผ่านมาแล้ว */}
-            {selPast && <div style={{ fontSize: 12, color: '#c0392b', marginBottom: 10, textAlign: 'center' }}>{t('book.past_datetime_err')}</div>}
+            {selPast && <div className="bk-dtp-warn">{t('book.past_datetime_err')}</div>}
             {/* ปุ่ม */}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('common.cancel')}</button>
-              <button type="button" onClick={confirm} disabled={!selDate || selPast} style={{ flex: 1, background: (selDate && !selPast) ? '#0c8b87' : '#c5ced5', color: '#fff', border: 'none', borderRadius: 8, padding: 10, fontSize: 14, fontWeight: 600, cursor: (selDate && !selPast) ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>{t('common.confirm')}</button>
+            <div className="bk-dtp-btns">
+              <button type="button" onClick={() => setOpen(false)} className="bk-dtp-btn bk-dtp-btn--cancel">{t('common.cancel')}</button>
+              <button type="button" onClick={confirm} disabled={!selDate || selPast} className="bk-dtp-btn bk-dtp-btn--confirm">{t('common.confirm')}</button>
             </div>
           </div>
         </div>

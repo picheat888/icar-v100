@@ -2706,8 +2706,40 @@
   }
 }
 
+/* กริดการ์ดเลือกรถ (จองรถ) — desktop เริ่มต้น จอแคบดู media query 720px */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* กรอบรูปด้านบนการ์ดเลือกรถ */
+.book-card-img {
+  height: 128px;
+  background: linear-gradient(135deg, #eef2f4, #e0e7ea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* เนื้อหาการ์ดเลือกรถใต้รูป */
+.book-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* การ์ดเลือกรถ (จองรถ) — hover ยกลอย + เงา + ขอบ teal สื่อว่าเลือกได้ */
 .book-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
@@ -2734,6 +2766,17 @@
 
 /* ปุ่ม "เลือกคันนี้" — hover: teal เข้ม + เงาเรือง + ยกเล็กน้อย */
 .book-select-btn {
+  margin-top: auto;
+  width: 100%;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
   transition: background .16s ease, box-shadow .16s ease, transform .12s ease;
 }
 
@@ -5259,4 +5302,618 @@
 /* จุดกลมของ toggle — เลื่อนไปชิดขวาเมื่อเปิดใช้งาน */
 .mm-toggle-knob.is-on {
   left: 21.5px;
+}
+
+/* ===== BookingForm: จองรถ — เลือกรถ (grid การ์ด) + modal 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม) + custom datetime picker ===== */
+/* เครื่องหมาย * ของฟิลด์บังคับกรอก */
+.bk-req {
+  color: var(--danger);
+}
+
+/* ระยะห่างล่างของช่องกรอกเดี่ยวในฟอร์ม */
+.bk-field-mb {
+  margin-bottom: 16px;
+}
+
+/* กริด 2 คอลัมน์ของฟอร์ม (จอกว้าง) — จอแคบ (<=760) ยุบเหลือคอลัมน์เดียว */
+.bk-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bk-grid2--narrow {
+  grid-template-columns: 1fr;
+}
+
+/* ช่องกรอกวัตถุประสงค์ — ขยายแนวตั้งได้ */
+.bk-textarea {
+  resize: vertical;
+}
+
+/* แถบสลับ รถขับเอง/รถอื่นๆ */
+.bk-seg {
+  display: inline-flex;
+  background: #eef2f4;
+  border-radius: 10px;
+  padding: 5px;
+  margin-bottom: 22px;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.bk-seg-btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: #6b7884;
+  box-shadow: none;
+}
+
+/* แท็บที่กำลังเลือกอยู่ — พื้นขาวลอยเหนือแถบ */
+.bk-seg-btn--active {
+  background: #fff;
+  color: var(--teal);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+/* คำบรรยายใต้แท็บ "รถขับเอง" */
+.bk-self-desc {
+  font-size: 14px;
+  color: #6b7884;
+  margin: 0 0 18px;
+}
+
+/* สีตัวอักษรกล่องว่าง (ไม่มีรถขับเอง) — ทับ .empty-card กลาง */
+.bk-empty-cars {
+  color: var(--text-faint);
+}
+
+/* หัวการ์ดรถ: ชื่อรุ่น + ป้ายสถานะ */
+.bk-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bk-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  line-height: 1.25;
+}
+
+/* ป้ายสถานะรถบนการ์ด */
+.bk-status {
+  flex: none;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.bk-status--available {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+/* ไม่ว่าง(กำลังถูกใช้)/ซ่อมบำรุง ใช้สีเดียวกัน — คนละข้อความ */
+.bk-status--busy {
+  background: #fde7d6;
+  color: #b5701a;
+}
+
+/* แถวป้ายทะเบียน + จำนวนที่นั่ง */
+.bk-card-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.bk-card-meta-item {
+  font-size: 13px;
+  color: #6b7884;
+}
+
+.bk-card-meta-value {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ปุ่ม "เลือกคันนี้" ตอนรถซ่อมบำรุง (กดไม่ได้) */
+.bk-btn-disabled {
+  margin-top: auto;
+  width: 100%;
+  background: #f1f3f5;
+  color: #aab4bc;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: not-allowed;
+  font-family: inherit;
+}
+
+/* การ์ดฟอร์ม "รถอื่นๆ" */
+.bk-other-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 680px;
+}
+
+.bk-other-card--narrow {
+  padding: 18px;
+}
+
+.bk-other-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 5px;
+  color: var(--ink-strong);
+}
+
+.bk-other-desc {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+
+/* ฉากหลังโมดัลจองรถ — จัดกึ่งกลางจอ */
+.bk-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 51, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  padding: 20px;
+}
+
+.bk-modal-backdrop--narrow {
+  padding: 8px;
+}
+
+/* กล่องโมดัลจองรถ (2 คอลัมน์) */
+.bk-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 960px;
+  max-width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+.bk-modal-head {
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bk-modal-head--narrow {
+  padding: 16px 16px;
+}
+
+.bk-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+.bk-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 4px;
+  display: flex;
+}
+
+/* เนื้อหาโมดัล — กริด 2 คอลัมน์ ปฏิทินซ้าย ฟอร์มขวา */
+.bk-modal-body {
+  padding: 24px 26px;
+  display: grid;
+  grid-template-columns: 1.04fr .96fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.bk-modal-body--narrow {
+  padding: 18px 16px;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+/* กล่องแจ้งโหลดตารางว่างไม่สำเร็จ */
+.bk-load-err {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--danger-soft);
+  color: #9a3b34;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* กล่องสรุปรถที่เลือก / หมายเหตุรถอื่นๆ */
+.bk-info-box {
+  background: var(--teal-soft);
+  border-radius: 9px;
+  padding: 13px 16px;
+  margin-bottom: 16px;
+}
+
+.bk-info-label {
+  font-size: 12px;
+  color: var(--teal-hover);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.bk-info-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.bk-info-note {
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+/* หัวข้อ "รายละเอียดการเดินทาง" ฝั่งฟอร์ม */
+.bk-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.bk-modal-foot {
+  padding: 18px 26px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.bk-modal-foot--narrow {
+  padding: 14px 16px;
+}
+
+.bk-modal-cancel {
+  background: #f1f3f5;
+  color: var(--text-soft);
+  border: none;
+  border-radius: 8px;
+  padding: 11px 22px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ปุ่มยืนยันจอง — ทับ .btn-primary กลาง ตอนกำลังส่งฟอร์ม (cursor รอ + จางลง) */
+.bk-submit-btn:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+/* ปฏิทินว่าง (ในโมดัลจองรถ) และปฏิทินเลือกวันใน datetime picker — โครงร่วมกัน */
+.bk-cal-box {
+  border: 1px solid #eceff1;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fcfdfd;
+}
+
+.bk-cal-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.bk-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 11px;
+}
+
+/* ปุ่มเลื่อนเดือน ‹ › — ใช้ร่วมกันทั้งปฏิทินในโมดัลจองและ datetime picker */
+.bk-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-card);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.bk-cal-month {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.bk-cal-gridbox {
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* หัวคอลัมน์วันในสัปดาห์ — ใช้ร่วมกันทั้งปฏิทินในโมดัลจองและ datetime picker */
+.bk-cal-weekrow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f7f9fa;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.bk-cal-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a97a2;
+  padding: 7px 0;
+}
+
+/* กริดวันที่ — ใช้ร่วมกันทั้งปฏิทินในโมดัลจองและ datetime picker */
+.bk-cal-daygrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.bk-cal-blank {
+  aspect-ratio: 1;
+  border-right: 1px solid #eef1f3;
+  border-bottom: 1px solid #eef1f3;
+  background: #fafbfc;
+}
+
+.bk-cal-day {
+  aspect-ratio: 1;
+  border: none;
+  border-right: 1px solid #eef1f3;
+  border-bottom: 1px solid #eef1f3;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fff;
+  color: var(--text);
+}
+
+/* วันในอดีต — เลือกไม่ได้ */
+.bk-cal-day--past {
+  background: var(--hover-bg);
+  color: #c5ced5;
+  cursor: not-allowed;
+}
+
+/* วันที่เลือกอยู่ — สีทับ .bk-cal-day--past เสมอ (ต้องประกาศหลัง) */
+.bk-cal-day--sel {
+  background: var(--teal);
+  color: #fff;
+}
+
+.bk-cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e08a1e;
+}
+
+.bk-cal-dot--sel {
+  background: #fff;
+}
+
+.bk-cal-legend {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bk-cal-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e08a1e;
+}
+
+/* ปุ่มเปิด datetime picker — ทับ .form-input กลาง */
+.bk-dt-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-faint);
+}
+
+/* มีค่าที่เลือกแล้ว — ทับสีจางของ placeholder */
+.bk-dt-trigger--filled {
+  color: var(--text);
+}
+
+.bk-dt-icon {
+  flex: none;
+}
+
+.bk-dt-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* popup เลือกวัน-เวลา */
+.bk-dtp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 51, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 160;
+  padding: 16px;
+}
+
+.bk-dtp-box {
+  background: #fff;
+  border-radius: 14px;
+  width: 320px;
+  max-width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .28);
+  padding: 18px;
+}
+
+.bk-dtp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bk-dtp-month {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.bk-dtp-gridbox {
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.bk-dtp-weekday {
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #8a97a2;
+  padding: 6px 0;
+}
+
+.bk-dtp-blank {
+  aspect-ratio: 1;
+}
+
+.bk-dtp-day {
+  aspect-ratio: 1;
+  border: none;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  background: #fff;
+  color: var(--text);
+  border-radius: 6px;
+}
+
+/* วันในอดีต — เลือกไม่ได้ (พื้นหลังไม่เปลี่ยน ต่างจากปฏิทินในโมดัลจอง) */
+.bk-dtp-day--past {
+  color: #c5ced5;
+  cursor: not-allowed;
+}
+
+/* วันที่เลือกอยู่ — สีทับ .bk-dtp-day--past เสมอ (ต้องประกาศหลัง) */
+.bk-dtp-day--sel {
+  background: var(--teal);
+  color: #fff;
+}
+
+.bk-dtp-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.bk-dtp-time-label {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 600;
+  flex: none;
+}
+
+/* select ชั่วโมง/นาที — เตี้ยกว่า .form-input--sm กลาง เพราะ popup กว้างแค่ 320px ต้องวางคู่กับ ":" ในแถวเดียว */
+.bk-dtp-select {
+  padding: 9px 10px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.bk-dtp-colon {
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.bk-dtp-warn {
+  font-size: 12px;
+  color: var(--danger);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.bk-dtp-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.bk-dtp-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.bk-dtp-btn--cancel {
+  background: #f1f3f5;
+  color: var(--text-soft);
+}
+
+.bk-dtp-btn--confirm {
+  background: var(--teal);
+  color: #fff;
+}
+
+.bk-dtp-btn--confirm:disabled {
+  background: #c5ced5;
+  cursor: not-allowed;
 }
