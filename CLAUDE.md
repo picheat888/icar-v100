@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > - ✅ **Booking (เฟส 4a+4b)** — User จองรถ (`BookingForm`: grid การ์ด + modal 2 คอลัมน์ + ปฏิทินว่าง + custom datetime picker) · คำขอของฉัน (`MyRequests`) · Admin อนุมัติ/ปฏิเสธ + มอบหมายคนขับ 3 แบบ (`RequestsManager` + `Admin\RequestController` + ตาราง `bookings`) · admin จองรถได้จากหน้าจัดการรถ
 > - ⬜ ที่เหลือ: Driver "งานของฉัน" (4c) · Timeline (5) · Dashboard/Log (6) — ยัง placeholder
 > - `vite.config.js` `rollupOptions.input`: app-css + members-manager + master-data + cars-manager + booking-form + my-requests + requests-manager (เพิ่ม entry ทุกครั้งที่มี island ใหม่)
+> - ✅ **CSS/Component cleanup** — ไม่มี inline style หลงเหลือใน view (PHP) และ React islands (ยกเว้นจุดที่ตั้งใจเก็บไว้ — ดู §5.5) · CSS ของหน้า/island ทั้งหมดอยู่ที่ `resources/css/style.css` (มีสารบัญ 6 หมวด) แยกจาก `resources/css/app.css` ที่เหลือแค่ Tailwind entry + design token + base element · component กลางฝั่ง React อยู่ที่ `resources/js/lib/` (`Toast`, `Table`, `Pager`, `Alert`) — ดูรายละเอียดที่ §3, §5.5, §6, §9
 >
 > โมดูลที่ยังไม่ทำ: เอกสารด้านล่างเป็น **แผน/ดีไซน์เป้าหมาย** ใช้เป็นแนวทางตอนสร้าง — เช็คของจริงใน `docs/PLAN.md` ก่อน
 >
@@ -132,10 +133,12 @@ project-root/
 │
 ├── resources/                  # ★ ซอร์สฝั่ง frontend (Vite จะ build จากที่นี่)
 │   ├── css/
-│   │   └── app.css             # Tailwind entry (@import "tailwindcss")
+│   │   ├── app.css             #   Tailwind entry + @import "./style.css" + design token :root + base element (body/input/button/::placeholder)
+│   │   └── style.css           #   CSS ของหน้า view + island ทั้งหมด — มีสารบัญ 6 หมวดบนไฟล์ (Components/Shell/Auth/Profile/Pages/Islands)
 │   └── js/
 │       ├── islands/            # React component จริง (เอาไปใช้ซ้ำได้หลายหน้า)
 │       │   └── ProductTable.jsx
+│       ├── lib/                # React component กลางใช้ซ้ำข้าม island (Toast, Table, Pager, Alert)
 │       └── entries/            # จุด mount React เข้า DOM (1 entry : 1 จุดใช้งาน)
 │           └── product-table.jsx
 │
@@ -297,14 +300,21 @@ export default function ProductTable({ endpoint }) {
 }
 ```
 
-### 5.5 จุดที่พลาดบ่อย 2 ข้อ
+### 5.5 จุดที่พลาดบ่อย
 
 - **Tailwind ตัด class ในไฟล์ .php ทิ้ง** — ต้องบอกให้สแกน view ของ CI4 ด้วย ใน `resources/css/app.css`:
   ```css
   @import "tailwindcss";
+  @import "./style.css";
   @source "../../app/Views/**/*.php";
   ```
 - **CSRF เวลา POST/PUT** — ฝัง token ลง `<meta name="csrf" content="...">` ที่ layout/header แล้วให้ React อ่านไปแนบใน header (GET เฉยๆ ไม่ต้อง)
+- **มี component กลางแล้ว ใช้ก่อนสร้างใหม่เสมอ** — ต่างแค่ตัวเลขเล็กน้อยให้ใช้ค่ากลาง ไม่ต้อง override:
+  - CSS ใน `resources/css/style.css` §1 Components: `.brand` · `.icon-box` (+`--round --teal`) · `.pill` (+`--sm --teal --orange --gray --green --amber --red`) · `.btn-primary` `.btn-ghost` `.btn-block` · `.form-label` `.form-input` (+`--sm`) `.field` `.field-eye` · `.alert-error` (+`--icon`) `.alert-success` · `.card` · `.empty-card` `.empty-icon` · `.title` (+`--xl --lg --md --sm`) · `.subtext` (+`--lg --sm --faint`) · `.tbl-wrap` `.tbl-scroll` `.tbl` (+`--center`) `.tbl-empty` `.ta-l/.ta-c/.ta-r` · `.icon-btn` (+`--green --red --gray`) · `.toast` · `.pager` (+`--incard`) · `.st-pending/.st-approved/.st-cancel_requested/.st-completed`
+  - React ใน `resources/js/lib/`: `Toast.jsx` (`useToast(ms)` → `{ toast, showToast, ToastView }`) · `Table.jsx` (`<Table center? footer?>`) · `Pager.jsx` (`<Pager page totalPages total perPage onPage inCard?>`) · `Alert.jsx` (`<Alert style?>`)
+- **ห้ามเขียน `*` ติดกับ `/` ในคอมเมนต์ CSS** (เช่น `.st-*/.pill`) เพราะ `*/` จะปิดคอมเมนต์กลางประโยคแล้วกลืนกฎที่ตามมาหายจาก bundle **โดย build ยังผ่าน** — เจอมาแล้ว 2 ครั้ง
+- **`npm run build` ผ่านไม่ได้แปลว่า CSS ใช้ได้** — ต้อง grep หา class ใน `public/build/assets/app-css-*.css` จริง เพื่อยืนยันว่ากฎไม่ได้หายไปจาก bundle
+- class ที่จ่ายแค่ custom property (เช่น `.st-*`) ต้องมี **reader class** ของ island เอง (`background: var(--st-bg); color: var(--st-fg)`) ไม่งั้นจะไม่เห็นสี
 
 ---
 
@@ -324,7 +334,11 @@ export default function ProductTable({ endpoint }) {
 - **คอมเมนต์ทุก function** สั้นๆ ว่าทำอะไร Comment เป็นภาษาไทยและทับศัพท์ได้
 - **อ่านไฟล์ที่เกี่ยวข้องก่อนแก้** และแก้เฉพาะที่จำเป็น — อย่าลบโค้ดเดิมถ้ายังไม่เข้าใจว่ามันทำอะไร
 - **แยก Component** ให้เล็ก และอ่านง่าย
-- **CSS: 1 property ต่อบรรทัด** — ขยาย block 
+- **CSS: 1 property ต่อบรรทัด** — ขยาย block
+- **ใช้ design token แทน hex ตรงๆ เสมอเมื่อมี token** — token ทั้งหมดอยู่ใน `:root` ของ `resources/css/app.css`
+- **ใช้ component กลางก่อนสร้างใหม่เสมอ** — CSS ดูที่ `resources/css/style.css` §1 Components, React ดูที่ `resources/js/lib/` — ต่างแค่ตัวเลขเล็กน้อยให้ใช้ค่ากลาง ไม่ต้อง override (ดูรายละเอียด §5.5)
+- **ห้ามเขียน `*` ติดกับ `/` ในคอมเมนต์ CSS** (เช่น `.st-*/.pill`) เพราะ `*/` จะปิดคอมเมนต์กลางประโยคแล้วกลืนกฎที่ตามมาหายจาก bundle โดย build ยังผ่าน
+- **`npm run build` ผ่านไม่ได้แปลว่า CSS ใช้ได้** — ต้อง grep หา class ใน `public/build/assets/app-css-*.css` จริงเสมอ
 
 ตัวอย่าง Controller ที่ดี:
 
@@ -417,6 +431,8 @@ npm run build                         # build ลง public/build — ตอน�
 - **อ่านไฟล์ที่เกี่ยวข้องก่อนแก้โค้ดทุกครั้ง** อธิบายแผนสั้นๆ ก่อนลงมือ และแก้เฉพาะไฟล์ที่จำเป็น
 - คอมเมนต์ทุก function ที่สร้าง ว่าทำอะไร เน้น Comment เป็นภาษาไทยและทับศัพท์ได้
 - ตรวจสอบว่าโค้ดที่แก้ไม่กระทบส่วนอื่น
+- **มี component กลางแล้ว เช็คก่อนสร้างใหม่เสมอ** — CSS: `resources/css/style.css` §1 Components (`.btn-primary` `.form-input` `.card` `.tbl` `.pill` `.pager` `.toast` `.alert-error` ฯลฯ) · React: `resources/js/lib/{Toast,Table,Pager,Alert}.jsx` · design token ทั้งหมดอยู่ใน `:root` ของ `resources/css/app.css` (`--teal --ink --text --border --card-shadow` ฯลฯ) — ดูรายการเต็มที่ §5.5
+- **inline style ที่เหลืออยู่เป็นของตั้งใจ ไม่ต้องรื้อ** — `resources/js/islands/timeline/DayGrid.jsx` (`left`/`width` เป็น % คำนวณจากเวลาจองจริง ทำเป็น class ไม่ได้) และ `resources/js/lib/Alert.jsx` (`style` prop เป็น API ตั้งใจ) — มีคอมเมนต์กำกับไว้ในโค้ดแล้ว
 
 ---
 
