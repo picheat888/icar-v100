@@ -589,7 +589,7 @@
    ตัวคลาสจ่ายแค่คู่สี (--st-bg / --st-fg) ส่วนที่จะเอาไปทาพื้นหรือทาตัวอักษร ให้ class ของแต่ละที่กำหนดเอง
    ใช้ร่วมกันได้ทุก island ที่แสดงป้าย/แถบตามสถานะการจอง (timeline, dashboard, คำขอของฉัน ฯลฯ) */
 .st-pending {
-  --st-bg: #fdf0e0;
+  --st-bg: var(--warn-soft);
   --st-fg: #e08a1e;
 }
 
@@ -2493,12 +2493,12 @@
 }
 
 /* คอลัมน์ลำดับ */
-.md-td-no {
+.tbl .md-td-no {
   color: var(--text-faint);
 }
 
 /* คอลัมน์ชื่อ */
-.md-td-name {
+.tbl .md-td-name {
   word-break: break-word;
   font-weight: 600;
   color: var(--ink-strong);
@@ -2627,7 +2627,7 @@
 }
 
 /* คอลัมน์เวลา — ไม่ตัดบรรทัด สีจาง */
-.al-td-time {
+.tbl .al-td-time {
   white-space: nowrap;
   color: var(--muted);
 }
@@ -3901,7 +3901,7 @@
 }
 
 /* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) */
-.dj-group-cell {
+.tbl .dj-group-cell {
   padding: 9px 20px;
   background: var(--teal-soft);
   border-top: 1px solid #cbe6e2;
@@ -4455,7 +4455,7 @@
 }
 
 /* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) */
-.mr-group-cell {
+.tbl .mr-group-cell {
   padding: 11px 20px 7px;
   background: var(--teal-soft);
   border-top: 1px solid #cbe6e2;
@@ -6129,7 +6129,7 @@
 }
 
 /* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) — td เดียว colSpan เต็มความกว้าง จัดเป็น flex เอง */
-.rq-group-cell {
+.tbl .rq-group-cell {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6210,7 +6210,7 @@
   color: var(--text-faint);
 }
 
-.rq-td-time {
+.tbl .rq-td-time {
   font-size: 12.5px;
   color: #6b7884;
   white-space: nowrap;

@@ -2,12 +2,12 @@ import { t, currentLocale } from '../../lib/i18n';
 
 const LOCALE = currentLocale();
 
-// สี/label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว)
+// label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) — สีมาจาก class .st-* กลางใน CSS
 export const STATUS_META = {
-  pending:          { label: t('status.pending'),             bg: '#fdf0e0', fg: '#e08a1e' },
-  approved:         { label: t('status.approved'),             bg: '#e7f4ee', fg: '#0c8b87' },
-  cancel_requested: { label: t('tl.status_cancel_requested'), bg: '#e7f4ee', fg: '#0c8b87' },
-  completed:        { label: t('tl.status_completed'),        bg: '#eef1f3', fg: '#8a97a2' },
+  pending:          { label: t('status.pending') },
+  approved:         { label: t('status.approved') },
+  cancel_requested: { label: t('tl.status_cancel_requested') },
+  completed:        { label: t('tl.status_completed') },
 };
 
 const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
