@@ -5896,3 +5896,366 @@
   background: #c5ced5;
   cursor: not-allowed;
 }
+
+/* ===== RequestsManager: จัดการคำขอจองรถ (Admin) — ตาราง/การ์ด + ฟิลเตอร์ + แบ่งหน้า (ส่วนที่ 1) ===== */
+
+/* กล่อง error โหลดข้อมูลไม่สำเร็จ — ทับ .alert-error กลาง (ไม่มีไอคอน จึงไม่ใช้ <Alert>) */
+.rq-alert {
+  margin-bottom: 12px;
+}
+
+/* ระยะห่างล่างของ <Alert> ในโมดัล — ครอบด้วย div แทนส่ง style ตรงให้ Alert (Alert ไม่รับ className) */
+.rq-alert-gap {
+  margin-bottom: 16px;
+}
+
+/* ช่องค้นหาในแถบฟิลเตอร์ */
+.rq-input-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+/* select/ช่องวันที่ในแถบฟิลเตอร์ — .form-input กลางบังคับ width:100% ต้อง reset เป็น auto ให้กว้างตามเนื้อหาเหมือนเดิม */
+.rq-filter-select {
+  flex: none;
+  width: auto;
+  cursor: pointer;
+}
+
+/* ปุ่มล้างตัวกรองวันที่ */
+.rq-clear-date {
+  background: #f1f3f5;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+.rq-loading {
+  color: var(--text-faint);
+  padding: 20px;
+}
+
+/* สีข้อความกล่องว่าง (ไม่พบคำขอ) — ทับ .empty-card กลาง */
+.rq-empty {
+  color: var(--text-faint);
+}
+
+.rq-cal-icon {
+  flex: none;
+}
+
+/* ครอบกลุ่มการ์ดตามวัน (มือถือ) */
+.rq-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* แถบหัววันที่ (มือถือ) — ชิป ไม่เต็มความกว้างข้อความ + สรุปยอด */
+.rq-day-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--teal-soft);
+  border: 1px solid #cbe6e2;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.rq-day-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+.rq-day-counts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7884;
+  flex-wrap: wrap;
+}
+
+/* จุดสีนำหน้าตัวเลขสรุปยอด — variant คงค่าสีเดิมของแต่ละกลุ่ม (ไม่ใช่ .st-* เพราะเป็นจุด+ตัวหนังสือ 2 สีต่างเฉด ไม่ใช่คู่ bg/fg เดียว) */
+.rq-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rq-dot-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.rq-dot--pending {
+  color: #b5701a;
+}
+
+.rq-dot--pending .rq-dot-bullet {
+  background: #e08a1e;
+}
+
+.rq-dot--approved {
+  color: var(--success);
+}
+
+.rq-dot--approved .rq-dot-bullet {
+  background: var(--success);
+}
+
+.rq-dot--cancelled {
+  color: var(--danger);
+}
+
+.rq-dot--cancelled .rq-dot-bullet {
+  background: #d9534f;
+}
+
+/* คั่นระหว่างตัวเลขสรุปยอด (เดสก์ท็อป) */
+.rq-dot-sep {
+  color: #d4dbe0;
+}
+
+.rq-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* การ์ดคำขอ 1 ใบ (มือถือ) — เส้นซ้ายสีตามสถานะ (var(--st-fg) จากคลาสสถานะที่แปะคู่กัน) */
+.rq-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--st-fg);
+  border-radius: 10px;
+  padding: 13px 15px;
+}
+
+/* การ์ดไฮไลต์ — คำขอรอดำเนินการ (pending/cancel_requested) */
+.rq-card--highlight {
+  background: #fff8ea;
+}
+
+.rq-card-body {
+  cursor: pointer;
+}
+
+.rq-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 9px;
+  margin-bottom: 6px;
+}
+
+.rq-card-id {
+  min-width: 0;
+}
+
+.rq-card-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rq-card-requester {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.rq-card-car {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rq-card-meta {
+  font-size: 12.5px;
+  color: #6b7884;
+  margin-top: 3px;
+  line-height: 1.6;
+}
+
+.rq-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.rq-mini-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.rq-mini-btn--success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.rq-mini-btn--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ปุ่มยืนยันการยกเลิก (การ์ดมือถือ) — โทนอำพัน ไม่ใช่ชุดสีสถานะกลาง */
+.rq-mini-btn--warn {
+  background: #fff3e0;
+  color: #b5701a;
+}
+
+/* กล่องครอบตาราง (เดสก์ท็อป) — คุม min-width และเงาลึกกว่าปกติที่ .tbl-wrap กลางไม่มีให้ */
+.rq-table-wrap .tbl {
+  min-width: 800px;
+}
+
+/* เงาลึกกว่า .card-shadow กลางชัดเจน (offset/blur/spread ของชั้นที่ 2 มากกว่าเกือบเท่าตัว ทึบกว่า .16→.28)
+   ไม่ใช่แค่ตัวเลขต่างนิดหน่อยตามเกณฑ์ "ยอมขยับ" จึงคง shadow เดิมของหน้านี้ไว้ */
+.rq-table-wrap .tbl-wrap {
+  box-shadow: 0 2px 6px rgba(17, 24, 39, .06), 0 22px 48px -14px rgba(17, 24, 39, .28);
+}
+
+/* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) — td เดียว colSpan เต็มความกว้าง จัดเป็น flex เอง */
+.rq-group-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 20px;
+  background: var(--teal-soft);
+  border-top: 1px solid #cbe6e2;
+  border-bottom: 1px solid #cbe6e2;
+  flex-wrap: wrap;
+}
+
+.rq-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+.rq-group-counts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7884;
+  flex-wrap: wrap;
+}
+
+/* แถวคำขอในตาราง — คลิกเปิด drawer ได้ */
+.rq-row {
+  cursor: pointer;
+}
+
+/* เส้นซ้ายสีตามสถานะ — ตั้งที่ td แรกเพราะ border บน tr ไม่แสดงผลเมื่อตารางเป็น border-collapse:collapse */
+.rq-row td:first-child {
+  border-left: 3px solid var(--st-fg);
+}
+
+/* แถวไฮไลต์ — คำขอรอดำเนินการ (pending/cancel_requested) */
+.rq-row--highlight {
+  background: #fff8ea;
+}
+
+.rq-td-code {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rq-td-requester {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rq-td-carmodel {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rq-td-carplate {
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.rq-td-loc {
+  font-size: 13px;
+}
+
+.rq-td-people {
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+.rq-td-time {
+  font-size: 12.5px;
+  color: #6b7884;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+/* ครอบปุ่มจัดการในคอลัมน์สุดท้าย */
+.rq-td-actions {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+}
+
+/* ปุ่มทึบมีไอคอนในคอลัมน์จัดการ (ตาราง) */
+.rq-btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.rq-btn-solid--approve {
+  background: var(--success);
+}
+
+.rq-btn-solid--reject {
+  background: var(--danger);
+}
+
+/* ปุ่มยืนยันยกเลิก (แถวตาราง) — โทนส้มเข้ม ไม่ใช่ชุดสีสถานะกลาง */
+.rq-btn-solid--confirm-cancel {
+  background: #d98324;
+}
+
+/* สถานะรวม "ยกเลิก/ปฏิเสธ" (rejected + cancelled + cancel_requested) — ไม่มีในชุดสีกลาง .st-* (นั่นแยกสถานะจริงทีละตัว)
+   หน้านี้จงใจรวม 3 สถานะเป็นสีเดียว (แดง) ตามดีไซน์เดิม จึงมีคลาสของตัวเอง ค่าตรงกับ --danger-soft/--danger เป๊ะ */
+.rq-st-cancelled {
+  --st-bg: var(--danger-soft);
+  --st-fg: var(--danger);
+}

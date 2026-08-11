@@ -1,18 +1,28 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'react';
 import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
+import Table from '../lib/Table';
+import { useToast } from '../lib/Toast';
 
 // normalize เวลา → 'YYYY-MM-DD HH:MM:SS' (รับทั้งจาก DB และ input datetime-local)
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
 
 // แสดง 3 กลุ่มสถานะฝั่ง Admin: รออนุมัติ / อนุมัติแล้ว / ยกเลิก+ปฏิเสธ (รวมความหมายเดียวกัน)
-const STATUS = {
-  pending:   [t('status.pending'), '#fdf0e0', '#b5701a'],
-  approved:  [t('status.approved'), '#e7f4ee', '#16855a'],
-  cancelled: [t('status.rejected'), '#fbecea', '#c0392b'],
+// ป้ายชื่อกลุ่ม (สีมาจาก class .st-*/.rq-st-* แยกต่างหาก — ดู STATUS_CLASS)
+const STATUS_LABEL = {
+  pending: t('status.pending'),
+  approved: t('status.approved'),
+  cancelled: t('status.rejected'),
+};
+// คลาสสีของแต่ละกลุ่ม — 'pending'/'approved' ตรงกับสถานะจริงในชุดสีกลาง .st-* ใช้ตรง ๆ
+// 'cancelled' รวมสถานะจริง 3 ตัว (rejected/cancelled/cancel_requested) เป็นสีเดียว (แดง) ไม่มีในชุดกลาง จึงมี .rq-st-cancelled ของหน้านี้เอง
+const STATUS_CLASS = {
+  pending: 'st-pending',
+  approved: 'st-approved',
+  cancelled: 'rq-st-cancelled',
 };
 // จับสถานะจริงเข้า 1 ใน 3 กลุ่ม (completed -> อนุมัติแล้ว · rejected/cancel_requested -> ยกเลิก/ปฏิเสธ)
 const GROUP_OF = {
@@ -35,17 +45,9 @@ const rangeLines = (s, e) => {
     ? [thDate(s), `${thTime(s)} → ${thTime(e)}`]
     : [`${thDate(s)} ${thTime(s)}`, `→ ${thDate(e)} ${thTime(e)}`];
 };
-const BAR = { pending: '#e08a1e', approved: '#16855a', rejected: '#d9534f', cancelled: '#d9534f' };
 const carText = (b) => (b.car_model ? `${b.car_model}${b.car_plate ? ' · ' + b.car_plate : ''}` : (b.booking_type === 'other' ? t('req.provided_by_admin') : '-'));
-const badge = (bg, c) => ({ background: bg, color: c, borderRadius: 999, padding: '3px 11px', fontSize: 12.5, fontWeight: 600, whiteSpace: 'nowrap' });
-const th = { textAlign: 'left', padding: '12px 16px', fontSize: 12, fontWeight: 600, color: '#8a97a2', background: '#fafbfc', borderBottom: '1px solid #eceff1', whiteSpace: 'nowrap' };
-const td = { padding: '12px 16px', fontSize: 13.5, color: '#37434d', borderBottom: '1px solid #f4f6f7', verticalAlign: 'top' };
-const inp = { width: '100%', padding: '11px 13px', border: '1px solid #d8dee3', borderRadius: 8, fontSize: 14.5, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', background: '#fff', color: '#37434d' };
 const lbl = { display: 'block', fontSize: 13, fontWeight: 600, color: '#54616c', marginBottom: 6 };
 
-// ปุ่มในคอลัมน์จัดการ (ตาม mockup): ทึบมีไอคอน (อนุมัติ/ปฏิเสธ) + ปุ่มเทา (ดูรายละเอียด)
-const btnSolid = (bg) => ({ display: 'inline-flex', alignItems: 'center', gap: 5, background: bg, color: '#fff', border: 'none', borderRadius: 7, padding: '6px 12px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' });
-const btnGray = { background: '#cdd5db', color: '#3f4b56', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
 // ไอคอนบนปุ่ม
 const ICO = {
   check: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>,
@@ -53,17 +55,17 @@ const ICO = {
 };
 // ไอคอนปฏิทินนำหน้าแถบวันที่
 const CAL_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: 'none' }}><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rq-cal-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
 );
 
 const driverAssigned = (b) => (b.driver_type === 'company' ? (b.driver_name || t('req.driver_company')) : (b.driver_type === 'external' ? (b.ext_driver_name || t('req.driver_external')) : ''));
 // รถอื่นๆ มอบหมายคนขับครบหรือยัง — คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ)
 const driverWarn = (f) => (f.driver === '' ? t('req.warn_pick_driver') : (f.driver === 'external' && !String(f.ext_name || '').trim() ? t('req.warn_ext_name') : ''));
 
-// จุดสีนำหน้าตัวเลขสรุปยอดในหัวกลุ่มวันที่
-const Dot = ({ color, text, children }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: text }}>
-    <span style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />{children}
+// จุดสีนำหน้าตัวเลขสรุปยอดในหัวกลุ่มวันที่ — variant: 'pending' | 'approved' | 'cancelled'
+const Dot = ({ variant, children }) => (
+  <span className={`rq-dot rq-dot--${variant}`}>
+    <span className="rq-dot-bullet" />{children}
   </span>
 );
 
@@ -83,7 +85,7 @@ export default function RequestsManager({ endpoints }) {
   const [fDate, setFDate] = useState('');   // กรองตามวันที่ใช้รถ (ว่าง = ทุกวัน)
   const [modal, setModal] = useState(null);
   const [modalErr, setModalErr] = useState('');   // ข้อความ error ในโมดัล (กล่องแดงค้าง)
-  const [toast, setToast] = useState('');
+  const { showToast, ToastView } = useToast();
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
   const [narrow, setNarrow] = useState(false);
@@ -113,8 +115,6 @@ export default function RequestsManager({ endpoints }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [modal]);
-
-  const showToast = (m) => { setToast(m); setTimeout(() => setToast(''), 2800); };
 
   const post = async (url, body) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
@@ -276,21 +276,21 @@ export default function RequestsManager({ endpoints }) {
     return (
       <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
         <label style={lbl}>{t('req.location_label')}</label>
-        <input value={modal.form.location} onChange={(e) => setForm({ location: e.target.value })} style={{ ...inp, marginBottom: 14 }} />
+        <input value={modal.form.location} onChange={(e) => setForm({ location: e.target.value })} className="form-input form-input--sm" style={{ marginBottom: 14 }} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-          <div><label style={lbl}>{t('req.start_label')}</label><input type="datetime-local" value={modal.form.start_at} onChange={(e) => setForm({ start_at: e.target.value })} style={inp} /></div>
-          <div><label style={lbl}>{t('req.end_label')}</label><input type="datetime-local" value={modal.form.end_at} onChange={(e) => setForm({ end_at: e.target.value })} style={inp} /></div>
+          <div><label style={lbl}>{t('req.start_label')}</label><input type="datetime-local" value={modal.form.start_at} onChange={(e) => setForm({ start_at: e.target.value })} className="form-input form-input--sm" /></div>
+          <div><label style={lbl}>{t('req.end_label')}</label><input type="datetime-local" value={modal.form.end_at} onChange={(e) => setForm({ end_at: e.target.value })} className="form-input form-input--sm" /></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-          <div><label style={lbl}>{t('req.people_label')}</label><input type="number" min="1" value={modal.form.people} onChange={(e) => setForm({ people: e.target.value })} style={inp} /></div>
-          <div><label style={lbl}>{t('req.map_label')}</label><input value={modal.form.map_link} maxLength={500} onChange={(e) => setForm({ map_link: e.target.value })} placeholder={t('req.map_placeholder')} style={inp} /></div>
+          <div><label style={lbl}>{t('req.people_label')}</label><input type="number" min="1" value={modal.form.people} onChange={(e) => setForm({ people: e.target.value })} className="form-input form-input--sm" /></div>
+          <div><label style={lbl}>{t('req.map_label')}</label><input value={modal.form.map_link} maxLength={500} onChange={(e) => setForm({ map_link: e.target.value })} placeholder={t('req.map_placeholder')} className="form-input form-input--sm" /></div>
         </div>
         <label style={lbl}>{t('req.purpose_label')}</label>
-        <textarea value={modal.form.purpose} onChange={(e) => setForm({ purpose: e.target.value })} rows={2} style={{ ...inp, resize: 'vertical', marginBottom: 14 }} />
+        <textarea value={modal.form.purpose} onChange={(e) => setForm({ purpose: e.target.value })} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical', marginBottom: 14 }} />
         {isOther ? driverPicker() : (
           <>
             <label style={lbl}>{t('req.car_self_label')}</label>
-            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} style={{ ...inp, cursor: 'pointer' }}>
+            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm" style={{ cursor: 'pointer' }}>
               {cars.map((c) => <option key={c.id} value={c.id}>{c.model}{c.plate ? ` — ${c.plate}` : ''} ({t('req.seats_count', { n: c.seats })})</option>)}
             </select>
           </>
@@ -324,14 +324,14 @@ export default function RequestsManager({ endpoints }) {
     return (
       <>
         <label style={lbl}>{t('req.pick_driver_label')}</label>
-        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} style={{ ...inp, marginBottom: 16, cursor: 'pointer' }}>
+        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} className="form-input form-input--sm" style={{ marginBottom: 16, cursor: 'pointer' }}>
           <option value="">{t('req.not_assigned_option')}</option>
           {drivers.map((d) => <option key={d.id} value={d.id}>{d.name || t('req.driver_hash', { n: d.id })}</option>)}
           <option value="external">{t('req.external_driver_option')}</option>
         </select>
 
         {/* เตือนคนขับซ้อนเวลา — กล่องแดงเต็มความกว้าง ค้างไว้จนกว่าจะเปลี่ยนคนขับ */}
-        {(() => { const c = driverClash(); return c ? <Alert style={{ marginBottom: 16 }}>{t('req.driver_clash_code', { code: c.code })}</Alert> : null; })()}
+        {(() => { const c = driverClash(); return c ? <div className="rq-alert-gap"><Alert>{t('req.driver_clash_code', { code: c.code })}</Alert></div> : null; })()}
 
         {/* คนขับบริษัท: pre-fill เบอร์โทร/รถ/ที่นั่งจากคนขับ แล้วแก้ไขได้ (เฉพาะคำขอนี้) */}
         {selDriver && (
@@ -342,9 +342,9 @@ export default function RequestsManager({ endpoints }) {
               <div style={{ fontSize: 14.5, color: '#37434d', fontWeight: 600 }}>{selDriver.name || '-'}</div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} style={inp} /></div>
-              <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} style={inp} /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} style={inp} /></div>
+              <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+              <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+              <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
             </div>
             <div style={{ fontSize: 11.5, color: '#9aa7b2', marginTop: 10 }}>{t('req.edit_note_driver')}</div>
           </div>
@@ -354,13 +354,13 @@ export default function RequestsManager({ endpoints }) {
         {isExternal && (
           <>
             <label style={lbl}>{t('req.ext_driver_name_label')} <span style={{ color: '#c0392b' }}>*</span></label>
-            <input value={modal.form.ext_name} onChange={(e) => setForm({ ext_name: e.target.value })} placeholder={t('req.name_surname_placeholder')} style={{ ...inp, marginBottom: 16 }} />
+            <input value={modal.form.ext_name} onChange={(e) => setForm({ ext_name: e.target.value })} placeholder={t('req.name_surname_placeholder')} className="form-input form-input--sm" style={{ marginBottom: 16 }} />
             <div style={{ background: '#f6f9fa', border: '1px solid #e3e9ec', borderRadius: 10, padding: '15px 16px', marginBottom: 16 }}>
               <div style={{ fontSize: 12, color: '#0a716e', fontWeight: 700, marginBottom: 12 }}>{t('req.driver_car_info')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} style={inp} /></div>
-                <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} style={inp} /></div>
-                <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} style={inp} /></div>
+                <div><label style={lbl}>{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+                <div><label style={lbl}>{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+                <div style={{ gridColumn: '1 / -1' }}><label style={lbl}>{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
               </div>
             </div>
           </>
@@ -369,73 +369,73 @@ export default function RequestsManager({ endpoints }) {
     );
   };
 
-  // ป้ายสถานะ = 1 ใน 4 กลุ่มที่แสดง
-  const rowStat = (b) => STATUS[groupOf(b.status)];
+  // ป้ายสถานะ = 1 ใน 3 กลุ่มที่แสดง (label + ชื่อคลาสสี)
+  const rowStat = (b) => { const g = groupOf(b.status); return { label: STATUS_LABEL[g], cls: STATUS_CLASS[g] }; };
 
   return (
     <div>
       {loadErr && (
-        <div style={{ padding: '10px 14px', marginBottom: 12, background: '#fbecea', color: '#9a3b34', borderRadius: 8, fontSize: 13 }}>
+        <div className="alert-error rq-alert">
           {t('common.load_err')}
         </div>
       )}
       {/* ฟิลเตอร์ */}
       <div className="filter-card">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('req.search_placeholder')} style={{ ...inp, flex: 1, minWidth: 220 }} />
-        <select value={fType} onChange={(e) => setFType(e.target.value)} style={{ ...inp, width: 'auto', cursor: 'pointer' }}>
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('req.search_placeholder')} className="form-input form-input--sm rq-input-search" />
+        <select value={fType} onChange={(e) => setFType(e.target.value)} className="form-input form-input--sm rq-filter-select">
           <option value="all">{t('req.all_types')}</option><option value="self">{t('req.car_self')}</option><option value="other">{t('req.car_other')}</option>
         </select>
-        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={{ ...inp, width: 'auto', cursor: 'pointer' }}>
+        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="form-input form-input--sm rq-filter-select">
           <option value="all">{t('req.all_statuses')}</option><option value="pending">{t('status.pending')}</option><option value="approved">{t('status.approved')}</option><option value="cancelled">{t('status.rejected')}</option>
         </select>
         {/* กรองตามวันที่ใช้รถ (เฉพาะวันที่ต้องการ) */}
-        <input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} title={t('req.date_filter_title')} style={{ ...inp, width: 'auto', cursor: 'pointer' }} />
+        <input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} title={t('req.date_filter_title')} className="form-input form-input--sm rq-filter-select" />
         {fDate && (
-          <button onClick={() => setFDate('')} title={t('req.clear_date')} style={{ ...inp, width: 'auto', cursor: 'pointer', background: '#f1f3f5', color: '#54616c', fontWeight: 600 }}>{t('req.clear_date')}</button>
+          <button onClick={() => setFDate('')} title={t('req.clear_date')} className="form-input form-input--sm rq-filter-select rq-clear-date">{t('req.clear_date')}</button>
         )}
       </div>
 
-      {loading && <div style={{ color: '#9aa7b2', padding: 20 }}>{t('common.loading')}</div>}
-      {!loading && filtered.length === 0 && <div style={{ background: '#fff', border: '1px solid #e7ebee', borderRadius: 12, padding: 40, textAlign: 'center', color: '#9aa7b2' }}>{t('req.not_found')}</div>}
+      {loading && <div className="rq-loading">{t('common.loading')}</div>}
+      {!loading && filtered.length === 0 && <div className="empty-card rq-empty">{t('req.not_found')}</div>}
 
       {/* จัดกลุ่มตามวัน */}
       {!loading && filtered.length > 0 && (narrow ? (
         /* มือถือ/แท็บเล็ต: การ์ดจัดกลุ่มตามวัน */
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div className="rq-groups">
           {groups.map((g) => (
             <div key={g.key}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, background: '#e6f3f2', border: '1px solid #cbe6e2', borderRadius: 8, padding: '8px 14px', marginBottom: 10, flexWrap: 'wrap' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#0a605e' }}>{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, fontWeight: 600, flexWrap: 'wrap' }}>
-                  <span style={{ color: '#6b7884' }}>{t('req.total', { n: g.rows.length })}</span>
-                  <Dot color="#e08a1e" text="#b5701a">{t('req.count_pending', { n: g.pend })}</Dot>
-                  <Dot color="#16855a" text="#16855a">{t('req.count_appr', { n: g.appr })}</Dot>
-                  <Dot color="#d9534f" text="#c0392b">{t('req.count_rej', { n: g.canc })}</Dot>
+              <div className="rq-day-badge">
+                <span className="rq-day-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</span>
+                <div className="rq-day-counts">
+                  <span>{t('req.total', { n: g.rows.length })}</span>
+                  <Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
+                  <Dot variant="approved">{t('req.count_appr', { n: g.appr })}</Dot>
+                  <Dot variant="cancelled">{t('req.count_rej', { n: g.canc })}</Dot>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {g.rows.map((b) => { const [sl, sb, sc] = rowStat(b); return (
-                  <div key={b.id} style={{ background: (b.status === 'pending' || b.status === 'cancel_requested') ? '#fff8ea' : '#fff', border: '1px solid #e7ebee', borderLeft: `3px solid ${BAR[groupOf(b.status)]}`, borderRadius: 10, padding: '13px 15px' }}>
-                    <div onClick={() => openDetail(b)} style={{ cursor: 'pointer' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 9, marginBottom: 6 }}>
-                        <div style={{ minWidth: 0 }}><span style={{ fontSize: 13, fontWeight: 700, color: '#37434d' }}>{b.booking_code}</span> <span style={{ fontSize: 12, color: '#9aa7b2' }}>{b.requester_name || '-'}</span></div>
-                        <span style={badge(sb, sc)}>{sl}</span>
+              <div className="rq-cards">
+                {g.rows.map((b) => { const { label, cls } = rowStat(b); const highlight = b.status === 'pending' || b.status === 'cancel_requested'; return (
+                  <div key={b.id} className={`rq-card ${cls} ${highlight ? 'rq-card--highlight' : ''}`}>
+                    <div onClick={() => openDetail(b)} className="rq-card-body">
+                      <div className="rq-card-head">
+                        <div className="rq-card-id"><span className="rq-card-code">{b.booking_code}</span> <span className="rq-card-requester">{b.requester_name || '-'}</span></div>
+                        <span className={`pill pill--sm ${cls}`}>{label}</span>
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#37434d' }}>{carText(b)}</div>
-                      <div style={{ fontSize: 12.5, color: '#6b7884', marginTop: 3, lineHeight: 1.6 }}>
+                      <div className="rq-card-car">{carText(b)}</div>
+                      <div className="rq-card-meta">
                         <div>{b.location} · {t('req.people', { n: b.people })}</div>
                         <div>{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return `${l1} ${l2}`; })()}</div>
                       </div>
                     </div>
                     {b.status === 'pending' && (
-                      <div style={{ display: 'flex', gap: 8, marginTop: 11 }}>
-                        <button onClick={() => openDetail(b)} style={{ flex: 1, background: '#e7f4ee', color: '#16855a', border: 'none', borderRadius: 8, padding: 9, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('common.approve')}</button>
-                        <button onClick={() => openDetail(b, 'reject')} style={{ flex: 1, background: '#fbecea', color: '#c0392b', border: 'none', borderRadius: 8, padding: 9, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('common.reject')}</button>
+                      <div className="rq-card-actions">
+                        <button onClick={() => openDetail(b)} className="rq-mini-btn rq-mini-btn--success">{t('common.approve')}</button>
+                        <button onClick={() => openDetail(b, 'reject')} className="rq-mini-btn rq-mini-btn--danger">{t('common.reject')}</button>
                       </div>
                     )}
                     {b.status === 'cancel_requested' && (
-                      <div style={{ marginTop: 11 }}>
-                        <button onClick={() => openDetail(b)} style={{ width: '100%', background: '#fff3e0', color: '#b5701a', border: 'none', borderRadius: 8, padding: 9, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_cancel')}</button>
+                      <div className="rq-card-actions">
+                        <button onClick={() => openDetail(b)} className="rq-mini-btn rq-mini-btn--warn">{t('req.confirm_cancel')}</button>
                       </div>
                     )}
                   </div>
@@ -445,52 +445,59 @@ export default function RequestsManager({ endpoints }) {
           ))}
         </div>
       ) : (
-        /* เดสก์ท็อป: ตารางเดียว + header คอลัมน์ */
-        <div style={{ background: '#fff', border: '1px solid #e3e8ec', borderRadius: 16, boxShadow: '0 2px 6px rgba(17,24,39,.06), 0 22px 48px -14px rgba(17,24,39,.28)', overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            {/* header คอลัมน์ */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 20px', background: '#fff', borderBottom: '2px solid #e7ebee', minWidth: 800, fontSize: 12.5, fontWeight: 700, color: '#3d4852', letterSpacing: 0.2, textAlign: 'center' }}>
-              <div style={{ flex: '1 1 0', minWidth: 110 }}>{t('req.col_code_requester')}</div>
-              <div style={{ flex: '1 1 0', minWidth: 120 }}>{t('req.col_car_plate')}</div>
-              <div style={{ flex: '1.6 1 0', minWidth: 160 }}>{t('req.col_location_people')}</div>
-              <div style={{ flex: '1.1 1 0', minWidth: 165 }}>{t('req.col_time_range')}</div>
-              <div style={{ flex: '0.8 1 0', minWidth: 100 }}>{t('req.col_status')}</div>
-              <div style={{ flex: '1.2 1 0', minWidth: 178 }}>{t('req.col_manage')}</div>
-            </div>
-            {groups.map((g) => (
-              <div key={g.key} style={{ minWidth: 800 }}>
-                {/* แถบวันที่ + สรุปยอด */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '9px 20px', background: '#e6f3f2', borderTop: '1px solid #cbe6e2', borderBottom: '1px solid #cbe6e2', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, color: '#0a605e' }}>{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, fontWeight: 600, color: '#6b7884', flexWrap: 'wrap' }}>
-                    <span>{t('req.total', { n: g.rows.length })}</span>
-                    <span style={{ color: '#d4dbe0' }}>·</span><Dot color="#e08a1e" text="#b5701a">{t('req.count_pending', { n: g.pend })}</Dot>
-                    <span style={{ color: '#d4dbe0' }}>·</span><Dot color="#16855a" text="#16855a">{t('req.count_appr', { n: g.appr })}</Dot>
-                    <span style={{ color: '#d4dbe0' }}>·</span><Dot color="#d9534f" text="#c0392b">{t('req.count_rej', { n: g.canc })}</Dot>
-                  </div>
-                </div>
-                {/* แถวคำขอ */}
-                {g.rows.map((b) => { const [sl, sb, sc] = rowStat(b); return (
-                  <div key={b.id} onClick={() => openDetail(b)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 20px 13px 17px', borderBottom: '1px solid #f4f6f7', borderLeft: `3px solid ${BAR[groupOf(b.status)]}`, background: (b.status === 'pending' || b.status === 'cancel_requested') ? '#fff8ea' : '#fff', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ flex: '1 1 0', minWidth: 110 }}><div style={{ fontSize: 13, fontWeight: 700, color: '#37434d' }}>{b.booking_code}</div><div style={{ fontSize: 12.5, color: '#9aa7b2', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.requester_name || '-'}</div></div>
-                    <div style={{ flex: '1 1 0', minWidth: 120 }}><div style={{ fontSize: 13, fontWeight: 600, color: '#37434d', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.car_model || (b.booking_type === 'other' ? t('req.provided_by_admin') : '-')}</div><div style={{ fontSize: 12.5, color: '#9aa7b2' }}>{b.car_plate || ' '}</div></div>
-                    <div style={{ flex: '1.6 1 0', minWidth: 160, textAlign: 'center' }}><div style={{ fontSize: 13, color: '#37434d' }}>{b.location}</div><div style={{ fontSize: 12.5, color: '#9aa7b2' }}>{t('req.people_count', { n: b.people })}</div></div>
-                    <div style={{ flex: '1.1 1 0', minWidth: 165, fontSize: 12.5, color: '#6b7884', whiteSpace: 'nowrap', textAlign: 'center', lineHeight: 1.5 }}>{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return (<><div>{l1}</div><div>{l2}</div></>); })()}</div>
-                    <div style={{ flex: '0.8 1 0', minWidth: 100, display: 'flex', justifyContent: 'center' }}><span style={badge(sb, sc)}>{sl}</span></div>
-                    <div style={{ flex: '1.2 1 0', minWidth: 178, display: 'flex', gap: 7, justifyContent: 'center' }}>
-                      {b.status === 'pending' && (<>
-                        <button onClick={(e) => { e.stopPropagation(); openDetail(b); }} style={btnSolid('#16855a')}>{ICO.check}{t('common.approve')}</button>
-                        <button onClick={(e) => { e.stopPropagation(); openDetail(b, 'reject'); }} style={btnSolid('#c0392b')}>{ICO.x}{t('common.reject')}</button>
-                      </>)}
-                      {b.status === 'cancel_requested' && (
-                        <button onClick={(e) => { e.stopPropagation(); openDetail(b); }} style={btnSolid('#d98324')}>{t('req.confirm_cancel_short')}</button>
-                      )}
-                    </div>
-                  </div>
-                ); })}
-              </div>
-            ))}
-          </div>
+        /* เดสก์ท็อป: ตารางจริง + แถวคั่นวันที่ (colSpan เต็มความกว้าง) */
+        <div className="rq-table-wrap">
+          <Table center>
+            <thead>
+              <tr>
+                <th>{t('req.col_code_requester')}</th>
+                <th>{t('req.col_car_plate')}</th>
+                <th>{t('req.col_location_people')}</th>
+                <th>{t('req.col_time_range')}</th>
+                <th>{t('req.col_status')}</th>
+                <th>{t('req.col_manage')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((g) => (
+                <Fragment key={g.key}>
+                  {/* แถบวันที่ + สรุปยอด */}
+                  <tr>
+                    <td colSpan={6} className="rq-group-cell">
+                      <div className="rq-group-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</div>
+                      <div className="rq-group-counts">
+                        <span>{t('req.total', { n: g.rows.length })}</span>
+                        <span className="rq-dot-sep">·</span><Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
+                        <span className="rq-dot-sep">·</span><Dot variant="approved">{t('req.count_appr', { n: g.appr })}</Dot>
+                        <span className="rq-dot-sep">·</span><Dot variant="cancelled">{t('req.count_rej', { n: g.canc })}</Dot>
+                      </div>
+                    </td>
+                  </tr>
+                  {/* แถวคำขอ */}
+                  {g.rows.map((b) => { const { label, cls } = rowStat(b); const highlight = b.status === 'pending' || b.status === 'cancel_requested'; return (
+                    <tr key={b.id} onClick={() => openDetail(b)} className={`rq-row ${cls} ${highlight ? 'rq-row--highlight' : ''}`}>
+                      <td><div className="rq-td-code">{b.booking_code}</div><div className="rq-td-requester">{b.requester_name || '-'}</div></td>
+                      <td><div className="rq-td-carmodel">{b.car_model || (b.booking_type === 'other' ? t('req.provided_by_admin') : '-')}</div><div className="rq-td-carplate">{b.car_plate || ' '}</div></td>
+                      <td><div className="rq-td-loc">{b.location}</div><div className="rq-td-people">{t('req.people_count', { n: b.people })}</div></td>
+                      <td className="rq-td-time">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return (<><div>{l1}</div><div>{l2}</div></>); })()}</td>
+                      <td><span className={`pill pill--sm ${cls}`}>{label}</span></td>
+                      <td>
+                        <div className="rq-td-actions">
+                          {b.status === 'pending' && (<>
+                            <button onClick={(e) => { e.stopPropagation(); openDetail(b); }} className="rq-btn-solid rq-btn-solid--approve">{ICO.check}{t('common.approve')}</button>
+                            <button onClick={(e) => { e.stopPropagation(); openDetail(b, 'reject'); }} className="rq-btn-solid rq-btn-solid--reject">{ICO.x}{t('common.reject')}</button>
+                          </>)}
+                          {b.status === 'cancel_requested' && (
+                            <button onClick={(e) => { e.stopPropagation(); openDetail(b); }} className="rq-btn-solid rq-btn-solid--confirm-cancel">{t('req.confirm_cancel_short')}</button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ); })}
+                </Fragment>
+              ))}
+            </tbody>
+          </Table>
         </div>
       ))}
 
@@ -501,7 +508,7 @@ export default function RequestsManager({ endpoints }) {
 
       {/* โมดัลรายละเอียด */}
       {modal && (() => {
-        const b = modal.booking; const [sl, sb, sc] = rowStat(b);
+        const b = modal.booking; const { label: sl, cls: sc } = rowStat(b);
         const pending = b.status === 'pending';
         const isCancelReq = b.status === 'cancel_requested';
         const isOther = b.booking_type === 'other';
@@ -523,7 +530,7 @@ export default function RequestsManager({ endpoints }) {
                 </button>
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 26px' }}>
-                {modalErr && <Alert style={{ marginBottom: 16 }}>{modalErr}</Alert>}
+                {modalErr && <div className="rq-alert-gap"><Alert>{modalErr}</Alert></div>}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px', marginBottom: 18 }}>
                   {fields.map(([k, v]) => <div key={k}><div style={{ fontSize: 12, color: '#9aa7b2', fontWeight: 600, marginBottom: 3 }}>{k}</div><div style={{ fontSize: 14.5, color: '#37434d', fontWeight: 600 }}>{v}</div></div>)}
                 </div>
@@ -543,7 +550,7 @@ export default function RequestsManager({ endpoints }) {
                   <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
                     <div style={{ background: '#fbecea', color: '#c0392b', borderRadius: 10, padding: '12px 15px', fontSize: 13.5, marginBottom: 14 }}>{t('req.confirm_cancel_msg')}</div>
                     <label style={lbl}>{t('req.note_optional_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} style={{ ...inp, resize: 'vertical' }} />
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical' }} />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
                       <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.no_cancel')}</button>
                       <button onClick={doCancel} disabled={busy} style={{ background: '#c0392b', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_cancel_request')}</button>
@@ -554,7 +561,7 @@ export default function RequestsManager({ endpoints }) {
                   <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16 }}>
                     <div style={{ background: '#fbecea', color: '#c0392b', borderRadius: 10, padding: '12px 15px', fontSize: 13.5, marginBottom: 14 }}>{t('req.reject_reason_notice')}</div>
                     <label style={lbl}>{t('req.reject_reason_label')} <span style={{ color: '#c0392b' }}>*</span></label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} style={{ ...inp, resize: 'vertical' }} autoFocus />
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} className="form-input form-input--sm" style={{ resize: 'vertical' }} autoFocus />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
                       <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} style={{ background: '#f1f3f5', color: '#54616c', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.back')}</button>
                       <button onClick={doReject} disabled={busy} style={{ background: '#c0392b', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('req.confirm_reject')}</button>
@@ -564,7 +571,7 @@ export default function RequestsManager({ endpoints }) {
                   <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 18 }}>
                     {isOther && driverPicker()}
                     <label style={lbl}>{t('req.reply_note_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} style={{ ...inp, resize: 'vertical' }} />
+                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} className="form-input form-input--sm" style={{ resize: 'vertical' }} />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
                       <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} style={{ background: '#fbecea', color: '#c0392b', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 14.5, fontWeight: 600, cursor: busy ? 'wait' : 'pointer', fontFamily: 'inherit' }}>{t('common.reject')}</button>
                       <button onClick={doApprove} disabled={busy || !!driverClash()} style={{ background: '#16855a', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 26px', fontSize: 14.5, fontWeight: 600, cursor: (busy || driverClash()) ? 'not-allowed' : 'pointer', opacity: driverClash() ? 0.55 : 1, fontFamily: 'inherit' }}>{t('common.approve')}</button>
@@ -583,7 +590,7 @@ export default function RequestsManager({ endpoints }) {
                   </div>
                 ) : (
                   <div style={{ borderTop: '1px solid #f0f3f5', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ fontSize: 13, color: '#9aa7b2', fontWeight: 600 }}>{t('req.status_colon')}</span><span style={badge(sb, sc)}>{sl}</span></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ fontSize: 13, color: '#9aa7b2', fontWeight: 600 }}>{t('req.status_colon')}</span><span className={`pill pill--sm ${sc}`}>{sl}</span></div>
                     {driverAssigned(b) && <div style={{ fontSize: 13.5, color: '#6b7884' }}>{t('req.assigned_driver_label')}<b style={{ color: '#0a716e' }}>{driverAssigned(b)}</b></div>}
                     {b.status === 'completed' && b.returned_at && <div style={{ fontSize: 13.5, color: '#0a716e' }}>{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
                     {b.admin_note && <div style={{ background: '#f6f8f9', borderRadius: 8, padding: '10px 13px', fontSize: 13.5, color: '#54616c' }}>{t('req.note_label')}{b.admin_note}</div>}
@@ -608,7 +615,7 @@ export default function RequestsManager({ endpoints }) {
         );
       })()}
 
-      {toast && <div style={{ position: 'fixed', left: '50%', bottom: 28, transform: 'translateX(-50%)', background: '#1f2a33', color: '#fff', padding: '11px 20px', borderRadius: 10, fontSize: 14, fontWeight: 500, boxShadow: '0 8px 30px rgba(0,0,0,.2)', zIndex: 200 }}>{toast}</div>}
+      <ToastView />
     </div>
   );
 }
