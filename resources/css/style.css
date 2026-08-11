@@ -4769,3 +4769,494 @@
   --st-bg: #eaf1ec;
   --st-fg: #5a7d68;
 }
+
+/* ===== MembersManager: จัดการสมาชิก — ตาราง/การ์ด + ฟิลเตอร์ + โมดัล อนุมัติ/ปฏิเสธ/แก้ไข ===== */
+/* กล่อง error โหลดข้อมูลไม่สำเร็จ — ทับ .alert-error กลาง (ไม่มีไอคอน จึงไม่ใช้ <Alert>) */
+.mm-alert {
+  margin-bottom: 12px;
+}
+
+/* ช่องค้นหาในแถบฟิลเตอร์ — ยืดเต็มที่เหลือ */
+.mm-input--search {
+  flex: 1;
+  min-width: 240px;
+}
+
+/* ช่องเลือกกรอง (สถานะ/สิทธิ์/แผนก) ในแถบฟิลเตอร์ — กว้างตามเนื้อหา ไม่ยืดเต็มแถว */
+.mm-filter-select {
+  flex: none;
+  width: auto;
+  cursor: pointer;
+}
+
+/* ช่องเลือกแบบเต็มความกว้างในโมดัล — ใช้ความกว้าง 100% จาก .form-input ตรง ๆ มีแค่ cursor เป็นของตัวเอง */
+.mm-select {
+  cursor: pointer;
+}
+
+/* ข้อความระหว่างโหลดข้อมูล */
+.mm-loading {
+  color: var(--text-faint);
+  padding: 20px;
+}
+
+/* สีข้อความกล่องว่าง (ไม่พบสมาชิก) — ทับ .empty-card กลาง */
+.mm-empty {
+  color: var(--text-faint);
+}
+
+/* กริดการ์ดสมาชิก (มือถือ/แท็บเล็ต) */
+.mm-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+/* การ์ดสมาชิก 1 ใบ (มือถือ/แท็บเล็ต) */
+.mm-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px 16px;
+}
+
+/* หัวการ์ด: ชื่อ + ป้ายสถานะ/สิทธิ์ */
+.mm-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* กันชื่อ + รหัสพนักงาน ไม่ให้ดันความกว้างการ์ด */
+.mm-card-name {
+  min-width: 0;
+}
+
+/* ชื่อ-สกุลในการ์ด — ตัดคำยาวด้วย ... */
+.mm-card-fullname {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* รหัสพนักงานในการ์ด */
+.mm-card-empid {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+/* คอลัมน์ป้ายสถานะ/สิทธิ์ ชิดขวา */
+.mm-card-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex: none;
+}
+
+/* บล็อกรายละเอียด (แผนก/ตำแหน่ง/เบอร์โทร) คั่นด้วยเส้นบน-ล่าง */
+.mm-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 11px 0;
+  border-top: 1px solid var(--hover-bg);
+  border-bottom: 1px solid var(--hover-bg);
+  margin: 11px 0;
+}
+
+/* แถวป้ายชื่อ + ค่า 1 รายการในบล็อกรายละเอียด */
+.mm-card-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+/* ป้ายชื่อฟิลด์ในบล็อกรายละเอียด */
+.mm-card-info-label {
+  color: var(--text-faint);
+}
+
+/* ค่าของฟิลด์ในบล็อกรายละเอียด */
+.mm-card-info-value {
+  color: var(--text);
+  font-weight: 500;
+  text-align: right;
+}
+
+/* แถวปุ่มจัดการท้ายการ์ด */
+.mm-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ปุ่มอนุมัติ/ปฏิเสธในการ์ด (มือถือ) — ยืดเต็มพื้นที่ที่เหลือ */
+.mm-mini-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+}
+
+/* ปุ่มอนุมัติ — เขียว */
+.mm-mini-btn--success {
+  background: var(--success);
+}
+
+/* ปุ่มปฏิเสธ — แดง */
+.mm-mini-btn--danger {
+  background: var(--danger);
+}
+
+/* ปุ่มไอคอนแก้ไข — กล่องสี่เหลี่ยมพื้นเทาอ่อน มีขอบ */
+.mm-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #f4f7f8;
+  color: var(--text-soft);
+  border: 1px solid #e3e9ec;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  flex: none;
+}
+
+/* ปุ่มไอคอนแก้ไข — ขนาดใหญ่ขึ้นในการ์ดมือถือ (พื้นที่แตะกว้างขึ้น) */
+.mm-edit-btn--lg {
+  width: 40px;
+  height: 40px;
+}
+
+/* กล่องครอบตารางเดสก์ท็อป — คุม min-width และบังคับไม่ตัดบรรทัดทุกคอลัมน์ ที่ .tbl กลางไม่มีให้ */
+.mm-table-wrap .tbl {
+  min-width: 840px;
+}
+
+.mm-table-wrap .tbl td {
+  white-space: nowrap;
+}
+
+/* คอลัมน์รหัสพนักงาน — ตัวหนา */
+.mm-td-empid {
+  font-weight: 600;
+}
+
+/* ครอบปุ่มจัดการในคอลัมน์สุดท้าย (เดสก์ท็อป) */
+.mm-td-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* ปุ่มอนุมัติ/ปฏิเสธในตาราง (เดสก์ท็อป) — เล็กกว่าปุ่มในการ์ด */
+.mm-act-btn {
+  border: none;
+  border-radius: 7px;
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+}
+
+/* ปุ่มอนุมัติ — เขียว */
+.mm-act-btn--success {
+  background: var(--success);
+}
+
+/* ปุ่มปฏิเสธ — แดง */
+.mm-act-btn--danger {
+  background: var(--danger);
+}
+
+/* กล่องสรุปตัวสมาชิกในโมดัลอนุมัติ/ปิดใช้งาน */
+.mm-member-box {
+  background: #f6f8f9;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+/* ชื่อสมาชิกในกล่องสรุป */
+.mm-member-box-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+/* บรรทัดรอง (รหัสพนักงาน/แผนก/ตำแหน่ง) ในกล่องสรุป */
+.mm-member-box-sub {
+  font-size: 13.5px;
+  color: #6b7884;
+  margin-top: 3px;
+}
+
+/* ข้อความยืนยันในโมดัลปฏิเสธ/ปิดใช้งาน */
+.mm-reject-text {
+  font-size: 14.5px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  margin: 4px 0 8px;
+}
+
+/* แถบสลับแท็บ (ข้อมูล/รหัสผ่าน) ในโมดัลแก้ไข */
+.mm-tabs {
+  display: flex;
+  background: #eef2f4;
+  border-radius: 9px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+/* ปุ่มแท็บ */
+.mm-tab-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 7px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: #6b7884;
+}
+
+/* ปุ่มแท็บที่เลือกอยู่ — พื้นขาวยกนูน */
+.mm-tab-btn--active {
+  background: #fff;
+  color: var(--teal);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+/* ระยะห่างล่างของช่องกรอกในฟอร์มแก้ไข */
+.mm-field-mb {
+  margin-bottom: 16px;
+}
+
+/* กริด 2 คอลัมน์ (แผนก/ตำแหน่ง) ในฟอร์มแก้ไข */
+.mm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+/* หมายเหตุใต้ช่องเลือกสิทธิ์ — โชว์เฉพาะสมาชิกที่ยังรออนุมัติ */
+.mm-pending-note {
+  margin-top: 9px;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+/* แถวเช็กบ็อกซ์บังคับตั้งรหัสผ่านใหม่ */
+.mm-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  background: #f6f8f9;
+  border-radius: 9px;
+  padding: 13px 14px;
+}
+
+/* เช็กบ็อกซ์บังคับตั้งรหัสผ่านใหม่ */
+.mm-checkbox {
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+  accent-color: var(--teal);
+  cursor: pointer;
+  flex: none;
+}
+
+/* ข้อความหลักข้างเช็กบ็อกซ์ */
+.mm-checkbox-label {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ข้อความอธิบายย่อยข้างเช็กบ็อกซ์ */
+.mm-checkbox-hint {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* หมายเหตุใต้ช่องรหัสผ่านใหม่ — บอกว่าเว้นว่างได้ */
+.mm-pass-note {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--text-faint);
+}
+
+/* ฉากหลังโมดัล — จัดกึ่งกลางจอ (คนละแบบกับ .icar-drawer-backdrop ที่ชิดขวา) */
+.mm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 51, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  padding: 20px;
+}
+
+/* กล่องโมดัลสีขาว */
+.mm-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 480px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+}
+
+/* หัวโมดัล: ชื่อเรื่อง + ปุ่มปิด */
+.mm-modal-head {
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ชื่อเรื่องโมดัล — 18px ไม่ตรง variant ไหนของ .title กลาง จึงเป็น class ของตัวเอง */
+.mm-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+/* ปุ่มปิดโมดัล (กากบาท) */
+.mm-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 4px;
+  display: flex;
+}
+
+/* เนื้อหาโมดัล */
+.mm-modal-body {
+  padding: 24px 26px;
+}
+
+/* แถวปุ่มท้ายโมดัล */
+.mm-modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+/* ปุ่มท้ายโมดัล — ฐานร่วม */
+.mm-foot-btn {
+  border: none;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ปุ่มยกเลิก/ปิดโมดัล — เทาอ่อน */
+.mm-foot-btn--cancel {
+  background: #f1f3f5;
+  color: var(--text-soft);
+  padding: 11px 22px;
+}
+
+/* ปุ่มยืนยันหลัก — ตัวอักษรขาว */
+.mm-foot-btn--ok {
+  color: #fff;
+  padding: 11px 26px;
+}
+
+/* ระหว่างส่งข้อมูล — เคอร์เซอร์รอ + จางลง */
+.mm-foot-btn--ok:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+/* ปุ่มยืนยัน — กรณีอนุมัติ/เปิดใช้งาน */
+.mm-foot-btn--success {
+  background: var(--success);
+}
+
+/* ปุ่มยืนยัน — กรณีปฏิเสธ/ปิดใช้งาน */
+.mm-foot-btn--danger {
+  background: var(--danger);
+}
+
+/* ปุ่มยืนยัน — กรณีบันทึกแก้ไข */
+.mm-foot-btn--teal {
+  background: var(--teal);
+}
+
+/* Toggle switch เปิด/ปิดใช้งาน — เทา=ปิด (ค่าเริ่มต้น) */
+.mm-toggle {
+  position: relative;
+  width: 42px;
+  height: 23px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  flex: none;
+  background: #c5ced5;
+  cursor: pointer;
+  transition: background .18s;
+  vertical-align: middle;
+}
+
+/* Toggle switch — เปิดใช้งานอยู่ (เขียว) */
+.mm-toggle.is-on {
+  background: var(--success);
+}
+
+/* Toggle switch — ปิดกดไม่ได้ (บัญชีตัวเอง/admin คนสุดท้าย) */
+.mm-toggle:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+/* จุดกลมของ toggle — ชิดซ้าย (ค่าเริ่มต้น) */
+.mm-toggle-knob {
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .28);
+  transition: left .18s;
+}
+
+/* จุดกลมของ toggle — เลื่อนไปชิดขวาเมื่อเปิดใช้งาน */
+.mm-toggle-knob.is-on {
+  left: 21.5px;
+}
