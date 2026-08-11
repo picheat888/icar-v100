@@ -24,6 +24,7 @@
   --ink-strong: #1f2a33;
   --muted: #7a8794;
   --bg: #f3f5f7;
+  --bg-content: #f8fafb;     /* พื้นที่เนื้อหา — สว่างกว่าพื้นรอบนอก */
   --border: #e7ebee;
 
   /* ตัวอักษร */

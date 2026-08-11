@@ -642,6 +642,7 @@
 .app-content {
   flex: 1;
   padding: 26px 30px;
+  background: var(--bg-content);
 }
 
 .app-footer {
