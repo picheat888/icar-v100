@@ -5899,9 +5899,10 @@
 
 /* ===== RequestsManager: จัดการคำขอจองรถ (Admin) — ตาราง/การ์ด + ฟิลเตอร์ + แบ่งหน้า (ส่วนที่ 1) ===== */
 
-/* ป้ายสถานะ — รับคู่สีจากคลาสสถานะ (.st-pending/.st-approved/.rq-st-cancelled) ที่ใส่มาคู่กันเสมอ
-   ต้องมี class นี้เป็นตัวอ่าน --st-bg/--st-fg จริง เพราะ .st-*/.pill/.pill--sm ไม่ตั้ง background/color เอง
-   (เหมือน .mr-badge ของ MyRequests / .dash-status-badge ของ Dashboard) */
+/* ป้ายสถานะ — รับคู่สีจากคลาสสถานะที่ใส่มาด้วยกัน
+   ต้องมีคลาสนี้เป็นตัวอ่าน --st-bg และ --st-fg จริง
+   เพราะทั้งคลาสสถานะ .pill และ .pill--sm ไม่ได้ตั้ง background หรือ color เอง
+   (แบบเดียวกับ .mr-badge ของ MyRequests และ .dash-status-badge ของ Dashboard) */
 .rq-badge {
   background: var(--st-bg);
   color: var(--st-fg);
