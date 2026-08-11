@@ -6128,6 +6128,11 @@
   min-width: 800px;
 }
 
+/* หน้าจัดการคำขอลอยเด่นกว่าตารางหน้าอื่นโดยตั้งใจ — เงาลึกกว่า var(--card-shadow) กลาง */
+.rq-table-wrap .tbl-wrap {
+  box-shadow: 0 2px 6px rgba(17, 24, 39, .06), 0 22px 48px -14px rgba(17, 24, 39, .28);
+}
+
 /* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) — td เดียว colSpan เต็มความกว้าง จัดเป็น flex เอง */
 .tbl .rq-group-cell {
   display: flex;
