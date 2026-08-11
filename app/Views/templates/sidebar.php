@@ -2,7 +2,7 @@
 /**
  * Sidebar — แถบเมนูซ้าย กรองรายการตาม role (admin / user / driver)
  * รับ: $role (string), $active (string คีย์เพจที่กำลังเปิด)
- * อ้างอิงดีไซน์ docs/mockuo-master (แบรนด์ INABA FLEET BOOKING)
+ * อ้างอิงดีไซน์ docs/mockuo-master (แบรนด์ iCar BOOKING ตรงกับหน้า login)
  */
 $role   = $role   ?? 'user';
 $active = $active ?? '';
@@ -63,8 +63,8 @@ $badgeHtml = static function (string $key) use ($badges): string {
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
       </div>
       <div class="brand-text nav-brandtext">
-        <div class="brand-name">INABA</div>
-        <div class="brand-sub">FLEET BOOKING</div>
+        <div class="brand-name">iCar</div>
+        <div class="brand-sub">BOOKING</div>
       </div>
     </div>
   </div>
