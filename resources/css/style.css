@@ -593,10 +593,15 @@
   --st-fg: #e08a1e;
 }
 
-.st-approved,
-.st-cancel_requested {
+.st-approved {
   --st-bg: var(--success-soft);
   --st-fg: var(--teal);
+}
+
+/* ขอยกเลิก รอดำเนินการ — โทนอำพันเพื่อบอกว่ายังต้องจัดการ */
+.st-cancel_requested {
+  --st-bg: var(--warn-soft);
+  --st-fg: var(--warn);
 }
 
 .st-completed {
