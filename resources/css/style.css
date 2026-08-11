@@ -334,7 +334,7 @@
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(20, 30, 40, .05);
+  box-shadow: var(--card-shadow-flat);
   padding: 26px 30px;
 }
 
@@ -342,8 +342,8 @@
 .empty-card {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow-flat);
   padding: 48px 32px;
   text-align: center;
 }
@@ -1476,10 +1476,8 @@
 }
 
 .reg-card {
-  border-radius: 14px;
   padding: 0;
   overflow: hidden;
-  box-shadow: 0 4px 22px rgba(31, 42, 51, .05);
 }
 
 .reg-cardhead {
@@ -1656,7 +1654,6 @@
   padding: 48px 44px;
   max-width: 460px;
   text-align: center;
-  box-shadow: 0 8px 30px rgba(31, 42, 51, .08);
 }
 
 .rs-icon {
@@ -2104,7 +2101,7 @@
 /* ===== Dashboard: การ์ดสรุปตัวเลข (StatCard) ===== */
 .dash-card {
   background: #fff;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px 22px;
   display: flex;
@@ -2143,7 +2140,7 @@
 /* ===== Dashboard: แผงข้อมูล (คำขอล่าสุด / สมาชิกรออนุมัติ) ===== */
 .dash-panel {
   background: #fff;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px 20px;
   box-shadow: var(--card-shadow);
@@ -2418,9 +2415,9 @@
   align-items: center;
   gap: 12px;
   background: #fff;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 12px 26px -10px rgba(17, 24, 39, .16);
+  box-shadow: var(--card-shadow);
   padding: 14px 16px;
   margin-bottom: 18px;
 }
@@ -2684,16 +2681,16 @@
   display: flex;
   flex-direction: column;
   background: #fff;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(17, 24, 39, .05), 0 10px 22px -10px rgba(17, 24, 39, .14);
+  box-shadow: var(--card-shadow);
   transition: transform .16s ease, box-shadow .16s ease;
 }
 
 .car-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(17, 24, 39, .08), 0 18px 38px -12px rgba(17, 24, 39, .22);
+  box-shadow: var(--card-shadow-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2861,7 +2858,7 @@
 /* ===== Timeline: กล่องครอบ + แถบเครื่องมือ (view toggle / นำทางเดือน-วัน / ปุ่มจองรถ) ===== */
 .tl-wrap {
   background: #fff;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px;
   box-shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 10px 24px -10px rgba(17, 24, 39, .13);
@@ -3065,8 +3062,8 @@
 .tl-mg-cell {
   min-height: 96px;
   min-width: 0;
-  border-right: 1px solid var(--border-card);
-  border-bottom: 1px solid var(--border-card);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 6px;
   background: #fff;
   cursor: pointer;
@@ -3479,7 +3476,7 @@
 .tl-dg-row {
   display: flex;
   align-items: stretch;
-  border-top: 1px solid var(--border-card);
+  border-top: 1px solid var(--border);
 }
 
 /* คอลัมน์ป้ายซ้าย (ชื่อรถ/ผู้จอง) ของแต่ละแถว */
@@ -3553,7 +3550,7 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--border-card);
+  background: var(--border);
 }
 
 /* ข้อความตอนไม่มีรถขับเองในระบบ */
@@ -5620,7 +5617,7 @@
 .bk-nav-btn {
   width: 28px;
   height: 28px;
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 7px;
   background: #fff;
   color: var(--text-soft);
@@ -5640,7 +5637,7 @@
 }
 
 .bk-cal-gridbox {
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -5650,7 +5647,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: #f7f9fa;
-  border-bottom: 1px solid var(--border-card);
+  border-bottom: 1px solid var(--border);
 }
 
 .bk-cal-weekday {
@@ -5792,7 +5789,7 @@
 }
 
 .bk-dtp-gridbox {
-  border: 1px solid var(--border-card);
+  border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 14px;
