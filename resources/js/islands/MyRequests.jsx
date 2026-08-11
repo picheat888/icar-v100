@@ -256,9 +256,9 @@ export default function MyRequests({ endpoints }) {
         return (
           <div onClick={() => setDetail(null)} className="icar-drawer-backdrop">
             <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
-              <div className="mr-drawer-head">
-                <h3 className="mr-drawer-title">{t('myreq.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setDetail(null)} className="mr-drawer-close">
+              <div className="modal-head">
+                <h3 className="modal-title">{t('myreq.detail_title', { code: b.booking_code })}</h3>
+                <button onClick={() => setDetail(null)} className="modal-close">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>
               </div>
@@ -268,15 +268,15 @@ export default function MyRequests({ endpoints }) {
                   <span className={`pill pill--sm mr-badge ${v.stClass}`}>{v.sl}</span>
                 </div>
                 <div className="mr-detail-grid">
-                  <div className="mr-detail-full"><div className="mr-detail-label">{t('myreq.col_destination')}</div><div className="mr-detail-value">{b.location}</div></div>
-                  <div><div className="mr-detail-label">{t('myreq.col_time')}</div><div className="mr-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
-                  <div><div className="mr-detail-label">{t('myreq.passenger_count_label')}</div><div className="mr-detail-value">{b.people} {t('myreq.unit_people')}</div></div>
-                  {b.purpose && <div className="mr-detail-full"><div className="mr-detail-label">{t('myreq.purpose_label')}</div><div className="mr-detail-value">{b.purpose}</div></div>}
-                  {b.booking_type === 'self' && b.car_model && <div className="mr-detail-full"><div className="mr-detail-label">{t('myreq.car_label')}</div><div className="mr-detail-value">{b.car_model}{b.car_plate ? ` (${b.car_plate})` : ''}</div></div>}
-                  {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_vehicle && <div><div className="mr-detail-label">{t('myreq.received_car_label')}</div><div className="mr-detail-value">{b.ext_driver_vehicle}</div></div>}
-                  {b.booking_type === 'other' && b.status === 'approved' && drv && <div><div className="mr-detail-label">{t('myreq.driver_label')}</div><div className="mr-detail-value mr-detail-value--teal">{drv}</div></div>}
-                  {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_phone && <div><div className="mr-detail-label">{t('myreq.driver_phone_label')}</div><div className="mr-detail-value">{b.ext_driver_phone}</div></div>}
-                  {b.status === 'completed' && b.returned_at && <div><div className="mr-detail-label">{t('myreq.returned_at_label')}</div><div className="mr-detail-value mr-detail-value--teal">{thDateTime(b.returned_at)}</div></div>}
+                  <div className="mr-detail-full"><div className="detail-label">{t('myreq.col_destination')}</div><div className="mr-detail-value">{b.location}</div></div>
+                  <div><div className="detail-label">{t('myreq.col_time')}</div><div className="mr-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
+                  <div><div className="detail-label">{t('myreq.passenger_count_label')}</div><div className="mr-detail-value">{b.people} {t('myreq.unit_people')}</div></div>
+                  {b.purpose && <div className="mr-detail-full"><div className="detail-label">{t('myreq.purpose_label')}</div><div className="mr-detail-value">{b.purpose}</div></div>}
+                  {b.booking_type === 'self' && b.car_model && <div className="mr-detail-full"><div className="detail-label">{t('myreq.car_label')}</div><div className="mr-detail-value">{b.car_model}{b.car_plate ? ` (${b.car_plate})` : ''}</div></div>}
+                  {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_vehicle && <div><div className="detail-label">{t('myreq.received_car_label')}</div><div className="mr-detail-value">{b.ext_driver_vehicle}</div></div>}
+                  {b.booking_type === 'other' && b.status === 'approved' && drv && <div><div className="detail-label">{t('myreq.driver_label')}</div><div className="mr-detail-value mr-detail-value--teal">{drv}</div></div>}
+                  {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_phone && <div><div className="detail-label">{t('myreq.driver_phone_label')}</div><div className="mr-detail-value">{b.ext_driver_phone}</div></div>}
+                  {b.status === 'completed' && b.returned_at && <div><div className="detail-label">{t('myreq.returned_at_label')}</div><div className="mr-detail-value mr-detail-value--teal">{thDateTime(b.returned_at)}</div></div>}
                 </div>
 
                 {/* เหตุผลถูกปฏิเสธ / หมายเหตุ Admin */}

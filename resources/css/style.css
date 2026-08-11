@@ -20,6 +20,8 @@
       1.13 Toast      .toast
       1.14 แบ่งหน้า    .pager .pager-btn
       1.15 สีตามสถานะ  .st-pending .st-approved .st-cancel_requested .st-completed
+      1.16 โมดัล/drawer .modal-backdrop .modal-box .modal-head .modal-title .modal-close .detail-label
+      1.17 แถบสลับ     .seg .seg-btn (+ --active)
    2. Shell        โครง app shell (templates/)
       2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
       2.2 Sidebar     .app-sidebar .nav-*
@@ -315,6 +317,16 @@
 }
 
 /* แบบมีไอคอนนำหน้า — ระยะห่างล่างให้ผู้เรียกคุมเอง */
+/* กล่องแจ้งโหลดข้อมูลไม่สำเร็จ — เล็กกว่า ไม่มีเส้นขอบ */
+.alert-error--sm {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: none;
+  color: var(--danger-text);
+  font-size: 13px;
+  font-weight: 400;
+}
+
 .alert-error--icon {
   display: flex;
   align-items: flex-start;
@@ -607,6 +619,117 @@
 .st-completed {
   --st-bg: var(--surface);
   --st-fg: var(--text-faint);
+}
+
+/* ----- 1.16 โมดัล / drawer -----
+   ใช้ร่วมทุก island ที่มีป็อปอัป: จัดการรถ · สมาชิก · จองรถ · คำขอ · งานคนขับ */
+
+/* ฉากหลังทึบ — จัดกล่องกึ่งกลางจอ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--backdrop);
+}
+
+/* จอแคบ — ลดขอบรอบกล่องให้เหลือพื้นที่มากขึ้น */
+.modal-backdrop--narrow {
+  padding: 8px;
+}
+
+/* กล่องโมดัลสีขาว */
+.modal-box {
+  width: 480px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--modal-shadow);
+}
+
+/* โมดัลกว้าง (ฟอร์ม 2 คอลัมน์) */
+.modal-box--wide {
+  width: 960px;
+  max-height: 92vh;
+}
+
+/* หัวโมดัล/drawer: ชื่อเรื่อง + ปุ่มปิด */
+.modal-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-head--narrow {
+  padding: 16px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+/* ปุ่มปิด (กากบาท) */
+.modal-close {
+  display: flex;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+/* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
+.detail-label {
+  margin-bottom: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+/* ----- 1.17 Segmented control (แถบสลับ / แท็บ) ----- */
+
+/* รางพื้นเทาที่ครอบปุ่ม */
+.seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 9px;
+  background: var(--surface);
+}
+
+/* ปุ่มในราง — สถานะไม่ได้เลือก */
+.seg-btn {
+  flex: 1;
+  padding: 9px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-mute);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+/* ปุ่มที่กำลังเลือกอยู่ — พื้นขาวยกนูน
+   class ของ island ที่ทับ .seg-btn ห้ามตั้ง background/color/box-shadow ซ้ำ ไม่งั้นจะกินสถานะนี้ */
+.seg-btn--active {
+  background: #fff;
+  color: var(--teal);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
 }
 
 
@@ -2351,16 +2474,6 @@
   color: #2f807c;
 }
 
-/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
-.dash-load-err {
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  background: var(--danger-soft);
-  color: var(--danger-text);
-  border-radius: 8px;
-  font-size: 13px;
-}
-
 /* ===== Dashboard: รายการสมาชิกรออนุมัติ ===== */
 .dash-member-list {
   margin-top: 4px;
@@ -2430,16 +2543,6 @@
 
 .md-row:hover td {
   background: #edf4f5;
-}
-
-/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
-.md-load-err {
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: var(--danger-soft);
-  color: var(--danger-text);
-  border-radius: 8px;
-  font-size: 13px;
 }
 
 /* ช่องค้นหา/เพิ่มในแถบเครื่องมือ — ขนาด/ระยะห่างภายในใช้ .form-input--sm */
@@ -2549,16 +2652,6 @@
 /* ปุ่ม Export CSV — ใช้ฐานจาก .btn-primary ดันไปชิดขวาแถบฟิลเตอร์ */
 .al-export-btn {
   margin-left: auto;
-}
-
-/* กล่องแจ้งข้อผิดพลาดตอนโหลดข้อมูลไม่สำเร็จ */
-.al-load-err {
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: var(--danger-soft);
-  color: var(--danger-text);
-  border-radius: 8px;
-  font-size: 13px;
 }
 
 /* สถานะกำลังโหลด */
@@ -2863,16 +2956,6 @@
   border-radius: 16px;
   padding: 18px;
   box-shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 10px 24px -10px rgba(17, 24, 39, .13);
-}
-
-/* แจ้งเตือนโหลดข้อมูลไม่สำเร็จ */
-.tl-load-err {
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: var(--danger-soft);
-  color: var(--danger-text);
-  border-radius: 8px;
-  font-size: 13px;
 }
 
 .tl-toolbar {
@@ -3943,35 +4026,6 @@
   line-height: 1.5;
 }
 
-/* หัว drawer: ชื่อเรื่อง + ปุ่มปิด */
-.dj-drawer-head {
-  flex: none;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ชื่อเรื่องใน drawer */
-.dj-drawer-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
-/* ปุ่มปิด drawer (กากบาท) */
-.dj-drawer-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
-}
-
 /* พื้นที่เนื้อหา drawer — เลื่อนแนวตั้งได้ */
 .dj-drawer-body {
   flex: 1;
@@ -3994,14 +4048,6 @@
 /* ช่องที่กินเต็มความกว้าง 2 คอลัมน์ */
 .dj-detail-full {
   grid-column: 1 / -1;
-}
-
-/* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
-.dj-detail-label {
-  font-size: 12px;
-  color: var(--text-faint);
-  font-weight: 600;
-  margin-bottom: 3px;
 }
 
 /* ค่าของฟิลด์ในกริดรายละเอียด */
@@ -4067,36 +4113,9 @@
 
 /* กล่องครอบแท็บ รถขับเอง/รถอื่นๆ */
 .cm-segwrap {
-  display: flex;
-  background: var(--surface);
-  border-radius: 9px;
-  padding: 4px;
-  gap: 4px;
-  max-width: 420px;
   flex: 1;
   min-width: 260px;
-}
-
-/* ปุ่มแท็บ (segmented control) — สถานะไม่ได้เลือก */
-.cm-seg {
-  flex: 1;
-  padding: 9px;
-  border: none;
-  border-radius: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  background: transparent;
-  color: var(--text-mute);
-  box-shadow: none;
-}
-
-/* ปุ่มแท็บที่กำลังเลือกอยู่ */
-.cm-seg--active {
-  background: #fff;
-  color: var(--teal);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+  max-width: 420px;
 }
 
 /* กล่องครอบปุ่ม "+ เพิ่มรถ" */
@@ -4203,56 +4222,6 @@
   grid-column: 1 / -1;
   color: var(--text-faint);
   font-size: 14px;
-}
-
-/* ฉากหลังโมดัลเพิ่ม/แก้ไขรถ — จัดกึ่งกลางจอ */
-.cm-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--backdrop);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 150;
-  padding: 20px;
-}
-
-/* กล่องโมดัลสีขาว */
-.cm-modal-box {
-  background: #fff;
-  border-radius: 14px;
-  width: 480px;
-  max-width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--modal-shadow);
-}
-
-/* หัวโมดัล: ชื่อเรื่อง + ปุ่มปิด */
-.cm-modal-head {
-  padding: 22px 26px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* ชื่อเรื่องโมดัล */
-.cm-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
-/* ปุ่มปิดโมดัล (กากบาท) */
-.cm-modal-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
 }
 
 /* เนื้อหาโมดัล (ฟอร์ม) */
@@ -4514,35 +4483,6 @@
   justify-content: center;
 }
 
-/* หัว drawer: ชื่อเรื่อง + ปุ่มปิด */
-.mr-drawer-head {
-  flex: none;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ชื่อเรื่องใน drawer */
-.mr-drawer-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
-/* ปุ่มปิด drawer (กากบาท) */
-.mr-drawer-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
-}
-
 /* พื้นที่เนื้อหา drawer — เลื่อนแนวตั้งได้ */
 .mr-drawer-body {
   flex: 1;
@@ -4569,14 +4509,6 @@
 /* ช่องที่กินเต็มความกว้าง 2 คอลัมน์ */
 .mr-detail-full {
   grid-column: 1 / -1;
-}
-
-/* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
-.mr-detail-label {
-  font-size: 12px;
-  color: var(--text-faint);
-  font-weight: 600;
-  margin-bottom: 3px;
 }
 
 /* ค่าของฟิลด์ในกริดรายละเอียด */
@@ -5059,33 +4991,7 @@
 
 /* แถบสลับแท็บ (ข้อมูล/รหัสผ่าน) ในโมดัลแก้ไข */
 .mm-tabs {
-  display: flex;
-  background: var(--surface);
-  border-radius: 9px;
-  padding: 4px;
-  gap: 4px;
   margin-bottom: 20px;
-}
-
-/* ปุ่มแท็บ */
-.mm-tab-btn {
-  flex: 1;
-  padding: 9px;
-  border: none;
-  border-radius: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  background: transparent;
-  color: var(--text-mute);
-}
-
-/* ปุ่มแท็บที่เลือกอยู่ — พื้นขาวยกนูน */
-.mm-tab-btn--active {
-  background: #fff;
-  color: var(--teal);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
 }
 
 /* ระยะห่างล่างของช่องกรอกในฟอร์มแก้ไข */
@@ -5147,56 +5053,6 @@
   margin-top: 14px;
   font-size: 12.5px;
   color: var(--text-faint);
-}
-
-/* ฉากหลังโมดัล — จัดกึ่งกลางจอ (คนละแบบกับ .icar-drawer-backdrop ที่ชิดขวา) */
-.mm-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--backdrop);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 150;
-  padding: 20px;
-}
-
-/* กล่องโมดัลสีขาว */
-.mm-modal {
-  background: #fff;
-  border-radius: 14px;
-  width: 480px;
-  max-width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--modal-shadow);
-}
-
-/* หัวโมดัล: ชื่อเรื่อง + ปุ่มปิด */
-.mm-modal-head {
-  padding: 22px 26px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* ชื่อเรื่องโมดัล — 18px ไม่ตรง variant ไหนของ .title กลาง จึงเป็น class ของตัวเอง */
-.mm-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
-/* ปุ่มปิดโมดัล (กากบาท) */
-.mm-modal-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
 }
 
 /* เนื้อหาโมดัล */
@@ -5333,32 +5189,18 @@
 /* แถบสลับ รถขับเอง/รถอื่นๆ */
 .bk-seg {
   display: inline-flex;
-  background: var(--surface);
-  border-radius: 10px;
+  flex-wrap: wrap;
   padding: 5px;
   margin-bottom: 22px;
-  gap: 4px;
-  flex-wrap: wrap;
+  border-radius: 10px;
 }
 
+/* ปุ่มแท็บของหน้าจองรถ — ใหญ่กว่าค่ากลาง (สี/พื้นมาจาก .seg-btn) */
 .bk-seg-btn {
+  flex: none;
   padding: 9px 18px;
-  border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  background: transparent;
-  color: var(--text-mute);
-  box-shadow: none;
-}
-
-/* แท็บที่กำลังเลือกอยู่ — พื้นขาวลอยเหนือแถบ */
-.bk-seg-btn--active {
-  background: #fff;
-  color: var(--teal);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
 }
 
 /* คำบรรยายใต้แท็บ "รถขับเอง" */
@@ -5448,61 +5290,6 @@
   margin: 0 0 22px;
 }
 
-/* ฉากหลังโมดัลจองรถ — จัดกึ่งกลางจอ */
-.bk-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--backdrop);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 150;
-  padding: 20px;
-}
-
-.bk-modal-backdrop--narrow {
-  padding: 8px;
-}
-
-/* กล่องโมดัลจองรถ (2 คอลัมน์) */
-.bk-modal {
-  background: #fff;
-  border-radius: 14px;
-  width: 960px;
-  max-width: 100%;
-  max-height: 92vh;
-  overflow-y: auto;
-  box-shadow: var(--modal-shadow);
-}
-
-.bk-modal-head {
-  padding: 22px 26px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bk-modal-head--narrow {
-  padding: 16px 16px;
-}
-
-.bk-modal-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
-.bk-modal-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
-}
-
 /* เนื้อหาโมดัล — กริด 2 คอลัมน์ ปฏิทินซ้าย ฟอร์มขวา */
 .bk-modal-body {
   padding: 24px 26px;
@@ -5516,16 +5303,6 @@
   padding: 18px 16px;
   grid-template-columns: 1fr;
   gap: 18px;
-}
-
-/* กล่องแจ้งโหลดตารางว่างไม่สำเร็จ */
-.bk-load-err {
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: var(--danger-soft);
-  color: var(--danger-text);
-  border-radius: 8px;
-  font-size: 13px;
 }
 
 /* กล่องสรุปรถที่เลือก / หมายเหตุรถอื่นๆ */
@@ -6510,33 +6287,6 @@
   margin-top: 10px;
 }
 
-/* ปุ่มปิด drawer (กากบาท) */
-.rq-drawer-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-faint);
-  padding: 4px;
-  display: flex;
-}
-
-/* หัว drawer: ชื่อเรื่อง + ปุ่มปิด */
-.rq-drawer-head {
-  flex: none;
-  padding: 22px 26px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.rq-drawer-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--ink-strong);
-}
-
 /* พื้นที่เนื้อหา drawer — เลื่อนแนวตั้งได้ */
 .rq-drawer-body {
   flex: 1;
@@ -6550,13 +6300,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 14px 20px;
   margin-bottom: 18px;
-}
-
-.rq-detail-label {
-  font-size: 12px;
-  color: var(--text-faint);
-  font-weight: 600;
-  margin-bottom: 3px;
 }
 
 .rq-detail-value {

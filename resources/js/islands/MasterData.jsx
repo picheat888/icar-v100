@@ -104,7 +104,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   return (
     <div>
       {loadErr && (
-        <div className="md-load-err">
+        <div className="alert-error alert-error--sm">
           {t('common.load_err')}
         </div>
       )}

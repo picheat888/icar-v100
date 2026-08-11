@@ -118,22 +118,22 @@ export default function DriverJobs({ jobs = [] }) {
         return (
           <div onClick={() => setDetail(null)} className="icar-drawer-backdrop">
             <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
-              <div className="dj-drawer-head">
-                <h3 className="dj-drawer-title">{t('driver.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setDetail(null)} className="dj-drawer-close">
+              <div className="modal-head">
+                <h3 className="modal-title">{t('driver.detail_title', { code: b.booking_code })}</h3>
+                <button onClick={() => setDetail(null)} className="modal-close">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>
               </div>
               <div className="dj-drawer-body">
                 <div className="dj-drawer-status"><span className="pill pill--sm pill--green">{t('driver.assigned')}</span></div>
                 <div className="dj-detail-grid">
-                  <div className="dj-detail-full"><div className="dj-detail-label">{t('driver.destination')}</div><div className="dj-detail-value">{b.location}</div></div>
-                  <div><div className="dj-detail-label">{t('driver.passenger')}</div><div className="dj-detail-value">{b.requester_name || '-'}</div></div>
-                  <div><div className="dj-detail-label">{t('driver.dept_label')}</div><div className="dj-detail-value">{b.dept_name || '-'}</div></div>
-                  <div><div className="dj-detail-label">{t('driver.passenger_count_label')}</div><div className="dj-detail-value">{t('driver.people_count', { n: b.people })}</div></div>
-                  {b.ext_driver_vehicle && <div><div className="dj-detail-label">{t('driver.vehicle_used_label')}</div><div className="dj-detail-value">{b.ext_driver_vehicle}</div></div>}
-                  <div className="dj-detail-full"><div className="dj-detail-label">{t('driver.time_range')}</div><div className="dj-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
-                  {b.purpose && <div className="dj-detail-full"><div className="dj-detail-label">{t('driver.purpose_label')}</div><div className="dj-detail-value">{b.purpose}</div></div>}
+                  <div className="dj-detail-full"><div className="detail-label">{t('driver.destination')}</div><div className="dj-detail-value">{b.location}</div></div>
+                  <div><div className="detail-label">{t('driver.passenger')}</div><div className="dj-detail-value">{b.requester_name || '-'}</div></div>
+                  <div><div className="detail-label">{t('driver.dept_label')}</div><div className="dj-detail-value">{b.dept_name || '-'}</div></div>
+                  <div><div className="detail-label">{t('driver.passenger_count_label')}</div><div className="dj-detail-value">{t('driver.people_count', { n: b.people })}</div></div>
+                  {b.ext_driver_vehicle && <div><div className="detail-label">{t('driver.vehicle_used_label')}</div><div className="dj-detail-value">{b.ext_driver_vehicle}</div></div>}
+                  <div className="dj-detail-full"><div className="detail-label">{t('driver.time_range')}</div><div className="dj-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
+                  {b.purpose && <div className="dj-detail-full"><div className="detail-label">{t('driver.purpose_label')}</div><div className="dj-detail-value">{b.purpose}</div></div>}
                 </div>
 
                 {/* ลิงก์แผนที่ (กันลิงก์ไม่ปลอดภัย) */}

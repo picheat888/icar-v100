@@ -136,7 +136,7 @@ export default function Dashboard({ endpoints, links }) {
     <div>
       <ToastView />
       {loadErr && (
-        <div className="dash-load-err">
+        <div className="alert-error alert-error--sm">
           {t('dash.load_err')}
         </div>
       )}

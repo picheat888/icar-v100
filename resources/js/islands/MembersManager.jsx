@@ -296,9 +296,9 @@ export default function MembersManager({ endpoints, departments = [], positions 
 
       {modal?.type === 'edit' && (
         <Modal title={t('mem.title_edit')} onClose={() => setModal(null)} lockBackdrop>
-          <div className="mm-tabs">
-            <button onClick={() => setModal({ ...modal, tab: 'info' })} className={modal.tab === 'info' ? 'mm-tab-btn mm-tab-btn--active' : 'mm-tab-btn'}>{t('mem.tab_info')}</button>
-            <button onClick={() => setModal({ ...modal, tab: 'password' })} className={modal.tab === 'password' ? 'mm-tab-btn mm-tab-btn--active' : 'mm-tab-btn'}>{t('mem.tab_password')}</button>
+          <div className="seg mm-tabs">
+            <button onClick={() => setModal({ ...modal, tab: 'info' })} className={modal.tab === 'info' ? 'seg-btn seg-btn--active' : 'seg-btn'}>{t('mem.tab_info')}</button>
+            <button onClick={() => setModal({ ...modal, tab: 'password' })} className={modal.tab === 'password' ? 'seg-btn seg-btn--active' : 'seg-btn'}>{t('mem.tab_password')}</button>
           </div>
 
           {modal.tab === 'info' ? (
@@ -380,11 +380,11 @@ function EditPass({ form, set }) {
 function Modal({ title, onClose, children, lockBackdrop }) {
   return (
     // lockBackdrop = กดพื้นที่ว่างข้างนอกไม่ปิด (กันเผลอปิดจนข้อมูลหาย) — ปิดได้เฉพาะ X / ยกเลิก
-    <div onClick={lockBackdrop ? undefined : onClose} className="mm-modal-backdrop">
-      <div onClick={(e) => e.stopPropagation()} className="mm-modal">
-        <div className="mm-modal-head">
-          <h3 className="mm-modal-title">{title}</h3>
-          <button onClick={onClose} className="mm-modal-close">
+    <div onClick={lockBackdrop ? undefined : onClose} className="modal-backdrop">
+      <div onClick={(e) => e.stopPropagation()} className="modal-box">
+        <div className="modal-head">
+          <h3 className="modal-title">{title}</h3>
+          <button onClick={onClose} className="modal-close">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
         </div>

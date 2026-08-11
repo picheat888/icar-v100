@@ -91,7 +91,7 @@ export default function ActivityLog({ endpoints }) {
         </button>
       </div>
 
-      {loadErr && <div className="al-load-err">{t('common.load_err')}</div>}
+      {loadErr && <div className="alert-error alert-error--sm">{t('common.load_err')}</div>}
       {loading ? (
         <div className="al-loading">{t('common.loading')}</div>
       ) : logs.length === 0 ? (

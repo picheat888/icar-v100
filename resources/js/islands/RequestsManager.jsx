@@ -337,7 +337,7 @@ export default function RequestsManager({ endpoints }) {
           <div className="rq-driver-box rq-driver-box--company">
             <div className="rq-driver-box-title">{t('req.driver_car_info')}</div>
             <div className="rq-driver-box-row">
-              <div className="rq-detail-label">{t('req.driver_name_label')}</div>
+              <div className="detail-label">{t('req.driver_name_label')}</div>
               <div className="rq-detail-value">{selDriver.name || '-'}</div>
             </div>
             <div className="rq-driver-grid">
@@ -524,16 +524,16 @@ export default function RequestsManager({ endpoints }) {
         return (
           <div onClick={() => setModal(null)} className="icar-drawer-backdrop">
             <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
-              <div className="rq-drawer-head">
-                <h3 className="rq-drawer-title">{t('req.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setModal(null)} className="rq-drawer-close">
+              <div className="modal-head">
+                <h3 className="modal-title">{t('req.detail_title', { code: b.booking_code })}</h3>
+                <button onClick={() => setModal(null)} className="modal-close">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 </button>
               </div>
               <div className="rq-drawer-body">
                 {modalErr && <div className="rq-alert-gap"><Alert>{modalErr}</Alert></div>}
                 <div className="rq-detail-grid">
-                  {fields.map(([k, v]) => <div key={k}><div className="rq-detail-label">{k}</div><div className="rq-detail-value">{v}</div></div>)}
+                  {fields.map(([k, v]) => <div key={k}><div className="detail-label">{k}</div><div className="rq-detail-value">{v}</div></div>)}
                 </div>
                 {b.map_link && (isSafeUrl(b.map_link)
                   ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link">{t('req.open_in_maps')}</a>

@@ -101,9 +101,9 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
       )}
       {/* แท็บ */}
       <div className="cm-toolbar">
-        <div className="cm-segwrap">
-          <button onClick={() => setTab('self')} className={`cm-seg${tab === 'self' ? ' cm-seg--active' : ''}`}>{t('car.tab_self')}</button>
-          <button onClick={() => setTab('other')} className={`cm-seg${tab === 'other' ? ' cm-seg--active' : ''}`}>{t('car.tab_other')}</button>
+        <div className="seg cm-segwrap">
+          <button onClick={() => setTab('self')} className={`seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
+          <button onClick={() => setTab('other')} className={`seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('car.tab_other')}</button>
         </div>
         <div className="cm-actions">
           <button onClick={openAdd} className="btn-primary">
@@ -214,11 +214,11 @@ function CarIcon() {
 }
 function Modal({ title, onClose, children }) {
   return (
-    <div onClick={onClose} className="cm-modal-backdrop">
-      <div onClick={(e) => e.stopPropagation()} className="cm-modal-box">
-        <div className="cm-modal-head">
-          <h3 className="cm-modal-title">{title}</h3>
-          <button onClick={onClose} className="cm-modal-close">
+    <div onClick={onClose} className="modal-backdrop">
+      <div onClick={(e) => e.stopPropagation()} className="modal-box">
+        <div className="modal-head">
+          <h3 className="modal-title">{title}</h3>
+          <button onClick={onClose} className="modal-close">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
         </div>

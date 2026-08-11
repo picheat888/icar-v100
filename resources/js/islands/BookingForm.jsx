@@ -212,9 +212,9 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
 
   return (
     <div>
-      <div className="bk-seg">
-        <button onClick={() => setTab('self')} className={`bk-seg-btn${tab === 'self' ? ' bk-seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
-        <button onClick={() => setTab('other')} className={`bk-seg-btn${tab === 'other' ? ' bk-seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
+      <div className="seg bk-seg">
+        <button onClick={() => setTab('self')} className={`seg-btn bk-seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
+        <button onClick={() => setTab('other')} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
       </div>
 
       {tab === 'self' && (
@@ -268,11 +268,11 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
 
       {/* โมดัลจอง */}
       {modal && (
-        <div onClick={() => setModal(null)} className={`bk-modal-backdrop${narrow ? ' bk-modal-backdrop--narrow' : ''}`}>
-          <div onClick={(e) => e.stopPropagation()} className="bk-modal">
-            <div className={`bk-modal-head${narrow ? ' bk-modal-head--narrow' : ''}`}>
-              <h3 className="bk-modal-title">{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
-              <button onClick={() => setModal(null)} className="bk-modal-close">
+        <div onClick={() => setModal(null)} className={`modal-backdrop${narrow ? ' modal-backdrop--narrow' : ''}`}>
+          <div onClick={(e) => e.stopPropagation()} className="modal-box modal-box--wide">
+            <div className={`modal-head${narrow ? ' modal-head--narrow' : ''}`}>
+              <h3 className="modal-title">{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
+              <button onClick={() => setModal(null)} className="modal-close">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
@@ -283,7 +283,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
                 {modal.type === 'self' ? (
                   <>
                     {loadErr && (
-                      <div className="bk-load-err">
+                      <div className="alert-error alert-error--sm">
                         {t('book.load_avail_err')}
                       </div>
                     )}

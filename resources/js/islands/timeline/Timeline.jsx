@@ -78,7 +78,7 @@ export default function Timeline({ role, endpoint, book }) {
   return (
     <div className="tl-wrap">
       {loadErr && (
-        <div className="tl-load-err">
+        <div className="alert-error alert-error--sm">
           {t('common.load_err')}
         </div>
       )}
