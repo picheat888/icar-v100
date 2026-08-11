@@ -6136,14 +6136,18 @@
 
 /* แถวคั่นวันที่ในตาราง (เดสก์ท็อป) — td เดียว colSpan เต็มความกว้าง จัดเป็น flex เอง */
 .tbl .rq-group-cell {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
   padding: 9px 20px;
   background: var(--teal-soft);
   border-top: 1px solid #cbe6e2;
   border-bottom: 1px solid #cbe6e2;
+}
+
+/* ตัวจัดวางข้างใน — td ต้องคงเป็น table-cell ไม่งั้น colSpan ไม่มีผลแล้วแถบจะไม่เต็มความกว้าง */
+.rq-group-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
 }
 

@@ -463,12 +463,14 @@ export default function RequestsManager({ endpoints }) {
                   {/* แถบวันที่ + สรุปยอด */}
                   <tr>
                     <td colSpan={6} className="rq-group-cell">
-                      <div className="rq-group-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</div>
-                      <div className="rq-group-counts">
-                        <span>{t('req.total', { n: g.rows.length })}</span>
-                        <span className="rq-dot-sep">·</span><Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
-                        <span className="rq-dot-sep">·</span><Dot variant="approved">{t('req.count_appr', { n: g.appr })}</Dot>
-                        <span className="rq-dot-sep">·</span><Dot variant="cancelled">{t('req.count_rej', { n: g.canc })}</Dot>
+                      <div className="rq-group-inner">
+                        <div className="rq-group-label">{CAL_ICON}{thDate(g.key)} {thWeekday(g.key)}</div>
+                        <div className="rq-group-counts">
+                          <span>{t('req.total', { n: g.rows.length })}</span>
+                          <span className="rq-dot-sep">·</span><Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
+                          <span className="rq-dot-sep">·</span><Dot variant="approved">{t('req.count_appr', { n: g.appr })}</Dot>
+                          <span className="rq-dot-sep">·</span><Dot variant="cancelled">{t('req.count_rej', { n: g.canc })}</Dot>
+                        </div>
                       </div>
                     </td>
                   </tr>
