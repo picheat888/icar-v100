@@ -5391,26 +5391,6 @@
   line-height: 1.25;
 }
 
-/* ป้ายสถานะรถบนการ์ด */
-.bk-status {
-  flex: none;
-  border-radius: 999px;
-  padding: 3px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.bk-status--available {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-/* ไม่ว่าง(กำลังถูกใช้)/ซ่อมบำรุง ใช้สีเดียวกัน — คนละข้อความ */
-.bk-status--busy {
-  background: #fde7d6;
-  color: #b5701a;
-}
-
 /* แถวป้ายทะเบียน + จำนวนที่นั่ง */
 .bk-card-meta {
   display: flex;
@@ -5868,9 +5848,8 @@
   flex: none;
 }
 
-/* select ชั่วโมง/นาที — เตี้ยกว่า .form-input--sm กลาง เพราะ popup กว้างแค่ 320px ต้องวางคู่กับ ":" ในแถวเดียว */
+/* select ชั่วโมง/นาที — ใช้ padding ของ .form-input--sm กลางตรง ๆ เหลือแค่ layout เฉพาะจุด (แบ่งพื้นที่เท่ากัน 2 ช่อง) */
 .bk-dtp-select {
-  padding: 9px 10px;
   cursor: pointer;
   flex: 1;
 }

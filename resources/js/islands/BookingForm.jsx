@@ -3,10 +3,10 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t, currentLocale } from '../lib/i18n';
 
 const LOCALE = currentLocale();
-// สถานะรถที่แสดงบนป้าย (คำแปล + คลาสสี) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (bk-status--busy)
+// สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
 const CAR_STATUS = {
-  available:   ['car.status_available', 'bk-status--available'],
-  maintenance: ['car.status_maintenance', 'bk-status--busy'],
+  available:   ['car.status_available', 'pill--green'],
+  maintenance: ['car.status_maintenance', 'pill--amber'],
 };
 const TH_MONTHS_TH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 // ชื่อเดือนเต็มภาษาอังกฤษ คู่ขนานกับ TH_MONTHS_TH
@@ -228,7 +228,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
                 // สถานะจากเวลาจริง: ซ่อมบำรุง > ไม่ว่าง(กำลังถูกใช้) > พร้อมใช้งาน
                 const isMaint = v.status === 'maintenance';
                 const busyNow = v.busy && !isMaint;
-                const [sl, stCls] = isMaint ? CAR_STATUS.maintenance : (busyNow ? ['book.status_busy', 'bk-status--busy'] : CAR_STATUS.available);
+                const [sl, stCls] = isMaint ? CAR_STATUS.maintenance : (busyNow ? ['book.status_busy', 'pill--amber'] : CAR_STATUS.available);
                 const canSelect = !isMaint;   // ไม่ว่างยังจองได้ (คนละช่วงเวลา) — ซ่อมบำรุงเท่านั้นที่จองไม่ได้
                 return (
                   <div key={v.id} className="book-card">
@@ -238,7 +238,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
                     <div className="book-card-body">
                       <div className="bk-card-head">
                         <div className="bk-card-title">{v.model}</div>
-                        <span className={`bk-status ${stCls}`}>{t(sl)}</span>
+                        <span className={`pill pill--sm ${stCls}`}>{t(sl)}</span>
                       </div>
                       <div className="bk-card-meta">
                         <span className="bk-card-meta-item">{t('car.plate_label')} <b className="bk-card-meta-value">{v.plate || '-'}</b></span>
