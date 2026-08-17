@@ -7,6 +7,35 @@
  * โหมด prod (vite.dev=false): อ่าน public/build/.vite/manifest.json แล้วชี้ไปไฟล์ที่ build แล้ว
  */
 
+if (! function_exists('vite_dev_preamble')) {
+    /**
+     * คืน tag ตั้งต้นของโหมด dev (@vite/client + React Refresh preamble) — ปล่อยครั้งเดียวต่อหน้า
+     *
+     * preamble จำเป็นเพราะ HTML เรนเดอร์โดย CI4 ไม่ใช่ Vite ตัว Vite จึงฉีด runtime ของ
+     * @vitejs/plugin-react ให้เองไม่ได้ ถ้าขาดไฟล์ .jsx ทุกไฟล์จะ throw ($RefreshSig$ is not defined)
+     */
+    function vite_dev_preamble(string $devServer): string
+    {
+        static $emitted = false;
+        if ($emitted) {
+            return '';
+        }
+        $emitted = true;
+
+        return <<<HTML
+            <script type="module">
+                import RefreshRuntime from '{$devServer}/@react-refresh'
+                RefreshRuntime.injectIntoGlobalHook(window)
+                window.\$RefreshReg\$ = () => {}
+                window.\$RefreshSig\$ = () => (type) => type
+                window.__vite_plugin_react_preamble_installed__ = true
+            </script>
+            <script type="module" src="{$devServer}/@vite/client"></script>
+
+            HTML;
+    }
+}
+
 if (! function_exists('vite_asset')) {
     /**
      * คืน <script>/<link> tag ของ entry ที่ระบุ (path อิงจาก root ของโปรเจกต์)
@@ -19,7 +48,7 @@ if (! function_exists('vite_asset')) {
 
         // dev: โหลดตรงจาก Vite dev server พร้อม react refresh
         if ($isDev) {
-            $tags  = '<script type="module" src="' . $devServer . '/@vite/client"></script>' . "\n";
+            $tags = vite_dev_preamble($devServer);
             $tags .= '<script type="module" src="' . $devServer . '/' . ltrim($entry, '/') . '"></script>';
 
             return $tags;
