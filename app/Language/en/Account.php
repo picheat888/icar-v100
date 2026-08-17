@@ -18,7 +18,7 @@ return [
     'emp_info'        => 'Employee Information',
     'login_info'      => 'Login Information',
     'emp_id'          => 'Employee ID',
-    'emp_id_ph'       => 'Enter youer employee ID',
+    'emp_id_ph'       => 'Enter your employee ID',
     'full_name'       => 'Full Name',
     'full_name_ph'    => 'Enter your full name',
     'department'      => 'Department',
