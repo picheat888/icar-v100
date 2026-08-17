@@ -42,6 +42,8 @@ $RECYCLE.BIN/
 # These should never be under version control,
 # as it poses a security risk.
 .env
+# ทุกไฟล์ .env ที่มีนามสกุลต่อท้าย (.env.production, .env.staging) - มีรหัสจริงข้างใน
+.env.*
 .vagrant
 Vagrantfile
 

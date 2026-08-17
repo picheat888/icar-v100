@@ -7,6 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
   base: command === 'serve' ? '/' : '/build/',
+  // ปิด publicDir: ค่า default ของ Vite คือ 'public' ซึ่งเป็น web root ของ CI4
+  // ถ้าไม่ปิด Vite จะก๊อป public/ ทั้งโฟลเดอร์ (index.php, .htaccess, uploads/) ลง outDir ทุกครั้งที่ build
+  publicDir: false,
   build: {
     outDir: 'public/build',
     emptyOutDir: true,
