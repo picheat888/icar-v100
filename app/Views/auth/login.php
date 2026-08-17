@@ -1,6 +1,6 @@
 <?php
 /**
- * หน้า Login — ตรงตามดีไซน์ docs/mockuo-master (hero teal ซ้าย + ฟอร์มขวา)
+ * หน้า Login - ตรงตามดีไซน์ docs/mockuo-master (hero teal ซ้าย + ฟอร์มขวา)
  * เรนเดอร์โดย Shield (Config\Auth::$views['login']) โพสต์กลับ route login ของ Shield
  * field: login / password (ตาม Shield) + CSRF
  */
@@ -15,7 +15,7 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= lang('Account.login_title') ?> — iCar Booking</title>
+  <title><?= lang('Account.login_title') ?> - iCar Booking</title>
   <?= vite_css() ?>
 </head>
 <body class="login-body">
@@ -31,9 +31,7 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
 
       <div class="login-hero-layer">
         <div class="brand login-brandpill">
-          <div class="icon-box brand-icon">
-            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
-          </div>
+          <img src="<?= base_url('logo-1.png') ?>" alt="" class="brand-logo">
           <div class="brand-text">
             <div class="brand-name">iCar</div>
             <div class="brand-sub">BOOKING</div>

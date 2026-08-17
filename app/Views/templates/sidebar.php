@@ -1,6 +1,6 @@
 <?php
 /**
- * Sidebar — แถบเมนูซ้าย กรองรายการตาม role (admin / user / driver)
+ * Sidebar - แถบเมนูซ้าย กรองรายการตาม role (admin / user / driver)
  * รับ: $role (string), $active (string คีย์เพจที่กำลังเปิด)
  * อ้างอิงดีไซน์ docs/mockuo-master (แบรนด์ iCar BOOKING ตรงกับหน้า login)
  */
@@ -48,9 +48,9 @@ $menus = [
 ];
 $items = $menus[$role] ?? $menus['user'];
 
-// badge งานค้าง (วงกลมส้ม) — ส่งมาจาก layout admin เป็น ['requests'=>n, 'members'=>n]
+// badge งานค้าง (วงกลมส้ม) - ส่งมาจาก layout admin เป็น ['requests'=>n, 'members'=>n]
 // เรนเดอร์ span ไว้เสมอ (ซ่อนเมื่อเป็น 0) เพื่อให้ island อัปเดตตัวเลขเองได้หลังทำรายการ
-// โดยอ้างอิงผ่าน data-badge — ดู lib/navBadge.js
+// โดยอ้างอิงผ่าน data-badge - ดู lib/navBadge.js
 $badges = $badges ?? [];
 $badgeHtml = static function (string $key) use ($badges): string {
     $n    = (int) ($badges[$key] ?? 0);
@@ -64,9 +64,7 @@ $badgeHtml = static function (string $key) use ($badges): string {
   <!-- แบรนด์ -->
   <div class="nav-brandwrap">
     <div class="brand brand--sm nav-brandrow">
-      <div class="icon-box brand-icon">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
-      </div>
+      <img src="<?= base_url('logo-1.png') ?>" alt="" class="brand-logo">
       <div class="brand-text nav-brandtext">
         <div class="brand-name">iCar</div>
         <div class="brand-sub">BOOKING</div>

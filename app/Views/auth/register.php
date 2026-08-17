@@ -1,6 +1,6 @@
 <?php
 /**
- * หน้าสมัครสมาชิก — ดีไซน์ 2 แผง (hero teal ซ้าย + ฟอร์มขวา) ตาม docs/mockuo-master
+ * หน้าสมัครสมาชิก 
  * select แผนก/ตำแหน่ง ใช้ id เป็น value (map ตรงกับ FK), โพสต์ไป Auth\RegisterController::attempt
  * รับ: $departments, $positions (array จาก DB)
  */
@@ -14,7 +14,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= lang('Account.register_title') ?> — iCar Booking</title>
+  <title><?= lang('Account.register_title') ?> - iCar Booking</title>
   <?= vite_css() ?>
 </head>
 <body>
@@ -24,12 +24,10 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
     <aside class="reg-hero">
       <!-- โลโก้ -->
       <div class="brand brand--on-teal reg-brand">
-        <div class="icon-box brand-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.7A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.3L21 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H6.5v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg>
-        </div>
+        <img src="<?= base_url('logo-1.png') ?>" alt="" class="brand-logo">
         <div class="brand-text">
-          <div class="brand-name">INABA</div>
-          <div class="brand-sub">FLEET BOOKING</div>
+          <div class="brand-name">iCar</div>
+          <div class="brand-sub">BOOKING</div>
         </div>
       </div>
 
@@ -81,7 +79,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
         <form action="<?= url_to('register') ?>" method="post">
           <?= csrf_field() ?>
           <div class="card reg-card">
-            <div class="title title--sm reg-cardhead"><?= lang('Account.emp_info') ?></div>
+            <div class="title title--sm reg-cardhead"><?= lang('Account.emp_header') ?></div>
             <div class="reg-cardbody">
 
               <!-- ส่วนที่ 1: ข้อมูลพนักงาน -->
@@ -141,7 +139,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
               </div>
 
               <div class="reg-mb">
-                <label class="form-label reg-label">Username <span class="reg-req">*</span></label>
+                <label class="form-label reg-label"><?= lang('Account.username_label') ?> <span class="reg-req">*</span></label>
                 <input class="form-input reg-input" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph_reg'), 'attr') ?>" autocomplete="username" required>
                 <div class="subtext subtext--faint reg-hint"><?= lang('Account.username_hint') ?></div>
               </div>
@@ -206,7 +204,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
       var RE_NAME  = /^[\p{L}\p{M}\s]+$/u;   // ตัวอักษร (ไทย/อังกฤษ) + สระ/วรรณยุกต์ (\p{M}) + เว้นวรรค · ห้ามเลข/สัญลักษณ์
       var RE_PHONE = /^[0-9]{1,10}$/;                        // ตัวเลข ≤ 10
 
-      // ตรวจ 1 ช่อง: คืน '' ถ้าผ่าน หรือข้อความเตือน (ว่างไม่เตือน — ปล่อย required จับตอนกดส่ง)
+      // ตรวจ 1 ช่อง: คืน '' ถ้าผ่าน หรือข้อความเตือน (ว่างไม่เตือน - ปล่อย required จับตอนกดส่ง)
       function chk(el, re, msg) {
         var v = el.value;
         if (v.trim() === '') return '';
