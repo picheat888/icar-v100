@@ -95,7 +95,9 @@ node_modules/
 /public/build/
 
 # ไฟล์ที่ผู้ใช้อัปโหลด (รูปรถ) — ข้อมูล runtime ไม่ใช่โค้ด
-/public/uploads/
+# ยกเว้น .htaccess (กันรันสคริปต์ในโฟลเดอร์อัปโหลด) ที่ต้องติดไปกับ repo
+/public/uploads/*
+!/public/uploads/.htaccess
 
 #-------------------------
 # IDE / Development Files
@@ -135,3 +137,28 @@ _modules/*
 
 /results/
 /phpunit.xml
+
+#-------------------------
+# Claude Code
+#-------------------------
+# ตั้งค่า/ผลพลอยได้ของ Claude Code — เป็นของเครื่องใครเครื่องมัน ไม่ขึ้น git
+
+# ตั้งค่าโปรเจกต์ + ของส่วนตัว (settings, skills, agents, commands, hooks)
+.claude/
+.claude/settings.local.json
+CLAUDE.md
+CLAUDE.local.md
+
+# MCP server + plugin
+.mcp.json
+.claude-plugin/
+
+# transcript / log ของ session
+.claude-trace/
+*.claude-session.json
+
+#-------------------------
+# Documentation
+#-------------------------
+# เอกสารอ้างอิงทั้งหมด (mockup, ดีไซน์ DB, spec/plan, แผนงาน) — เก็บไว้ในเครื่อง ไม่ขึ้น git
+/docs/
