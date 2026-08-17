@@ -10,7 +10,7 @@ use CodeIgniter\Shield\Entities\User;
 use CodeIgniter\Shield\Models\UserModel;
 
 /**
- * สมัครสมาชิก (custom) — สร้างบัญชี + โปรไฟล์สถานะ pending รอ Admin อนุมัติ
+ * สมัครสมาชิก (custom) - สร้างบัญชี + โปรไฟล์สถานะ pending รอ Admin อนุมัติ
  * ไม่ auto-login (ต่างจาก Shield default) แล้วพาไปหน้าแจ้งผลสำเร็จ
  */
 class RegisterController extends BaseController
@@ -32,7 +32,7 @@ class RegisterController extends BaseController
     // รับข้อมูลสมัคร -> สร้าง user + profile (pending)
     public function attempt()
     {
-        // ไม่แยกข้อความ "ถูกปฏิเสธ" ออกจาก "ถูกใช้งานแล้ว" — กันเปิดเผยสถานะบัญชีให้คนภายนอกเดา (privacy)
+        // ไม่แยกข้อความ "ถูกปฏิเสธ" ออกจาก "ถูกใช้งานแล้ว" - กันเปิดเผยสถานะบัญชีให้คนภายนอกเดา (privacy)
         // บัญชีที่ถูก reject ก็ยังมี username/emp_id อยู่ในระบบ จึงถูก is_unique ด้านล่างจับด้วยข้อความเดียวกันกับบัญชีทั่วไป
         $rules = [
             'empId'    => 'required|alpha_numeric|max_length[8]|is_unique[user_profiles.emp_id]',
@@ -50,7 +50,7 @@ class RegisterController extends BaseController
             'empId'    => ['required' => lang('Account.err_required'), 'alpha_numeric' => lang('Account.srv_empId_alnum'), 'max_length' => lang('Account.srv_empId_max'), 'is_unique' => lang('Account.err_uniq_emp')],
             'name'     => ['required' => lang('Account.err_required'), 'regex_match' => lang('Account.srv_name_regex')],
             'username' => ['required' => lang('Account.err_required'), 'is_unique' => lang('Account.srv_username_uniq')],
-            // strong_password ไม่ต้องกำหนดข้อความ — กฎส่งเหตุผลเจาะจงของตัวเองมา (แปลไทยที่ Language/th/Auth.php)
+            // strong_password ไม่ต้องกำหนดข้อความ - กฎส่งเหตุผลเจาะจงของตัวเองมา (แปลไทยที่ Language/th/Auth.php)
             'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],
             'confirm'  => ['matches' => lang('Account.srv_confirm_match')],
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
@@ -59,7 +59,7 @@ class RegisterController extends BaseController
             'terms'    => ['required' => lang('Account.err_terms')],
         ];
 
-        // ใส่ email สังเคราะห์ (username@icar.local — ค่าเดียวกับที่จะบันทึกจริง) ลงในชุดข้อมูลที่ validate
+        // ใส่ email สังเคราะห์ (username@icar.local - ค่าเดียวกับที่จะบันทึกจริง) ลงในชุดข้อมูลที่ validate
         // เพราะกฎ strong_password ของ Shield อ่านทั้ง username + email ไปเทียบความใกล้เคียงของรหัสผ่าน
         $data          = $this->request->getPost();
         $data['email'] = ((string) ($data['username'] ?? '')) . '@icar.local';
@@ -81,7 +81,7 @@ class RegisterController extends BaseController
 
         $user = $users->findById($users->getInsertID());
         $user->addGroup('user');   // role เริ่มต้น = user
-        $user->activate();         // เปิดบัญชี (Shield) — การอนุมัติคุมด้วย status ใน profile
+        $user->activate();         // เปิดบัญชี (Shield) - การอนุมัติคุมด้วย status ใน profile
 
         // สร้างโปรไฟล์พนักงาน สถานะรออนุมัติ (ฟิลด์ที่ไม่บังคับใช้ getPost คืน null ถ้าไม่ส่งมา)
         (new UserProfileModel())->insert([
@@ -108,7 +108,7 @@ class RegisterController extends BaseController
             'role'       => 'user',
         ]);
 
-        // ไม่ login — ไปหน้าแจ้งผลรออนุมัติ
+        // ไม่ login - ไปหน้าแจ้งผลรออนุมัติ
         return redirect()->to('register/success');
     }
 

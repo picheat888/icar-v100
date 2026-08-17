@@ -6,7 +6,7 @@ import { CloseIcon, CalIcon } from '../lib/icons';
 import Table from '../lib/Table';
 
 /**
- * งานของฉัน (Driver) — ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกแถวเปิด drawer รายละเอียด
+ * งานของฉัน (Driver) - ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกแถวเปิด drawer รายละเอียด
  * props: jobs[] (คำขอ approved ที่มอบหมายให้คนขับคนนี้ · ส่งตรงจาก controller ไม่ต้องมี endpoint)
  */
 export default function DriverJobs({ jobs = [] }) {
@@ -27,7 +27,7 @@ export default function DriverJobs({ jobs = [] }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [detail]);
 
-  // จัดกลุ่มงานตามวันใช้รถ (start_at) — วันล่าสุดอยู่บน
+  // จัดกลุ่มงานตามวันใช้รถ (start_at) - วันล่าสุดอยู่บน
   const groups = useMemo(() => {
     const map = [];
     [...jobs]

@@ -9,7 +9,7 @@ use App\Models\UserProfileModel;
 use CodeIgniter\Shield\Models\UserModel;
 
 /**
- * จัดการสมาชิก (Admin) — หน้า + JSON endpoint ให้ React island
+ * จัดการสมาชิก (Admin) - หน้า + JSON endpoint ให้ React island
  * อนุมัติ/ปฏิเสธ/แก้ไขข้อมูล+สิทธิ์ของสมาชิก
  */
 class MemberController extends BaseController
@@ -60,19 +60,19 @@ class MemberController extends BaseController
         if (! $user) {
             return $this->fail('ไม่พบสมาชิก', true);
         }
-        // ต้องมีโปรไฟล์ (1:1) ก่อน — กันเปลี่ยน role ทั้งที่ profile ไม่มี/อัปเดตไม่ลง
+        // ต้องมีโปรไฟล์ (1:1) ก่อน - กันเปลี่ยน role ทั้งที่ profile ไม่มี/อัปเดตไม่ลง
         $profiles = new UserProfileModel();
         $profile  = $profiles->findByUserId($userId);
         if (! $profile) {
             return $this->fail('ไม่พบโปรไฟล์สมาชิก', true);
         }
 
-        // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ update) — บัญชีตัวเอง / คนขับมีงานค้าง
+        // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ update) - บัญชีตัวเอง / คนขับมีงานค้าง
         if ($err = $this->roleChangeError($userId, $user, $level)) {
             return $this->fail($err);
         }
 
-        // กันถอด Admin คนสุดท้ายพร้อมกัน (TOCTOU) — ล็อกช่วงนับ+เขียน
+        // กันถอด Admin คนสุดท้ายพร้อมกัน (TOCTOU) - ล็อกช่วงนับ+เขียน
         db_connect()->query('SELECT GET_LOCK(?, 5)', ['member_admin_guard']);
         if ($this->isLastAdminDemotion($user, $level, $profile)) {
             db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
@@ -107,10 +107,10 @@ class MemberController extends BaseController
 
         // กันปิด driver ที่ยังมีงานที่ได้รับมอบหมายค้างอยู่ (งานจะกำพร้า คนขับเข้าดูไม่ได้)
         if ($target && $target->inGroup('driver') && $this->driverActiveJobs($userId) > 0) {
-            return $this->fail('คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ — จัดการงานให้เสร็จก่อนจึงจะปิดบัญชีได้');
+            return $this->fail('คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ - จัดการงานให้เสร็จก่อนจึงจะปิดบัญชีได้');
         }
 
-        // กันถอด Admin คนสุดท้ายพร้อมกัน (TOCTOU) — ล็อกช่วงนับ+เขียน
+        // กันถอด Admin คนสุดท้ายพร้อมกัน (TOCTOU) - ล็อกช่วงนับ+เขียน
         db_connect()->query('SELECT GET_LOCK(?, 5)', ['member_admin_guard']);
         if ($target && $target->inGroup('admin') && $profile['status'] === 'approved'
             && $this->countActiveAdmins() <= 1) {
@@ -146,9 +146,9 @@ class MemberController extends BaseController
             ->countAllResults();
     }
 
-    // ===== guard การเปลี่ยนสิทธิ์ (ใช้ร่วม approve()+update() — แหล่งความจริงเดียว กัน drift) =====
+    // ===== guard การเปลี่ยนสิทธิ์ (ใช้ร่วม approve()+update() - แหล่งความจริงเดียว กัน drift) =====
 
-    // guard ที่ไม่ต้องล็อก (บัญชีตัวเอง / คนขับมีงานค้าง) — คืนข้อความ error ตัวแรกที่เจอ หรือ null ถ้าผ่าน
+    // guard ที่ไม่ต้องล็อก (บัญชีตัวเอง / คนขับมีงานค้าง) - คืนข้อความ error ตัวแรกที่เจอ หรือ null ถ้าผ่าน
     private function roleChangeError(int $userId, $user, string $level): ?string
     {
         // เปลี่ยนสิทธิ์บัญชีตัวเองไม่ได้
@@ -157,13 +157,13 @@ class MemberController extends BaseController
         }
         // ถอด driver ที่มีงานค้าง -> งานจะกำพร้า
         if ($user->inGroup('driver') && $level !== 'driver' && $this->driverActiveJobs($userId) > 0) {
-            return 'คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ — จัดการงานให้เสร็จก่อนจึงจะเปลี่ยนสิทธิ์ได้';
+            return 'คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ - จัดการงานให้เสร็จก่อนจึงจะเปลี่ยนสิทธิ์ได้';
         }
 
         return null;
     }
 
-    // เป็นการถอด "Admin คนสุดท้าย" หรือไม่ — ต้องเรียกภายใต้ GET_LOCK เท่านั้น (กัน TOCTOU)
+    // เป็นการถอด "Admin คนสุดท้าย" หรือไม่ - ต้องเรียกภายใต้ GET_LOCK เท่านั้น (กัน TOCTOU)
     private function isLastAdminDemotion($user, string $level, ?array $profile): bool
     {
         return $user->inGroup('admin') && $level !== 'admin'
@@ -186,7 +186,7 @@ class MemberController extends BaseController
             return $this->fail('สิทธิ์ไม่ถูกต้อง');
         }
 
-        // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ approve) — บัญชีตัวเอง / คนขับมีงานค้าง
+        // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ approve) - บัญชีตัวเอง / คนขับมีงานค้าง
         if ($err = $this->roleChangeError($userId, $user, $level)) {
             return $this->fail($err);
         }
@@ -227,7 +227,7 @@ class MemberController extends BaseController
             }
         }
 
-        // กันถอดสิทธิ์ Admin คนสุดท้ายพร้อมกัน (TOCTOU) — ล็อกช่วงนับ+เขียน role
+        // กันถอดสิทธิ์ Admin คนสุดท้ายพร้อมกัน (TOCTOU) - ล็อกช่วงนับ+เขียน role
         db_connect()->query('SELECT GET_LOCK(?, 5)', ['member_admin_guard']);
         if ($this->isLastAdminDemotion($user, $level, $profile)) {
             db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
@@ -246,15 +246,15 @@ class MemberController extends BaseController
         $user->syncGroups($level);
         db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
 
-        // เปลี่ยนรหัสผ่าน (ถ้ากรอก — ผ่านการ validate ความยาวด้านบนแล้ว)
+        // เปลี่ยนรหัสผ่าน (ถ้ากรอก - ผ่านการ validate ความยาวด้านบนแล้ว)
         if ($newPass !== '') {
             $user->password = $newPass;
             $users->save($user);
         }
 
-        // บังคับเปลี่ยนรหัสตอนล็อกอินครั้งถัดไป — แยกจากการตั้งรหัสใหม่ (ติ๊ก=ตั้ง, ไม่ติ๊ก=ยกเลิก)
+        // บังคับเปลี่ยนรหัสตอนล็อกอินครั้งถัดไป - แยกจากการตั้งรหัสใหม่ (ติ๊ก=ตั้ง, ไม่ติ๊ก=ยกเลิก)
         // checkbox ในฟอร์มสะท้อนสถานะจริงของสมาชิก จึงบันทึกตามค่าที่ส่งมาได้เลย (เมธอด Shield idempotent)
-        // กันบังคับ "บัญชีตัวเอง" — จะโดน popup ล็อกหน้าจอตัวเองทันที (footgun)
+        // กันบังคับ "บัญชีตัวเอง" - จะโดน popup ล็อกหน้าจอตัวเองทันที (footgun)
         if ($userId !== (int) auth()->id()) {
             if ($this->request->getPost('forceReset')) {
                 $user->forcePasswordReset();

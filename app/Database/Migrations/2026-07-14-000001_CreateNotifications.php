@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง notifications — แจ้งเตือนรายผู้ใช้ (2 สถานะ: seen=badge, read=ไฮไลต์)
+ * ตาราง notifications - แจ้งเตือนรายผู้ใช้ (2 สถานะ: seen=badge, read=ไฮไลต์)
  */
 class CreateNotifications extends Migration
 {

@@ -7,7 +7,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * จำกัดจำนวนครั้งของฟอร์มสาธารณะต่อ 1 IP (bucket ต่อนาที) — กัน brute force รหัสผ่าน + สแปมสมัครสมาชิก
+ * จำกัดจำนวนครั้งของฟอร์มสาธารณะต่อ 1 IP (bucket ต่อนาที) - กัน brute force รหัสผ่าน + สแปมสมัครสมาชิก
  * ใช้เป็น route filter: ['filter' => 'throttle:login'] / ['filter' => 'throttle:register']
  * นับเฉพาะ POST (เปิดหน้าฟอร์มด้วย GET ไม่ถูกจำกัด)
  */
@@ -19,7 +19,7 @@ class ThrottleFilter implements FilterInterface
         'register' => 5,
     ];
 
-    // เช็คโควตาก่อนเข้า controller — เกินโควตาให้ตอบกลับทันที
+    // เช็คโควตาก่อนเข้า controller - เกินโควตาให้ตอบกลับทันที
     public function before(RequestInterface $request, $arguments = null)
     {
         if (strtoupper($request->getMethod()) !== 'POST') {
@@ -34,7 +34,7 @@ class ThrottleFilter implements FilterInterface
             return;
         }
 
-        // เกินโควตา — บอกจำนวนวินาทีที่ต้องรอ
+        // เกินโควตา - บอกจำนวนวินาทีที่ต้องรอ
         $wait    = max(1, (int) $throttler->getTokenTime());
         $message = lang('Account.err_throttle', [$wait]);
 

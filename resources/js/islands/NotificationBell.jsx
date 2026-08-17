@@ -13,7 +13,7 @@ function setCsrf(v) {
   if (el && v) el.setAttribute('content', v);
 }
 
-// กระดิ่งแจ้งเตือน — badge + dropdown + poll 60วิ + load-more
+// กระดิ่งแจ้งเตือน - badge + dropdown + poll 60วิ + load-more
 export default function NotificationBell({ endpoints }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
@@ -38,7 +38,7 @@ export default function NotificationBell({ endpoints }) {
       .catch(() => {});
   }, [endpoints.data]);
 
-  // POST helper (แนบ CSRF + อัปเดต meta) — ต่อคิวทีละคำขอกัน CSRF token ชนกัน (Shield regenerate=true)
+  // POST helper (แนบ CSRF + อัปเดต meta) - ต่อคิวทีละคำขอกัน CSRF token ชนกัน (Shield regenerate=true)
   const post = useCallback((url, body, opts) => {
     const run = () => fetch(url, {
       method: 'POST',
@@ -70,7 +70,7 @@ export default function NotificationBell({ endpoints }) {
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
-  // สลับเปิด/ปิด — ตอนเปิด: โหลดหน้าแรกใหม่ + เห็นแล้วทั้งหมด (badge=0)
+  // สลับเปิด/ปิด - ตอนเปิด: โหลดหน้าแรกใหม่ + เห็นแล้วทั้งหมด (badge=0)
   const toggle = () => {
     const next = !open;
     setOpen(next);
@@ -80,7 +80,7 @@ export default function NotificationBell({ endpoints }) {
     }
   };
 
-  // ลิงก์ปลอดภัย: อนุญาตเฉพาะ http(s) หรือ path ภายใน (ขึ้นต้นด้วย /) — กัน javascript:/data: (defense-in-depth)
+  // ลิงก์ปลอดภัย: อนุญาตเฉพาะ http(s) หรือ path ภายใน (ขึ้นต้นด้วย /) - กัน javascript:/data: (defense-in-depth)
   const safeLink = (u) => typeof u === 'string' && (/^https?:\/\//i.test(u) || u.startsWith('/'));
 
   // กดรายการ -> อ่านแล้ว + ไปลิงก์ (ไปหลัง POST เสร็จ กัน request ถูกตัด)

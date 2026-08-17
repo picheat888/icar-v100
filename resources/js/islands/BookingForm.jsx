@@ -5,7 +5,7 @@ import { MONTHS, DOW, pad } from '../lib/date';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
 
-// สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
+// สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) - ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
 const CAR_STATUS = {
   available:   ['car.status_available', 'pill--green'],
   maintenance: ['car.status_maintenance', 'pill--amber'],
@@ -17,7 +17,7 @@ const carIcon = (
 );
 
 /**
- * จองรถ — grid การ์ดรถ (self) / ฟอร์ม (other) → modal จองรถขับเอง 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม)
+ * จองรถ - grid การ์ดรถ (self) / ฟอร์ม (other) → modal จองรถขับเอง 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม)
  * props: endpoints {store, availability}, cars, baseUrl, backUrl (หน้าปฏิทินการจองรถของ role นั้น)
  */
 export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
@@ -49,7 +49,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     const nowDt = new Date(); setCal({ y: nowDt.getFullYear(), m: nowDt.getMonth() });
     setModal({ type: 'other', car: null });
   };
-  const availReq = useRef(0);   // ลำดับคำขอ availability ล่าสุด — กัน response เก่ามาทับ (race สลับรถเร็ว ๆ)
+  const availReq = useRef(0);   // ลำดับคำขอ availability ล่าสุด - กัน response เก่ามาทับ (race สลับรถเร็ว ๆ)
   const openSelf = (car) => {
     resetForm(); setError(''); setModal({ type: 'self', car }); setLoadErr(false); setBooked(new Set());
     const nowDt = new Date(); setCal({ y: nowDt.getFullYear(), m: nowDt.getMonth() });
@@ -175,7 +175,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
               const ds = dateStr(cal.y, cal.m, d);
               const isBooked = booked.has(ds);
               const isSel = ds === selDate;
-              const isPast = ds < todayDs;   // วันในอดีต — เลือกไม่ได้
+              const isPast = ds < todayDs;   // วันในอดีต - เลือกไม่ได้
               return (
                 <button key={ds} onClick={() => !isPast && pickDay(ds)} disabled={isPast}
                   className={`bk-cal-day${isPast ? ' bk-cal-day--past' : ''}${isSel ? ' bk-cal-day--sel' : ''}`}>
@@ -231,7 +231,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
                 const isMaint = v.status === 'maintenance';
                 const busyNow = v.busy && !isMaint;
                 const [sl, stCls] = isMaint ? CAR_STATUS.maintenance : (busyNow ? ['book.status_busy', 'pill--amber'] : CAR_STATUS.available);
-                const canSelect = !isMaint;   // ไม่ว่างยังจองได้ (คนละช่วงเวลา) — ซ่อมบำรุงเท่านั้นที่จองไม่ได้
+                const canSelect = !isMaint;   // ไม่ว่างยังจองได้ (คนละช่วงเวลา) - ซ่อมบำรุงเท่านั้นที่จองไม่ได้
                 return (
                   <div key={v.id} className="book-card">
                     <div className="book-card-img">
@@ -289,7 +289,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
                     )}
                     <div className="bk-info-box">
                       <div className="bk-info-label">{t('book.selected_car_label')}</div>
-                      <div className="bk-info-value">{modal.car.model} — {modal.car.plate || '-'}</div>
+                      <div className="bk-info-value">{modal.car.model} - {modal.car.plate || '-'}</div>
                     </div>
                   </>
                 ) : (
@@ -314,7 +314,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         </div>
       )}
 
-      {/* popup แจ้งส่งคำขอสำเร็จ — โชว์ 1.5 วินาทีแล้วเด้งไปหน้าถัดไปเอง */}
+      {/* popup แจ้งส่งคำขอสำเร็จ - โชว์ 1.5 วินาทีแล้วเด้งไปหน้าถัดไปเอง */}
       {done && <DonePopup title={t('book.done_title')} sub={t('book.done_sub')} />}
     </div>
   );
@@ -401,7 +401,7 @@ function DateTimeField({ value, onChange, placeholder }) {
                   if (d === null) return <div key={'b' + i} className="bk-dtp-blank" />;
                   const ds = dateStr(cal.y, cal.m, d);
                   const isSel = ds === selDate;
-                  const isPast = ds < todayDs;   // วันในอดีต — เลือกไม่ได้
+                  const isPast = ds < todayDs;   // วันในอดีต - เลือกไม่ได้
                   return (
                     <button key={ds} type="button" onClick={() => !isPast && setSelDate(ds)} disabled={isPast}
                       className={`bk-dtp-day${isPast ? ' bk-dtp-day--past' : ''}${isSel ? ' bk-dtp-day--sel' : ''}`}>{d}</button>

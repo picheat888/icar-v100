@@ -8,7 +8,7 @@ use CodeIgniter\Shield\Controllers\LoginController as ShieldLoginController;
 use CodeIgniter\HTTP\RedirectResponse;
 
 /**
- * Login (custom) — ต่อยอด Shield โดยเพิ่มด่านตรวจสถานะอนุมัติสมาชิก
+ * Login (custom) - ต่อยอด Shield โดยเพิ่มด่านตรวจสถานะอนุมัติสมาชิก
  * อนุญาตเฉพาะ status = approved; pending/rejected จะถูกปฏิเสธพร้อมข้อความ
  */
 class LoginController extends ShieldLoginController
@@ -20,7 +20,7 @@ class LoginController extends ShieldLoginController
             return redirect()->to('/');
         }
 
-        // validate ตามกฎ (username/password) — ใช้ของ Shield
+        // validate ตามกฎ (username/password) - ใช้ของ Shield
         $rules = $this->getValidationRules();
         if (! $this->validateData($this->request->getPost(), $rules, [], config('Auth')->DBGroup)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -62,7 +62,7 @@ class LoginController extends ShieldLoginController
             return redirect()->route('auth-action-show')->withCookies();
         }
 
-        // ไปหน้าหลักตาม role เสมอ (Home::index จัดตาม role) — ไม่ใช้ beforeLoginUrl ของ Shield
+        // ไปหน้าหลักตาม role เสมอ (Home::index จัดตาม role) - ไม่ใช้ beforeLoginUrl ของ Shield
         // กันเด้งไป endpoint JSON (เช่น notifications/data) ที่ background fetch เผลอ set ค้างไว้
         return redirect()->to('/')->withCookies();
     }

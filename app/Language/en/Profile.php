@@ -9,7 +9,7 @@ return [
     'section_personal_sub'   => 'Information shown in the system (managed by the admin)',
     'admin_managed_note'     => 'This information is set by the system administrator',
 
-    // Account status (computed in the view — not currently rendered)
+    // Account status (computed in the view - not currently rendered)
     'status_approved'        => 'Approved',
     'status_pending'         => 'Pending approval',
     'status_rejected'        => 'Rejected',

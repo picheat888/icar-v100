@@ -1,12 +1,12 @@
 import { t } from '../../lib/i18n';
 import { STATUS_META, hhmm, dmy } from './helpers';
 
-// modal รายละเอียดการจอง (อ่านอย่างเดียว) — ไม่มีปุ่มจัดการ
+// modal รายละเอียดการจอง (อ่านอย่างเดียว) - ไม่มีปุ่มจัดการ
 // props: booking, role, onClose
 export default function DetailModal({ booking, role, onClose }) {
   if (!booking) return null;
   const meta = STATUS_META[booking.status] || STATUS_META.pending;
-  // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) — ใช้ต่อ class สี st-*
+  // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) - ใช้ต่อ class สี st-*
   const statusKey = STATUS_META[booking.status] ? booking.status : 'pending';
   const typeLabel = booking.booking_type === 'self' ? t('req.car_self') : t('tl.type_other_provided');
 
@@ -32,7 +32,7 @@ export default function DetailModal({ booking, role, onClose }) {
     rows.push([t('req.location_short'), booking.location || '-']);
   }
 
-  rows.push([t('req.col_time_range'), `${dmy(booking.start_at)} ${hhmm(booking.start_at)} – ${dmy(booking.end_at)} ${hhmm(booking.end_at)}`]);
+  rows.push([t('req.col_time_range'), `${dmy(booking.start_at)} ${hhmm(booking.start_at)} - ${dmy(booking.end_at)} ${hhmm(booking.end_at)}`]);
   // รถขับเองที่คืนแล้ว: โชว์เวลาคืนจริงเพิ่ม (ช่วงที่เหลือปล่อยว่างให้จองต่อ)
   if (booking.status === 'completed' && booking.returned_at && booking.booking_type === 'self') {
     rows.push([t('tl.actual_return'), `${dmy(booking.returned_at)} ${hhmm(booking.returned_at)}`]);

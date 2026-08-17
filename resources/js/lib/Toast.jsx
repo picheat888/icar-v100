@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 
 /**
- * Toast แจ้งผล — ลอยกลางล่าง หายเองใน 2.8 วินาที
+ * Toast แจ้งผล - ลอยกลางล่าง หายเองใน 2.8 วินาที
  * ใช้: const { showToast, ToastView } = useToast();  แล้ววาง <ToastView /> ท้าย component
  */
 export function useToast(ms = 2800) {

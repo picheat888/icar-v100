@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง user_profiles — ข้อมูลพนักงาน (1:1 กับ users) + สถานะอนุมัติ
+ * Model ตาราง user_profiles - ข้อมูลพนักงาน (1:1 กับ users) + สถานะอนุมัติ
  */
 class UserProfileModel extends Model
 {
@@ -58,7 +58,7 @@ class UserProfileModel extends Model
             ->join('departments d', 'd.id = user_profiles.department_id', 'left')
             ->join('positions p', 'p.id = user_profiles.position_id', 'left')
             ->join('auth_groups_users g', 'g.user_id = user_profiles.user_id', 'left')
-            // identity รหัสผ่าน (เก็บ force_reset) — ไว้โชว์สถานะบังคับเปลี่ยนรหัสในหน้าจัดการสมาชิก
+            // identity รหัสผ่าน (เก็บ force_reset) - ไว้โชว์สถานะบังคับเปลี่ยนรหัสในหน้าจัดการสมาชิก
             ->join('auth_identities ai', "ai.user_id = user_profiles.user_id AND ai.type = 'email_password'", 'left')
             ->orderBy('user_profiles.created_at', 'DESC')
             ->findAll();

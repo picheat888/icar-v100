@@ -28,7 +28,7 @@ abstract class BaseController extends Controller
     // protected $session;
 
     /**
-     * helper ที่โหลดให้ทุก controller ใช้ได้ — vite (vite_asset), form, url
+     * helper ที่โหลดให้ทุก controller ใช้ได้ - vite (vite_asset), form, url
      *
      * @var list<string>
      */

@@ -24,7 +24,7 @@ const xIcon = (
 );
 
 /**
- * จัดการ แผนก หรือ ตำแหน่ง — ตาราง + ค้นหา/เพิ่ม/แก้ไข/ลบ/เรียง/แบ่งหน้า
+ * จัดการ แผนก หรือ ตำแหน่ง - ตาราง + ค้นหา/เพิ่ม/แก้ไข/ลบ/เรียง/แบ่งหน้า
  * props: endpoints {data, add, update, delete}, only ('dept' | 'position')
  */
 export default function MasterData({ endpoints, only = 'dept' }) {
@@ -82,7 +82,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       if (d.conflict) {
         setConfirmItem(null);
         load();
-        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
         return false;
       }
       if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
@@ -100,7 +100,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   const del = (it) => setConfirmItem(it);
   const doDelete = async () => {
     const ok = await post(endpoints.delete, { type, id: confirmItem.id }, true);
-    setConfirmItem(null);   // ปิดป็อปอัปเสมอ — ถ้าลบไม่ได้ (เช่น ยังมีพนักงานอยู่) toast จะแจ้งเหตุผล
+    setConfirmItem(null);   // ปิดป็อปอัปเสมอ - ถ้าลบไม่ได้ (เช่น ยังมีพนักงานอยู่) toast จะแจ้งเหตุผล
     if (ok) {
       setDone(true);
       setTimeout(() => setDone(false), 1500);
@@ -193,7 +193,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
         </tbody>
       </Table>
 
-      {/* ป็อปอัปยืนยันการลบ — ชุดเดียวกับหน้าจัดการรถ/คำขอของฉัน */}
+      {/* ป็อปอัปยืนยันการลบ - ชุดเดียวกับหน้าจัดการรถ/คำขอของฉัน */}
       {confirmItem && (
         <ConfirmDialog
           tone="danger"
@@ -210,7 +210,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
         </ConfirmDialog>
       )}
 
-      {/* ป็อปอัปแจ้งลบสำเร็จ — โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการ */}
+      {/* ป็อปอัปแจ้งลบสำเร็จ - โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการ */}
       {done && <DonePopup title={t('master.deleted_title')} sub={t('master.deleted_sub', { label })} />}
 
       <ToastView />

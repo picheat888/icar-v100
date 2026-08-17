@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 /**
- * สลับภาษา — ตั้ง cookie 'lang' แล้วเด้งกลับหน้าเดิม (ใช้ได้ทั้ง guest/ล็อกอิน)
+ * สลับภาษา - ตั้ง cookie 'lang' แล้วเด้งกลับหน้าเดิม (ใช้ได้ทั้ง guest/ล็อกอิน)
  */
 class LocaleController extends BaseController
 {

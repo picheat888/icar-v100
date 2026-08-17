@@ -5,7 +5,7 @@ namespace App\Database\Seeds;
 use CodeIgniter\Database\Seeder;
 
 /**
- * ข้อมูลตั้งต้น แผนก/ตำแหน่ง (master data) — ใช้ในฟอร์มสมัครสมาชิก
+ * ข้อมูลตั้งต้น แผนก/ตำแหน่ง (master data) - ใช้ในฟอร์มสมัครสมาชิก
  * รัน: php spark db:seed MasterDataSeeder
  */
 class MasterDataSeeder extends Seeder

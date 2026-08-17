@@ -7,7 +7,7 @@ use App\Models\BookingModel;
 use App\Models\CarModel;
 
 /**
- * จองรถ (User) — สร้างคำขอ + ดูคำขอของฉัน + ยกเลิก
+ * จองรถ (User) - สร้างคำขอ + ดูคำขอของฉัน + ยกเลิก
  */
 class BookingController extends BaseController
 {
@@ -33,7 +33,7 @@ class BookingController extends BaseController
         return $u->inGroup('admin') ? 'admin' : ($u->inGroup('driver') ? 'driver' : 'user');
     }
 
-    // ปลายทางหลังจองเสร็จ — หน้า "ปฏิทินการจองรถ" ของ role นั้น (เห็นคิวที่เพิ่งจองทันที)
+    // ปลายทางหลังจองเสร็จ - หน้า "ปฏิทินการจองรถ" ของ role นั้น (เห็นคิวที่เพิ่งจองทันที)
     private function afterBookUrl(): string
     {
         $role = $this->role();
@@ -120,7 +120,7 @@ class BookingController extends BaseController
         if ($location === '') {
             return $this->fail('กรุณากรอกสถานที่ปลายทาง');
         }
-        // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น — กัน javascript: และ protocol อันตราย
+        // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น - กัน javascript: และ protocol อันตราย
         if ($mapLink !== '' && ! is_safe_url($mapLink)) {
             return $this->fail('ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น');
         }
@@ -134,7 +134,7 @@ class BookingController extends BaseController
         if ($end <= $start) {
             return $this->fail('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
         }
-        // กันจองย้อนหลัง — เวลาเริ่มต้องไม่เป็นอดีต
+        // กันจองย้อนหลัง - เวลาเริ่มต้องไม่เป็นอดีต
         if ($start < date('Y-m-d H:i:s')) {
             return $this->fail('ไม่สามารถจองวันเวลาที่ผ่านมาแล้วได้ กรุณาเลือกวันเวลาในอนาคต');
         }
@@ -161,7 +161,7 @@ class BookingController extends BaseController
             }
         }
 
-        // สร้างคำขอในทรานแซกชัน — ล็อกแถวรถ (FOR UPDATE) กัน race: 2 คนจองรถขับเองคันเดียวกันช่วงเวลาเดียวพร้อมกัน
+        // สร้างคำขอในทรานแซกชัน - ล็อกแถวรถ (FOR UPDATE) กัน race: 2 คนจองรถขับเองคันเดียวกันช่วงเวลาเดียวพร้อมกัน
         $db       = db_connect();
         $bookings = new BookingModel();
         $db->transBegin();
@@ -200,7 +200,7 @@ class BookingController extends BaseController
         $bookings->update($id, ['booking_code' => $bookings->makeCode($id)]);
         $db->transCommit();
 
-        // ยืนยันทรานแซกชันสำเร็จจริงก่อนรายงานผล — กันแจ้งสำเร็จทั้งที่ DB error แล้ว rollback (ไม่มีแถวจริง)
+        // ยืนยันทรานแซกชันสำเร็จจริงก่อนรายงานผล - กันแจ้งสำเร็จทั้งที่ DB error แล้ว rollback (ไม่มีแถวจริง)
         if (! $id || $db->transStatus() === false) {
             return $this->fail('บันทึกคำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
         }
@@ -215,7 +215,7 @@ class BookingController extends BaseController
         return $this->ok('ส่งคำขอจองรถเรียบร้อย รอ Admin อนุมัติ', $this->afterBookUrl());
     }
 
-    // หน้า "คำขอของฉัน" (island) — ใช้ร่วม admin/user, เรนเดอร์ layout ตาม role
+    // หน้า "คำขอของฉัน" (island) - ใช้ร่วม admin/user, เรนเดอร์ layout ตาม role
     public function myRequests()
     {
         return view('user/requests/index', [
@@ -239,7 +239,7 @@ class BookingController extends BaseController
         ]);
     }
 
-    // POST: ยกเลิกคำขอของตัวเอง — pending ยกเลิกทันที · approved(ก่อนเวลาเริ่ม) ขอยกเลิกรอ Admin ยืนยัน
+    // POST: ยกเลิกคำขอของตัวเอง - pending ยกเลิกทันที · approved(ก่อนเวลาเริ่ม) ขอยกเลิกรอ Admin ยืนยัน
     public function cancel()
     {
         $id       = (int) $this->request->getPost('id');

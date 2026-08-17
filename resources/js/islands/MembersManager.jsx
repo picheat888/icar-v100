@@ -6,7 +6,7 @@ import { setNavBadge } from '../lib/navBadge';
 import Table from '../lib/Table';
 import Modal from '../lib/Modal';
 
-// ป้ายสถานะสมาชิก (pending/approved/rejected) — คนละชุดกับสถานะการจอง ใช้ .pill--* ธรรมดา ไม่ใช่ .st-*
+// ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง ใช้ .pill--* ธรรมดา ไม่ใช่ .st-*
 const STATUS_LABEL = {
   approved: t('status.approved'),
   pending: t('status.pending'),
@@ -25,7 +25,7 @@ const ROLES = [
 const roleLabel = (r) => ({ user: t('mem.role_user'), driver: t('mem.role_driver'), admin: 'Admin' }[r] || '-');
 
 /**
- * จัดการสมาชิก — ตาราง + ฟิลเตอร์ + โมดัล อนุมัติ/แก้ไข
+ * จัดการสมาชิก - ตาราง + ฟิลเตอร์ + โมดัล อนุมัติ/แก้ไข
  * props: endpoints {data, approve, reject, update}, departments[], positions[]
  */
 export default function MembersManager({ endpoints, departments = [], positions = [], currentUserId = null }) {
@@ -86,7 +86,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
       if (d.conflict) {
         setModal(null);
         load();
-        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
         return false;
       }
       if (!res.ok || !d.ok) { showToast(d.message || t('common.err')); return false; }
@@ -142,7 +142,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
     return () => mq.removeEventListener('change', on);
   }, []);
 
-  // ปุ่มจัดการของสมาชิกแต่ละคน (ใช้ร่วมทั้งตาราง + การ์ด) — kind บอกสี (success=อนุมัติ, danger=ปฏิเสธ)
+  // ปุ่มจัดการของสมาชิกแต่ละคน (ใช้ร่วมทั้งตาราง + การ์ด) - kind บอกสี (success=อนุมัติ, danger=ปฏิเสธ)
   const actionsFor = (m) => {
     const list = [];
     // pending: ตัดสินใจ อนุมัติ/ปฏิเสธ (คนละเรื่องกับ toggle เปิด/ปิดใช้งาน)
@@ -153,13 +153,13 @@ export default function MembersManager({ endpoints, departments = [], positions 
     return list;
   };
 
-  // ปุ่มแก้ไข — ไอคอนดินสออย่างเดียว (tooltip "แก้ไข") · large = ปุ่มใหญ่ขึ้นสำหรับการ์ดมือถือ
+  // ปุ่มแก้ไข - ไอคอนดินสออย่างเดียว (tooltip "แก้ไข") · large = ปุ่มใหญ่ขึ้นสำหรับการ์ดมือถือ
   const editBtn = (m, large) => (
     <button type="button" onClick={() => openEdit(m, setModal)} title={t('common.edit')} aria-label={t('common.edit')}
       className={large ? 'mm-edit-btn mm-edit-btn--lg' : 'mm-edit-btn'}>{EDIT_ICON}</button>
   );
 
-  // Toggle เปิด/ปิดใช้งาน — approved = เปิด(เขียว) · rejected = ปิด(เทา) · กดแล้วเปิดหน้ายืนยัน/เลือกสิทธิ์ (คงขั้นตอนเดิม)
+  // Toggle เปิด/ปิดใช้งาน - approved = เปิด(เขียว) · rejected = ปิด(เทา) · กดแล้วเปิดหน้ายืนยัน/เลือกสิทธิ์ (คงขั้นตอนเดิม)
   const activeToggle = (m) => {
     if (m.status !== 'approved' && m.status !== 'rejected') return null;
     const on = m.status === 'approved';
@@ -349,7 +349,7 @@ function Edit({ form, set, departments, positions, pending, username }) {
   const u = (k, v) => set({ ...form, [k]: v });
   return (
     <>
-      {/* Username สำหรับเข้าสู่ระบบ — อ่านอย่างเดียว (ไว้ให้ admin บอกผู้ใช้กรณีลืม) */}
+      {/* Username สำหรับเข้าสู่ระบบ - อ่านอย่างเดียว (ไว้ให้ admin บอกผู้ใช้กรณีลืม) */}
       <label className="form-label">{t('mem.username_label')}</label>
       <input value={username || '-'} readOnly className="form-input form-input--sm mm-field-mb" />
       <label className="form-label">{t('mem.col_full_name')}</label>
@@ -397,7 +397,7 @@ function EditPass({ form, set }) {
   );
 }
 
-// ปุ่มท้ายโมดัล — okKind: success(อนุมัติ) / danger(ปฏิเสธ) / teal(บันทึก)
+// ปุ่มท้ายโมดัล - okKind: success(อนุมัติ) / danger(ปฏิเสธ) / teal(บันทึก)
 function Foot({ onClose, onOk, okText, okKind, busy }) {
   return (
     <div className="mm-modal-foot">
@@ -412,7 +412,7 @@ const EDIT_ICON = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
 );
 
-// Toggle switch เปิด/ปิดใช้งาน — เขียว=เปิด(เลื่อนขวา) · เทา=ปิด(เลื่อนซ้าย) · locked = โชว์แต่กดไม่ได้
+// Toggle switch เปิด/ปิดใช้งาน - เขียว=เปิด(เลื่อนขวา) · เทา=ปิด(เลื่อนซ้าย) · locked = โชว์แต่กดไม่ได้
 function Toggle({ on, disabled, onClick, title }) {
   return (
     <button

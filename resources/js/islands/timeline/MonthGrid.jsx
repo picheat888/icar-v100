@@ -1,8 +1,8 @@
 import { STATUS_META, TH_DOW, ymd, hhmm, monthGridRange, overlapsDay, bookingLabel, effectiveEnd } from './helpers';
 
-// ปฏิทินรายเดือน — grid 7x6, แต่ละวันโชว์ป้ายการจองสูงสุด 3 + "+N"
+// ปฏิทินรายเดือน - grid 7x6, แต่ละวันโชว์ป้ายการจองสูงสุด 3 + "+N"
 // props: year, month (0-based), bookings, today (Date), onSelectDay(dateStr), onOpenDetail(booking),
-//        showCounts (แสดงตัวนับงานข้างเลขวันที่ — เฉพาะ admin), compact (ย่อสำหรับมือถือ)
+//        showCounts (แสดงตัวนับงานข้างเลขวันที่ - เฉพาะ admin), compact (ย่อสำหรับมือถือ)
 export default function MonthGrid({ year, month, bookings, today, onSelectDay, onOpenDetail, showCounts, compact }) {
   const [start] = monthGridRange(year, month);
   const todayStr = ymd(today);
@@ -68,16 +68,16 @@ export default function MonthGrid({ year, month, bookings, today, onSelectDay, o
               )}
             </div>
             {c.dayBookings.slice(0, 3).map((b) => {
-              // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) — ใช้ต่อ class สี st-*
+              // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) - ใช้ต่อ class สี st-*
               const statusKey = STATUS_META[b.status] ? b.status : 'pending';
               return (
                 <div
                   key={b.id}
                   onClick={(e) => { e.stopPropagation(); onOpenDetail(b); }}
-                  title={`${hhmm(b.start_at)}–${hhmm(effectiveEnd(b))} ${bookingLabel(b)}`}
+                  title={`${hhmm(b.start_at)}-${hhmm(effectiveEnd(b))} ${bookingLabel(b)}`}
                   className={`tl-mg-pill st-${statusKey}${compact ? ' tl-mg-pill--compact' : ''}${!c.inMonth ? ' tl-mg-pill--out' : ''}`}
                 >
-                  {hhmm(b.start_at)}–{hhmm(effectiveEnd(b))} {bookingLabel(b)}
+                  {hhmm(b.start_at)}-{hhmm(effectiveEnd(b))} {bookingLabel(b)}
                 </div>
               );
             })}

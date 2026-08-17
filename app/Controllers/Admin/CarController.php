@@ -6,7 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\CarModel;
 
 /**
- * จัดการรถ (Admin) — รถบริษัท (self) + รถจัดหาโดย Admin (other) + JSON endpoint ให้ island
+ * จัดการรถ (Admin) - รถบริษัท (self) + รถจัดหาโดย Admin (other) + JSON endpoint ให้ island
  */
 class CarController extends BaseController
 {
@@ -37,13 +37,13 @@ class CarController extends BaseController
         ]);
     }
 
-    // รายชื่อคนขับ (ใช้ตัวเลือกคนขับประจำ) — ดึงจาก UserProfileModel::drivers()
+    // รายชื่อคนขับ (ใช้ตัวเลือกคนขับประจำ) - ดึงจาก UserProfileModel::drivers()
     private function companyDrivers(): array
     {
         return (new \App\Models\UserProfileModel())->drivers();
     }
 
-    // POST: เพิ่ม/แก้ไขรถ (multipart — รองรับอัปโหลดรูป)
+    // POST: เพิ่ม/แก้ไขรถ (multipart - รองรับอัปโหลดรูป)
     public function save()
     {
         $id    = (int) $this->request->getPost('id');
@@ -56,7 +56,7 @@ class CarController extends BaseController
         if ($model === '') {
             return $this->fail('กรุณากรอกรุ่นรถ');
         }
-        // ทะเบียนบังคับเฉพาะรถบริษัท (self) — รถจัดหาโดย Admin (other) เว้นว่างได้
+        // ทะเบียนบังคับเฉพาะรถบริษัท (self) - รถจัดหาโดย Admin (other) เว้นว่างได้
         if ($type === 'self' && $plate === '') {
             return $this->fail('กรุณากรอกทะเบียนรถ');
         }
@@ -65,7 +65,7 @@ class CarController extends BaseController
             return $this->fail('จำนวนที่นั่งต้องไม่ติดลบ');
         }
         // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ข้ามคันที่กำลังแก้ไข · รถที่ถูกลบแล้วปล่อยทะเบียนคืน
-        // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) — ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
+        // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) - ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
         if ($plate !== '') {
             $dupe = db_connect()->table('cars')
                 ->select('model')
@@ -89,7 +89,7 @@ class CarController extends BaseController
         if ($type === 'other') {
             $driverId = (int) $this->request->getPost('driver_id');
             if ($driverId > 0) {
-                // คนขับประจำเป็นแบบ 1:1 — กันคนขับคนเดียวถูกผูกเป็นคนขับประจำของรถมากกว่า 1 คัน
+                // คนขับประจำเป็นแบบ 1:1 - กันคนขับคนเดียวถูกผูกเป็นคนขับประจำของรถมากกว่า 1 คัน
                 // (ไม่นับคันที่กำลังแก้ไข + ไม่นับรถที่ถูกลบ)
                 $clash = db_connect()->table('cars')
                     ->select('model, plate')
@@ -110,7 +110,7 @@ class CarController extends BaseController
             }
             $data['note'] = trim((string) $this->request->getPost('note')) ?: null;
         } else {
-            // รถบริษัท (self) ไม่มีคนขับประจำ/หมายเหตุ — ล้างค่าเดิมกันข้อมูลคนขับค้างเมื่อเปลี่ยนประเภทจาก other
+            // รถบริษัท (self) ไม่มีคนขับประจำ/หมายเหตุ - ล้างค่าเดิมกันข้อมูลคนขับค้างเมื่อเปลี่ยนประเภทจาก other
             $data['default_driver_id']   = null;
             $data['default_driver_name'] = null;
             $data['note']                = null;
@@ -119,12 +119,12 @@ class CarController extends BaseController
         $cars     = new CarModel();
         $oldImage = null;
 
-        // กันแก้ไข id ที่ไม่มีจริง/ถูกลบไปแล้ว (client ค้าง) — เช็คก่อนอัปโหลดไฟล์ กันไฟล์กำพร้า
+        // กันแก้ไข id ที่ไม่มีจริง/ถูกลบไปแล้ว (client ค้าง) - เช็คก่อนอัปโหลดไฟล์ กันไฟล์กำพร้า
         if ($id && ! $cars->find($id)) {
             return $this->fail('ไม่พบรถที่ต้องการแก้ไข (อาจถูกลบไปแล้ว)', true);
         }
 
-        // อัปโหลดรูป — เฉพาะไฟล์รูปภาพ ขนาดไม่เกิน 2 MB
+        // อัปโหลดรูป - เฉพาะไฟล์รูปภาพ ขนาดไม่เกิน 2 MB
         $file = $this->request->getFile('image');
         if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
             if (! $this->validate([
@@ -176,7 +176,7 @@ class CarController extends BaseController
             ->where('deleted_at', null)
             ->countAllResults();
         if ($active > 0) {
-            return $this->fail('ลบไม่ได้ รถคันนี้มีการจองที่ยังไม่สิ้นสุด ' . $active . ' รายการ — ยกเลิก/จบงานก่อนจึงจะลบได้');
+            return $this->fail('ลบไม่ได้ รถคันนี้มีการจองที่ยังไม่สิ้นสุด ' . $active . ' รายการ - ยกเลิก/จบงานก่อนจึงจะลบได้');
         }
 
         $cars->delete($id);

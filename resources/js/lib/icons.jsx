@@ -1,4 +1,4 @@
-// ไอคอน SVG ที่ใช้ซ้ำข้าม island — สีตาม currentColor ของ element ที่ครอบอยู่
+// ไอคอน SVG ที่ใช้ซ้ำข้าม island - สีตาม currentColor ของ element ที่ครอบอยู่
 
 // กากบาทปิดโมดัล/drawer
 export const CloseIcon = (
@@ -8,14 +8,14 @@ export const CloseIcon = (
   </svg>
 );
 
-// ติ๊กถูก — ป็อปอัปแจ้งผลสำเร็จ
+// ติ๊กถูก - ป็อปอัปแจ้งผลสำเร็จ
 export const CheckIcon = (
   <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 
-// ถังขยะ — ป็อปอัปยืนยันการลบ
+// ถังขยะ - ป็อปอัปยืนยันการลบ
 export const TrashIcon = (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="3 6 5 6 21 6" />
@@ -26,7 +26,7 @@ export const TrashIcon = (
   </svg>
 );
 
-// ปฏิทิน — นำหน้าแถบหัวข้อวันในตาราง/การ์ด
+// ปฏิทิน - นำหน้าแถบหัวข้อวันในตาราง/การ์ด
 export const CalIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="cal-icon">
     <rect x="3" y="4" width="18" height="18" rx="2" />

@@ -8,8 +8,8 @@ import DayGrid from './DayGrid';
 import DriverDayList from './DriverDayList';
 import DetailModal from './DetailModal';
 
-// container หน้าตารางการใช้รถ — จัดการ view/เดือน/วัน/fetch/modal
-// props: role ('admin'|'user'|'driver'), endpoint (URL JSON), book (URL หน้าจองรถ — user+admin; driver ไม่ส่ง)
+// container หน้าตารางการใช้รถ - จัดการ view/เดือน/วัน/fetch/modal
+// props: role ('admin'|'user'|'driver'), endpoint (URL JSON), book (URL หน้าจองรถ - user+admin; driver ไม่ส่ง)
 export default function Timeline({ role, endpoint, book }) {
   const today = new Date();
   const device = useDevice();                           // 'mobile' | 'tablet' | 'desktop'
@@ -24,7 +24,7 @@ export default function Timeline({ role, endpoint, book }) {
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
 
-  const loadSeq = useRef(0);   // ลำดับคำขอล่าสุด — กด ‹/› สลับเร็ว ๆ response เก่าจะไม่มาทับ (race)
+  const loadSeq = useRef(0);   // ลำดับคำขอล่าสุด - กด ‹/› สลับเร็ว ๆ response เก่าจะไม่มาทับ (race)
   // ดึงข้อมูลของช่วง grid เดือนที่ดู
   const load = useCallback(() => {
     const [gs, ge] = monthGridRange(year, month);
@@ -43,7 +43,7 @@ export default function Timeline({ role, endpoint, book }) {
   // เปลี่ยนเดือน
   const shiftMonth = (dir) => setCursor(new Date(year, month + dir, 1));
 
-  // เปลี่ยนวัน (มุมมองรายวัน) — ถ้าเลื่อนออกนอกเดือนที่โหลด ให้ขยับ cursor เพื่อโหลดข้อมูลใหม่
+  // เปลี่ยนวัน (มุมมองรายวัน) - ถ้าเลื่อนออกนอกเดือนที่โหลด ให้ขยับ cursor เพื่อโหลดข้อมูลใหม่
   const shiftDay = (dir) => {
     const d = new Date(selectedDay + 'T00:00:00');
     d.setDate(d.getDate() + dir);
@@ -63,7 +63,7 @@ export default function Timeline({ role, endpoint, book }) {
   // แตะวัน -> ไปมุมมองรายวัน
   const selectDay = (dateStr) => { setSelectedDay(dateStr); setView('day'); };
 
-  // ไปมุมมองรายวัน — ถ้าวันที่เลือกอยู่นอกเดือนที่โหลด ให้รีเซ็ตเป็นวันที่ 1 ของเดือนนั้น
+  // ไปมุมมองรายวัน - ถ้าวันที่เลือกอยู่นอกเดือนที่โหลด ให้รีเซ็ตเป็นวันที่ 1 ของเดือนนั้น
   const showDayView = () => {
     const d = new Date(selectedDay + 'T00:00:00');
     if (d.getFullYear() !== year || d.getMonth() !== month) {
@@ -138,7 +138,7 @@ export default function Timeline({ role, endpoint, book }) {
   );
 }
 
-// legend สีสถานะใต้ปฏิทิน — ใช้คู่กับ class .st-* (ดู §1.15)
+// legend สีสถานะใต้ปฏิทิน - ใช้คู่กับ class .st-* (ดู §1.15)
 function Legend() {
   const keys = ['approved', 'pending', 'completed'];
   return (

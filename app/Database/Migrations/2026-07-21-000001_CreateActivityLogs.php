@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง activity_logs — บันทึกกิจกรรมการใช้งานระบบ (audit log)
+ * ตาราง activity_logs - บันทึกกิจกรรมการใช้งานระบบ (audit log)
  * เก็บ snapshot ชื่อ/บทบาท ณ ตอนนั้น เพราะผู้ใช้อาจถูกแก้/ลบภายหลัง (log ต้องคงเดิม)
  */
 class CreateActivityLogs extends Migration

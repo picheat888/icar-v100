@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง activity_logs — บันทึกกิจกรรมการใช้งานระบบ
+ * Model ตาราง activity_logs - บันทึกกิจกรรมการใช้งานระบบ
  */
 class ActivityLogModel extends Model
 {
@@ -30,7 +30,7 @@ class ActivityLogModel extends Model
     }
 
     /**
-     * อ่าน log ตามช่วงวันที่ทีละชุด (chunk) แล้วส่งเข้า callback — ใช้ตอน export CSV
+     * อ่าน log ตามช่วงวันที่ทีละชุด (chunk) แล้วส่งเข้า callback - ใช้ตอน export CSV
      * ไม่ดึงทั้งช่วงมาไว้ในหน่วยความจำ จึงส่งออกได้แม้มีข้อมูลหลักแสนแถว
      */
     public function chunkInRange(string $from, string $to, int $size, callable $callback): void

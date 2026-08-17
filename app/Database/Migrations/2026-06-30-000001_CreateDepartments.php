@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง departments — แผนก (master data)
+ * ตาราง departments - แผนก (master data)
  */
 class CreateDepartments extends Migration
 {

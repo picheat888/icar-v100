@@ -2,7 +2,7 @@ import { t } from '../../lib/i18n';
 import { MONTHS, DOW, pad as p2 } from '../../lib/date';
 import { STATUS_LABEL } from '../../lib/status';
 
-// label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) — สีมาจาก class .st-* กลางใน CSS
+// label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) - สีมาจาก class .st-* กลางใน CSS
 export const STATUS_META = {
   pending:          { label: STATUS_LABEL.pending },
   approved:         { label: STATUS_LABEL.approved },
@@ -10,7 +10,7 @@ export const STATUS_META = {
   completed:        { label: t('tl.status_completed') },
 };
 
-// ชื่อเดือนเต็ม / หัวคอลัมน์ปฏิทิน — ใช้ชุดกลาง (re-export ให้ component ในโฟลเดอร์นี้เรียกได้เหมือนเดิม)
+// ชื่อเดือนเต็ม / หัวคอลัมน์ปฏิทิน - ใช้ชุดกลาง (re-export ให้ component ในโฟลเดอร์นี้เรียกได้เหมือนเดิม)
 export const TH_MONTHS = MONTHS;
 export const TH_DOW = DOW;
 

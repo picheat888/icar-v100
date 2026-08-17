@@ -12,7 +12,7 @@ const eye = (open) => open
   : <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9aa7b2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6.5 0-10-8-10-8a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22" /></svg>;
 
 /**
- * Popup บังคับเปลี่ยนรหัสผ่าน — เด้งครอบทั้งแอปสำหรับ User ที่ถูกตั้ง force_reset
+ * Popup บังคับเปลี่ยนรหัสผ่าน - เด้งครอบทั้งแอปสำหรับ User ที่ถูกตั้ง force_reset
  * ปิด/กดนอก/Esc ไม่ได้ · 2 ช่อง (รหัสใหม่ + ยืนยัน) ไม่ถามรหัสเดิม
  * props: endpoint (URL บันทึกรหัสใหม่), logoutUrl
  */

@@ -8,7 +8,7 @@ use App\Models\CarModel;
 use App\Models\UserProfileModel;
 
 /**
- * หน้าหลังบ้าน (admin) — ตอนนี้เป็น placeholder เพื่อทดสอบ shell
+ * หน้าหลังบ้าน (admin) - ตอนนี้เป็น placeholder เพื่อทดสอบ shell
  * แต่ละ method ส่งชื่อหน้า/คีย์เมนูที่ active ให้ layout
  */
 class DashboardController extends BaseController
@@ -52,7 +52,7 @@ class DashboardController extends BaseController
             'totalBookings'   => (new BookingModel())->where('deleted_at', null)->countAllResults(),
         ];
 
-        // คำขอล่าสุด — เอา "N วันล่าสุด" แบบครบทั้งวัน (ไม่ตัดคำขอกลางวันเดียวกัน) ที่เหลือกด "ดูทั้งหมด"
+        // คำขอล่าสุด - เอา "N วันล่าสุด" แบบครบทั้งวัน (ไม่ตัดคำขอกลางวันเดียวกัน) ที่เหลือกด "ดูทั้งหมด"
         // listAll เรียง start_at DESC อยู่แล้ว คำขอวันเดียวกันจึงเรียงติดกัน → เก็บจนครบ N วันแล้วหยุด
         $maxDays = 3;
         $recent  = [];
@@ -68,7 +68,7 @@ class DashboardController extends BaseController
             $recent[] = $b;
         }
 
-        // สมาชิกที่รอการอนุมัติ — เอา 6 รายชื่อ
+        // สมาชิกที่รอการอนุมัติ - เอา 6 รายชื่อ
         $pendingMembers = array_values(array_filter(
             (new UserProfileModel())->listMembers(),
             static fn ($m) => $m['status'] === 'pending'
@@ -82,7 +82,7 @@ class DashboardController extends BaseController
         ]);
     }
 
-    // ตารางการใช้รถ — หน้า island
+    // ตารางการใช้รถ - หน้า island
     public function timeline()
     {
         return view('admin/timeline/index', [

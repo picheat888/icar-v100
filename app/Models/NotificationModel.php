@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง notifications — แจ้งเตือนรายผู้ใช้
+ * Model ตาราง notifications - แจ้งเตือนรายผู้ใช้
  */
 class NotificationModel extends Model
 {
@@ -26,7 +26,7 @@ class NotificationModel extends Model
         ]);
     }
 
-    // สร้างแจ้งเตือนให้ admin ทุกคน (ข้าม excludeUserId ถ้ากำหนด — กันแจ้งตัวเอง)
+    // สร้างแจ้งเตือนให้ admin ทุกคน (ข้าม excludeUserId ถ้ากำหนด - กันแจ้งตัวเอง)
     public function pushToAdmins(string $type, string $message, ?string $link = null, ?int $excludeUserId = null): void
     {
         $rows = $this->db->table('auth_groups_users')

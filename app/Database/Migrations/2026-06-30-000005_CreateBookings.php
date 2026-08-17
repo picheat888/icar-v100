@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง bookings — คำขอจองรถ ครอบคลุมทั้งวงจร ขอ → อนุมัติ/ปฏิเสธ → มอบหมายรถ+คนขับ
+ * ตาราง bookings - คำขอจองรถ ครอบคลุมทั้งวงจร ขอ → อนุมัติ/ปฏิเสธ → มอบหมายรถ+คนขับ
  */
 class CreateBookings extends Migration
 {

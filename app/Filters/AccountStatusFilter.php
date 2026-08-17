@@ -8,7 +8,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * ด่านเช็คสถานะบัญชีทุก request — กันคนที่ถูกปิดใช้งาน/ปฏิเสธ "ระหว่าง" ที่ล็อกอินอยู่
+ * ด่านเช็คสถานะบัญชีทุก request - กันคนที่ถูกปิดใช้งาน/ปฏิเสธ "ระหว่าง" ที่ล็อกอินอยู่
  * ถ้าโปรไฟล์ไม่ใช่ approved (โดน Admin ปิด/ปฏิเสธ) → เตะออกจากระบบทันที
  */
 class AccountStatusFilter implements FilterInterface

@@ -1,6 +1,6 @@
 import { t } from './i18n';
 
-// ตัวควบคุมแบ่งหน้า (pagination) — สรุปช่วงที่แสดง + ปุ่ม ก่อนหน้า/1,2,3…/ถัดไป (ย่อด้วย … เมื่อหน้าเยอะ)
+// ตัวควบคุมแบ่งหน้า (pagination) - สรุปช่วงที่แสดง + ปุ่ม ก่อนหน้า/1,2,3…/ถัดไป (ย่อด้วย … เมื่อหน้าเยอะ)
 // ใช้ร่วมกันหลาย island · inCard = วางอยู่ในการ์ดตาราง (มีเส้นคั่นบนแทนระยะห่าง)
 export default function Pager({ page, totalPages, total, perPage, onPage, inCard = false }) {
   if (totalPages <= 1) return null;

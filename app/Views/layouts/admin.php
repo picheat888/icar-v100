@@ -1,6 +1,6 @@
 <?php
 /**
- * Layout: Admin — โครงหน้าหลังบ้าน (role = admin)
+ * Layout: Admin - โครงหน้าหลังบ้าน (role = admin)
  * หน้า view ใช้: <?= $this->extend('layouts/admin') ?> + section('content')
  *
  * หมายเหตุ: CI4 $this->include() อาร์กิวเมนต์ที่ 2 เป็น "options" ไม่ใช่ data

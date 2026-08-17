@@ -23,7 +23,7 @@ const ROLE_PILL = {
 };
 
 /**
- * ประวัติการใช้งาน — ตาราง log + ฟิลเตอร์ช่วงวันที่ + Export CSV
+ * ประวัติการใช้งาน - ตาราง log + ฟิลเตอร์ช่วงวันที่ + Export CSV
  * props: endpoints {data, export}
  */
 export default function ActivityLog({ endpoints }) {
@@ -55,7 +55,7 @@ export default function ActivityLog({ endpoints }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // Export CSV — ไม่มีข้อมูล = toast (ตามสเปก) มิฉะนั้นเปิดลิงก์ดาวน์โหลด
+  // Export CSV - ไม่มีข้อมูล = toast (ตามสเปก) มิฉะนั้นเปิดลิงก์ดาวน์โหลด
   const exportCsv = () => {
     if (logs.length === 0) { showToast(t('log.no_data_range')); return; }
     window.location.href = `${endpoints.export}?from=${from}&to=${to}`;

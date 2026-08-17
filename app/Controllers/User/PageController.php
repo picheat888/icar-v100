@@ -7,7 +7,7 @@ use App\Models\BookingModel;
 use App\Models\CarModel;
 
 /**
- * หน้าผู้ใช้ทั่วไป — placeholder เพื่อทดสอบ shell
+ * หน้าผู้ใช้ทั่วไป - placeholder เพื่อทดสอบ shell
  */
 class PageController extends BaseController
 {
@@ -33,7 +33,7 @@ class PageController extends BaseController
         return $this->page('myRequests', 'คำขอของฉัน', 'ติดตามสถานะคำขอจองรถของคุณ');
     }
 
-    // ตารางการใช้รถ — หน้า island
+    // ตารางการใช้รถ - หน้า island
     public function timeline()
     {
         return view('user/timeline/index', [

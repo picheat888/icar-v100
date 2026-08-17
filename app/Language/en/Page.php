@@ -23,5 +23,5 @@ return [
     'position'            => 'Positions',
     'position_sub'        => 'Manage positions',
     'coming_soon_default_title' => 'This page',
-    'coming_soon_sub'          => 'This page is under development — layout and template are ready',
+    'coming_soon_sub'          => 'This page is under development - layout and template are ready',
 ];

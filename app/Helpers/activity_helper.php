@@ -5,7 +5,7 @@ use App\Models\UserProfileModel;
 
 if (! function_exists('log_activity')) {
     /**
-     * บันทึกกิจกรรมลง activity_logs — เรียกบรรทัดเดียวจากที่ไหนก็ได้
+     * บันทึกกิจกรรมลง activity_logs - เรียกบรรทัดเดียวจากที่ไหนก็ได้
      *
      * @param string $action ข้อความอธิบายการกระทำ (ภาษาไทย)
      * @param array  $actor  override: ['user_id'=>, 'actor_name'=>, 'role'=>] (ใช้ตอนไม่มี auth เช่น register)
@@ -29,7 +29,7 @@ if (! function_exists('log_activity')) {
             $role = $user->inGroup('admin') ? 'admin' : ($user->inGroup('driver') ? 'driver' : 'user');
         }
 
-        // logging เป็น best-effort — ถ้าบันทึก log ล้มเหลว ต้องไม่ทำ action หลักพัง (แค่ log error ไว้)
+        // logging เป็น best-effort - ถ้าบันทึก log ล้มเหลว ต้องไม่ทำ action หลักพัง (แค่ log error ไว้)
         try {
             (new ActivityLogModel())->insert([
                 'user_id'    => $userId,

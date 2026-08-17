@@ -2,7 +2,7 @@
 
 <?= $this->section('content') ?>
 <?php
-// backUrl = หน้าปฏิทินการจองรถของ role นั้น — ใช้ทั้งปุ่มย้อนกลับ และเป็นปลายทางสำรองของ island
+// backUrl = หน้าปฏิทินการจองรถของ role นั้น - ใช้ทั้งปุ่มย้อนกลับ และเป็นปลายทางสำรองของ island
 $backUrl = $backUrl ?? site_url('timeline');
 $props   = [
     'endpoints' => ['store' => site_url('book'), 'availability' => site_url('book/availability')],

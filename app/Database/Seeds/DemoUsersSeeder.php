@@ -9,7 +9,7 @@ use CodeIgniter\Shield\Models\UserModel;
 
 /**
  * สร้างบัญชีทดลอง 3 role (admin / user / driver) ไว้ทดสอบระบบ
- * รหัสผ่านทั้งหมด: 123 (เฉพาะ dev — ห้ามใช้ใน production)
+ * รหัสผ่านทั้งหมด: 123 (เฉพาะ dev - ห้ามใช้ใน production)
  * พร้อมโปรไฟล์สถานะ approved เพื่อให้ผ่านด่านตรวจสถานะตอนล็อกอิน
  * รัน: php spark db:seed DemoUsersSeeder
  */
@@ -17,7 +17,7 @@ class DemoUsersSeeder extends Seeder
 {
     public function run()
     {
-        // กันรันบน production — บัญชีทดลองรหัส 123 ห้ามหลุดขึ้นระบบจริง
+        // กันรันบน production - บัญชีทดลองรหัส 123 ห้ามหลุดขึ้นระบบจริง
         if (ENVIRONMENT === 'production') {
             echo "DemoUsersSeeder ถูกข้าม: ห้ามสร้างบัญชีทดลอง (รหัส 123) บน production\n";
 

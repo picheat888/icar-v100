@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง user_profiles — ข้อมูลพนักงาน (1:1 กับ users) + สถานะอนุมัติสมาชิก
+ * ตาราง user_profiles - ข้อมูลพนักงาน (1:1 กับ users) + สถานะอนุมัติสมาชิก
  */
 class CreateUserProfiles extends Migration
 {

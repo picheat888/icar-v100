@@ -6,7 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ActivityLogModel;
 
 /**
- * ประวัติการใช้งาน (Admin) — หน้า + JSON + Export CSV
+ * ประวัติการใช้งาน (Admin) - หน้า + JSON + Export CSV
  */
 class ActivityLogController extends BaseController
 {
@@ -25,7 +25,7 @@ class ActivityLogController extends BaseController
     // จำนวนแถวสูงสุดที่แสดงบนหน้าเว็บ (เกินกว่านี้ให้ Export CSV ดูครบ)
     private const PAGE_LIMIT = 15;
 
-    // จำนวนแถวต่อชุดตอน export CSV — ยิ่งเล็กยิ่งใช้หน่วยความจำน้อย
+    // จำนวนแถวต่อชุดตอน export CSV - ยิ่งเล็กยิ่งใช้หน่วยความจำน้อย
     private const EXPORT_CHUNK = 500;
 
     // JSON: log ตามช่วงวันที่ (สูงสุด 15 แถวล่าสุด + จำนวนรวมทั้งหมด)
@@ -83,7 +83,7 @@ class ActivityLogController extends BaseController
         exit;   // จบ response ตรงนี้ ไม่ให้อะไรมาต่อท้ายไฟล์ CSV
     }
 
-    // กันสูตรทำงานใน Excel/Sheets (formula injection) — ค่าที่เริ่มด้วย = + - @ tab CR ให้นำหน้าด้วย '
+    // กันสูตรทำงานใน Excel/Sheets (formula injection) - ค่าที่เริ่มด้วย = + - @ tab CR ให้นำหน้าด้วย '
     private function csvSafe(?string $value): string
     {
         $value = (string) $value;

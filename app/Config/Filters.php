@@ -83,7 +83,7 @@ class Filters extends BaseFilters
             // ตั้ง locale จาก cookie 'lang' ก่อน filter อื่นทำงาน (ต้องมาก่อน csrf)
             'locale',
             // 'honeypot',
-            // CSRF (session-based) — ฟอร์มใช้ csrf_field() · island แนบ X-CSRF-TOKEN header + อัปเดต token จาก response
+            // CSRF (session-based) - ฟอร์มใช้ csrf_field() · island แนบ X-CSRF-TOKEN header + อัปเดต token จาก response
             'csrf',
             // 'invalidchars',
             // เช็คสถานะบัญชีทุก request ยกเว้นหน้า auth (กันคนถูกปิดใช้งานระหว่างล็อกอินอยู่)
@@ -95,7 +95,7 @@ class Filters extends BaseFilters
         'after' => [
             // 'honeypot',
             // ส่ง security header พื้นฐานทุก response (X-Frame-Options: SAMEORIGIN กัน clickjacking,
-            // X-Content-Type-Options: nosniff, Referrer-Policy: same-origin) — ไม่มี HSTS จึงใช้ได้บน http
+            // X-Content-Type-Options: nosniff, Referrer-Policy: same-origin) - ไม่มี HSTS จึงใช้ได้บน http
             'secureheaders',
         ],
     ];

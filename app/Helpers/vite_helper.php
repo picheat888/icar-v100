@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Vite helper — เชื่อม CodeIgniter 4 เข้ากับ Vite
+ * Vite helper - เชื่อม CodeIgniter 4 เข้ากับ Vite
  *
  * โหมด dev (vite.dev=true): ชี้ asset ไปที่ Vite dev server (มี HMR)
  * โหมด prod (vite.dev=false): อ่าน public/build/.vite/manifest.json แล้วชี้ไปไฟล์ที่ build แล้ว
@@ -9,7 +9,7 @@
 
 if (! function_exists('vite_dev_preamble')) {
     /**
-     * คืน tag ตั้งต้นของโหมด dev (@vite/client + React Refresh preamble) — ปล่อยครั้งเดียวต่อหน้า
+     * คืน tag ตั้งต้นของโหมด dev (@vite/client + React Refresh preamble) - ปล่อยครั้งเดียวต่อหน้า
      *
      * preamble จำเป็นเพราะ HTML เรนเดอร์โดย CI4 ไม่ใช่ Vite ตัว Vite จึงฉีด runtime ของ
      * @vitejs/plugin-react ให้เองไม่ได้ ถ้าขาดไฟล์ .jsx ทุกไฟล์จะ throw ($RefreshSig$ is not defined)

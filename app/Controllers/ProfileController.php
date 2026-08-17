@@ -8,7 +8,7 @@ use App\Models\UserProfileModel;
 use CodeIgniter\Shield\Models\UserModel;
 
 /**
- * โปรไฟล์ส่วนตัว + เปลี่ยนรหัสผ่าน — ใช้ร่วมทุก role (เลือก layout ตามกลุ่มผู้ใช้)
+ * โปรไฟล์ส่วนตัว + เปลี่ยนรหัสผ่าน - ใช้ร่วมทุก role (เลือก layout ตามกลุ่มผู้ใช้)
  */
 class ProfileController extends BaseController
 {
@@ -106,17 +106,17 @@ class ProfileController extends BaseController
         $user->password = $this->request->getPost('newPass');
         (new UserModel())->save($user);
 
-        // เคลียร์ flag บังคับเปลี่ยนรหัส (ถ้ามี) — ไม่งั้นจะถูกเด้งกลับมาหน้านี้วนไม่จบ
+        // เคลียร์ flag บังคับเปลี่ยนรหัส (ถ้ามี) - ไม่งั้นจะถูกเด้งกลับมาหน้านี้วนไม่จบ
         $user->undoForcePasswordReset();
 
         return redirect()->to('profile')->with('message', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
     }
 
-    // POST (JSON): บันทึกรหัสใหม่จาก popup บังคับเปลี่ยนรหัส — 2 ช่อง (ใหม่+ยืนยัน) ไม่ถามรหัสเดิม
+    // POST (JSON): บันทึกรหัสใหม่จาก popup บังคับเปลี่ยนรหัส - 2 ช่อง (ใหม่+ยืนยัน) ไม่ถามรหัสเดิม
     public function forceReset()
     {
         $user = auth()->user();
-        // เฉพาะคนที่ถูกบังคับจริง — กันคนอื่นยิง endpoint ตั้งรหัสโดยไม่ต้องรู้รหัสเดิม
+        // เฉพาะคนที่ถูกบังคับจริง - กันคนอื่นยิง endpoint ตั้งรหัสโดยไม่ต้องรู้รหัสเดิม
         if (! $user || ! $user->requiresPasswordReset()) {
             return $this->failJson('ไม่มีสิทธิ์ดำเนินการ', 403);
         }
@@ -133,7 +133,7 @@ class ProfileController extends BaseController
         if ($newPass !== $confirm) {
             return $this->failJson('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
         }
-        // ความแข็งแรงรหัสผ่าน (composition/dictionary/ไม่ใกล้เคียง username) — กฎเดียวกับหน้าเปลี่ยนรหัสผ่าน
+        // ความแข็งแรงรหัสผ่าน (composition/dictionary/ไม่ใกล้เคียง username) - กฎเดียวกับหน้าเปลี่ยนรหัสผ่าน
         $strength = service('passwords')->check($newPass, $user);
         if (! $strength->isOK()) {
             return $this->failJson($strength->reason());

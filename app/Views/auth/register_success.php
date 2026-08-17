@@ -1,6 +1,6 @@
 <?php
 /**
- * หน้าแจ้งผลสมัครสำเร็จ (รอ Admin อนุมัติ) — ตามดีไซน์ §5.3
+ * หน้าแจ้งผลสมัครสำเร็จ (รอ Admin อนุมัติ) - ตามดีไซน์ §5.3
  */
 helper('vite');
 ?>
@@ -9,7 +9,7 @@ helper('vite');
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><?= lang('Profile.reg_success_title') ?> — iCar Booking</title>
+  <title><?= lang('Profile.reg_success_title') ?> - iCar Booking</title>
   <?= vite_css() ?>
 </head>
 <body class="rs-body">

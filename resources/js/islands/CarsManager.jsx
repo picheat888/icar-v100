@@ -16,7 +16,7 @@ const CAR_STATUS = {
 const emptyForm = (type) => ({ id: 0, car_type: type, model: '', plate: '', seats: '', status: 'available', driver_id: '', note: '', image: '', imageFile: null });
 
 /**
- * จัดการรถ — แท็บ รถบริษัท(self, การ์ด) / รถจัดหา(other, ตาราง) + เพิ่ม/แก้ไข/ลบ + อัปโหลดรูป
+ * จัดการรถ - แท็บ รถบริษัท(self, การ์ด) / รถจัดหา(other, ตาราง) + เพิ่ม/แก้ไข/ลบ + อัปโหลดรูป
  * props: endpoints {data, save, delete}, baseUrl
  */
 export default function CarsManager({ endpoints, baseUrl = '' }) {
@@ -49,7 +49,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [load, modal, confirmCar, done]);
 
-  // ส่งฟอร์ม (multipart — รองรับไฟล์รูป)
+  // ส่งฟอร์ม (multipart - รองรับไฟล์รูป)
   // silentOk = true -> ไม่ต้องขึ้น toast ตอนสำเร็จ (ใช้กับการลบที่มีป็อปอัป "ลบเสร็จสิ้น" อยู่แล้ว)
   const postForm = async (url, fd, silentOk = false) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
@@ -70,7 +70,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
         setModal(null);
         setConfirmCar(null);
         load();
-        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
         return false;
       }
       if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
@@ -81,12 +81,12 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
 
   const save = async () => {
     const f = modal.form;
-    // คนขับประจำ 1:1 — กันเลือกคนขับที่ผูกกับรถคันอื่นอยู่แล้ว (ยกเว้นคันที่กำลังแก้)
+    // คนขับประจำ 1:1 - กันเลือกคนขับที่ผูกกับรถคันอื่นอยู่แล้ว (ยกเว้นคันที่กำลังแก้)
     if (f.car_type === 'other' && f.driver_id) {
       const clash = other.find((c) => String(c.default_driver_id) === String(f.driver_id) && String(c.id) !== String(f.id));
       if (clash) return showToast(`${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`);
     }
-    // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ยกเว้นคันที่กำลังแก้) — รถจัดหาที่เว้นทะเบียนว่างไม่ต้องตรวจ
+    // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ยกเว้นคันที่กำลังแก้) - รถจัดหาที่เว้นทะเบียนว่างไม่ต้องตรวจ
     const plate = String(f.plate || '').trim().toLowerCase();
     if (plate) {
       const taken = [...self, ...other].find((c) => String(c.plate || '').trim().toLowerCase() === plate && String(c.id) !== String(f.id));
@@ -112,7 +112,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     const fd = new FormData();
     fd.append('id', confirmCar.id);
     const ok = await postForm(endpoints.delete, fd, true);
-    setConfirmCar(null);   // ปิดป็อปอัปเสมอ — ถ้าลบไม่ได้ (เช่น รถมีการจองค้าง) toast จะแจ้งเหตุผลแทน
+    setConfirmCar(null);   // ปิดป็อปอัปเสมอ - ถ้าลบไม่ได้ (เช่น รถมีการจองค้าง) toast จะแจ้งเหตุผลแทน
     if (ok) {
       setDone(true);
       setTimeout(() => setDone(false), 1500);
@@ -148,7 +148,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
         </div>
       </div>
 
-      {/* การ์ด — ใช้ layout เดียวกันทั้งรถขับเอง (self) และรถอื่นๆ (other) */}
+      {/* การ์ด - ใช้ layout เดียวกันทั้งรถขับเอง (self) และรถอื่นๆ (other) */}
       <div className="car-grid">
         {list.length === 0 && <Empty text={tab === 'self' ? t('car.empty_self') : t('car.empty_other')} />}
         {list.map((c) => {
@@ -256,7 +256,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
         </ConfirmDialog>
       )}
 
-      {/* ป็อปอัปแจ้งลบสำเร็จ — โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการรถ */}
+      {/* ป็อปอัปแจ้งลบสำเร็จ - โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการรถ */}
       {done && <DonePopup title={t('car.deleted_title')} sub={t('car.deleted_sub')} />}
 
       <ToastView />

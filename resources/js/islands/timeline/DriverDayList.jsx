@@ -1,7 +1,7 @@
 import { t } from '../../lib/i18n';
 import { STATUS_META, hhmm, overlapsDay } from './helpers';
 
-// มุมมองรายวันของคนขับ — ลิสต์งานของวันนั้น (การ์ดเรียงตามเวลา)
+// มุมมองรายวันของคนขับ - ลิสต์งานของวันนั้น (การ์ดเรียงตามเวลา)
 // props: bookings, dayStr, onOpenDetail
 export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
   const jobs = bookings
@@ -16,7 +16,7 @@ export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
     <div className="tl-dl-list">
       {jobs.map((b) => {
         const meta = STATUS_META[b.status] || STATUS_META.pending;
-        // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) — ใช้ต่อ class สี st-*
+        // key สถานะจริงที่ใช้ (ตกไปที่ pending ถ้า status ไม่รู้จัก) - ใช้ต่อ class สี st-*
         const statusKey = STATUS_META[b.status] ? b.status : 'pending';
         return (
           <div
@@ -25,7 +25,7 @@ export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
             className={`tl-dl-card st-${statusKey}`}
           >
             <div className="tl-dl-row">
-              <div className="tl-dl-time">{hhmm(b.start_at)}–{hhmm(b.end_at)}</div>
+              <div className="tl-dl-time">{hhmm(b.start_at)}-{hhmm(b.end_at)}</div>
               <span className={`tl-dl-badge st-${statusKey}`}>{meta.label}</span>
             </div>
             <div className="tl-dl-loc">{b.location}</div>

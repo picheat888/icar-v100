@@ -29,7 +29,7 @@ class ForcePasswordResetGuard implements FilterInterface
             return;
         }
 
-        // อ่านอย่างเดียวปล่อยผ่าน — หน้าเว็บ/โหลดข้อมูลของ popup ยังต้องทำงานได้
+        // อ่านอย่างเดียวปล่อยผ่าน - หน้าเว็บ/โหลดข้อมูลของ popup ยังต้องทำงานได้
         if (in_array(strtoupper($request->getMethod()), ['GET', 'HEAD', 'OPTIONS'], true)) {
             return;
         }

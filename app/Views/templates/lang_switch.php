@@ -1,5 +1,5 @@
 <?php
-// ตัวสลับภาษา TH | EN — ตัวที่ตรง locale ปัจจุบัน = active (teal)
+// ตัวสลับภาษา TH | EN - ตัวที่ตรง locale ปัจจุบัน = active (teal)
 $cur = service('request')->getLocale();
 $item = fn (string $code, string $label) =>
     '<a href="' . esc(site_url('lang/' . $code), 'attr') . '" '

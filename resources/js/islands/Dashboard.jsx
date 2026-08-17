@@ -5,7 +5,7 @@ import { MONTHS, SHORT_MONTHS } from '../lib/date';
 import { STATUS_LABEL, ST_CLASS } from '../lib/status';
 import { useToast } from '../lib/Toast';
 
-// class สีของป้ายสถานะ — 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
+// class สีของป้ายสถานะ - 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
 // ส่วนที่เหลือ (rejected/cancelled) สีตรงกับ .pill--red ของกลางพอดี
 const STATUS_CLASS = {
   pending: `dash-status-badge ${ST_CLASS.pending}`,
@@ -23,15 +23,15 @@ const parseDt = (s) => {
   const [y, m, dd] = d.split('-');
   return { date: d, hm: (t || '').slice(0, 5), th: `${+dd} ${MONTHS[+m - 1]} ${y}` };
 };
-// ช่วงเวลาแบบสั้น: "20 มิ.ย. 13:00 – 18:00"
+// ช่วงเวลาแบบสั้น: "20 มิ.ย. 13:00 - 18:00"
 const rangeShort = (start, end) => {
   const s = parseDt(start);
   const e = parseDt(end);
   const [, sm, sd] = s.date.split('-');
-  return `${+sd} ${SHORT_MONTHS[+sm - 1]} ${s.hm} – ${e.hm}`;
+  return `${+sd} ${SHORT_MONTHS[+sm - 1]} ${s.hm} - ${e.hm}`;
 };
 
-// การ์ดสรุปตัวเลข — เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา
+// การ์ดสรุปตัวเลข - เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา
 function StatCard({ label, value, sub, icon, iconClass }) {
   return (
     <div className="dash-card">
@@ -53,7 +53,7 @@ const icons = {
 };
 
 /**
- * Dashboard (Admin) — การ์ดสรุป 4 ใบ + panel คำขอล่าสุด + panel สมาชิกรออนุมัติ
+ * Dashboard (Admin) - การ์ดสรุป 4 ใบ + panel คำขอล่าสุด + panel สมาชิกรออนุมัติ
  * props: endpoints {data, memberApprove, memberReject}, links {requests, members}
  */
 export default function Dashboard({ endpoints, links }) {
@@ -108,7 +108,7 @@ export default function Dashboard({ endpoints, links }) {
     { key: 'totalBookings', label: t('dash.card_total'), sub: t('dash.card_total_sub'), icon: icons.doc, iconClass: 'icon-box--teal' },
   ];
 
-  // จัดกลุ่มคำขอตามวันเริ่ม (ใหม่สุดก่อน — ตาม order ที่ backend ส่งมา)
+  // จัดกลุ่มคำขอตามวันเริ่ม (ใหม่สุดก่อน - ตาม order ที่ backend ส่งมา)
   const groups = [];
   let cur = null;
   for (const b of bookings) {
@@ -126,14 +126,14 @@ export default function Dashboard({ endpoints, links }) {
         </div>
       )}
 
-      {/* การ์ดสรุป 4 ใบ — wrapper คุม layout (4→2→1 คอลัมน์) */}
+      {/* การ์ดสรุป 4 ใบ - wrapper คุม layout (4→2→1 คอลัมน์) */}
       <div className="dash-stats">
         {cards.map((c) => (
-          <StatCard key={c.key} {...c} value={loading ? '–' : (counts[c.key] ?? 0)} />
+          <StatCard key={c.key} {...c} value={loading ? '-' : (counts[c.key] ?? 0)} />
         ))}
       </div>
 
-      {/* แถบเตือน — แสดงเฉพาะเมื่อมีรายการรออนุมัติ (แยกคำขอจองรถ / สมาชิก) */}
+      {/* แถบเตือน - แสดงเฉพาะเมื่อมีรายการรออนุมัติ (แยกคำขอจองรถ / สมาชิก) */}
       {!loading && counts.pendingBookings > 0 && (
         <AlertBar tone="amber" title={t('dash.alert_bookings', { n: counts.pendingBookings })} sub={t('dash.alert_bookings_sub')} />
       )}
@@ -141,7 +141,7 @@ export default function Dashboard({ endpoints, links }) {
         <AlertBar tone="teal" title={t('dash.alert_members', { n: counts.pendingMembers })} sub={t('dash.alert_members_sub')} />
       )}
 
-      {/* 2 คอลัมน์: คำขอล่าสุด (กว้าง) + สมาชิกรออนุมัติ — wrapper ซ้อนบนมือถือ */}
+      {/* 2 คอลัมน์: คำขอล่าสุด (กว้าง) + สมาชิกรออนุมัติ - wrapper ซ้อนบนมือถือ */}
       <div className="dash-cols">
         {/* ===== panel คำขอจองรถ ===== */}
         <div className="dash-panel">
@@ -226,7 +226,7 @@ function Empty({ text }) {
   return <div className="dash-empty">{text}</div>;
 }
 
-// แถบเตือน — ไอคอนวงกลม ! (กระเพื่อม) + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
+// แถบเตือน - ไอคอนวงกลม ! (กระเพื่อม) + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
 function AlertBar({ title, sub, tone = 'amber' }) {
   const cls = tone === 'teal' ? 'teal' : 'amber';
   return (

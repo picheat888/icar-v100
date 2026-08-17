@@ -1,6 +1,6 @@
 <?php
 /**
- * การ์ด "กำลังพัฒนา" — เนื้อหา placeholder ใช้ร่วมกันทุก role
+ * การ์ด "กำลังพัฒนา" - เนื้อหา placeholder ใช้ร่วมกันทุก role
  * รับ: $pageTitle
  */
 $pageTitle = $pageTitle ?? lang('Page.coming_soon_default_title');

@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง bookings — คำขอจองรถ
+ * Model ตาราง bookings - คำขอจองรถ
  */
 class BookingModel extends Model
 {
@@ -28,11 +28,11 @@ class BookingModel extends Model
         return 'BK-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT);
     }
 
-    // คีย์ + อายุของตัวกันกวาดซ้ำ (วินาที) — กวาดถี่สุด 1 ครั้งต่อช่วงเวลานี้
+    // คีย์ + อายุของตัวกันกวาดซ้ำ (วินาที) - กวาดถี่สุด 1 ครั้งต่อช่วงเวลานี้
     private const SWEEP_KEY = 'booking_sweep_ran';
     private const SWEEP_TTL = 60;
 
-    // ปิดงานอัตโนมัติเมื่อเลยเวลาสิ้นสุด (lazy sweep — ถูกเรียกทุกครั้งที่โหลดลิสต์)
+    // ปิดงานอัตโนมัติเมื่อเลยเวลาสิ้นสุด (lazy sweep - ถูกเรียกทุกครั้งที่โหลดลิสต์)
     public function sweepExpired(): void
     {
         $now   = date('Y-m-d H:i:s');
@@ -43,7 +43,7 @@ class BookingModel extends Model
             return;
         }
 
-        // มีงานหมดเวลาจริงไหม — อ่านอย่างเดียว ถ้าไม่มีก็ออกเลย ไม่ต้องเขียน DB และไม่จับ lock
+        // มีงานหมดเวลาจริงไหม - อ่านอย่างเดียว ถ้าไม่มีก็ออกเลย ไม่ต้องเขียน DB และไม่จับ lock
         // (ไม่มีของให้กวาด = ไม่ตั้งตัวกันซ้ำ เพื่อให้รอบถัดไปตรวจได้ทันทีเมื่อมีงานหมดเวลา)
         $expired = $this->whereIn('status', ['approved', 'pending', 'cancel_requested'])
             ->where('end_at <', $now)
@@ -66,7 +66,7 @@ class BookingModel extends Model
             ->update();
 
         // ยังไม่จบเรื่อง (รออนุมัติ / รอยืนยันยกเลิก) + เลยเวลา -> ยกเลิกอัตโนมัติ ปล่อยรถคืน
-        // นับเฉพาะ 2 สถานะนี้ก่อน (ด่านด้านบนนับรวม approved ด้วย) — ไม่มีก็ไม่ต้องเปิดทรานแซกชัน
+        // นับเฉพาะ 2 สถานะนี้ก่อน (ด่านด้านบนนับรวม approved ด้วย) - ไม่มีก็ไม่ต้องเปิดทรานแซกชัน
         $hasExpiring = $this->whereIn('status', ['pending', 'cancel_requested'])
             ->where('end_at <', $now)
             ->where('deleted_at', null)
@@ -140,7 +140,7 @@ class BookingModel extends Model
             ->findAll();
     }
 
-    // งานของคนขับ — คำขอที่อนุมัติแล้ว + มอบหมายให้คนขับคนนี้ (driver_type=company)
+    // งานของคนขับ - คำขอที่อนุมัติแล้ว + มอบหมายให้คนขับคนนี้ (driver_type=company)
     public function listForDriver(int $driverUserId): array
     {
         $this->sweepExpired();
@@ -211,7 +211,7 @@ class BookingModel extends Model
         // user เห็นคิวรถของคนอื่นได้ แต่ต้องไม่เห็นสถานที่/วัตถุประสงค์/หมายเหตุภายใน
         if ($role === 'user') {
             foreach ($rows as &$r) {
-                // ตัดรายละเอียดเฉพาะคำขอของ "คนอื่น" — คำขอของตัวเองต้องเห็นครบ (สถานที่/วัตถุประสงค์/หมายเหตุ)
+                // ตัดรายละเอียดเฉพาะคำขอของ "คนอื่น" - คำขอของตัวเองต้องเห็นครบ (สถานที่/วัตถุประสงค์/หมายเหตุ)
                 if ((int) $r['requester_id'] !== $userId) {
                     unset($r['admin_note'], $r['purpose'], $r['location'], $r['map_link']);
                 }

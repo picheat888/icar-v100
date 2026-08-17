@@ -9,18 +9,18 @@ import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
 
-// ป้ายชื่อสถานะ — ใช้ชุดกลาง แล้วเขียนทับ 3 คำที่หน้านี้เรียกต่างออกไป
-// (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก — ดู STATUS_CLASS ด้านล่าง)
+// ป้ายชื่อสถานะ - ใช้ชุดกลาง แล้วเขียนทับ 3 คำที่หน้านี้เรียกต่างออกไป
+// (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก - ดู STATUS_CLASS ด้านล่าง)
 const STATUS_LABEL = {
   ...BASE_LABEL,
   cancel_requested: t('myreq.status_cancel_requested'),
   cancelled:        t('myreq.status_cancelled'),
   completed:        t('myreq.status_completed'),
 };
-// จบงานอัตโนมัติ (ใช้ครบ/เลยเวลา ไม่ได้กดคืนรถเอง) — pseudo-status ที่คำนวณเอง ไม่ใช่ค่า status ใน DB
+// จบงานอัตโนมัติ (ใช้ครบ/เลยเวลา ไม่ได้กดคืนรถเอง) - pseudo-status ที่คำนวณเอง ไม่ใช่ค่า status ใน DB
 // ป้ายและสีจึงแยกจาก "completed" ปกติ (ดู .mr-st-done)
 const DONE_LABEL = t('myreq.status_done');
-// คลาสสีตามสถานะ — ตัวที่เป็นค่า status enum จริงจาก DB (pending/approved/cancel_requested/completed)
+// คลาสสีตามสถานะ - ตัวที่เป็นค่า status enum จริงจาก DB (pending/approved/cancel_requested/completed)
 // ใช้ชุดกลาง .st-* ร่วมกับ island อื่นเสมอ (Dashboard/Timeline ใช้ enum เดียวกันนี้)
 // rejected/cancelled ไม่อยู่ในชุดกลาง (STATUS_META ตัดสองตัวนี้ออกก่อนถึง client เพราะหน้าอื่นไม่เคยแสดง) จึงมี .mr-st-* ของตัวเอง
 const STATUS_CLASS = {
@@ -36,7 +36,7 @@ const PER_PAGE = 20;
 const carModelLabel = (b) => (b.booking_type === 'other' ? (b.ext_driver_vehicle || '') : (b.car_model || ''));
 const driverName = (b) => (b.driver_type === 'external' ? b.ext_driver_name : (b.driver_type === 'company' ? (b.driver_name || '') : ''));
 /**
- * คำขอของฉัน — ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกดูรายละเอียด (modal) + ยกเลิก/คืนรถ
+ * คำขอของฉัน - ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกดูรายละเอียด (modal) + ยกเลิก/คืนรถ
  * props: endpoints {data, cancel, return}
  */
 export default function MyRequests({ endpoints }) {
@@ -108,7 +108,7 @@ export default function MyRequests({ endpoints }) {
     return { started, ended, finishedAuto, sl, stClass, showCancel, showReturn, waitingCancel: b.status === 'cancel_requested' };
   };
 
-  // ปุ่มจัดการ (ยกเลิก/คืนรถ) — ใช้ในตาราง/การ์ด/โมดัล
+  // ปุ่มจัดการ (ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/โมดัล
   const actionButtons = (b, v) => (
     <>
       {v.showCancel && (
@@ -120,7 +120,7 @@ export default function MyRequests({ endpoints }) {
     </>
   );
 
-  // จัดกลุ่มคำขอตามวันใช้รถ (start_at) — วันล่าสุดอยู่บน, ในแต่ละวันเรียงคำขอใหม่สุดก่อน
+  // จัดกลุ่มคำขอตามวันใช้รถ (start_at) - วันล่าสุดอยู่บน, ในแต่ละวันเรียงคำขอใหม่สุดก่อน
   // (ต้องอยู่ก่อน early return เพื่อไม่ให้จำนวน hooks ต่างกันระหว่าง render)
   const sorted = useMemo(() =>
     [...rows].sort((a, b) => (b.start_at || '').localeCompare(a.start_at || '') || (b.created_at || '').localeCompare(a.created_at || '') || (+b.id - +a.id)),
@@ -132,7 +132,7 @@ export default function MyRequests({ endpoints }) {
   const pageRows = useMemo(() => sorted.slice((curPage - 1) * PER_PAGE, curPage * PER_PAGE), [sorted, curPage]);
   const onPage = (n) => setPage(Math.max(1, Math.min(n, totalPages)));
 
-  // จัดกลุ่มตามวันใช้รถ (start_at) — เฉพาะรายการในหน้าปัจจุบัน
+  // จัดกลุ่มตามวันใช้รถ (start_at) - เฉพาะรายการในหน้าปัจจุบัน
   const groups = useMemo(() => {
     const map = [];
     pageRows.forEach((b) => {
@@ -195,7 +195,7 @@ export default function MyRequests({ endpoints }) {
               </div>
             ))}
           </div>
-          {/* แบ่งหน้า (pagination) — ใต้รายการการ์ด */}
+          {/* แบ่งหน้า (pagination) - ใต้รายการการ์ด */}
           <Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PER_PAGE} onPage={onPage} />
         </>
       ) : (
@@ -225,7 +225,7 @@ export default function MyRequests({ endpoints }) {
                     <tr key={b.id} onClick={() => setDetail(b)} className={highlight ? 'mr-row mr-row--highlight' : 'mr-row'}>
                       <td className="mr-td-code">{b.booking_code}</td>
                       <td>{typeLabel(b.booking_type)}</td>
-                      <td>{carModelLabel(b) || <span className="mr-dash">–</span>}</td>
+                      <td>{carModelLabel(b) || <span className="mr-dash">-</span>}</td>
                       <td className="mr-td-loc">{b.location}</td>
                       <td className="mr-td-time">{thDate(b.start_at)}<br />{thTime(b.start_at)} → {thTime(b.end_at)}</td>
                       <td>{b.people}</td>
@@ -304,11 +304,11 @@ export default function MyRequests({ endpoints }) {
         );
       })()}
 
-      {/* ป็อปอัปยืนยัน — ยกเลิก / คืนรถ */}
+      {/* ป็อปอัปยืนยัน - ยกเลิก / คืนรถ */}
       {confirmB && (() => {
         const isReturn = confirmB.action === 'return';
         const isRequest = !isReturn && confirmB.b.status === 'approved';
-        const accent = isReturn ? '#0a716e' : '#c0392b';   // สีเส้นไอคอน SVG (ไม่ใช่ style — เป็น attribute stroke)
+        const accent = isReturn ? '#0a716e' : '#c0392b';   // สีเส้นไอคอน SVG (ไม่ใช่ style - เป็น attribute stroke)
         const title = isReturn ? t('myreq.confirm_return_title') : t('myreq.confirm_cancel_title');
         const okText = isReturn ? (busy ? t('myreq.returning_busy') : t('myreq.confirm_return_btn')) : (busy ? t('myreq.processing_busy') : t('myreq.confirm_cancel_btn'));
         const icon = isReturn

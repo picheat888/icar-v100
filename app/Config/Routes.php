@@ -4,10 +4,10 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 
-// '/' จัดเส้นทางตาม role (ดูใน Home::index) — Shield redirect หลัง login มาที่นี่
+// '/' จัดเส้นทางตาม role (ดูใน Home::index) - Shield redirect หลัง login มาที่นี่
 $routes->get('/', 'Home::index');
 
-// override auth ก่อน Shield — CI4 ยึด route ที่นิยาม "ก่อน" เป็นหลัก (ตัวหลังที่ซ้ำจะถูกข้าม)
+// override auth ก่อน Shield - CI4 ยึด route ที่นิยาม "ก่อน" เป็นหลัก (ตัวหลังที่ซ้ำจะถูกข้าม)
 // Register: สร้างโปรไฟล์ status=pending ไม่ auto-login · Login: เพิ่มด่านตรวจสถานะอนุมัติ
 // filter throttle: จำกัดจำนวนครั้งต่อ IP ต่อนาที (login 10, register 5) กัน brute force + สแปมสมัคร
 $routes->get('register',         'Auth\RegisterController::index',   ['as' => 'register']);
@@ -20,7 +20,7 @@ $routes->post('login',           'Auth\LoginController::loginAction', ['filter' 
 // จึงไม่เปิด endpoint ที่ล็อกอินได้โดยข้ามด่านตรวจสถานะอนุมัติใน Auth\LoginController
 service('auth')->routes($routes, ['except' => ['magic-link']]);
 
-// สลับภาษา — guest เข้าถึงได้ (ไม่อยู่ใต้ filter auth ใดๆ)
+// สลับภาษา - guest เข้าถึงได้ (ไม่อยู่ใต้ filter auth ใดๆ)
 $routes->get('lang/(:segment)', 'LocaleController::set/$1');
 
 // ===== หลังบ้าน: /admin/... (เฉพาะกลุ่ม admin) =====
@@ -55,7 +55,7 @@ $routes->group('admin', ['filter' => 'group:admin'], static function ($routes) {
     // แผนก/ตำแหน่ง (เมนูย่อยใต้จัดการสมาชิก) + JSON endpoint ของ island
     $routes->get('departments', 'Admin\MasterController::departments');
     $routes->get('positions',   'Admin\MasterController::positions');
-    // ประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) — หน้า + JSON + Export CSV
+    // ประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) - หน้า + JSON + Export CSV
     $routes->get('activity-log',        'Admin\ActivityLogController::index');
     $routes->get('activity-log/data',   'Admin\ActivityLogController::data');
     $routes->get('activity-log/export', 'Admin\ActivityLogController::export');
@@ -73,7 +73,7 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     $routes->post('change-password', 'ProfileController::updatePassword');  // บันทึกรหัสผ่านใหม่
     $routes->post('force-reset-password', 'ProfileController::forceReset'); // บันทึกรหัสใหม่จาก popup บังคับเปลี่ยนรหัส
 
-    // แจ้งเตือน (กระดิ่ง) — ทุก role ที่ล็อกอิน
+    // แจ้งเตือน (กระดิ่ง) - ทุก role ที่ล็อกอิน
     $routes->get('notifications/data',      'NotificationController::data');
     $routes->post('notifications/seen',     'NotificationController::seen');
     $routes->post('notifications/read',     'NotificationController::read');
@@ -86,7 +86,7 @@ $routes->group('', ['filter' => 'group:admin,user'], static function ($routes) {
     $routes->get('book',              'User\BookingController::index');
     $routes->get('book/availability', 'User\BookingController::availability');
     $routes->post('book',             'User\BookingController::store');
-    // คำขอของฉัน — ดู/ยกเลิก/คืนรถ ของตัวเอง (controller กรองด้วย requester_id ตัวเอง)
+    // คำขอของฉัน - ดู/ยกเลิก/คืนรถ ของตัวเอง (controller กรองด้วย requester_id ตัวเอง)
     $routes->get('my-requests',         'User\BookingController::myRequests');
     $routes->get('my-requests/data',    'User\BookingController::myData');
     $routes->post('my-requests/cancel', 'User\BookingController::cancel');

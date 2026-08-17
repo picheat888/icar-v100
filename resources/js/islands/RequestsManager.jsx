@@ -15,13 +15,13 @@ import { setNavBadge } from '../lib/navBadge';
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
 
 // แสดง 3 กลุ่มสถานะฝั่ง Admin: รออนุมัติ / อนุมัติแล้ว / ยกเลิก+ปฏิเสธ (รวมความหมายเดียวกัน)
-// ป้ายชื่อกลุ่ม (สีมาจาก class .st-*/.rq-st-* แยกต่างหาก — ดู STATUS_CLASS)
+// ป้ายชื่อกลุ่ม (สีมาจาก class .st-*/.rq-st-* แยกต่างหาก - ดู STATUS_CLASS)
 const STATUS_LABEL = {
   pending: t('status.pending'),
   approved: t('status.approved'),
   cancelled: t('status.rejected'),
 };
-// คลาสสีของแต่ละกลุ่ม — 'pending'/'approved' ตรงกับสถานะจริงในชุดสีกลาง .st-* ใช้ตรง ๆ
+// คลาสสีของแต่ละกลุ่ม - 'pending'/'approved' ตรงกับสถานะจริงในชุดสีกลาง .st-* ใช้ตรง ๆ
 // 'cancelled' รวมสถานะจริง 3 ตัว (rejected/cancelled/cancel_requested) เป็นสีเดียว (แดง) ไม่มีในชุดกลาง จึงมี .rq-st-cancelled ของหน้านี้เอง
 const STATUS_CLASS = {
   pending: 'st-pending',
@@ -63,7 +63,7 @@ const extPhoneBad = (f) => {
   return p !== '' && !/^\d{10}$/.test(p);
 };
 
-// รถอื่นๆ มอบหมายคนขับครบหรือยัง — คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ+เบอร์ 10 หลัก)
+// รถอื่นๆ มอบหมายคนขับครบหรือยัง - คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ+เบอร์ 10 หลัก)
 const driverWarn = (f) => {
   if (f.driver === '') return t('req.warn_pick_driver');
   if (f.driver !== 'external') return '';
@@ -72,7 +72,7 @@ const driverWarn = (f) => {
   return '';
 };
 
-// จุดสีนำหน้าตัวเลขสรุปยอดในหัวกลุ่มวันที่ — variant: 'pending' | 'approved' | 'cancelled'
+// จุดสีนำหน้าตัวเลขสรุปยอดในหัวกลุ่มวันที่ - variant: 'pending' | 'approved' | 'cancelled'
 const Dot = ({ variant, children }) => (
   <span className={`rq-dot rq-dot--${variant}`}>
     <span className="rq-dot-bullet" />{children}
@@ -80,7 +80,7 @@ const Dot = ({ variant, children }) => (
 );
 
 /**
- * จัดการคำขอจองรถ (Admin) — list + filter + modal อนุมัติ/ปฏิเสธ + มอบหมายคนขับ
+ * จัดการคำขอจองรถ (Admin) - list + filter + modal อนุมัติ/ปฏิเสธ + มอบหมายคนขับ
  * props: endpoints {data, approve, reject}
  */
 export default function RequestsManager({ endpoints }) {
@@ -171,7 +171,7 @@ export default function RequestsManager({ endpoints }) {
       if (d.conflict) {
         setModal(null);
         load();
-        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
         return false;
       }
       // ข้อผิดพลาดจากการกรอกข้อมูล → กล่องแดงค้างในโมดัล ให้ผู้ใช้แก้ต่อได้ (ไม่ปิดโมดัล)
@@ -210,7 +210,7 @@ export default function RequestsManager({ endpoints }) {
   // เปลี่ยนค้นหา/ตัวกรอง → กลับไปหน้าแรกเสมอ
   useEffect(() => { setPage(1); }, [search, fType, fStatus, fDate]);
 
-  // จัดกลุ่มตามวัน (start_at) + นับสถานะ — เฉพาะรายการในหน้าปัจจุบัน
+  // จัดกลุ่มตามวัน (start_at) + นับสถานะ - เฉพาะรายการในหน้าปัจจุบัน
   const groups = useMemo(() => {
     const map = [];
     pageRows.forEach((b) => {
@@ -273,7 +273,7 @@ export default function RequestsManager({ endpoints }) {
   const doConfirmCancel = async () => {
     if (await post(endpoints.confirmCancel, { id: modal.booking.id }, { title: t('req.done_cancel_confirmed'), sub: modal.booking.booking_code })) setModal(null);
   };
-  // มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (รถอื่น ๆ) — เติมกรณีอนุมัติแบบยังไม่มอบหมาย
+  // มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (รถอื่น ๆ) - เติมกรณีอนุมัติแบบยังไม่มอบหมาย
   const doAssign = async () => {
     const f = modal.form;
     // เปลี่ยน/มอบหมายคนขับ ต้องเลือกคนขับเสมอ (ถอดคนขับออกไม่ได้) + กันคนขับซ้อนเวลา
@@ -283,14 +283,14 @@ export default function RequestsManager({ endpoints }) {
     if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) setModal(null);
   };
 
-  // Admin ยกเลิกคำขอ (ทุกคำขอที่ยัง active — ปล่อยรถคืน)
+  // Admin ยกเลิกคำขอ (ทุกคำขอที่ยัง active - ปล่อยรถคืน)
   const doCancel = async () => {
     if (await post(endpoints.cancel, { id: modal.booking.id, admin_note: modal.form.admin_note }, { title: t('req.done_cancelled'), sub: modal.booking.booking_code })) setModal(null);
   };
   // Admin บันทึกการแก้ไขคำขอ
   const doUpdate = async () => {
     const b = modal.booking; const f = modal.form;
-    // รถอื่นๆ ที่อนุมัติแล้ว ห้ามถอดคนขับ — ต้องเลือกคนขับ (คำขอ pending ยังเว้นได้ ค่อยมอบตอนอนุมัติ)
+    // รถอื่นๆ ที่อนุมัติแล้ว ห้ามถอดคนขับ - ต้องเลือกคนขับ (คำขอ pending ยังเว้นได้ ค่อยมอบตอนอนุมัติ)
     if (b.booking_type === 'other' && b.status !== 'pending') { const w = driverWarn(f); if (w) return showToast(w); }
     // กันคนขับซ้อนเวลา (รถอื่นๆ ที่เลือกคนขับบริษัท)
     if (b.booking_type === 'other' && driverClash()) return showToast(t('req.driver_clash'));
@@ -299,7 +299,7 @@ export default function RequestsManager({ endpoints }) {
     else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
     if (await post(endpoints.update, body, { title: t('req.done_updated'), sub: b.booking_code })) setModal(null);
   };
-  // เข้าโหมดแก้ไข — เติมค่าปัจจุบันของคำขอลงฟอร์ม
+  // เข้าโหมดแก้ไข - เติมค่าปัจจุบันของคำขอลงฟอร์ม
   const enterEdit = () => {
     const b = modal.booking;
     setModal((m) => ({
@@ -312,7 +312,7 @@ export default function RequestsManager({ endpoints }) {
     }));
   };
 
-  // ฟอร์มแก้ไขคำขอ — รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
+  // ฟอร์มแก้ไขคำขอ - รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
   const editForm = () => {
     const isOther = modal.booking.booking_type === 'other';
     return (
@@ -333,7 +333,7 @@ export default function RequestsManager({ endpoints }) {
           <>
             <label className="form-label">{t('req.car_self_label')}</label>
             <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm rq-select">
-              {cars.map((c) => <option key={c.id} value={c.id}>{c.model}{c.plate ? ` — ${c.plate}` : ''} ({t('req.seats_count', { n: c.seats })})</option>)}
+              {cars.map((c) => <option key={c.id} value={c.id}>{c.model}{c.plate ? ` - ${c.plate}` : ''} ({t('req.seats_count', { n: c.seats })})</option>)}
             </select>
           </>
         )}
@@ -345,7 +345,7 @@ export default function RequestsManager({ endpoints }) {
     );
   };
 
-  // คนขับบริษัทที่เลือกมีงานซ้อนช่วงเวลาของคำขอนี้ไหม — คืนงานที่ชน {id,code,...} หรือ null
+  // คนขับบริษัทที่เลือกมีงานซ้อนช่วงเวลาของคำขอนี้ไหม - คืนงานที่ชน {id,code,...} หรือ null
   // โหมดแก้ไขใช้เวลาจากฟอร์ม, กรณีอื่นใช้เวลาของคำขอ · ตัดงานของคำขอนี้เองออก
   const driverClash = () => {
     if (!modal) return null;
@@ -359,7 +359,7 @@ export default function RequestsManager({ endpoints }) {
     return d.jobs.find((j) => String(j.id) !== String(modal.booking.id) && padDt(j.start_at) < e && padDt(j.end_at) > s) || null;
   };
 
-  // UI เลือกคนขับ (ใช้ซ้ำทั้งตอนอนุมัติ และตอนมอบหมายภายหลัง) — คนขับบริษัท/ภายนอก
+  // UI เลือกคนขับ (ใช้ซ้ำทั้งตอนอนุมัติ และตอนมอบหมายภายหลัง) - คนขับบริษัท/ภายนอก
   const driverPicker = () => {
     const isExternal = modal.form.driver === 'external';
     const selDriver = drivers.find((d) => String(d.id) === String(modal.form.driver));
@@ -372,7 +372,7 @@ export default function RequestsManager({ endpoints }) {
           <option value="external">{t('req.external_driver_option')}</option>
         </select>
 
-        {/* เตือนคนขับซ้อนเวลา — กล่องแดงเต็มความกว้าง ค้างไว้จนกว่าจะเปลี่ยนคนขับ */}
+        {/* เตือนคนขับซ้อนเวลา - กล่องแดงเต็มความกว้าง ค้างไว้จนกว่าจะเปลี่ยนคนขับ */}
         {(() => { const c = driverClash(); return c ? <div className="rq-alert-gap"><Alert>{t('req.driver_clash_code', { code: c.code })}</Alert></div> : null; })()}
 
         {/* คนขับบริษัท: pre-fill เบอร์โทร/รถ/ที่นั่งจากคนขับ แล้วแก้ไขได้ (เฉพาะคำขอนี้) */}
@@ -545,7 +545,7 @@ export default function RequestsManager({ endpoints }) {
         </div>
       ))}
 
-      {/* แบ่งหน้า (pagination) — ใต้ตาราง ทำงานกับผลลัพธ์หลังกรอง */}
+      {/* แบ่งหน้า (pagination) - ใต้ตาราง ทำงานกับผลลัพธ์หลังกรอง */}
       {!loading && sorted.length > 0 && (
         <Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PER_PAGE} onPage={(n) => setPage(Math.max(1, Math.min(n, totalPages)))} />
       )}
@@ -599,7 +599,7 @@ export default function RequestsManager({ endpoints }) {
                     </div>
                   </div>
                 ) : modal.rejecting ? (
-                  // ป็อปอัปปฏิเสธ — บังคับกรอกเหตุผล (ผู้ขอจะเห็นเหตุผลนี้)
+                  // ป็อปอัปปฏิเสธ - บังคับกรอกเหตุผล (ผู้ขอจะเห็นเหตุผลนี้)
                   <div className="rq-modal-section">
                     <div className="rq-notice rq-notice--danger">{t('req.reject_reason_notice')}</div>
                     <label className="form-label">{t('req.reject_reason_label')} <span className="rq-required">*</span></label>
@@ -637,7 +637,7 @@ export default function RequestsManager({ endpoints }) {
                     {b.status === 'completed' && b.returned_at && <div className="rq-returned-note">{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
                     {b.admin_note && <div className="rq-admin-note">{t('req.note_label')}{b.admin_note}</div>}
 
-                    {/* มอบหมาย/เปลี่ยนคนขับ — เฉพาะคำขอรถอื่น ๆ ที่อนุมัติแล้ว (เติมกรณีอนุมัติแบบยังไม่มอบหมาย) */}
+                    {/* มอบหมาย/เปลี่ยนคนขับ - เฉพาะคำขอรถอื่น ๆ ที่อนุมัติแล้ว (เติมกรณีอนุมัติแบบยังไม่มอบหมาย) */}
                     {b.status === 'approved' && isOther && (modal.assigning ? (
                       <div className="rq-modal-section rq-modal-section--assign">
                         {driverPicker()}
@@ -657,7 +657,7 @@ export default function RequestsManager({ endpoints }) {
         );
       })()}
 
-      {/* ป็อปอัปแจ้งผลหลังทำรายการ — โชว์ 1.5 วินาทีแล้วหายเอง (รายการอัปเดตสถานะให้แล้ว) */}
+      {/* ป็อปอัปแจ้งผลหลังทำรายการ - โชว์ 1.5 วินาทีแล้วหายเอง (รายการอัปเดตสถานะให้แล้ว) */}
       {done && <DonePopup title={done.title} sub={done.sub} />}
 
       <ToastView />

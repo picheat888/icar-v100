@@ -8,7 +8,7 @@ use App\Models\CarModel;
 use App\Models\NotificationModel;
 
 /**
- * จัดการคำขอจองรถ (Admin) — อนุมัติ/ปฏิเสธ + มอบหมายคนขับ (ขับเอง/บริษัท/ภายนอก)
+ * จัดการคำขอจองรถ (Admin) - อนุมัติ/ปฏิเสธ + มอบหมายคนขับ (ขับเอง/บริษัท/ภายนอก)
  */
 class RequestController extends BaseController
 {
@@ -67,7 +67,7 @@ class RequestController extends BaseController
                 $carBy[$c['default_driver_id']] ??= $c;   // คนขับ 1 คนใช้รถประจำคันแรกที่พบ
             }
 
-            // ตารางงานที่ยัง active ของคนขับ (approved/cancel_requested) — ให้ island เตือน "คนขับซ้อนเวลา" ตอนเลือก
+            // ตารางงานที่ยัง active ของคนขับ (approved/cancel_requested) - ให้ island เตือน "คนขับซ้อนเวลา" ตอนเลือก
             $jobs = $db->table('bookings')
                 ->select('id, booking_code, driver_id, start_at, end_at')
                 ->whereIn('driver_id', $ids)
@@ -144,7 +144,7 @@ class RequestController extends BaseController
             $data = array_merge($data, $assign);
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) — กัน race approve/reject ชนกัน · จับ affectedRows ก่อนปลด lock (RELEASE_LOCK จะรีเซ็ตค่า)
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race approve/reject ชนกัน · จับ affectedRows ก่อนปลด lock (RELEASE_LOCK จะรีเซ็ตค่า)
         $bookings->where('id', $id)->where('status', 'pending')->set($data)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
@@ -162,7 +162,7 @@ class RequestController extends BaseController
         return $this->ok('อนุมัติคำขอเรียบร้อย');
     }
 
-    // POST: มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (เฉพาะรถอื่น ๆ) — เติมกรณีอนุมัติแบบยังไม่มอบหมาย
+    // POST: มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (เฉพาะรถอื่น ๆ) - เติมกรณีอนุมัติแบบยังไม่มอบหมาย
     public function assignDriver()
     {
         $id       = (int) $this->request->getPost('id');
@@ -183,12 +183,12 @@ class RequestController extends BaseController
             return $this->fail($assign['__error']);
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) — กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัล
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัล
         $bookings->where('id', $id)->where('status', 'approved')->where('booking_type', 'other')->set($assign)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
         if ($affected < 1) {
-            // 0 rows: อาจเพราะค่าคนขับไม่เปลี่ยน หรือสถานะเปลี่ยนไปแล้ว — เช็คสถานะปัจจุบันเพื่อแยกแยะ
+            // 0 rows: อาจเพราะค่าคนขับไม่เปลี่ยน หรือสถานะเปลี่ยนไปแล้ว - เช็คสถานะปัจจุบันเพื่อแยกแยะ
             $cur = $bookings->find($id);
             if (! $cur || $cur['status'] !== 'approved' || $cur['booking_type'] !== 'other') {
                 return $this->fail('คำขอนี้มอบหมายคนขับไม่ได้ (สถานะเปลี่ยนไปแล้ว)', true);
@@ -196,7 +196,7 @@ class RequestController extends BaseController
         }
 
         $this->notifyRequester($b, 'driver_assigned', 'คำขอ ' . $b['booking_code'] . ' ได้รับมอบหมายคนขับแล้ว');
-        // แจ้งคนขับเฉพาะเมื่อเป็นคนขับใหม่ (ต่างจากเดิม) — กันแจ้งซ้ำ
+        // แจ้งคนขับเฉพาะเมื่อเป็นคนขับใหม่ (ต่างจากเดิม) - กันแจ้งซ้ำ
         $driverChanged = ($b['driver_type'] ?? '') !== 'company' || (int) ($b['driver_id'] ?? 0) !== (int) ($assign['driver_id'] ?? 0);
         if (($assign['driver_type'] ?? '') === 'company' && ! empty($assign['driver_id']) && $driverChanged) {
             $this->notifyDriver((int) $assign['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
@@ -218,7 +218,7 @@ class RequestController extends BaseController
         $seats  = ($seats === null || $seats === '') ? null : (int) $seats;
         $veh    = trim((string) $this->request->getPost('ext_vehicle')) ?: null;
 
-        // คนขับภายนอก — กรอกชื่อเอง
+        // คนขับภายนอก - กรอกชื่อเอง
         if ($driver === 'external') {
             $name = trim((string) $this->request->getPost('ext_name'));
             if ($name === '') {
@@ -239,10 +239,10 @@ class RequestController extends BaseController
             ];
         }
 
-        // คนขับบริษัท — กัน "คนขับซ้อนเวลา" (มีงานช่วงเวลาทับกันอยู่แล้ว)
+        // คนขับบริษัท - กัน "คนขับซ้อนเวลา" (มีงานช่วงเวลาทับกันอยู่แล้ว)
         if ($driver !== '') {
             $driverId = (int) $driver;
-            // ต้องเป็นผู้ใช้กลุ่ม driver จริง — กันมอบหมายงานให้ user/admin ที่ไม่ใช่คนขับ (งานจะไม่มีใครเห็น)
+            // ต้องเป็นผู้ใช้กลุ่ม driver จริง - กันมอบหมายงานให้ user/admin ที่ไม่ใช่คนขับ (งานจะไม่มีใครเห็น)
             if (! $this->isCompanyDriver($driverId)) {
                 return ['__error' => 'ผู้ใช้ที่เลือกไม่ใช่คนขับของบริษัท'];
             }
@@ -260,7 +260,7 @@ class RequestController extends BaseController
             ];
         }
 
-        // ยังไม่มอบหมาย — รถอื่นๆ อนุมัติ/บันทึกไม่ได้จนกว่าจะมีคนขับ
+        // ยังไม่มอบหมาย - รถอื่นๆ อนุมัติ/บันทึกไม่ได้จนกว่าจะมีคนขับ
         if ($requireDriver) {
             return ['__error' => 'กรุณาเลือกคนขับ (คนขับบริษัทหรือคนขับภายนอก) ก่อน'];
         }
@@ -290,13 +290,13 @@ class RequestController extends BaseController
             return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว', true);
         }
 
-        // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง) — ผู้ขอจะเห็นเหตุผลนี้
+        // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง) - ผู้ขอจะเห็นเหตุผลนี้
         $note = trim((string) $this->request->getPost('admin_note'));
         if ($note === '') {
             return $this->fail('กรุณากรอกเหตุผลการปฏิเสธ');
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) — กัน race approve/reject ชนกันแล้วผ่าน guard ทั้งคู่
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race approve/reject ชนกันแล้วผ่าน guard ทั้งคู่
         $bookings->where('id', $id)->where('status', 'pending')->set([
             'status'      => 'rejected',
             'admin_note'  => $note,
@@ -360,7 +360,7 @@ class RequestController extends BaseController
             return $this->fail('คำขอนี้ยกเลิกไม่ได้ (สถานะจบแล้ว)', true);
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) — เฉพาะที่ยัง active
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - เฉพาะที่ยัง active
         $bookings->where('id', $id)->whereIn('status', ['pending', 'approved', 'cancel_requested'])->set([
             'status'      => 'cancelled',
             'admin_note'  => trim((string) $this->request->getPost('admin_note')) ?: $b['admin_note'],
@@ -381,7 +381,7 @@ class RequestController extends BaseController
         return $this->ok('ยกเลิกคำขอแล้ว');
     }
 
-    // POST: Admin แก้ไขคำขอ (เฉพาะที่ยัง active) — รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
+    // POST: Admin แก้ไขคำขอ (เฉพาะที่ยัง active) - รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
     public function update()
     {
         $id       = (int) $this->request->getPost('id');
@@ -417,7 +417,7 @@ class RequestController extends BaseController
         if ($people > 999) {
             return $this->fail('จำนวนผู้โดยสารมากเกินไป (สูงสุด 999 คน)');
         }
-        // กันตั้งเวลาเริ่มเป็นอดีตเฉพาะเมื่อ "เปลี่ยน" ค่า — งานที่เริ่มไปแล้วยังแก้ฟิลด์อื่นได้ (คงเวลาเดิม)
+        // กันตั้งเวลาเริ่มเป็นอดีตเฉพาะเมื่อ "เปลี่ยน" ค่า - งานที่เริ่มไปแล้วยังแก้ฟิลด์อื่นได้ (คงเวลาเดิม)
         if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
             return $this->fail('เวลาเริ่มต้องไม่เป็นอดีต');
         }
@@ -445,7 +445,7 @@ class RequestController extends BaseController
             if (! $car || $car['car_type'] !== 'self') {
                 return $this->fail('กรุณาเลือกรถให้ถูกต้อง');
             }
-            // กันย้ายไปรถที่ซ่อมบำรุงเฉพาะเมื่อ "เปลี่ยนคัน" — คงรถเดิมที่เพิ่งเข้าซ่อมยังแก้ฟิลด์อื่นได้
+            // กันย้ายไปรถที่ซ่อมบำรุงเฉพาะเมื่อ "เปลี่ยนคัน" - คงรถเดิมที่เพิ่งเข้าซ่อมยังแก้ฟิลด์อื่นได้
             if ($car['status'] !== 'available' && $carId !== (int) $b['car_id']) {
                 return $this->fail('รถคันนี้ไม่พร้อมใช้งาน (ซ่อมบำรุง)');
             }
@@ -466,7 +466,7 @@ class RequestController extends BaseController
         } else {
             // รถอื่น ๆ: มอบหมาย/เปลี่ยนคนขับ (ใช้ start/end ใหม่ในการเช็คคนขับซ้อนเวลา)
             // กัน race: ล็อกการมอบหมายคนขับคนเดียวกันก่อนเช็คชนเวลา
-            // คำขอที่อนุมัติแล้ว (ไม่ใช่ pending) ห้ามถอดคนขับออก — ต้องเลือกคนขับเสมอ
+            // คำขอที่อนุมัติแล้ว (ไม่ใช่ pending) ห้ามถอดคนขับออก - ต้องเลือกคนขับเสมอ
             $lock   = $this->lockDriver();
             $assign = $this->driverAssignment(array_merge($b, ['start_at' => $start, 'end_at' => $end]), $b['status'] !== 'pending');
             if (isset($assign['__error'])) {
@@ -482,12 +482,12 @@ class RequestController extends BaseController
             }
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) — กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัลแก้ไข
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัลแก้ไข
         $bookings->where('id', $id)->whereIn('status', ['pending', 'approved', 'cancel_requested'])->set($data)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
         if ($affected < 1) {
-            // 0 rows: อาจเพราะค่าไม่เปลี่ยน หรือสถานะจบไปแล้ว — เช็คสถานะปัจจุบันเพื่อแยกแยะ
+            // 0 rows: อาจเพราะค่าไม่เปลี่ยน หรือสถานะจบไปแล้ว - เช็คสถานะปัจจุบันเพื่อแยกแยะ
             $cur = $bookings->find($id);
             if (! $cur || ! in_array($cur['status'], ['pending', 'approved', 'cancel_requested'], true)) {
                 return $this->fail('คำขอนี้แก้ไขไม่ได้ (สถานะเปลี่ยนไปแล้ว)', true);
@@ -495,7 +495,7 @@ class RequestController extends BaseController
         }
 
         $this->notifyRequester($b, 'booking_edited', 'Admin แก้ไขรายละเอียดคำขอ ' . $b['booking_code']);
-        // แจ้งคนขับเฉพาะเมื่อ "มอบคนขับใหม่" (ต่างจากคนขับเดิมของคำขอนี้) — กันแจ้งซ้ำตอนแก้ข้อมูลอื่น
+        // แจ้งคนขับเฉพาะเมื่อ "มอบคนขับใหม่" (ต่างจากคนขับเดิมของคำขอนี้) - กันแจ้งซ้ำตอนแก้ข้อมูลอื่น
         $driverChanged = ($b['driver_type'] ?? '') !== 'company' || (int) ($b['driver_id'] ?? 0) !== (int) ($data['driver_id'] ?? 0);
         if (($data['driver_type'] ?? '') === 'company' && ! empty($data['driver_id']) && $driverChanged) {
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
@@ -518,7 +518,7 @@ class RequestController extends BaseController
         return strlen($v) === 16 ? $v . ':00' : $v;
     }
 
-    // แจ้งผู้ขอ (ข้ามถ้าผู้ขอ = admin คนที่กำลังทำรายการ — กันแจ้งตัวเอง)
+    // แจ้งผู้ขอ (ข้ามถ้าผู้ขอ = admin คนที่กำลังทำรายการ - กันแจ้งตัวเอง)
     private function notifyRequester(array $b, string $type, string $message): void
     {
         if ((int) $b['requester_id'] === (int) auth()->id()) {
@@ -536,7 +536,7 @@ class RequestController extends BaseController
         (new NotificationModel())->push($driverId, $type, $message, site_url('driver'));
     }
 
-    // ล็อกกันมอบหมายคนขับคนเดียวกันซ้อน (MySQL named lock ต่อ driver) — คืนชื่อ lock หรือ null
+    // ล็อกกันมอบหมายคนขับคนเดียวกันซ้อน (MySQL named lock ต่อ driver) - คืนชื่อ lock หรือ null
     // เฉพาะกรณีเลือกคนขับบริษัท (POST driver = user_id); '' หรือ 'external' ไม่ต้องล็อก
     private function lockDriver(): ?string
     {

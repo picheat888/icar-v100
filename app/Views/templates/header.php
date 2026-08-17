@@ -1,6 +1,6 @@
 <?php
 /**
- * Header — แถบบนของ app shell (hamburger + โลโก้ + ชื่อหน้า + เมนูโปรไฟล์)
+ * Header - แถบบนของ app shell (hamburger + โลโก้ + ชื่อหน้า + เมนูโปรไฟล์)
  * รับ: $role, $pageTitle, $pageSubtitle
  * มี <meta name="csrf"> ให้ React island อ่านไปแนบตอน POST
  */
@@ -13,7 +13,7 @@ $user     = function_exists('auth') ? auth()->user() : null;
 $username = $user?->username ?? 'ผู้ใช้งาน';
 $name     = $user?->name ?? $username;                 // เผื่อมี field name ภายหลัง
 
-// ป้ายบทบาท — แปลตาม locale ปัจจุบัน
+// ป้ายบทบาท - แปลตาม locale ปัจจุบัน
 $roleLabels = ['admin' => lang('Nav.role_admin'), 'user' => lang('Nav.role_user'), 'driver' => lang('Nav.role_driver')];
 $roleLabel  = $roleLabels[$role] ?? $role;
 ?>
@@ -45,7 +45,7 @@ $roleLabel  = $roleLabels[$role] ?? $role;
     <?= vite_asset('resources/js/entries/notification-bell.jsx') ?>
 
     <?php
-    // popup บังคับเปลี่ยนรหัส — เรนเดอร์เฉพาะ user ที่ถูกตั้ง force_reset (เด้งครอบทั้งแอปทันทีหลัง login)
+    // popup บังคับเปลี่ยนรหัส - เรนเดอร์เฉพาะ user ที่ถูกตั้ง force_reset (เด้งครอบทั้งแอปทันทีหลัง login)
     if ($user && $user->requiresPasswordReset()):
         $frProps = ['endpoint' => site_url('force-reset-password'), 'logoutUrl' => url_to('logout')];
     ?>
@@ -71,7 +71,7 @@ $roleLabel  = $roleLabels[$role] ?? $role;
 
     <!-- เมนู dropdown (ซ่อนไว้ก่อน เปิดด้วย .is-open) -->
     <div id="profile-menu" class="hdr-menu">
-      <!-- ตัวสลับภาษา (เฉพาะมือถือ — บนคอมอยู่แถบบน) — แถวเมนูเต็ม แตะง่าย -->
+      <!-- ตัวสลับภาษา (เฉพาะมือถือ - บนคอมอยู่แถบบน) - แถวเมนูเต็ม แตะง่าย -->
       <?php $curLoc = service('request')->getLocale(); ?>
       <a href="<?= esc(site_url('lang/th'), 'attr') ?>" class="hdr-menu-lang<?= $curLoc === 'th' ? ' active' : '' ?>">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>ภาษาไทย

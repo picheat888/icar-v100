@@ -8,7 +8,7 @@ use App\Models\PositionModel;
 use App\Models\UserProfileModel;
 
 /**
- * ข้อมูลหลัก (Admin) — จัดการแผนก/ตำแหน่ง + JSON endpoint ให้ React island
+ * ข้อมูลหลัก (Admin) - จัดการแผนก/ตำแหน่ง + JSON endpoint ให้ React island
  */
 class MasterController extends BaseController
 {
@@ -18,7 +18,7 @@ class MasterController extends BaseController
         return $type === 'position' ? new PositionModel() : new DepartmentModel();
     }
 
-    // เดิมเป็นหน้า "ข้อมูลหลัก" — แยกเป็นเมนูย่อย แผนก/ตำแหน่ง ใต้จัดการสมาชิก
+    // เดิมเป็นหน้า "ข้อมูลหลัก" - แยกเป็นเมนูย่อย แผนก/ตำแหน่ง ใต้จัดการสมาชิก
     public function index()
     {
         return redirect()->to(site_url('admin/departments'));
@@ -46,7 +46,7 @@ class MasterController extends BaseController
         ]);
     }
 
-    // หน้าประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) — เต็มรูปแบบในเฟส 6
+    // หน้าประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) - เต็มรูปแบบในเฟส 6
     public function activityLog()
     {
         return view('admin/master/activity_log', [
@@ -89,7 +89,7 @@ class MasterController extends BaseController
             return $this->fail("มี{$label}นี้อยู่แล้ว");
         }
 
-        // ตรวจผลการบันทึกจริง — ถ้าไม่ผ่าน model validation/DB (เช่นชนซ้ำจาก race) อย่ารายงานว่าสำเร็จ
+        // ตรวจผลการบันทึกจริง - ถ้าไม่ผ่าน model validation/DB (เช่นชนซ้ำจาก race) อย่ารายงานว่าสำเร็จ
         // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
         try {
             if ($model->insert(['name' => $name]) === false) {
@@ -127,7 +127,7 @@ class MasterController extends BaseController
             return $this->fail("มี{$label}นี้อยู่แล้ว");
         }
 
-        // ตรวจผลการบันทึกจริง — กันรายงานสำเร็จทั้งที่เขียนไม่ลง
+        // ตรวจผลการบันทึกจริง - กันรายงานสำเร็จทั้งที่เขียนไม่ลง
         // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
         try {
             if ($model->update($id, ['name' => $name]) === false) {
@@ -142,7 +142,7 @@ class MasterController extends BaseController
         return $this->ok("บันทึก{$label}แล้ว");
     }
 
-    // POST: ลบแผนก/ตำแหน่ง (FK ตั้ง SET NULL — ผู้ใช้ที่อ้างถึงจะถูกล้างค่า)
+    // POST: ลบแผนก/ตำแหน่ง (FK ตั้ง SET NULL - ผู้ใช้ที่อ้างถึงจะถูกล้างค่า)
     public function delete()
     {
         $type  = (string) $this->request->getPost('type');
@@ -155,11 +155,11 @@ class MasterController extends BaseController
             return $this->fail("ไม่พบ{$label}", true);
         }
 
-        // กันลบถ้ายังมีพนักงานอยู่ใน แผนก/ตำแหน่ง นี้ — ต้องย้ายพนักงานออกก่อน
+        // กันลบถ้ายังมีพนักงานอยู่ใน แผนก/ตำแหน่ง นี้ - ต้องย้ายพนักงานออกก่อน
         $column = $type === 'position' ? 'position_id' : 'department_id';
         $count  = (new UserProfileModel())->where($column, $id)->countAllResults();
         if ($count > 0) {
-            return $this->fail("ลบไม่ได้ — มีพนักงาน {$count} คนอยู่ใน{$label}นี้ กรุณาย้ายพนักงานออกให้หมดก่อน");
+            return $this->fail("ลบไม่ได้ - มีพนักงาน {$count} คนอยู่ใน{$label}นี้ กรุณาย้ายพนักงานออกให้หมดก่อน");
         }
 
         $model->delete($id);

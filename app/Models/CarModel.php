@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง cars — รถขับเอง (self) + รถจัดหาโดย Admin (other)
+ * Model ตาราง cars - รถขับเอง (self) + รถจัดหาโดย Admin (other)
  */
 class CarModel extends Model
 {

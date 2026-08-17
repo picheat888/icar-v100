@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\NotificationModel;
 
 /**
- * แจ้งเตือน (กระดิ่ง) — ใช้ร่วมทุก role ที่ล็อกอิน (ใต้ filter session)
+ * แจ้งเตือน (กระดิ่ง) - ใช้ร่วมทุก role ที่ล็อกอิน (ใต้ filter session)
  */
 class NotificationController extends BaseController
 {

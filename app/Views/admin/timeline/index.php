@@ -5,7 +5,7 @@
 $props = [
     'role'     => 'admin',
     'endpoint' => site_url('admin/timeline/data'),
-    'book'     => site_url('book'),   // URL หน้าจองรถ — ปุ่ม "จองรถ" มุมบนขวา
+    'book'     => site_url('book'),   // URL หน้าจองรถ - ปุ่ม "จองรถ" มุมบนขวา
 ];
 ?>
 <div id="timeline" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>

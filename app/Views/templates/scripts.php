@@ -1,6 +1,6 @@
 <?php
 /**
- * Scripts — JS ส่วนกลางของ app shell
+ * Scripts - JS ส่วนกลางของ app shell
  * - ยุบ/ขยาย sidebar (desktop = icon-rail, จอแคบ = drawer ทับ)
  * - เปิด/ปิดเมนูโปรไฟล์
  */
@@ -36,7 +36,7 @@
       });
     }
 
-    // ปุ่มลูกศรใน sidebar — คลิกเพื่อกาง/พับเมนูย่อย (ไม่กระทบลิงก์ชื่อเมนู)
+    // ปุ่มลูกศรใน sidebar - คลิกเพื่อกาง/พับเมนูย่อย (ไม่กระทบลิงก์ชื่อเมนู)
     document.querySelectorAll('.nav-caret-btn').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.preventDefault();

@@ -1,6 +1,6 @@
 <?php
 /**
- * Shell — โครง app shell ใช้ร่วมกันทุก role (sidebar + header + เนื้อหา + footer)
+ * Shell - โครง app shell ใช้ร่วมกันทุก role (sidebar + header + เนื้อหา + footer)
  * ถูก include โดย layouts/{admin,user,driver}.php ซึ่งส่ง $role มาให้
  * รับ: $role, $active, $pageTitle, $pageSubtitle
  */
@@ -18,7 +18,7 @@ $pageSubtitle = $pageSubtitle ?? '';
   <!-- CSRF ให้ React island อ่านไปแนบตอน POST/PUT -->
   <meta name="csrf" content="<?= csrf_hash() ?>" data-name="<?= csrf_token() ?>">
   <meta name="locale" content="<?= esc(service('request')->getLocale()) ?>">
-  <title><?= esc($pageTitle !== '' ? $pageTitle : 'iCar Booking') ?> — iCar Booking</title>
+  <title><?= esc($pageTitle !== '' ? $pageTitle : 'iCar Booking') ?> - iCar Booking</title>
   <?= vite_css() ?>
 </head>
 <body>

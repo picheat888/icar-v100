@@ -6,7 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\BookingModel;
 
 /**
- * หน้าคนขับ — placeholder เพื่อทดสอบ shell
+ * หน้าคนขับ - placeholder เพื่อทดสอบ shell
  */
 class PageController extends BaseController
 {
@@ -20,7 +20,7 @@ class PageController extends BaseController
         ]);
     }
 
-    // งานของฉัน — งานที่ได้รับมอบหมาย (คำขออนุมัติแล้ว + เป็นคนขับที่ถูกมอบหมาย)
+    // งานของฉัน - งานที่ได้รับมอบหมาย (คำขออนุมัติแล้ว + เป็นคนขับที่ถูกมอบหมาย)
     public function index()
     {
         $jobs = (new BookingModel())->listForDriver((int) auth()->id());
@@ -33,7 +33,7 @@ class PageController extends BaseController
         ]);
     }
 
-    // ตารางการใช้รถ — หน้า island (เฉพาะงานของคนขับคนนี้)
+    // ตารางการใช้รถ - หน้า island (เฉพาะงานของคนขับคนนี้)
     public function timeline()
     {
         return view('driver/timeline/index', [

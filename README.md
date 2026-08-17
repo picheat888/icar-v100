@@ -4,7 +4,7 @@
 รองรับ 3 บทบาท (Admin / User / Driver), การจองรถแบบ **ขับเอง** และ **รถจัดหาโดย Admin (มี/ไม่มีคนขับ)**,
 ปฏิทินการใช้รถ, ระบบอนุมัติคำขอ และรองรับภาษาไทย/อังกฤษ
 
-> สถาปัตยกรรมแบบ **Hybrid / Islands** — CodeIgniter 4 เรนเดอร์ HTML เป็นหลัก (ผ่าน Shield session)
+> สถาปัตยกรรมแบบ **Hybrid / Islands** - CodeIgniter 4 เรนเดอร์ HTML เป็นหลัก (ผ่าน Shield session)
 > แล้วฝัง React เฉพาะส่วนที่ต้อง interactive ไม่ใช่ SPA
 
 ---
@@ -50,7 +50,7 @@ npm install
 # 3) สร้างตาราง (รวมตาราง auth ของ Shield)
 php spark migrate
 
-# 4) ใส่ข้อมูลตั้งต้น: แผนก/ตำแหน่ง + บัญชีทดลอง 3 role (admin/somchai/prasert — รหัส 123)
+# 4) ใส่ข้อมูลตั้งต้น: แผนก/ตำแหน่ง + บัญชีทดลอง 3 role (admin/somchai/prasert - รหัส 123)
 php spark db:seed MasterDataSeeder
 php spark db:seed DemoUsersSeeder
 
@@ -62,7 +62,7 @@ npm run build    # โหมด prod: build ลง public/build (ตั้ง vi
 php spark serve  # http://localhost:8080   (หรือเปิดผ่าน Apache ที่ public/)
 ```
 
-**บัญชีทดลอง** (เฉพาะ dev — รหัสผ่าน `123` ทั้งหมด):
+**บัญชีทดลอง** (เฉพาะ dev - รหัสผ่าน `123` ทั้งหมด):
 
 | Username | Role | เข้าหน้าแรกที่ |
 |----------|------|----------------|
@@ -80,14 +80,14 @@ php spark serve  # http://localhost:8080   (หรือเปิดผ่าน
 | **CodeIgniter Shield** (`^1.3`) | Auth / สิทธิ์ผู้ใช้ (admin/user/driver) แบบ session |
 | **React 18** + **Vite 6** | React Islands (ส่วน interactive) + build/HMR |
 | **Tailwind CSS v4** | จัดสไตล์ utility-first |
-| **PhpWord** (`phpoffice/phpword`) | สร้างเอกสารออกแบบ DB (`docs/`) — ไม่ใช่ระบบ export ของแอป |
+| **PhpWord** (`phpoffice/phpword`) | สร้างเอกสารออกแบบ DB (`docs/`) - ไม่ใช่ระบบ export ของแอป |
 | PhpSpreadsheet / mPDF | *(ยังไม่ติดตั้ง)* สำหรับ export Excel / PDF ในอนาคต |
 
 ---
 
 ## Documentation
 
-- [`CLAUDE.md`](CLAUDE.md) — แนวทางสถาปัตยกรรม + กฎการเขียนโค้ดสำหรับโปรเจกต์นี้
-- [`docs/PLAN.md`](docs/PLAN.md) — แผนงาน, งานที่เสร็จ/ค้าง/รอทำ, checkpoint
-- [`docs/mockuo-master/`](docs/mockuo-master/) — ดีไซน์ต้นฉบับ (prototype HTML + screenshots) = source of truth ด้านหน้าตา
-- [`docs/database-design/`](docs/database-design/) — เอกสารออกแบบฐานข้อมูล (`.docx`)
+- [`CLAUDE.md`](CLAUDE.md) - แนวทางสถาปัตยกรรม + กฎการเขียนโค้ดสำหรับโปรเจกต์นี้
+- [`docs/PLAN.md`](docs/PLAN.md) - แผนงาน, งานที่เสร็จ/ค้าง/รอทำ, checkpoint
+- [`docs/mockuo-master/`](docs/mockuo-master/) - ดีไซน์ต้นฉบับ (prototype HTML + screenshots) = source of truth ด้านหน้าตา
+- [`docs/database-design/`](docs/database-design/) - เอกสารออกแบบฐานข้อมูล (`.docx`)

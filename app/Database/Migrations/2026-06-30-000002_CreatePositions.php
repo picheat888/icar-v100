@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง positions — ตำแหน่ง (master data)
+ * ตาราง positions - ตำแหน่ง (master data)
  */
 class CreatePositions extends Migration
 {

@@ -4,7 +4,7 @@ import { t } from './i18n';
  * ป็อปอัปยืนยันการทำรายการ (ใช้แทน window.confirm ของเบราว์เซอร์)
  * ใช้: <ConfirmDialog tone="danger" icon={<svg…/>} title="…" okText="…" onOk={fn} onCancel={fn} busy={bool}>ข้อความ</ConfirmDialog>
  *
- * tone: 'danger' (ลบ/ยกเลิก) | 'teal' (ทำรายการทั่วไป) — คุมสีวงกลมไอคอนและปุ่มยืนยัน
+ * tone: 'danger' (ลบ/ยกเลิก) | 'teal' (ทำรายการทั่วไป) - คุมสีวงกลมไอคอนและปุ่มยืนยัน
  * คลิกฉากหลังหรือปุ่มย้อนกลับ = onCancel (ปิดไม่ได้ระหว่าง busy)
  */
 export default function ConfirmDialog({

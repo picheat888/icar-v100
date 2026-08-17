@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง cars — ข้อมูลรถทั้งระบบ รวมรถขับเอง (self) และรถจัดหาโดย Admin (other)
+ * ตาราง cars - ข้อมูลรถทั้งระบบ รวมรถขับเอง (self) และรถจัดหาโดย Admin (other)
  */
 class CreateCars extends Migration
 {
