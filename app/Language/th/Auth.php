@@ -23,5 +23,6 @@ return [
     'errorPasswordLength'       => 'รหัสผ่านต้องยาวอย่างน้อย {0, number} ตัวอักษร',
     'errorPasswordCommon'       => 'รหัสผ่านนี้เดาง่ายเกินไป กรุณาตั้งรหัสผ่านอื่น',
     'errorPasswordPersonal'     => 'รหัสผ่านต้องไม่มีข้อมูลส่วนตัวของคุณอยู่ในนั้น',
+    'errorPasswordTooSimilar'   => 'รหัสผ่านใกล้เคียงกับชื่อผู้ใช้มากเกินไป',
     'errorPasswordTooLongBytes' => 'รหัสผ่านต้องยาวไม่เกิน {param} ไบต์',
 ];

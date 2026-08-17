@@ -38,7 +38,7 @@ class RegisterController extends BaseController
             'empId'    => 'required|alpha_numeric|max_length[8]|is_unique[user_profiles.emp_id]',
             'name'     => 'required|max_length[150]|regex_match[/^[\p{L}\p{M}\s]+$/u]',
             'username' => 'required|min_length[3]|max_length[30]|regex_match[/\A[a-zA-Z0-9._]+\z/]|is_unique[users.username]',
-            'password' => 'required|min_length[8]|max_length[72]',
+            'password' => 'required|min_length[8]|max_length[72]|strong_password[]',
             'confirm'  => 'required|matches[password]',
             'dept'     => 'required|is_not_unique[departments.id]',
             'position' => 'required|is_not_unique[positions.id]',
@@ -50,6 +50,7 @@ class RegisterController extends BaseController
             'empId'    => ['required' => lang('Account.err_required'), 'alpha_numeric' => lang('Account.srv_empId_alnum'), 'max_length' => lang('Account.srv_empId_max'), 'is_unique' => lang('Account.err_uniq_emp')],
             'name'     => ['required' => lang('Account.err_required'), 'regex_match' => lang('Account.srv_name_regex')],
             'username' => ['required' => lang('Account.err_required'), 'is_unique' => lang('Account.srv_username_uniq')],
+            // strong_password ไม่ต้องกำหนดข้อความ — กฎส่งเหตุผลเจาะจงของตัวเองมา (แปลไทยที่ Language/th/Auth.php)
             'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],
             'confirm'  => ['matches' => lang('Account.srv_confirm_match')],
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
@@ -58,7 +59,12 @@ class RegisterController extends BaseController
             'terms'    => ['required' => lang('Account.err_terms')],
         ];
 
-        if (! $this->validate($rules, $messages)) {
+        // ใส่ email สังเคราะห์ (username@icar.local — ค่าเดียวกับที่จะบันทึกจริง) ลงในชุดข้อมูลที่ validate
+        // เพราะกฎ strong_password ของ Shield อ่านทั้ง username + email ไปเทียบความใกล้เคียงของรหัสผ่าน
+        $data          = $this->request->getPost();
+        $data['email'] = ((string) ($data['username'] ?? '')) . '@icar.local';
+
+        if (! $this->validateData($data, $rules, $messages)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 

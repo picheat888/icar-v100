@@ -79,7 +79,7 @@ class ProfileController extends BaseController
     {
         $rules = [
             'curPass'     => 'required',
-            'newPass'     => 'required|min_length[8]|max_length[72]',
+            'newPass'     => 'required|min_length[8]|max_length[72]|strong_password[]',
             'confirmPass' => 'required|matches[newPass]',
         ];
         $messages = [
@@ -132,6 +132,11 @@ class ProfileController extends BaseController
         }
         if ($newPass !== $confirm) {
             return $this->failJson('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
+        }
+        // ความแข็งแรงรหัสผ่าน (composition/dictionary/ไม่ใกล้เคียง username) — กฎเดียวกับหน้าเปลี่ยนรหัสผ่าน
+        $strength = service('passwords')->check($newPass, $user);
+        if (! $strength->isOK()) {
+            return $this->failJson($strength->reason());
         }
 
         // ตั้งรหัสใหม่ + ล้าง flag บังคับ (จะได้ไม่เด้ง popup ซ้ำ)

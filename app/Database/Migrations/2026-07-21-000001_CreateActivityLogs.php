@@ -24,8 +24,9 @@ class CreateActivityLogs extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addKey('created_at');   // ใช้ค้นตามช่วงวันที่
         $this->forge->addKey('user_id');
-        // ผู้ใช้ถูกลบ -> คง log ไว้ (user_id = NULL)
-        $this->forge->addForeignKey('user_id', 'users', 'id', 'SET NULL', 'CASCADE');
+        // ลำดับพารามิเตอร์คือ onUpdate ก่อน onDelete
+        // แก้ id ผู้ใช้ -> log ตามไปด้วย · ลบผู้ใช้ -> คง log ไว้ (user_id = NULL)
+        $this->forge->addForeignKey('user_id', 'users', 'id', 'CASCADE', 'SET NULL');
 
         $this->forge->createTable('activity_logs', true, ['ENGINE' => 'InnoDB']);
     }

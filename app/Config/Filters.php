@@ -15,6 +15,7 @@ use CodeIgniter\Filters\SecureHeaders;
 use App\Filters\AccountStatusFilter;
 use App\Filters\ForcePasswordResetGuard;
 use App\Filters\LocaleFilter;
+use App\Filters\ThrottleFilter;
 
 class Filters extends BaseFilters
 {
@@ -40,6 +41,7 @@ class Filters extends BaseFilters
         'accountstatus' => AccountStatusFilter::class,
         'forcepwreset'  => ForcePasswordResetGuard::class,
         'locale'        => LocaleFilter::class,
+        'throttle'      => ThrottleFilter::class,
     ];
 
     /**
@@ -92,7 +94,9 @@ class Filters extends BaseFilters
         ],
         'after' => [
             // 'honeypot',
-            // 'secureheaders',
+            // ส่ง security header พื้นฐานทุก response (X-Frame-Options: SAMEORIGIN กัน clickjacking,
+            // X-Content-Type-Options: nosniff, Referrer-Policy: same-origin) — ไม่มี HSTS จึงใช้ได้บน http
+            'secureheaders',
         ],
     ];
 

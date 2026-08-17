@@ -26,6 +26,7 @@ $menus = [
     'admin' => [
         ['dashboard',  lang('Nav.dashboard'),  site_url('admin')],
         ['timeline',   lang('Nav.calendar'),   site_url('admin/timeline')],
+        ['myRequests', lang('Nav.myRequests'), site_url('my-requests')],
         // จัดการสมาชิก = ลิงก์ไปหน้ารายการสมาชิก + มีเมนูย่อย (แผนก / ตำแหน่ง)
         ['members',    lang('Nav.users'),      site_url('admin/members'), [
             ['dept',     lang('Nav.dept'),     site_url('admin/departments')],
@@ -33,7 +34,6 @@ $menus = [
         ]],
         ['requests',   lang('Nav.bookings'),   site_url('admin/requests')],
         ['vehicles',   lang('Nav.cars'),       site_url('admin/vehicles')],
-        ['myRequests', lang('Nav.myRequests'), site_url('my-requests')],
         ['log',        lang('Nav.log'),        site_url('admin/activity-log')],
     ],
     'user' => [
@@ -49,10 +49,15 @@ $menus = [
 $items = $menus[$role] ?? $menus['user'];
 
 // badge งานค้าง (วงกลมส้ม) — ส่งมาจาก layout admin เป็น ['requests'=>n, 'members'=>n]
+// เรนเดอร์ span ไว้เสมอ (ซ่อนเมื่อเป็น 0) เพื่อให้ island อัปเดตตัวเลขเองได้หลังทำรายการ
+// โดยอ้างอิงผ่าน data-badge — ดู lib/navBadge.js
 $badges = $badges ?? [];
 $badgeHtml = static function (string $key) use ($badges): string {
-    $n = (int) ($badges[$key] ?? 0);
-    return $n > 0 ? '<span class="pill pill--orange nav-badge">' . ($n > 99 ? '99+' : $n) . '</span>' : '';
+    $n    = (int) ($badges[$key] ?? 0);
+    $hide = $n > 0 ? '' : ' nav-badge--hide';
+
+    return '<span class="pill pill--orange nav-badge' . $hide . '" data-badge="' . $key . '">'
+        . ($n > 99 ? '99+' : $n) . '</span>';
 };
 ?>
 <aside class="app-sidebar" data-open="false" data-collapsed="false">

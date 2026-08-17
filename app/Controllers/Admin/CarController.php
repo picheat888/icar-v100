@@ -64,6 +64,19 @@ class CarController extends BaseController
         if ($seats < 0) {
             return $this->fail('จำนวนที่นั่งต้องไม่ติดลบ');
         }
+        // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ข้ามคันที่กำลังแก้ไข · รถที่ถูกลบแล้วปล่อยทะเบียนคืน
+        // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) — ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
+        if ($plate !== '') {
+            $dupe = db_connect()->table('cars')
+                ->select('model')
+                ->where('plate', $plate)
+                ->where('deleted_at', null)
+                ->where('id !=', $id ?: 0)
+                ->get()->getRowArray();
+            if ($dupe) {
+                return $this->fail('ทะเบียน "' . $plate . '" ถูกใช้กับรถ "' . $dupe['model'] . '" อยู่แล้ว');
+            }
+        }
 
         $data = [
             'car_type' => $type,
@@ -108,7 +121,7 @@ class CarController extends BaseController
 
         // กันแก้ไข id ที่ไม่มีจริง/ถูกลบไปแล้ว (client ค้าง) — เช็คก่อนอัปโหลดไฟล์ กันไฟล์กำพร้า
         if ($id && ! $cars->find($id)) {
-            return $this->fail('ไม่พบรถที่ต้องการแก้ไข (อาจถูกลบไปแล้ว)');
+            return $this->fail('ไม่พบรถที่ต้องการแก้ไข (อาจถูกลบไปแล้ว)', true);
         }
 
         // อัปโหลดรูป — เฉพาะไฟล์รูปภาพ ขนาดไม่เกิน 2 MB
@@ -153,7 +166,7 @@ class CarController extends BaseController
         $cars = new CarModel();
         $car  = $cars->find($id);
         if (! $car) {
-            return $this->fail('ไม่พบรถ');
+            return $this->fail('ไม่พบรถ', true);
         }
 
         // กันลบรถที่ยังมีการจอง active อยู่ (pending/approved/cancel_requested) -> คำขอจะค้างแก้ไม่ได้
@@ -185,8 +198,14 @@ class CarController extends BaseController
         return $this->response->setJSON(['ok' => true, 'message' => $message, 'csrf' => csrf_hash()]);
     }
 
-    private function fail(string $message)
+    // $conflict = true -> ข้อมูลนี้เพิ่งถูกคนอื่นเปลี่ยนสถานะไปแล้ว (ให้ฝั่งหน้าจอดึงข้อมูลใหม่)
+    private function fail(string $message, bool $conflict = false)
     {
-        return $this->response->setStatusCode(422)->setJSON(['ok' => false, 'message' => $message, 'csrf' => csrf_hash()]);
+        $out = ['ok' => false, 'message' => $message, 'csrf' => csrf_hash()];
+        if ($conflict) {
+            $out['conflict'] = true;
+        }
+
+        return $this->response->setStatusCode(422)->setJSON($out);
     }
 }

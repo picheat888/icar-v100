@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
+import ConfirmDialog from '../lib/ConfirmDialog';
+import DonePopup from '../lib/DonePopup';
+import { TrashIcon } from '../lib/icons';
 import Table from '../lib/Table';
 import Pager from '../lib/Pager';
 
@@ -37,6 +40,8 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
   const { showToast, ToastView } = useToast();
+  const [confirmItem, setConfirmItem] = useState(null);   // รายการที่รอยืนยันการลบ
+  const [done, setDone] = useState(false);                // ลบสำเร็จ -> โชว์ป็อปอัป "ลบเสร็จสิ้น"
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
 
@@ -49,9 +54,17 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   }, [endpoints.data, type]);
 
   useEffect(() => { load(); }, [load]);
+
+  // กลับมาที่แท็บนี้ -> ดึงข้อมูลใหม่ (ข้ามถ้ากำลังแก้ไขในบรรทัด หรือมีป็อปอัปยืนยันเปิดอยู่)
+  useEffect(() => {
+    const onVisible = () => { if (!document.hidden && !editingId && !confirmItem) load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [load, editingId, confirmItem]);
   useEffect(() => { setPage(1); }, [search, sortDir]);
 
-  const post = async (url, body) => {
+  // silentOk = true -> ไม่ต้องขึ้น toast ตอนสำเร็จ (ใช้กับการลบที่มีป็อปอัป "ลบเสร็จสิ้น" อยู่แล้ว)
+  const post = async (url, body, silentOk = false) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
     busyRef.current = true;
     setBusy(true);
@@ -65,7 +78,14 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       // error ที่ไม่ใช่ JSON (500/CSRF หมดอายุ) → token หลุด sync, reload รับ token+state ใหม่
       if (!res.ok && !d.csrf) { window.location.reload(); return false; }
       if (d.csrf) setCsrf(d.csrf);
-      showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
+      // คนอื่นลบรายการนี้ไปแล้ว -> ปิดป็อปอัปยืนยัน ดึงข้อมูลใหม่ แล้วบอกด้วย toast
+      if (d.conflict) {
+        setConfirmItem(null);
+        load();
+        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        return false;
+      }
+      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
       if (d.ok) { load(); return true; }
       return false;
     } finally { setBusy(false); busyRef.current = false; }
@@ -76,7 +96,16 @@ export default function MasterData({ endpoints, only = 'dept' }) {
     if (!v || busy) return;
     post(endpoints.add, { type, name: v }).then((ok) => { if (ok) setNewValue(''); });
   };
-  const del = (it) => { if (window.confirm(t('master.confirm_delete', { name: it.name }))) post(endpoints.delete, { type, id: it.id }); };
+  // กดปุ่มลบ -> เปิดป็อปอัปยืนยัน (ยังไม่ลบ) · กดยืนยันแล้วจึงลบจริง
+  const del = (it) => setConfirmItem(it);
+  const doDelete = async () => {
+    const ok = await post(endpoints.delete, { type, id: confirmItem.id }, true);
+    setConfirmItem(null);   // ปิดป็อปอัปเสมอ — ถ้าลบไม่ได้ (เช่น ยังมีพนักงานอยู่) toast จะแจ้งเหตุผล
+    if (ok) {
+      setDone(true);
+      setTimeout(() => setDone(false), 1500);
+    }
+  };
   const startEdit = (it) => { setEditingId(it.id); setEditValue(it.name); };
   const cancelEdit = () => { setEditingId(null); setEditValue(''); };
   const saveEdit = (it) => {
@@ -163,6 +192,26 @@ export default function MasterData({ endpoints, only = 'dept' }) {
           ))}
         </tbody>
       </Table>
+
+      {/* ป็อปอัปยืนยันการลบ — ชุดเดียวกับหน้าจัดการรถ/คำขอของฉัน */}
+      {confirmItem && (
+        <ConfirmDialog
+          tone="danger"
+          icon={TrashIcon}
+          title={t('master.confirm_delete_title', { label })}
+          okText={busy ? t('master.deleting_busy') : t('master.confirm_delete_btn')}
+          onOk={doDelete}
+          onCancel={() => setConfirmItem(null)}
+          busy={busy}
+        >
+          {t('master.confirm_delete_pre', { label })}
+          <b className="confirm-code">{confirmItem.name}</b>
+          {t('master.confirm_delete_post')}
+        </ConfirmDialog>
+      )}
+
+      {/* ป็อปอัปแจ้งลบสำเร็จ — โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการ */}
+      {done && <DonePopup title={t('master.deleted_title')} sub={t('master.deleted_sub', { label })} />}
 
       <ToastView />
     </div>

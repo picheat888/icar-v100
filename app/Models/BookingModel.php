@@ -28,10 +28,33 @@ class BookingModel extends Model
         return 'BK-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT);
     }
 
-    // ปิดงานอัตโนมัติเมื่อเลยเวลาสิ้นสุด (lazy sweep)
+    // คีย์ + อายุของตัวกันกวาดซ้ำ (วินาที) — กวาดถี่สุด 1 ครั้งต่อช่วงเวลานี้
+    private const SWEEP_KEY = 'booking_sweep_ran';
+    private const SWEEP_TTL = 60;
+
+    // ปิดงานอัตโนมัติเมื่อเลยเวลาสิ้นสุด (lazy sweep — ถูกเรียกทุกครั้งที่โหลดลิสต์)
     public function sweepExpired(): void
     {
-        $now = date('Y-m-d H:i:s');
+        $now   = date('Y-m-d H:i:s');
+        $cache = cache();
+
+        // เพิ่งกวาดไปไม่ถึง SWEEP_TTL วินาที -> ข้าม (กันหลายคนเปิดหน้าพร้อมกันแล้วกวาดซ้ำซ้อน)
+        if ($cache->get(self::SWEEP_KEY)) {
+            return;
+        }
+
+        // มีงานหมดเวลาจริงไหม — อ่านอย่างเดียว ถ้าไม่มีก็ออกเลย ไม่ต้องเขียน DB และไม่จับ lock
+        // (ไม่มีของให้กวาด = ไม่ตั้งตัวกันซ้ำ เพื่อให้รอบถัดไปตรวจได้ทันทีเมื่อมีงานหมดเวลา)
+        $expired = $this->whereIn('status', ['approved', 'pending', 'cancel_requested'])
+            ->where('end_at <', $now)
+            ->where('deleted_at', null)
+            ->countAllResults();
+        if ($expired === 0) {
+            return;
+        }
+
+        // เขียน cache ไม่สำเร็จก็ทำงานต่อได้ตามปกติ (แค่ไม่มีตัวกันกวาดซ้ำ)
+        $cache->save(self::SWEEP_KEY, 1, self::SWEEP_TTL);
 
         // อนุมัติแล้ว + เลยเวลา -> เดินทางเสร็จสิ้น (completed) ไม่แตะ returned_at (คง NULL)
         // เพื่อแยก "เดินทางเสร็จสิ้นแล้ว" ออกจาก "คืนรถแล้ว" (กดคืนเอง)
@@ -43,7 +66,7 @@ class BookingModel extends Model
             ->update();
 
         // ยังไม่จบเรื่อง (รออนุมัติ / รอยืนยันยกเลิก) + เลยเวลา -> ยกเลิกอัตโนมัติ ปล่อยรถคืน
-        // เช็คเร็วๆ ก่อน (ไม่ล็อก) — ส่วนใหญ่ไม่มีของหมดอายุ จะได้ไม่ต้องเปิดทรานแซกชันทุกครั้งที่โหลดลิสต์
+        // นับเฉพาะ 2 สถานะนี้ก่อน (ด่านด้านบนนับรวม approved ด้วย) — ไม่มีก็ไม่ต้องเปิดทรานแซกชัน
         $hasExpiring = $this->whereIn('status', ['pending', 'cancel_requested'])
             ->where('end_at <', $now)
             ->where('deleted_at', null)

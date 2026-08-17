@@ -33,18 +33,18 @@ class BookingController extends BaseController
         return $u->inGroup('admin') ? 'admin' : ($u->inGroup('driver') ? 'driver' : 'user');
     }
 
-    // ปลายทางหลังจองเสร็จ ตาม role
+    // ปลายทางหลังจองเสร็จ — หน้า "ปฏิทินการจองรถ" ของ role นั้น (เห็นคิวที่เพิ่งจองทันที)
     private function afterBookUrl(): string
     {
         $role = $this->role();
         if ($role === 'admin') {
-            return site_url('admin/vehicles');
+            return site_url('admin/timeline');
         }
         if ($role === 'driver') {
-            return site_url('driver');
+            return site_url('driver/timeline');
         }
 
-        return site_url('my-requests');
+        return site_url('timeline');
     }
 
     // หน้า "จองรถ" (island: grid การ์ดรถ self + ฟอร์ม other)

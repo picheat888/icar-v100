@@ -3,6 +3,9 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
 import Modal from '../lib/Modal';
+import ConfirmDialog from '../lib/ConfirmDialog';
+import DonePopup from '../lib/DonePopup';
+import { TrashIcon } from '../lib/icons';
 
 // เก็บ key ข้อความสถานะ + สี pill กลาง (green/amber) ไว้ ใช้ t() แปลตอน render (ไม่แปลตอน module โหลด)
 const CAR_STATUS = {
@@ -23,6 +26,8 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
   const [tab, setTab] = useState('self');
   const [loadErr, setLoadErr] = useState(false);
   const [modal, setModal] = useState(null);
+  const [confirmCar, setConfirmCar] = useState(null);   // รถที่รอยืนยันการลบ
+  const [done, setDone] = useState(false);              // ลบสำเร็จ -> โชว์ป็อปอัป "ลบเสร็จสิ้น"
   const { showToast, ToastView } = useToast();
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
@@ -37,8 +42,16 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
 
   useEffect(() => { load(); }, [load]);
 
+  // กลับมาที่แท็บนี้ -> ดึงข้อมูลใหม่ (ข้ามถ้ามีโมดัล/ป็อปอัปเปิดอยู่)
+  useEffect(() => {
+    const onVisible = () => { if (!document.hidden && !modal && !confirmCar && !done) load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [load, modal, confirmCar, done]);
+
   // ส่งฟอร์ม (multipart — รองรับไฟล์รูป)
-  const postForm = async (url, fd) => {
+  // silentOk = true -> ไม่ต้องขึ้น toast ตอนสำเร็จ (ใช้กับการลบที่มีป็อปอัป "ลบเสร็จสิ้น" อยู่แล้ว)
+  const postForm = async (url, fd, silentOk = false) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
     busyRef.current = true;
     setBusy(true);
@@ -52,7 +65,15 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
       // error ที่ไม่ใช่ JSON (500/CSRF หมดอายุ) → token หลุด sync, reload รับ token+state ใหม่
       if (!res.ok && !d.csrf) { window.location.reload(); return false; }
       if (d.csrf) setCsrf(d.csrf);
-      showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
+      // คนอื่นเปลี่ยนข้อมูลนี้ไปแล้ว (เช่น รถถูกลบไปก่อน) -> ปิดโมดัล ดึงข้อมูลใหม่ แล้วบอกด้วย toast
+      if (d.conflict) {
+        setModal(null);
+        setConfirmCar(null);
+        load();
+        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        return false;
+      }
+      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
       if (d.ok) { load(); return true; }
       return false;
     } finally { setBusy(false); busyRef.current = false; }
@@ -64,6 +85,12 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     if (f.car_type === 'other' && f.driver_id) {
       const clash = other.find((c) => String(c.default_driver_id) === String(f.driver_id) && String(c.id) !== String(f.id));
       if (clash) return showToast(`${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`);
+    }
+    // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ยกเว้นคันที่กำลังแก้) — รถจัดหาที่เว้นทะเบียนว่างไม่ต้องตรวจ
+    const plate = String(f.plate || '').trim().toLowerCase();
+    if (plate) {
+      const taken = [...self, ...other].find((c) => String(c.plate || '').trim().toLowerCase() === plate && String(c.id) !== String(f.id));
+      if (taken) return showToast(`${t('car.plate_taken_pre')}${taken.model}${t('car.plate_taken_post')}`);
     }
     const fd = new FormData();
     fd.append('id', f.id || '');
@@ -77,11 +104,19 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     if (await postForm(endpoints.save, fd)) setModal(null);
   };
 
-  const del = (car) => {
-    if (!window.confirm(`${t('car.confirm_delete_pre')}${car.model}${car.plate ? ` (${car.plate})` : ''}${t('car.confirm_delete_post')}`)) return;
+  // กดปุ่มลบ -> เปิดป็อปอัปยืนยัน (ยังไม่ลบ)
+  const del = (car) => setConfirmCar(car);
+
+  // กดยืนยันในป็อปอัป -> ลบจริง แล้วโชว์ "ลบเสร็จสิ้น" 1.5 วินาที ก่อนกลับสู่หน้ารายการรถ
+  const doDelete = async () => {
     const fd = new FormData();
-    fd.append('id', car.id);
-    postForm(endpoints.delete, fd);
+    fd.append('id', confirmCar.id);
+    const ok = await postForm(endpoints.delete, fd, true);
+    setConfirmCar(null);   // ปิดป็อปอัปเสมอ — ถ้าลบไม่ได้ (เช่น รถมีการจองค้าง) toast จะแจ้งเหตุผลแทน
+    if (ok) {
+      setDone(true);
+      setTimeout(() => setDone(false), 1500);
+    }
   };
 
   const openAdd = () => setModal({ isEdit: false, form: emptyForm(tab) });
@@ -201,6 +236,28 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
           </div>
         </Modal>
       )}
+
+      {/* ป็อปอัปยืนยันการลบรถ */}
+      {confirmCar && (
+        <ConfirmDialog
+          tone="danger"
+          icon={TrashIcon}
+          title={t('car.confirm_delete_title')}
+          okText={busy ? t('car.deleting_busy') : t('car.confirm_delete_btn')}
+          onOk={doDelete}
+          onCancel={() => setConfirmCar(null)}
+          busy={busy}
+        >
+          {t('car.confirm_delete_pre')}
+          <b className="confirm-code">{confirmCar.model}{confirmCar.plate ? ` (${confirmCar.plate})` : ''}</b>
+          {t('car.confirm_delete_post')}
+          <br />
+          {t('car.confirm_delete_note')}
+        </ConfirmDialog>
+      )}
+
+      {/* ป็อปอัปแจ้งลบสำเร็จ — โชว์ 1.5 วินาทีแล้วกลับสู่หน้ารายการรถ */}
+      {done && <DonePopup title={t('car.deleted_title')} sub={t('car.deleted_sub')} />}
 
       <ToastView />
     </div>

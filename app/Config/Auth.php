@@ -180,8 +180,12 @@ class Auth extends ShieldAuth
      * By default, this is used in place of a password reset flow, but
      * could be modified as the only method of login once an account
      * has been set up.
+     *
+     * false = ปิด — ระบบล็อกอินด้วย username/password เท่านั้น และไม่ได้ใช้อีเมลจริง
+     * (email ในระบบเป็นค่าสังเคราะห์ username@icar.local) การเปิดไว้จะได้ route
+     * login/magic-link ที่เข้าสู่ระบบโดยข้ามด่านตรวจสถานะอนุมัติใน Auth\LoginController
      */
-    public bool $allowMagicLinkLogins = true;
+    public bool $allowMagicLinkLogins = false;
 
     /**
      * --------------------------------------------------------------------

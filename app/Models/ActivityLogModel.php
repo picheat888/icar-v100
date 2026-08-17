@@ -29,6 +29,19 @@ class ActivityLogModel extends Model
         return $limit > 0 ? $builder->findAll($limit) : $builder->findAll();
     }
 
+    /**
+     * อ่าน log ตามช่วงวันที่ทีละชุด (chunk) แล้วส่งเข้า callback — ใช้ตอน export CSV
+     * ไม่ดึงทั้งช่วงมาไว้ในหน่วยความจำ จึงส่งออกได้แม้มีข้อมูลหลักแสนแถว
+     */
+    public function chunkInRange(string $from, string $to, int $size, callable $callback): void
+    {
+        $this->where('created_at >=', $from . ' 00:00:00')
+            ->where('created_at <=', $to . ' 23:59:59')
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->chunk($size, $callback);
+    }
+
     // นับจำนวน log ทั้งหมดในช่วงวันที่ (ไว้บอก "แสดง N จากทั้งหมด M")
     public function countInRange(string $from, string $to): int
     {

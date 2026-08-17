@@ -114,7 +114,7 @@ class MasterController extends BaseController
         $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
 
         if (! $model->find($id)) {
-            return $this->fail("ไม่พบ{$label}");
+            return $this->fail("ไม่พบ{$label}", true);
         }
         if ($name === '') {
             return $this->fail("กรุณากรอกชื่อ{$label}");
@@ -152,7 +152,7 @@ class MasterController extends BaseController
 
         $item = $model->find($id);
         if (! $item) {
-            return $this->fail("ไม่พบ{$label}");
+            return $this->fail("ไม่พบ{$label}", true);
         }
 
         // กันลบถ้ายังมีพนักงานอยู่ใน แผนก/ตำแหน่ง นี้ — ต้องย้ายพนักงานออกก่อน
@@ -175,8 +175,14 @@ class MasterController extends BaseController
         return $this->response->setJSON(['ok' => true, 'message' => $message, 'csrf' => csrf_hash()]);
     }
 
-    private function fail(string $message)
+    // $conflict = true -> ข้อมูลนี้เพิ่งถูกคนอื่นเปลี่ยนสถานะไปแล้ว (ให้ฝั่งหน้าจอดึงข้อมูลใหม่)
+    private function fail(string $message, bool $conflict = false)
     {
-        return $this->response->setStatusCode(422)->setJSON(['ok' => false, 'message' => $message, 'csrf' => csrf_hash()]);
+        $out = ['ok' => false, 'message' => $message, 'csrf' => csrf_hash()];
+        if ($conflict) {
+            $out['conflict'] = true;
+        }
+
+        return $this->response->setStatusCode(422)->setJSON($out);
     }
 }

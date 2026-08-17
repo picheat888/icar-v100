@@ -8,6 +8,8 @@ import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { useToast } from '../lib/Toast';
+import DonePopup from '../lib/DonePopup';
+import { setNavBadge } from '../lib/navBadge';
 
 // normalize เวลา → 'YYYY-MM-DD HH:MM:SS' (รับทั้งจาก DB และ input datetime-local)
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
@@ -53,8 +55,22 @@ const ICO = {
   x: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
 };
 const driverAssigned = (b) => (b.driver_type === 'company' ? (b.driver_name || t('req.driver_company')) : (b.driver_type === 'external' ? (b.ext_driver_name || t('req.driver_external')) : ''));
-// รถอื่นๆ มอบหมายคนขับครบหรือยัง — คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ)
-const driverWarn = (f) => (f.driver === '' ? t('req.warn_pick_driver') : (f.driver === 'external' && !String(f.ext_name || '').trim() ? t('req.warn_ext_name') : ''));
+// เบอร์โทร: ตัดให้เหลือเฉพาะตัวเลข สูงสุด 10 หลัก (ใช้ตอนพิมพ์)
+const onlyDigits10 = (v) => String(v || '').replace(/\D/g, '').slice(0, 10);
+// เบอร์โทรคนขับภายนอก: เว้นว่างได้ แต่ถ้ากรอกต้องเป็นตัวเลข 10 หลักพอดี
+const extPhoneBad = (f) => {
+  const p = String(f.ext_phone || '').trim();
+  return p !== '' && !/^\d{10}$/.test(p);
+};
+
+// รถอื่นๆ มอบหมายคนขับครบหรือยัง — คืนข้อความเตือน หรือ '' ถ้าครบ (บริษัท=เลือกในลิสต์, ภายนอก=กรอกชื่อ+เบอร์ 10 หลัก)
+const driverWarn = (f) => {
+  if (f.driver === '') return t('req.warn_pick_driver');
+  if (f.driver !== 'external') return '';
+  if (!String(f.ext_name || '').trim()) return t('req.warn_ext_name');
+  if (extPhoneBad(f)) return t('req.warn_ext_phone');
+  return '';
+};
 
 // จุดสีนำหน้าตัวเลขสรุปยอดในหัวกลุ่มวันที่ — variant: 'pending' | 'approved' | 'cancelled'
 const Dot = ({ variant, children }) => (
@@ -79,6 +95,7 @@ export default function RequestsManager({ endpoints }) {
   const [fDate, setFDate] = useState('');   // กรองตามวันที่ใช้รถ (ว่าง = ทุกวัน)
   const [modal, setModal] = useState(null);
   const [modalErr, setModalErr] = useState('');   // ข้อความ error ในโมดัล (กล่องแดงค้าง)
+  const [done, setDone] = useState(null);         // ป็อปอัปแจ้งผลสำเร็จ {title, sub}
   const { showToast, ToastView } = useToast();
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
@@ -96,7 +113,12 @@ export default function RequestsManager({ endpoints }) {
     setLoadErr(false);
     fetch(endpoints.data, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => r.json())
-      .then((d) => { setRows(d.bookings || []); setDrivers(d.drivers || []); setCars(d.cars || []); })
+      .then((d) => {
+        const list = d.bookings || [];
+        setRows(list); setDrivers(d.drivers || []); setCars(d.cars || []);
+        // sync badge "งานค้าง" บน sidebar ให้ตรงกับข้อมูลล่าสุด (นับเหมือน admin_nav_badges())
+        setNavBadge('requests', list.filter((b) => b.status === 'pending' || b.status === 'cancel_requested').length);
+      })
       .finally(() => setLoading(false))
       .catch(() => setLoadErr(true));
   }, [endpoints.data]);
@@ -110,7 +132,16 @@ export default function RequestsManager({ endpoints }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [modal]);
 
-  const post = async (url, body) => {
+  // กลับมาที่แท็บนี้ -> ดึงข้อมูลใหม่ ให้เห็นสิ่งที่คนอื่นทำระหว่างที่ไม่ได้ดู
+  // ข้ามถ้ามีโมดัลเปิดอยู่ (กันข้อมูลใต้มือเปลี่ยนระหว่างกรอก)
+  useEffect(() => {
+    const onVisible = () => { if (!document.hidden && !modal) load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [load, modal]);
+
+  // doneMsg = {title, sub} -> ทำรายการสำเร็จแล้วขึ้นป็อปอัปแจ้งผล 1.5 วินาที (แทน toast)
+  const post = async (url, body, doneMsg = null) => {
     if (busyRef.current) return false; // กันดับเบิลคลิกยิงซ้ำ
     busyRef.current = true;
     setBusy(true);
@@ -125,8 +156,25 @@ export default function RequestsManager({ endpoints }) {
       // error ที่ไม่ใช่ JSON (เช่น 500/CSRF หมดอายุ) → token หลุด sync, reload เพื่อรับ token+state ใหม่
       if (!res.ok && !d.csrf) { window.location.reload(); return false; }
       if (d.csrf) setCsrf(d.csrf);
-      if (d.ok) { showToast(d.message || t('common.success')); load(); return true; }
-      // ข้อผิดพลาดจากการทำรายการ → กล่องแดงค้างในโมดัล (แทน toast ดำ)
+      if (d.ok) {
+        load();   // ดึงรายการใหม่ทันที สถานะของคำขอบนหน้าจอจะอัปเดตตาม
+        if (doneMsg) {
+          setDone(doneMsg);
+          setTimeout(() => setDone(null), 1500);
+        } else {
+          showToast(d.message || t('common.success'));
+        }
+        return true;
+      }
+      // คนอื่นเปลี่ยนสถานะข้อมูลนี้ไปแล้ว -> ปิดโมดัล ดึงข้อมูลใหม่ แล้วบอกด้วย toast
+      // (ไม่ค้างกล่องแดงในโมดัล เพราะกดซ้ำก็ไม่มีทางสำเร็จจนกว่าจะเห็นข้อมูลใหม่)
+      if (d.conflict) {
+        setModal(null);
+        load();
+        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        return false;
+      }
+      // ข้อผิดพลาดจากการกรอกข้อมูล → กล่องแดงค้างในโมดัล ให้ผู้ใช้แก้ต่อได้ (ไม่ปิดโมดัล)
       setModalErr(d.message || t('common.err'));
       return false;
     } finally { setBusy(false); busyRef.current = false; }
@@ -213,17 +261,17 @@ export default function RequestsManager({ endpoints }) {
     }
     const body = { id: b.id, admin_note: f.admin_note };
     if (b.booking_type === 'other') { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
-    if (await post(endpoints.approve, body)) setModal(null);
+    if (await post(endpoints.approve, body, { title: t('req.done_approved'), sub: b.booking_code })) setModal(null);
   };
   const doReject = async () => {
     // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง)
     const note = String(modal.form.admin_note || '').trim();
     if (!note) return showToast(t('req.warn_reject_reason'));
-    if (await post(endpoints.reject, { id: modal.booking.id, admin_note: note })) setModal(null);
+    if (await post(endpoints.reject, { id: modal.booking.id, admin_note: note }, { title: t('req.done_rejected'), sub: modal.booking.booking_code })) setModal(null);
   };
   // ยืนยันการยกเลิก (คำขอที่ User ขอยกเลิก)
   const doConfirmCancel = async () => {
-    if (await post(endpoints.confirmCancel, { id: modal.booking.id })) setModal(null);
+    if (await post(endpoints.confirmCancel, { id: modal.booking.id }, { title: t('req.done_cancel_confirmed'), sub: modal.booking.booking_code })) setModal(null);
   };
   // มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (รถอื่น ๆ) — เติมกรณีอนุมัติแบบยังไม่มอบหมาย
   const doAssign = async () => {
@@ -232,12 +280,12 @@ export default function RequestsManager({ endpoints }) {
     const w = driverWarn(f); if (w) return showToast(w);
     if (driverClash()) return showToast(t('req.driver_clash'));
     const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle };
-    if (await post(endpoints.assign, body)) setModal(null);
+    if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) setModal(null);
   };
 
   // Admin ยกเลิกคำขอ (ทุกคำขอที่ยัง active — ปล่อยรถคืน)
   const doCancel = async () => {
-    if (await post(endpoints.cancel, { id: modal.booking.id, admin_note: modal.form.admin_note })) setModal(null);
+    if (await post(endpoints.cancel, { id: modal.booking.id, admin_note: modal.form.admin_note }, { title: t('req.done_cancelled'), sub: modal.booking.booking_code })) setModal(null);
   };
   // Admin บันทึกการแก้ไขคำขอ
   const doUpdate = async () => {
@@ -249,7 +297,7 @@ export default function RequestsManager({ endpoints }) {
     const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link };
     if (b.booking_type === 'self') body.car_id = f.car_id;
     else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
-    if (await post(endpoints.update, body)) setModal(null);
+    if (await post(endpoints.update, body, { title: t('req.done_updated'), sub: b.booking_code })) setModal(null);
   };
   // เข้าโหมดแก้ไข — เติมค่าปัจจุบันของคำขอลงฟอร์ม
   const enterEdit = () => {
@@ -336,7 +384,7 @@ export default function RequestsManager({ endpoints }) {
               <div className="rq-detail-value">{selDriver.name || '-'}</div>
             </div>
             <div className="rq-driver-grid">
-              <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+              <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: onlyDigits10(e.target.value) })} inputMode="numeric" maxLength={10} className="form-input form-input--sm" /></div>
               <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
               <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
             </div>
@@ -352,7 +400,7 @@ export default function RequestsManager({ endpoints }) {
             <div className="rq-driver-box rq-driver-box--external">
               <div className="rq-driver-box-title">{t('req.driver_car_info')}</div>
               <div className="rq-driver-grid">
-                <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: e.target.value })} className="form-input form-input--sm" /></div>
+                <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: onlyDigits10(e.target.value) })} inputMode="numeric" maxLength={10} className="form-input form-input--sm" /></div>
                 <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
                 <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
               </div>
@@ -608,6 +656,9 @@ export default function RequestsManager({ endpoints }) {
           </div>
         );
       })()}
+
+      {/* ป็อปอัปแจ้งผลหลังทำรายการ — โชว์ 1.5 วินาทีแล้วหายเอง (รายการอัปเดตสถานะให้แล้ว) */}
+      {done && <DonePopup title={done.title} sub={done.sub} />}
 
       <ToastView />
     </div>

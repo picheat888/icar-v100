@@ -58,13 +58,13 @@ class MemberController extends BaseController
 
         $user = (new UserModel())->findById($userId);
         if (! $user) {
-            return $this->fail('ไม่พบสมาชิก');
+            return $this->fail('ไม่พบสมาชิก', true);
         }
         // ต้องมีโปรไฟล์ (1:1) ก่อน — กันเปลี่ยน role ทั้งที่ profile ไม่มี/อัปเดตไม่ลง
         $profiles = new UserProfileModel();
         $profile  = $profiles->findByUserId($userId);
         if (! $profile) {
-            return $this->fail('ไม่พบโปรไฟล์สมาชิก');
+            return $this->fail('ไม่พบโปรไฟล์สมาชิก', true);
         }
 
         // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ update) — บัญชีตัวเอง / คนขับมีงานค้าง
@@ -95,7 +95,7 @@ class MemberController extends BaseController
 
         $profile = $profiles->findByUserId($userId);
         if (! $profile) {
-            return $this->fail('ไม่พบสมาชิก');
+            return $this->fail('ไม่พบสมาชิก', true);
         }
 
         // กันปิดบัญชีตัวเอง
@@ -178,7 +178,7 @@ class MemberController extends BaseController
         $users  = new UserModel();
         $user   = $users->findById($userId);
         if (! $user) {
-            return $this->fail('ไม่พบสมาชิก');
+            return $this->fail('ไม่พบสมาชิก', true);
         }
 
         $level = (string) $this->request->getPost('level');
@@ -216,9 +216,15 @@ class MemberController extends BaseController
             return $this->fail('ตำแหน่งไม่ถูกต้อง');
         }
 
-        // [validate] รหัสผ่านใหม่ (ถ้ากรอก) ต้องยาวอย่างน้อย 8 ตัว
+        // [validate] รหัสผ่านใหม่ (ถ้ากรอก) ต้องยาวอย่างน้อย 8 ตัว + ไม่คาดเดาง่าย (เทียบกับข้อมูลของเจ้าของบัญชี)
         if ($newPass !== '' && mb_strlen($newPass) < 8) {
             return $this->fail('รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร');
+        }
+        if ($newPass !== '') {
+            $strength = service('passwords')->check($newPass, $user);
+            if (! $strength->isOK()) {
+                return $this->fail($strength->reason());
+            }
         }
 
         // กันถอดสิทธิ์ Admin คนสุดท้ายพร้อมกัน (TOCTOU) — ล็อกช่วงนับ+เขียน role
@@ -268,8 +274,14 @@ class MemberController extends BaseController
         return $this->response->setJSON(['ok' => true, 'message' => $message, 'csrf' => csrf_hash()]);
     }
 
-    private function fail(string $message)
+    // $conflict = true -> ข้อมูลนี้เพิ่งถูกคนอื่นเปลี่ยนสถานะไปแล้ว (ให้ฝั่งหน้าจอดึงข้อมูลใหม่)
+    private function fail(string $message, bool $conflict = false)
     {
-        return $this->response->setStatusCode(422)->setJSON(['ok' => false, 'message' => $message, 'csrf' => csrf_hash()]);
+        $out = ['ok' => false, 'message' => $message, 'csrf' => csrf_hash()];
+        if ($conflict) {
+            $out['conflict'] = true;
+        }
+
+        return $this->response->setStatusCode(422)->setJSON($out);
     }
 }

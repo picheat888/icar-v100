@@ -4,6 +4,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { useToast } from '../lib/Toast';
+import ConfirmDialog from '../lib/ConfirmDialog';
 import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
@@ -310,32 +311,27 @@ export default function MyRequests({ endpoints }) {
         const accent = isReturn ? '#0a716e' : '#c0392b';   // สีเส้นไอคอน SVG (ไม่ใช่ style — เป็น attribute stroke)
         const title = isReturn ? t('myreq.confirm_return_title') : t('myreq.confirm_cancel_title');
         const okText = isReturn ? (busy ? t('myreq.returning_busy') : t('myreq.confirm_return_btn')) : (busy ? t('myreq.processing_busy') : t('myreq.confirm_cancel_btn'));
+        const icon = isReturn
+          ? <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9" /><polyline points="3 3 3 8 8 8" /></svg>
+          : <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>;
         return (
-          <div onClick={() => !busy && setConfirmB(null)} className="mr-confirm-backdrop">
-            <div onClick={(e) => e.stopPropagation()} className="mr-confirm-box">
-              <div className="mr-confirm-body">
-                <div className={`mr-confirm-icon ${isReturn ? 'mr-confirm-icon--teal' : 'mr-confirm-icon--danger'}`}>
-                  {isReturn
-                    ? <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9" /><polyline points="3 3 3 8 8 8" /></svg>
-                    : <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>}
-                </div>
-                <h3 className="mr-confirm-title">{title}</h3>
-                <p className="mr-confirm-msg">
-                  {isReturn ? (
-                    <>{t('myreq.confirm_return_msg_pre')}<b className="mr-confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_return_msg_note')}</>
-                  ) : isRequest ? (
-                    <>{t('myreq.confirm_cancel_pre')}<b className="mr-confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_cancel_request_note')}</>
-                  ) : (
-                    <>{t('myreq.confirm_cancel_pre')}<b className="mr-confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_cancel_note')}</>
-                  )}
-                </p>
-              </div>
-              <div className="mr-confirm-actions">
-                <button onClick={() => setConfirmB(null)} disabled={busy} className="mr-confirm-btn mr-confirm-btn--ghost">{t('common.back')}</button>
-                <button onClick={doAction} disabled={busy} className={`mr-confirm-btn mr-confirm-btn--ok ${isReturn ? 'mr-confirm-btn--teal' : 'mr-confirm-btn--danger'}`}>{okText}</button>
-              </div>
-            </div>
-          </div>
+          <ConfirmDialog
+            tone={isReturn ? 'teal' : 'danger'}
+            icon={icon}
+            title={title}
+            okText={okText}
+            onOk={doAction}
+            onCancel={() => setConfirmB(null)}
+            busy={busy}
+          >
+            {isReturn ? (
+              <>{t('myreq.confirm_return_msg_pre')}<b className="confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_return_msg_note')}</>
+            ) : isRequest ? (
+              <>{t('myreq.confirm_cancel_pre')}<b className="confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_cancel_request_note')}</>
+            ) : (
+              <>{t('myreq.confirm_cancel_pre')}<b className="confirm-code">{confirmB.b.booking_code}</b>?<br />{t('myreq.confirm_cancel_note')}</>
+            )}
+          </ConfirmDialog>
         );
       })()}
 

@@ -85,35 +85,11 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
         <button type="submit" class="btn-primary btn-block login-submit"><?= lang('Account.login_btn') ?></button>
       </form>
 
-      <!-- บัญชีทดลอง: คลิกเพื่อเติมฟอร์ม (ต้อง seed บัญชีจริงก่อน) — ควรปิดใน production -->
-      <div class="login-demo">
-        <p class="subtext subtext--faint login-demo-title"><?= lang('Account.demo_title') ?></p>
-        <div class="login-demo-row">
-          <?php foreach ([
-              ['somchai', lang('Account.demo_user')],
-              ['prasert', lang('Account.demo_driver')],
-              ['admin',   'Admin'],
-          ] as [$u, $label]): ?>
-            <button type="button" data-user="<?= esc($u, 'attr') ?>" class="quick-login"><?= esc($label) ?></button>
-          <?php endforeach; ?>
-        </div>
-      </div>
-
       <p class="login-foot"><?= lang('Account.no_account') ?>
         <a href="<?= url_to('register') ?>" class="login-link"><?= lang('Account.register_link') ?></a>
       </p>
     </div>
   </div>
 
-  <script>
-    // ปุ่มบัญชีทดลอง: เติม username + password ตั้งต้น (123) แล้วให้ผู้ใช้กดเข้าสู่ระบบเอง
-    document.querySelectorAll('.quick-login').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        document.getElementById('login').value = btn.dataset.user;
-        document.getElementById('password').value = '123';
-        document.getElementById('password').focus();
-      });
-    });
-  </script>
 </body>
 </html>

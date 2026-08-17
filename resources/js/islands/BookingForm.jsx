@@ -3,6 +3,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { MONTHS, DOW, pad } from '../lib/date';
 import { CloseIcon } from '../lib/icons';
+import DonePopup from '../lib/DonePopup';
 
 // สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) — ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
 const CAR_STATUS = {
@@ -17,13 +18,14 @@ const carIcon = (
 
 /**
  * จองรถ — grid การ์ดรถ (self) / ฟอร์ม (other) → modal จองรถขับเอง 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม)
- * props: endpoints {store, availability}, cars, baseUrl
+ * props: endpoints {store, availability}, cars, baseUrl, backUrl (หน้าปฏิทินการจองรถของ role นั้น)
  */
-export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
+export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
   const [tab, setTab] = useState('self');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [modal, setModal] = useState(null); // {type:'self'|'other', car}
+  const [done, setDone] = useState(false);  // ส่งคำขอสำเร็จ -> โชว์ popup ก่อนเด้งไปหน้าถัดไป
   const [f, setF] = useState({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
   const [booked, setBooked] = useState(new Set()); // วันที่มีจอง (YYYY-MM-DD)
   const [loadErr, setLoadErr] = useState(false); // โหลดตารางว่างของรถไม่สำเร็จ
@@ -108,6 +110,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
     const body = { booking_type: modal.type, ...f };
     if (modal.type === 'self') body.car_id = modal.car.id;
     setBusy(true);
+    let sent = false;   // ส่งสำเร็จแล้วคง busy ไว้ กันกดซ้ำระหว่างรอ popup
     try {
       const res = await fetch(endpoints.store, {
         method: 'POST', credentials: 'same-origin',
@@ -118,9 +121,16 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
       // error ที่ไม่ใช่ JSON (เช่น 500/CSRF หมดอายุ) → token หลุด sync, reload เพื่อรับ token+state ใหม่
       if (!res.ok && !d.csrf) { window.location.reload(); return; }
       if (d.csrf) setCsrf(d.csrf);
-      if (res.ok && d.ok) window.location.href = d.redirect || '/my-requests';
-      else setError(d.message || t('common.err'));
-    } finally { setBusy(false); }
+      if (res.ok && d.ok) {
+        // โชว์ popup "ส่งคำขอจองสำเร็จ" 1.5 วินาที แล้วค่อยเด้งไปหน้าถัดไป
+        // ปิดโมดัลฟอร์มด้วย ไม่งั้น backdrop ซ้อน 2 ชั้นจอจะมืดเกินไป
+        sent = true;
+        setModal(null);
+        setDone(true);
+        const next = d.redirect || backUrl || '/timeline';
+        setTimeout(() => { window.location.href = next; }, 1500);
+      } else setError(d.message || t('common.err'));
+    } finally { if (!sent) setBusy(false); }
   };
 
   // คลิกวันในปฏิทิน -> ตั้งเวลาเริ่ม/สิ้นสุด default 08:00-17:00 (ถ้าเป็นวันนี้และเลย 08:00 แล้ว เริ่มที่ชั่วโมงถัดไป กันเวลาย้อนหลัง)
@@ -303,6 +313,9 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '' }) {
           </div>
         </div>
       )}
+
+      {/* popup แจ้งส่งคำขอสำเร็จ — โชว์ 1.5 วินาทีแล้วเด้งไปหน้าถัดไปเอง */}
+      {done && <DonePopup title={t('book.done_title')} sub={t('book.done_sub')} />}
     </div>
   );
 }

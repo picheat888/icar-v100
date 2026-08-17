@@ -9,13 +9,16 @@ $routes->get('/', 'Home::index');
 
 // override auth ก่อน Shield — CI4 ยึด route ที่นิยาม "ก่อน" เป็นหลัก (ตัวหลังที่ซ้ำจะถูกข้าม)
 // Register: สร้างโปรไฟล์ status=pending ไม่ auto-login · Login: เพิ่มด่านตรวจสถานะอนุมัติ
+// filter throttle: จำกัดจำนวนครั้งต่อ IP ต่อนาที (login 10, register 5) กัน brute force + สแปมสมัคร
 $routes->get('register',         'Auth\RegisterController::index',   ['as' => 'register']);
-$routes->post('register',        'Auth\RegisterController::attempt');
+$routes->post('register',        'Auth\RegisterController::attempt', ['filter' => 'throttle:register']);
 $routes->get('register/success', 'Auth\RegisterController::success');
-$routes->post('login',           'Auth\LoginController::loginAction');
+$routes->post('login',           'Auth\LoginController::loginAction', ['filter' => 'throttle:login']);
 
-// เส้นทาง auth ที่เหลือของ Shield (login GET view, logout, magic-link ฯลฯ)
-service('auth')->routes($routes);
+// เส้นทาง auth ที่เหลือของ Shield (login GET view, logout, auth-actions)
+// except magic-link: ระบบล็อกอินด้วย username/password เท่านั้น ไม่ได้ใช้อีเมลจริง
+// จึงไม่เปิด endpoint ที่ล็อกอินได้โดยข้ามด่านตรวจสถานะอนุมัติใน Auth\LoginController
+service('auth')->routes($routes, ['except' => ['magic-link']]);
 
 // สลับภาษา — guest เข้าถึงได้ (ไม่อยู่ใต้ filter auth ใดๆ)
 $routes->get('lang/(:segment)', 'LocaleController::set/$1');

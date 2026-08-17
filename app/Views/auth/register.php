@@ -6,7 +6,8 @@
  */
 helper(['vite', 'form']);
 $errors    = session('errors') ?? [];
-$firstErr  = is_array($errors) && $errors ? reset($errors) : '';
+// error ตัวแรกจาก validate หรือ flash 'error' เดี่ยว (เช่น ข้อความจาก filter throttle)
+$firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('error') ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="<?= esc(service('request')->getLocale()) ?>">
@@ -63,17 +64,13 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : '';
     <main class="reg-main">
       <div class="reg-container">
 
-        <!-- หัวเรื่อง + ลิงก์เข้าสู่ระบบ -->
+        <!-- หัวเรื่อง + ปุ่มสลับภาษา -->
         <div class="reg-head">
           <div>
             <h2 class="title title--xl"><?= lang('Account.register_title') ?></h2>
-            <p class="subtext"><?= lang('Account.reg_hint_pre') ?><span class="reg-req">*</span><?= lang('Account.reg_hint_post') ?></p>
           </div>
           <div class="reg-head-right">
             <?= view('templates/lang_switch') ?>
-            <p class="subtext"><?= lang('Account.have_account') ?>
-              <a href="<?= url_to('login') ?>" class="reg-link"><?= lang('Account.login_link') ?></a>
-            </p>
           </div>
         </div>
 
@@ -160,10 +157,10 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : '';
                 </div>
               </div>
 
-              <!-- ยอมรับข้อกำหนด -->
+              <!-- ยินยอมให้จัดเก็บข้อมูล -->
               <label class="reg-terms">
                 <input type="checkbox" id="agree" name="terms" value="1" required <?= old('terms') ? 'checked' : '' ?> class="reg-checkbox">
-                <span><?= lang('Account.terms_pre') ?><a href="#" class="reg-termslink"><?= lang('Account.terms_link') ?></a><?= lang('Account.terms_post') ?></span>
+                <span><?= lang('Account.terms_text') ?></span>
               </label>
 
               <!-- ปุ่ม -->
@@ -175,7 +172,9 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : '';
                   </button>
                   <a href="<?= url_to('login') ?>" class="btn-ghost"><?= lang('Common.cancel') ?></a>
                 </div>
-                <div class="subtext subtext--faint"><?= lang('Account.approve_note') ?></div>
+                <p class="subtext"><?= lang('Account.have_account') ?>
+                  <a href="<?= url_to('login') ?>" class="reg-link"><?= lang('Account.login_link') ?></a>
+                </p>
               </div>
 
             </div>

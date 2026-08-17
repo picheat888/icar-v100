@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
+import { setNavBadge } from '../lib/navBadge';
 import Table from '../lib/Table';
 import Modal from '../lib/Modal';
 
@@ -46,12 +47,24 @@ export default function MembersManager({ endpoints, departments = [], positions 
     setLoadErr(false);
     fetch(endpoints.data, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => r.json())
-      .then((d) => setRows(d.members || []))
+      .then((d) => {
+        const list = d.members || [];
+        setRows(list);
+        // sync badge "สมาชิกรออนุมัติ" บน sidebar (นับเหมือน admin_nav_badges())
+        setNavBadge('members', list.filter((m) => m.status === 'pending').length);
+      })
       .finally(() => setLoading(false))
       .catch(() => setLoadErr(true));
   }, [endpoints.data]);
 
   useEffect(() => { load(); }, [load]);
+
+  // กลับมาที่แท็บนี้ -> ดึงข้อมูลใหม่ (ข้ามถ้ามีโมดัลเปิดอยู่)
+  useEffect(() => {
+    const onVisible = () => { if (!document.hidden && !modal) load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [load, modal]);
 
   // ยิง POST พร้อม CSRF header แล้วอัปเดต token จาก response
   const post = async (url, body) => {
@@ -69,6 +82,13 @@ export default function MembersManager({ endpoints, departments = [], positions 
       // error ที่ไม่ใช่ JSON (500/CSRF หมดอายุ) → token หลุด sync, reload รับ token+state ใหม่
       if (!res.ok && !d.csrf) { window.location.reload(); return false; }
       if (d.csrf) setCsrf(d.csrf);
+      // คนอื่นเปลี่ยนข้อมูลสมาชิกคนนี้ไปแล้ว -> ปิดโมดัล ดึงข้อมูลใหม่ แล้วบอกด้วย toast
+      if (d.conflict) {
+        setModal(null);
+        load();
+        showToast(`${d.message} — ${t('common.conflict_refreshed')}`);
+        return false;
+      }
       if (!res.ok || !d.ok) { showToast(d.message || t('common.err')); return false; }
       showToast(d.message || t('common.success'));
       load();

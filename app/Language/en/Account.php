@@ -12,8 +12,6 @@ return [
     'register_link'   => 'Sign up',
 
     'register_title'  => 'Sign up',
-    'reg_hint_pre'    => 'Takes about 2 minutes. Fields marked ',
-    'reg_hint_post'   => ' are required',
     'have_account'    => 'Already have an account?',
     'login_link'      => 'Log in',
     'emp_info'        => 'Employee Information',
@@ -34,11 +32,8 @@ return [
     'password_ph_reg' => 'Set a password (at least 8 characters)',
     'confirm_pass'    => 'Confirm Password',
     'confirm_ph'      => 'Re-enter your password',
-    'terms_pre'       => 'I accept the ',
-    'terms_link'      => 'terms of use',
-    'terms_post'      => ' and consent to storing my data for the organization\'s vehicle booking.',
-    'submit_reg'      => 'Submit Registration',
-    'approve_note'    => 'Usually approved within 1 business day',
+    'terms_text'      => 'I consent to storing my data for the organization\'s vehicle booking.',
+    'submit_reg'      => 'Confirm Registration',
 
     'err_empId'       => 'Only a-z, A-Z and 0-9 are allowed, up to 8 characters.',
     'err_name'        => 'Only letters (Thai/English) are allowed. No digits or special characters.',
@@ -47,6 +42,7 @@ return [
     'err_terms'       => 'Please accept the terms of use before signing up.',
     'err_uniq_emp'    => 'This employee ID is already in use.',
     'err_uniq_user'   => 'This username is already in use.',
+    'err_throttle'    => 'Too many attempts. Please wait {0} seconds and try again.',
 
     // server validation (RegisterController)
     'srv_empId_alnum'   => 'Employee ID may contain only a-z, A-Z and 0-9',
@@ -69,11 +65,6 @@ return [
     'hero_bullet_2'     => 'Track request status in real time',
     'hero_bullet_3'     => 'Admins approve and manage everything in one place',
     'hero_copyright'    => '© 2026 Thai Inaba Foods Co., Ltd. — All rights reserved',
-
-    // demo accounts (login)
-    'demo_title'        => 'Demo accounts — click to fill in the login form',
-    'demo_user'         => 'General User',
-    'demo_driver'       => 'Driver',
 
     // hero panel (register)
     'reg_hero_title_1'  => 'Request an Account for the',

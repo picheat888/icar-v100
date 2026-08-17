@@ -8,7 +8,7 @@ use CodeIgniter\Shield\Entities\User;
 use CodeIgniter\Shield\Models\UserModel;
 
 /**
- * สร้างบัญชีทดลอง 3 role ให้ตรงกับปุ่ม quick-login ในหน้า Login
+ * สร้างบัญชีทดลอง 3 role (admin / user / driver) ไว้ทดสอบระบบ
  * รหัสผ่านทั้งหมด: 123 (เฉพาะ dev — ห้ามใช้ใน production)
  * พร้อมโปรไฟล์สถานะ approved เพื่อให้ผ่านด่านตรวจสถานะตอนล็อกอิน
  * รัน: php spark db:seed DemoUsersSeeder
@@ -30,9 +30,6 @@ class DemoUsersSeeder extends Seeder
         // [username, group, emp_id, full_name, status]
         $demo = [
             ['admin',   'admin',  'EMP-0001', 'ผู้ดูแลระบบ',        'approved'],
-            ['somchai', 'user',   'EMP-0002', 'สมชาย ใจดี',         'approved'],
-            ['prasert', 'driver', 'EMP-0003', 'ประเสริฐ ขับดี',     'approved'],
-            ['newbie',  'user',   'EMP-0004', 'พนักงานใหม่ รออนุมัติ', 'pending'],  // ไว้ทดสอบปุ่มอนุมัติ
         ];
 
         foreach ($demo as [$username, $group, $empId, $fullName, $status]) {
@@ -42,7 +39,7 @@ class DemoUsersSeeder extends Seeder
                 $newUser = new User([
                     'username' => $username,
                     'email'    => $username . '@icar.local',
-                    'password' => '123',
+                    'password' => '123',  // รหัสผ่านสำหรับ dev เท่านั้น
                 ]);
                 $users->save($newUser);
                 $user = $users->findById($users->getInsertID());
