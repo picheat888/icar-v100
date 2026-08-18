@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\DepartmentModel;
+use App\Models\NotificationModel;
 use App\Models\PositionModel;
 use App\Models\UserProfileModel;
 use CodeIgniter\Shield\Entities\User;
@@ -151,6 +152,13 @@ class MemberController extends BaseController
         $profiles->where('user_id', $userId)->set(['status' => 'approved'])->update();
         db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
 
+        (new NotificationModel())->push(
+            $userId,
+            'member_approved',
+            'บัญชีของคุณได้รับการอนุมัติแล้ว (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')',
+            site_url('profile'),
+        );
+
         log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')');
 
         return $this->ok('อนุมัติสมาชิกเรียบร้อย');
@@ -188,6 +196,8 @@ class MemberController extends BaseController
         }
         $profiles->where('user_id', $userId)->set(['status' => 'rejected'])->update();
         db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
+
+        (new NotificationModel())->push($userId, 'member_rejected', 'บัญชีของคุณถูกปิดการใช้งาน - ติดต่อผู้ดูแลระบบ');
 
         log_activity('ปฏิเสธ/ปิดการใช้งานสมาชิก ' . ($target->username ?? ('id ' . $userId)));
 

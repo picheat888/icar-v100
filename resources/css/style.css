@@ -526,6 +526,19 @@
   color: var(--text-faint);
 }
 
+/* ข้อความสำหรับ screen reader เท่านั้น - ไม่แสดงบนจอแต่ยังอ่านออกเสียงได้ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ----- 1.11 ตาราง ----- */
 /* กล่องครอบ: การ์ดขาว + เลื่อนแนวนอนได้บนจอแคบ */
 .tbl-wrap {
@@ -4108,6 +4121,11 @@
   font-family: inherit;
 }
 
+.nb-readall:disabled {
+  color: var(--gray-soft);
+  cursor: default;
+}
+
 /* พื้นที่เลื่อนรายการแจ้งเตือน */
 .nb-list {
   max-height: 380px;
@@ -4132,21 +4150,77 @@
   border-bottom: 1px solid var(--hover-bg);
 }
 
-/* แถวแจ้งเตือนแต่ละรายการ */
+/* แถวแจ้งเตือนแต่ละรายการ - ไอคอนประเภท + ข้อความ/เวลา */
 .nb-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
   padding: 11px 14px;
+  border: none;
   border-bottom: 1px solid var(--hover-bg);
   cursor: pointer;
   background: #fff;
+  text-align: left;
+  font-family: inherit;
 }
 
-/* พื้นเขียวอ่อนตอนยังไม่ได้อ่าน */
+.nb-item:hover {
+  background: var(--hover-bg);
+}
+
+/* พื้นเขียวอ่อน + ขีดซ้ายตอนยังไม่ได้อ่าน */
 .nb-item--unread {
   background: #eef7f6;
+  box-shadow: inset 3px 0 0 var(--teal);
+}
+
+.nb-item--unread:hover {
+  background: var(--teal-soft);
+}
+
+/* ไอคอนประเภทแจ้งเตือน (วงกลมพื้นอ่อน) */
+.nb-item-ic {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+/* โทนสีตามประเภท: teal=สำเร็จ · amber=รอดำเนินการ · red=ยกเลิก/ปฏิเสธ · gray=ข้อมูล */
+.nb-item-ic--teal {
+  background: var(--teal-line);
+  color: var(--teal);
+}
+
+.nb-item-ic--amber {
+  background: var(--amber-tint);
+  color: var(--amber-text);
+}
+
+.nb-item-ic--red {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.nb-item-ic--gray {
+  background: var(--surface);
+  color: var(--text-mute);
+}
+
+/* คอลัมน์ข้อความ + เวลา */
+.nb-item-body {
+  min-width: 0;
+  flex: 1;
 }
 
 /* ข้อความแจ้งเตือน */
 .nb-item-msg {
+  display: block;
   font-size: 13.5px;
   color: var(--ink-strong);
   line-height: 1.4;
@@ -4154,6 +4228,7 @@
 
 /* เวลาแจ้งเตือน - ใช้คู่กับ .subtext .subtext--faint (สี var(--text-faint) มาจากตรงนั้น) */
 .nb-item-time {
+  display: block;
   font-size: 11.5px;
   margin-top: 3px;
 }
@@ -4170,6 +4245,31 @@
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+}
+
+/* ปุ่มลองโหลดอีกครั้ง - ใช้คู่กับข้อความใน .nb-empty ตอนโหลดพลาด */
+.nb-retry {
+  display: block;
+  margin: 10px auto 0;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--teal);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* แถบเตือนท้ายรายการ ตอนโหลดหน้าถัดไปพลาดแต่ยังมีรายการเดิมอยู่ */
+.nb-foot-err {
+  padding: 9px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--danger-soft);
+  color: var(--danger-text);
+  font-size: 12px;
+  text-align: center;
 }
 
 /* ===== DriverJobs: งานของฉัน (คนขับ) - ตาราง/การ์ด + drawer รายละเอียด ===== */

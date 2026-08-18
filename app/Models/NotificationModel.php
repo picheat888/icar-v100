@@ -43,10 +43,11 @@ class NotificationModel extends Model
         }
     }
 
-    // รายการแจ้งเตือนของผู้ใช้ (ใหม่ก่อน) แบ่งหน้า
+    // รายการแจ้งเตือนของผู้ใช้ (ใหม่ก่อน) แบ่งหน้า - island จัดกลุ่มตามวันโดยอาศัยลำดับนี้
     public function listFor(int $userId, int $limit, int $offset): array
     {
         return $this->where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
             ->orderBy('id', 'DESC')
             ->findAll($limit, $offset);
     }

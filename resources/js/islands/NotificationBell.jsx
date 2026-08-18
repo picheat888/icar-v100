@@ -2,6 +2,26 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { thTime } from '../lib/date';
 import { t } from '../lib/i18n';
 import { getCsrf, setCsrf } from '../lib/csrf';
+import Icon from '../lib/Icon';
+
+// ไอคอน + โทนสีตามประเภทแจ้งเตือน (ชื่อไอคอนดูที่ resources/icons.json)
+const TYPE_ICON = {
+  booking_new:       ['bookings', 'amber'],
+  cancel_requested:  ['alert', 'amber'],
+  member_new:        ['members', 'amber'],
+  booking_approved:  ['check-circle', 'teal'],
+  cancel_confirmed:  ['check', 'teal'],
+  driver_assigned:   ['user', 'teal'],
+  member_approved:   ['check-circle', 'teal'],
+  job_new:           ['my-jobs', 'teal'],
+  car_returned:      ['return', 'teal'],
+  booking_rejected:  ['cancel', 'red'],
+  booking_cancelled: ['cancel', 'red'],
+  job_cancelled:     ['cancel', 'red'],
+  member_rejected:   ['cancel', 'red'],
+  booking_expired:   ['clock', 'gray'],
+  booking_edited:    ['pencil', 'gray'],
+};
 
 // กระดิ่งแจ้งเตือน - badge + dropdown + poll 60วิ + load-more
 export default function NotificationBell({ endpoints }) {
@@ -10,22 +30,29 @@ export default function NotificationBell({ endpoints }) {
   const [unseen, setUnseen] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const boxRef = useRef(null);
+  const btnRef = useRef(null);
   const openRef = useRef(false);
   const chainRef = useRef(Promise.resolve());
 
-  // GET รายการ (offset 0 = แทนที่, มากกว่านั้น = ต่อท้าย)
-  const fetchPage = useCallback((offset, append) => {
+  // GET รายการ (offset 0 = แทนที่, มากกว่านั้น = ต่อท้าย) · applyUnseen=false ให้ badge คุมจากที่อื่น
+  const fetchPage = useCallback((offset, append, applyUnseen = true) => {
     setLoading(true);
     return fetch(`${endpoints.data}?offset=${offset}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-      .then((r) => r.json())
+      .then((r) => {
+        if (! r.ok) throw new Error(`HTTP ${r.status}`);
+
+        return r.json();
+      })
       .then((d) => {
-        setUnseen(d.unseenCount || 0);
+        setFailed(false);
+        if (applyUnseen) setUnseen(d.unseenCount || 0);
         setHasMore(!!d.hasMore);
         setItems((prev) => (append ? [...prev, ...(d.items || [])] : (d.items || [])));
       })
-      .finally(() => setLoading(false))
-      .catch(() => {});
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false));
   }, [endpoints.data]);
 
   // POST helper (แนบ CSRF + อัปเดต meta) - ต่อคิวทีละคำขอกัน CSRF token ชนกัน (Shield regenerate=true)
@@ -45,38 +72,52 @@ export default function NotificationBell({ endpoints }) {
   // เก็บ open ล่าสุดไว้ใน ref ให้ interval callback อ่านค่าปัจจุบันได้ (กัน stale closure)
   useEffect(() => { openRef.current = open; }, [open]);
 
-  // โหลดครั้งแรก + poll ทุก 60 วิ (อัปเดต badge; ถ้าไม่ได้เปิดอยู่ให้รีเฟรชหน้าแรกด้วย)
+  // โหลดครั้งแรก + poll ทุก 60 วิ · ข้ามรอบที่แท็บถูกซ่อนหรือ dropdown เปิดอยู่ (กันดึงรายการใต้มือผู้ใช้)
   useEffect(() => {
     fetchPage(0, false);
-    const id = setInterval(() => { if (!openRef.current) fetchPage(0, false); }, 60000);
-    return () => clearInterval(id);
+    const tick = () => { if (! document.hidden && ! openRef.current) fetchPage(0, false); };
+    const id = setInterval(tick, 60000);
+    document.addEventListener('visibilitychange', tick);
+
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', tick); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchPage]);
 
   // ปิด dropdown เมื่อคลิกนอกกล่อง
   useEffect(() => {
-    const onDoc = (e) => { if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false); };
+    const onDoc = (e) => { if (boxRef.current && ! boxRef.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', onDoc);
+
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
-  // สลับเปิด/ปิด - ตอนเปิด: โหลดหน้าแรกใหม่ + เห็นแล้วทั้งหมด (badge=0)
+  // Escape ปิด dropdown แล้วคืน focus ให้ปุ่มกระดิ่ง
+  useEffect(() => {
+    if (! open) return;
+    const onKey = (e) => { if (e.key === 'Escape') { setOpen(false); btnRef.current?.focus(); } };
+    document.addEventListener('keydown', onKey);
+
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  // สลับเปิด/ปิด - ตอนเปิด: โหลดหน้าแรกใหม่ + เคลียร์ badge (ไม่รับ unseenCount จาก response กันค่าเก่าทับ 0)
   const toggle = () => {
-    const next = !open;
+    const next = ! open;
     setOpen(next);
-    if (next) {
-      fetchPage(0, false);
-      post(endpoints.seen).then(() => setUnseen(0));
-    }
+    if (! next) return;
+    fetchPage(0, false, false);
+    setUnseen(0);
+    post(endpoints.seen);
   };
 
   // ลิงก์ปลอดภัย: อนุญาตเฉพาะ http(s) หรือ path ภายใน (ขึ้นต้นด้วย /) - กัน javascript:/data: (defense-in-depth)
   const safeLink = (u) => typeof u === 'string' && (/^https?:\/\//i.test(u) || u.startsWith('/'));
 
-  // กดรายการ -> อ่านแล้ว + ไปลิงก์ (ไปหลัง POST เสร็จ กัน request ถูกตัด)
+  // กดรายการ -> อ่านแล้ว + ไปลิงก์ (ไปหลัง POST เสร็จ กัน request ถูกตัด) · ไม่มีลิงก์ = ปิดกล่อง
   const onItem = (n) => {
     setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, isRead: true } : x)));
-    post(endpoints.read, { id: n.id }, { keepalive: true }).finally(() => { if (safeLink(n.link)) window.location = n.link; });
+    post(endpoints.read, { id: n.id }, { keepalive: true })
+      .finally(() => { if (safeLink(n.link)) window.location = n.link; else setOpen(false); });
   };
 
   // อ่านทั้งหมด
@@ -85,12 +126,14 @@ export default function NotificationBell({ endpoints }) {
     setItems((prev) => prev.map((x) => ({ ...x, isRead: true })));
   };
 
+  const unreadCount = items.reduce((n, x) => n + (x.isRead ? 0 : 1), 0);
+
   // จัดกลุ่มแจ้งเตือนตามวัน (items เรียงใหม่->เก่าอยู่แล้ว กลุ่มเดียวกันจึงต่อเนื่องกัน)
   const groups = [];
   let curGroup = null;
   for (const n of items) {
     const k = String(n.created_at).slice(0, 10);
-    if (!curGroup || curGroup.key !== k) {
+    if (! curGroup || curGroup.key !== k) {
       curGroup = { key: k, items: [] };
       groups.push(curGroup);
     }
@@ -107,47 +150,71 @@ export default function NotificationBell({ endpoints }) {
     if (k === asYmd(today)) return t('notif.today');
     if (k === asYmd(yest)) return t('notif.yesterday');
     const p = k.split('-');
+
     return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : k;
   };
 
   return (
     <div ref={boxRef} className="nb-wrap">
       {/* ปุ่มกระดิ่ง + badge */}
-      <button type="button" onClick={toggle} className="nb-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={toggle}
+        className="nb-btn"
+        aria-label={unseen > 0 ? t('notif.aria_unread', { n: unseen }) : t('notif.title')}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+      >
+        <Icon name="bell" size={20} />
         {unseen > 0 && (
-          <span className="nb-badge">
+          <span className="nb-badge" aria-hidden="true">
             {unseen > 99 ? '99+' : unseen}
           </span>
         )}
       </button>
+      {/* ประกาศจำนวนใหม่ให้ screen reader (ไม่แสดงบนจอ) */}
+      <span className="sr-only" aria-live="polite">{unseen > 0 ? t('notif.aria_unread', { n: unseen }) : ''}</span>
 
       {/* dropdown */}
       {open && (
-        <div className="nb-dropdown">
+        <div className="nb-dropdown" role="dialog" aria-label={t('notif.title')}>
           <div className="nb-head">
             <span className="title title--sm">{t('notif.title')}</span>
-            <button type="button" onClick={onReadAll} className="nb-readall">{t('notif.read_all')}</button>
+            <button type="button" onClick={onReadAll} disabled={unreadCount === 0} className="nb-readall">{t('notif.read_all')}</button>
           </div>
 
           <div className="nb-list">
-            {loading && items.length === 0 && (
+            {loading && items.length === 0 && ! failed && (
               <div className="nb-empty">{t('common.loading')}</div>
             )}
-            {items.length === 0 && !loading && (
+            {failed && items.length === 0 && (
+              <div className="nb-empty">
+                {t('notif.load_err')}
+                <button type="button" onClick={() => fetchPage(0, false)} className="nb-retry">{t('notif.retry')}</button>
+              </div>
+            )}
+            {items.length === 0 && ! loading && ! failed && (
               <div className="nb-empty">{t('notif.empty')}</div>
             )}
             {groups.map((g) => (
               <div key={g.key}>
                 {/* หัวข้อวัน */}
                 <div className="nb-daylabel">{dayLabel(g.key)}</div>
-                {g.items.map((n) => (
-                  <div key={n.id} onClick={() => onItem(n)}
-                    className={`nb-item${n.isRead ? '' : ' nb-item--unread'}`}>
-                    <div className="nb-item-msg">{n.message}</div>
-                    <div className="subtext subtext--faint nb-item-time">{thTime(n.created_at)}</div>
-                  </div>
-                ))}
+                {g.items.map((n) => {
+                  const [ic, tone] = TYPE_ICON[n.type] || ['bell', 'gray'];
+
+                  return (
+                    <button key={n.id} type="button" onClick={() => onItem(n)}
+                      className={`nb-item${n.isRead ? '' : ' nb-item--unread'}`}>
+                      <span className={`nb-item-ic nb-item-ic--${tone}`}><Icon name={ic} size={15} /></span>
+                      <span className="nb-item-body">
+                        <span className="nb-item-msg">{n.message}</span>
+                        <span className="subtext subtext--faint nb-item-time">{thTime(n.created_at)}</span>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             ))}
             {hasMore && (
@@ -155,6 +222,9 @@ export default function NotificationBell({ endpoints }) {
                 className="nb-more">
                 {loading ? t('common.loading') : t('notif.load_more')}
               </button>
+            )}
+            {failed && items.length > 0 && (
+              <div className="nb-foot-err">{t('notif.load_err')}</div>
             )}
           </div>
         </div>
