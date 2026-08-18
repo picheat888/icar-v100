@@ -10,7 +10,7 @@ use App\Models\ActivityLogModel;
  */
 class ActivityLogController extends BaseController
 {
-    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User ทั่วไป', 'driver' => 'คนขับรถ'];
+    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User', 'driver' => 'คนขับรถ'];
 
     // หน้า "ประวัติการใช้งาน" (island)
     public function index()

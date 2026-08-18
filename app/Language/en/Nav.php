@@ -2,7 +2,7 @@
 
 return [
     'dashboard'  => 'Dashboard',
-    'calendar'   => 'Booking Calendar',
+    'calendar'   => 'Booking',
     'users'      => 'User Management',
     'bookings'   => 'Booking Management',
     'cars'       => 'Vehicle Management',

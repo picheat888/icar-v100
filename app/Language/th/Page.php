@@ -3,7 +3,7 @@
 return [
     'dashboard'           => 'Dashboard',
     'dashboard_sub'       => 'สรุปภาพรวมระบบ',
-    'calendar'            => 'ปฏิทินการจองรถ',
+    'calendar'            => 'การจองรถ',
     'calendar_sub'        => 'ตรวจสอบช่วงเวลาและสถานะการจองรถ',
     'calendar_sub_driver' => 'ตรวจสอบตารางงาน',
     'users'               => 'จัดการผู้ใช้งาน',

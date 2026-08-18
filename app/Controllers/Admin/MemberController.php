@@ -15,7 +15,7 @@ use CodeIgniter\Shield\Models\UserModel;
 class MemberController extends BaseController
 {
     // ป้ายบทบาทไทย
-    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User ทั่วไป', 'driver' => 'คนขับรถ'];
+    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User', 'driver' => 'คนขับรถ'];
 
     // หน้า "จัดการสมาชิก" (เรนเดอร์ island)
     public function index()

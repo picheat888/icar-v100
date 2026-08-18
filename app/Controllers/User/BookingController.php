@@ -33,7 +33,7 @@ class BookingController extends BaseController
         return $u->inGroup('admin') ? 'admin' : ($u->inGroup('driver') ? 'driver' : 'user');
     }
 
-    // ปลายทางหลังจองเสร็จ - หน้า "ปฏิทินการจองรถ" ของ role นั้น (เห็นคิวที่เพิ่งจองทันที)
+    // ปลายทางหลังจองเสร็จ - หน้า "การจองรถ" ของ role นั้น
     private function afterBookUrl(): string
     {
         $role = $this->role();

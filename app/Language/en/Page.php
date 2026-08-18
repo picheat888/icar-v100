@@ -3,7 +3,7 @@
 return [
     'dashboard'           => 'Dashboard',
     'dashboard_sub'       => 'System overview',
-    'calendar'            => 'Booking Calendar',
+    'calendar'            => 'Booking',
     'calendar_sub'        => 'Check time slots and booking status',
     'calendar_sub_driver' => 'Check work schedule',
     'users'               => 'User Management',

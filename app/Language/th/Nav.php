@@ -2,7 +2,7 @@
 
 return [
     'dashboard'  => 'Dashboard',
-    'calendar'   => 'ปฏิทินการจองรถ',
+    'calendar'   => 'การจองรถ',
     'users'      => 'จัดการผู้ใช้งาน',
     'bookings'   => 'จัดการการจองรถ',
     'cars'       => 'จัดการรถ',
@@ -14,7 +14,7 @@ return [
     'logout'     => 'ออกจากระบบ',
     'profile'    => 'ข้อมูลส่วนตัว',
     'role_admin' => 'Admin',
-    'role_user'  => 'User ทั่วไป',
+    'role_user'  => 'User',
     'role_driver'=> 'คนขับรถ',
     'guest_name' => 'ผู้ใช้งาน',
 ];
