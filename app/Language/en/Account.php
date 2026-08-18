@@ -13,6 +13,9 @@ return [
     'hide_password'   => 'Hide password',
     'need_terms'      => 'Please accept the terms before signing up',
     'fix_errors'      => 'Please fix the highlighted fields',
+    'err_username_req' => 'Please enter your username',
+    'err_password_req' => 'Please enter your password',
+    'err_field_req'   => 'This field is required',
     'no_account'      => "Don't have an account?",
     'register_link'   => 'Sign up',
 

@@ -95,7 +95,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
           <div class="alert-error" role="alert"><?= lang('Account.fix_errors') ?></div>
         <?php endif; ?>
 
-        <form action="<?= url_to('register') ?>" method="post">
+        <form action="<?= url_to('register') ?>" method="post" novalidate>
           <?= csrf_field() ?>
           <div class="card reg-card">
             <div class="title title--sm reg-cardhead"><?= lang('Account.emp_header') ?></div>
@@ -114,12 +114,12 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                 <div>
                   <label class="form-label reg-label" for="empId"><?= lang('Account.emp_id') ?> <span class="form-req">*</span></label>
                   <input id="empId" class="form-input reg-input<?= $invalid('empId') ?>" name="empId" value="<?= esc(old('empId')) ?>" placeholder="<?= esc(lang('Account.emp_id_ph'), 'attr') ?>" maxlength="8" autocomplete="off" required>
-                  <div id="err-empId" class="reg-err<?= $errFor('empId') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('empId') ? ' data-server="1"' : '' ?>><?= esc($errFor('empId')) ?></div>
+                  <div id="err-empId" class="form-err<?= $errFor('empId') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('empId') ? ' data-server="1"' : '' ?>><?= esc($errFor('empId')) ?></div>
                 </div>
                 <div>
                   <label class="form-label reg-label" for="name"><?= lang('Account.full_name') ?> <span class="form-req">*</span></label>
                   <input id="name" class="form-input reg-input<?= $invalid('name') ?>" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" autocomplete="name" required>
-                  <div id="err-name" class="reg-err<?= $errFor('name') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('name') ? ' data-server="1"' : '' ?>><?= esc($errFor('name')) ?></div>
+                  <div id="err-name" class="form-err<?= $errFor('name') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('name') ? ' data-server="1"' : '' ?>><?= esc($errFor('name')) ?></div>
                 </div>
 
                 <div>
@@ -130,7 +130,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                       <option value="<?= esc($d['id'], 'attr') ?>" <?= old('dept') == $d['id'] ? 'selected' : '' ?>><?= esc($d['name']) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <div id="err-dept" class="reg-err<?= $errFor('dept') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('dept') ? ' data-server="1"' : '' ?>><?= esc($errFor('dept')) ?></div>
+                  <div id="err-dept" class="form-err<?= $errFor('dept') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('dept') ? ' data-server="1"' : '' ?>><?= esc($errFor('dept')) ?></div>
                 </div>
                 <div>
                   <label class="form-label reg-label" for="position"><?= lang('Account.position') ?> <span class="form-req">*</span></label>
@@ -140,13 +140,13 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                       <option value="<?= esc($p['id'], 'attr') ?>" <?= old('position') == $p['id'] ? 'selected' : '' ?>><?= esc($p['name']) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <div id="err-position" class="reg-err<?= $errFor('position') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('position') ? ' data-server="1"' : '' ?>><?= esc($errFor('position')) ?></div>
+                  <div id="err-position" class="form-err<?= $errFor('position') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('position') ? ' data-server="1"' : '' ?>><?= esc($errFor('position')) ?></div>
                 </div>
 
                 <div>
                   <label class="form-label reg-label" for="phone"><?= lang('Account.phone') ?> <span class="form-req">*</span></label>
                   <input id="phone" class="form-input reg-input<?= $invalid('phone') ?>" name="phone" value="<?= esc(old('phone')) ?>" placeholder="<?= esc(lang('Account.phone_ph'), 'attr') ?>" maxlength="10" inputmode="numeric" autocomplete="tel" required>
-                  <div id="err-phone" class="reg-err<?= $errFor('phone') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('phone') ? ' data-server="1"' : '' ?>><?= esc($errFor('phone')) ?></div>
+                  <div id="err-phone" class="form-err<?= $errFor('phone') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('phone') ? ' data-server="1"' : '' ?>><?= esc($errFor('phone')) ?></div>
                 </div>
               </div>
 
@@ -162,7 +162,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
               <div class="reg-mb">
                 <label class="form-label reg-label" for="username"><?= lang('Account.username_label') ?> <span class="form-req">*</span></label>
                 <input id="username" class="form-input reg-input<?= $invalid('username') ?>" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph_reg'), 'attr') ?>" autocomplete="username" aria-describedby="username-hint" required>
-                <div id="err-username" class="reg-err<?= $errFor('username') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('username') ? ' data-server="1"' : '' ?>><?= esc($errFor('username')) ?></div>
+                <div id="err-username" class="form-err<?= $errFor('username') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('username') ? ' data-server="1"' : '' ?>><?= esc($errFor('username')) ?></div>
                 <div id="username-hint" class="subtext subtext--faint reg-hint"><?= lang('Account.username_hint') ?></div>
               </div>
 
@@ -177,7 +177,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                       <span class="reg-eye-off"><?= icon('eye-off', 18) ?></span>
                     </button>
                   </div>
-                  <div id="err-password" class="reg-err<?= $errFor('password') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('password') ? ' data-server="1"' : '' ?>><?= esc($errFor('password')) ?></div>
+                  <div id="err-password" class="form-err<?= $errFor('password') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('password') ? ' data-server="1"' : '' ?>><?= esc($errFor('password')) ?></div>
                 </div>
                 <div>
                   <label class="form-label reg-label" for="confirm"><?= lang('Account.confirm_pass') ?> <span class="form-req">*</span></label>
@@ -189,7 +189,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                       <span class="reg-eye-off"><?= icon('eye-off', 18) ?></span>
                     </button>
                   </div>
-                  <div id="err-confirm" class="reg-err<?= $errFor('confirm') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('confirm') ? ' data-server="1"' : '' ?>><?= esc($errFor('confirm')) ?></div>
+                  <div id="err-confirm" class="form-err<?= $errFor('confirm') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('confirm') ? ' data-server="1"' : '' ?>><?= esc($errFor('confirm')) ?></div>
                 </div>
               </div>
 
@@ -228,6 +228,9 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
       'passMin'  => lang('Account.srv_password_min'),
       'confirm'  => lang('Account.srv_confirm_match'),
       'needTerms' => lang('Account.need_terms'),
+      'fieldReq'  => lang('Account.err_field_req'),
+      'deptReq'   => lang('Account.srv_dept_req'),
+      'posReq'    => lang('Account.srv_pos_req'),
       'fixErrors' => lang('Account.fix_errors'),
       'showPass' => lang('Account.show_password'),
       'hidePass' => lang('Account.hide_password'),
@@ -282,7 +285,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
           if (msg) { c.input.setAttribute('aria-invalid', 'true'); bad++; } else { c.input.removeAttribute('aria-invalid'); }
         });
         // error จาก server ที่ยังไม่ได้แก้ - รวมช่องที่ไม่ได้ตรวจสด (แผนก/ตำแหน่ง/username)
-        if (document.querySelector('.reg-err[data-server]')) bad++;
+        if (document.querySelector('.form-err[data-server]')) bad++;
         btn.disabled = !cb.checked || bad > 0;
         btn.title    = !cb.checked ? I18N_ERR.needTerms : (bad > 0 ? I18N_ERR.fixErrors : '');
       }
@@ -313,10 +316,31 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
         el.addEventListener('change', clear);
       });
 
+      // ช่องบังคับกรอกทั้งหมด: [id, ข้อความตอนว่าง]
+      var reqFields = [
+        ['empId', I18N_ERR.fieldReq], ['name', I18N_ERR.fieldReq], ['dept', I18N_ERR.deptReq],
+        ['position', I18N_ERR.posReq], ['phone', I18N_ERR.fieldReq], ['username', I18N_ERR.fieldReq],
+        ['password', I18N_ERR.fieldReq], ['confirm', I18N_ERR.fieldReq],
+      ];
+
+      btn.form.addEventListener('submit', function (e) {
+        var first = null;
+        reqFields.forEach(function (r) {
+          var el = document.getElementById(r[0]), box = document.getElementById('err-' + r[0]);
+          if (el.value.trim() !== '') return;
+          box.textContent = r[1];
+          box.classList.add('is-shown');
+          el.classList.add('is-invalid');
+          el.setAttribute('aria-invalid', 'true');
+          if (! first) first = el;
+        });
+        if (first) { e.preventDefault(); first.focus(); }
+      });
+
       sync();   // ตั้งค่าเริ่มต้น (รวมกรณี old() ค้างหลัง error)
 
       // มี error จาก server -> โฟกัสช่องแรกที่ผิด · ไม่มี -> โฟกัสช่องแรกของฟอร์ม
-      var firstBad = document.querySelector('.reg-err.is-shown');
+      var firstBad = document.querySelector('.form-err.is-shown');
       if (firstBad) {
         var f = firstBad.parentElement.querySelector('.form-input') || firstBad.previousElementSibling;
         if (f && f.focus) f.focus();

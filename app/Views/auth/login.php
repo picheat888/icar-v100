@@ -78,13 +78,14 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
         <div class="alert-error" role="alert"><?= esc($error) ?></div>
       <?php endif; ?>
 
-      <form action="<?= url_to('login') ?>" method="post" id="login-form">
+      <form action="<?= url_to('login') ?>" method="post" id="login-form" novalidate>
         <?= csrf_field() ?>
 
         <label class="form-label" for="login"><?= lang('Account.username_label') ?></label>
         <input id="login" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph'), 'attr') ?>" autocomplete="username"
                required<?= empty($error) ? ' autofocus' : '' ?>
                class="form-input login-input">
+        <div id="err-login" class="form-err" aria-live="polite"></div>
 
         <label class="form-label" for="password"><?= lang('Account.password_label') ?></label>
         <div class="field login-field">
@@ -97,6 +98,7 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
             <span class="login-eye-off"><?= icon('eye-off', 19) ?></span>
           </button>
         </div>
+        <div id="err-password" class="form-err" aria-live="polite"></div>
 
         <button type="submit" id="login-submit" class="btn-primary btn-block login-submit"><?= lang('Account.login_btn') ?></button>
       </form>
@@ -122,10 +124,45 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
       pw.focus();
     });
 
-    // กันกดปุ่มซ้ำ (ยิงซ้ำจะไปกิน throttle ของตัวเอง)
     var form   = document.getElementById('login-form');
     var submit = document.getElementById('login-submit');
-    form.addEventListener('submit', function () {
+    var user   = document.getElementById('login');
+    var MSG    = <?= json_encode(['user' => lang('Account.err_username_req'), 'pass' => lang('Account.err_password_req')], JSON_UNESCAPED_UNICODE) ?>;
+
+    // แสดง/ซ่อนข้อความเตือนใต้ช่อง + ขอบแดง
+    function mark(input, box, msg) {
+      box.textContent = msg;
+      box.classList.toggle('is-shown', !!msg);
+      input.classList.toggle('is-invalid', !!msg);
+      if (msg) { input.setAttribute('aria-invalid', 'true'); } else { input.removeAttribute('aria-invalid'); }
+    }
+
+    var fields = [
+      { input: user, box: document.getElementById('err-login'), msg: MSG.user },
+      { input: pw,   box: document.getElementById('err-password'), msg: MSG.pass },
+    ];
+
+    // พิมพ์แล้วเคลียร์ข้อความของช่องนั้น
+    fields.forEach(function (f) {
+      f.input.addEventListener('input', function () {
+        if (f.input.value.trim() !== '') mark(f.input, f.box, '');
+      });
+    });
+
+    // ช่องว่าง = ไม่ส่ง + โฟกัสช่องแรกที่ขาด · ผ่านแล้วค่อยล็อกปุ่ม (ยิงซ้ำจะไปกิน throttle ของตัวเอง)
+    form.addEventListener('submit', function (e) {
+      var first = null;
+      fields.forEach(function (f) {
+        var bad = f.input.value.trim() === '';
+        mark(f.input, f.box, bad ? f.msg : '');
+        if (bad && ! first) first = f.input;
+      });
+      if (first) {
+        e.preventDefault();
+        first.focus();
+
+        return;
+      }
       submit.disabled    = true;
       submit.textContent = <?= json_encode(lang('Account.login_btn_loading')) ?>;
     });

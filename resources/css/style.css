@@ -9,7 +9,7 @@
       1.2 กล่องไอคอน  .icon-box (+ --round --teal)
       1.3 ป้ายกลม     .pill (+ --teal --orange --gray)
       1.4 ปุ่ม        .btn-primary .btn-ghost .btn-block
-      1.5 ฟอร์ม       .form-label .form-input .field .field-eye
+      1.5 ฟอร์ม       .form-label .form-input .form-err .field .field-eye
       1.6 แจ้งเตือน   .alert-error .alert-success
       1.7 การ์ด       .card
       1.8 การ์ดว่าง   .empty-card .empty-icon
@@ -284,6 +284,19 @@
 /* ช่องที่กรอกผิดรูปแบบ (สลับด้วย JS) */
 .form-input.is-invalid {
   border-color: var(--danger);
+}
+
+/* ข้อความเตือนใต้ช่อง - ซ่อนไว้ก่อน เปิดด้วย .is-shown (ใช้คู่กับ .is-invalid ที่ช่อง) */
+.form-err {
+  display: none;
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.form-err.is-shown {
+  display: block;
 }
 
 /* ช่องรหัสผ่านที่มีปุ่มลูกตา - ตัวครอบให้ปุ่มวางทับด้านขวา */
@@ -1999,18 +2012,6 @@
 }
 
 /* ข้อความเตือนใต้ช่อง - ซ่อนไว้ก่อน โชว์ด้วย .is-shown (สลับจาก JS) */
-.reg-err {
-  display: none;
-  font-size: 12px;
-  color: var(--danger);
-  margin-top: 5px;
-  font-weight: 500;
-}
-
-.reg-err.is-shown {
-  display: block;
-}
-
 /* ยินยอมให้จัดเก็บข้อมูล */
 .reg-terms {
   display: flex;
