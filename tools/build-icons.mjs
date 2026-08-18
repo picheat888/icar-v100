@@ -29,7 +29,7 @@ function extract(file, kind) {
     .replace(/\s+/g, ' ')
     .trim();
 
-  return { viewBox, body, kind };
+  return { vb: viewBox, body, kind };
 }
 
 // escape ให้เป็น string เดี่ยวของ PHP (backslash แล้วค่อย single quote)
@@ -85,7 +85,7 @@ const php = [
   ...names.map((n) => {
     const i = icons[n];
 
-    return '    ' + phpString(n) + ' => [\'vb\' => ' + phpString(i.viewBox)
+    return '    ' + phpString(n) + ' => [\'vb\' => ' + phpString(i.vb)
       + ', \'kind\' => ' + phpString(i.kind)
       + ', \'body\' => ' + phpString(i.body) + '],';
   }),
