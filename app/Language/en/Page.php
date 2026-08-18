@@ -8,7 +8,7 @@ return [
     'calendar_sub_driver' => 'Check work schedule',
     'users'               => 'User Management',
     'users_sub'           => 'Manage members and set access permissions',
-    'bookings'            => 'Booking Management',
+    'bookings'            => 'Booking Requests',
     'bookings_sub'        => 'Review and approve booking requests',
     'cars'                => 'Vehicle Management',
     'cars_sub'            => 'Manage internal and external vehicles',

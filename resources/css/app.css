@@ -1,5 +1,5 @@
-/* โหลดฟอนต์ดีไซน์ระบบ (Prompt) ก่อนทุกอย่าง */
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+/* โหลดฟอนต์ดีไซน์ระบบ (Noto Sans Thai) ก่อนทุกอย่าง */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
@@ -11,8 +11,8 @@
 
 /* ===== Design tokens (อ้างอิงจาก docs/mockuo-master) ===== */
 :root {
-  /* ฟอนต์: UI ใช้ Prompt, ส่วน export PDF ค่อยใช้ Sarabun */
-  --font-ui: "Prompt", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* ฟอนต์: UI ใช้ Noto Sans Thai, ส่วน export PDF ค่อยใช้ Sarabun */
+  --font-ui: "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* สีหลัก */
   --teal: #0c8b87;
