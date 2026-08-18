@@ -351,7 +351,7 @@
   "book.map_link_placeholder": "ลิงก์ Google Maps",
   "book.purpose_placeholder": "ระบุวัตถุประสงค์ในการใช้รถ",
   "book.tab_other": "รถอื่น ๆ (จัดหาโดย Admin)",
-  "book.self_desc": "เลือกรถที่ต้องการ-รถที่แสดงสถานะ \"ไม่ว่าง\" กำลังถูกใช้งานในขณะนี้",
+  "book.self_desc": "เลือกรถที่ต้องการ",
   "book.no_self_cars": "ยังไม่มีรถขับเองในระบบ - ติดต่อ Admin",
   "book.status_busy": "ไม่ว่าง",
   "book.select_this": "เลือกคันนี้",
