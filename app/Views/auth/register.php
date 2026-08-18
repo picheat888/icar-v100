@@ -1,13 +1,21 @@
 <?php
 /**
- * หน้าสมัครสมาชิก 
+ * หน้าสมัครสมาชิก
  * select แผนก/ตำแหน่ง ใช้ id เป็น value (map ตรงกับ FK), โพสต์ไป Auth\RegisterController::attempt
  * รับ: $departments, $positions (array จาก DB)
  */
-helper(['vite', 'form']);
-$errors    = session('errors') ?? [];
-// error ตัวแรกจาก validate หรือ flash 'error' เดี่ยว (เช่น ข้อความจาก filter throttle)
-$firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('error') ?? '');
+helper(['vite', 'form', 'icon']);
+
+// error ราย field จาก validate (key = ชื่อ field) · flash 'error' เดี่ยวคือข้อความรวม เช่นจาก filter throttle
+$errors   = session('errors');
+$fieldErr = is_array($errors) ? $errors : [];
+$flashErr = (string) (session('error') ?? (is_string($errors) ? $errors : ''));
+
+// ข้อความ error ของ field หนึ่ง ('' = ไม่มี)
+$errFor = static fn (string $f): string => (string) ($fieldErr[$f] ?? '');
+
+// attribute ของช่องที่ผิด: คลาสขอบแดง + aria-invalid
+$invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" aria-invalid="true' : '';
 ?>
 <!DOCTYPE html>
 <html lang="<?= esc(service('request')->getLocale()) ?>">
@@ -62,6 +70,15 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
     <main class="reg-main">
       <div class="reg-container">
 
+        <!-- แบรนด์สำหรับจอแคบ (hero ถูกซ่อน) -->
+        <div class="brand reg-brand-narrow">
+          <img src="<?= base_url('logo-1.png') ?>" alt="" class="brand-logo">
+          <div class="brand-text">
+            <div class="brand-name">iCar</div>
+            <div class="brand-sub">BOOKING</div>
+          </div>
+        </div>
+
         <!-- หัวเรื่อง + ปุ่มสลับภาษา -->
         <div class="reg-head">
           <div>
@@ -72,8 +89,10 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
           </div>
         </div>
 
-        <?php if ($firstErr): ?>
-          <div class="alert-error"><?= esc($firstErr) ?></div>
+        <?php if ($flashErr !== ''): ?>
+          <div class="alert-error" role="alert"><?= esc($flashErr) ?></div>
+        <?php elseif ($fieldErr): ?>
+          <div class="alert-error" role="alert"><?= lang('Account.fix_errors') ?></div>
         <?php endif; ?>
 
         <form action="<?= url_to('register') ?>" method="post">
@@ -93,39 +112,41 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
 
               <div class="reg-grid">
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.emp_id') ?> <span class="form-req">*</span></label>
-                  <input class="form-input reg-input" name="empId" value="<?= esc(old('empId')) ?>" placeholder="<?= esc(lang('Account.emp_id_ph'), 'attr') ?>" maxlength="8" required>
-                  <div id="err-empId" class="reg-err"></div>
+                  <label class="form-label reg-label" for="empId"><?= lang('Account.emp_id') ?> <span class="form-req">*</span></label>
+                  <input id="empId" class="form-input reg-input<?= $invalid('empId') ?>" name="empId" value="<?= esc(old('empId')) ?>" placeholder="<?= esc(lang('Account.emp_id_ph'), 'attr') ?>" maxlength="8" autocomplete="off" required>
+                  <div id="err-empId" class="reg-err<?= $errFor('empId') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('empId') ? ' data-server="1"' : '' ?>><?= esc($errFor('empId')) ?></div>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.full_name') ?> <span class="form-req">*</span></label>
-                  <input class="form-input reg-input" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" required>
-                  <div id="err-name" class="reg-err"></div>
+                  <label class="form-label reg-label" for="name"><?= lang('Account.full_name') ?> <span class="form-req">*</span></label>
+                  <input id="name" class="form-input reg-input<?= $invalid('name') ?>" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" autocomplete="name" required>
+                  <div id="err-name" class="reg-err<?= $errFor('name') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('name') ? ' data-server="1"' : '' ?>><?= esc($errFor('name')) ?></div>
                 </div>
 
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.department') ?> <span class="form-req">*</span></label>
-                  <select class="form-input form-select reg-input reg-select" name="dept" required>
+                  <label class="form-label reg-label" for="dept"><?= lang('Account.department') ?> <span class="form-req">*</span></label>
+                  <select id="dept" class="form-input form-select reg-input reg-select<?= $invalid('dept') ?>" name="dept" required>
                     <option value=""><?= lang('Account.choose_dept') ?></option>
                     <?php foreach ($departments as $d): ?>
                       <option value="<?= esc($d['id'], 'attr') ?>" <?= old('dept') == $d['id'] ? 'selected' : '' ?>><?= esc($d['name']) ?></option>
                     <?php endforeach; ?>
                   </select>
+                  <div id="err-dept" class="reg-err<?= $errFor('dept') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('dept') ? ' data-server="1"' : '' ?>><?= esc($errFor('dept')) ?></div>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.position') ?> <span class="form-req">*</span></label>
-                  <select class="form-input form-select reg-input reg-select" name="position" required>
+                  <label class="form-label reg-label" for="position"><?= lang('Account.position') ?> <span class="form-req">*</span></label>
+                  <select id="position" class="form-input form-select reg-input reg-select<?= $invalid('position') ?>" name="position" required>
                     <option value=""><?= lang('Account.choose_pos') ?></option>
                     <?php foreach ($positions as $p): ?>
                       <option value="<?= esc($p['id'], 'attr') ?>" <?= old('position') == $p['id'] ? 'selected' : '' ?>><?= esc($p['name']) ?></option>
                     <?php endforeach; ?>
                   </select>
+                  <div id="err-position" class="reg-err<?= $errFor('position') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('position') ? ' data-server="1"' : '' ?>><?= esc($errFor('position')) ?></div>
                 </div>
 
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.phone') ?> <span class="form-req">*</span></label>
-                  <input class="form-input reg-input" name="phone" value="<?= esc(old('phone')) ?>" placeholder="<?= esc(lang('Account.phone_ph'), 'attr') ?>" maxlength="10" inputmode="numeric" required>
-                  <div id="err-phone" class="reg-err"></div>
+                  <label class="form-label reg-label" for="phone"><?= lang('Account.phone') ?> <span class="form-req">*</span></label>
+                  <input id="phone" class="form-input reg-input<?= $invalid('phone') ?>" name="phone" value="<?= esc(old('phone')) ?>" placeholder="<?= esc(lang('Account.phone_ph'), 'attr') ?>" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+                  <div id="err-phone" class="reg-err<?= $errFor('phone') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('phone') ? ' data-server="1"' : '' ?>><?= esc($errFor('phone')) ?></div>
                 </div>
               </div>
 
@@ -139,19 +160,36 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
               </div>
 
               <div class="reg-mb">
-                <label class="form-label reg-label"><?= lang('Account.username_label') ?> <span class="form-req">*</span></label>
-                <input class="form-input reg-input" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph_reg'), 'attr') ?>" autocomplete="username" required>
-                <div class="subtext subtext--faint reg-hint"><?= lang('Account.username_hint') ?></div>
+                <label class="form-label reg-label" for="username"><?= lang('Account.username_label') ?> <span class="form-req">*</span></label>
+                <input id="username" class="form-input reg-input<?= $invalid('username') ?>" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph_reg'), 'attr') ?>" autocomplete="username" aria-describedby="username-hint" required>
+                <div id="err-username" class="reg-err<?= $errFor('username') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('username') ? ' data-server="1"' : '' ?>><?= esc($errFor('username')) ?></div>
+                <div id="username-hint" class="subtext subtext--faint reg-hint"><?= lang('Account.username_hint') ?></div>
               </div>
 
               <div class="reg-grid">
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.password') ?> <span class="form-req">*</span></label>
-                  <input class="form-input reg-input" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph_reg'), 'attr') ?>" autocomplete="new-password" required>
+                  <label class="form-label reg-label" for="password"><?= lang('Account.password') ?> <span class="form-req">*</span></label>
+                  <div class="field reg-field">
+                    <input id="password" class="form-input reg-input<?= $invalid('password') ?>" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph_reg'), 'attr') ?>" autocomplete="new-password" minlength="8" required>
+                    <button type="button" class="field-eye reg-eye" data-pw="password" tabindex="-1"
+                            aria-label="<?= esc(lang('Account.show_password'), 'attr') ?>" aria-pressed="false">
+                      <span class="reg-eye-on"><?= icon('eye', 18) ?></span>
+                      <span class="reg-eye-off"><?= icon('eye-off', 18) ?></span>
+                    </button>
+                  </div>
+                  <div id="err-password" class="reg-err<?= $errFor('password') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('password') ? ' data-server="1"' : '' ?>><?= esc($errFor('password')) ?></div>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.confirm_pass') ?> <span class="form-req">*</span></label>
-                  <input class="form-input reg-input" name="confirm" type="password" placeholder="<?= esc(lang('Account.confirm_ph'), 'attr') ?>" autocomplete="new-password" required>
+                  <label class="form-label reg-label" for="confirm"><?= lang('Account.confirm_pass') ?> <span class="form-req">*</span></label>
+                  <div class="field reg-field">
+                    <input id="confirm" class="form-input reg-input<?= $invalid('confirm') ?>" name="confirm" type="password" placeholder="<?= esc(lang('Account.confirm_ph'), 'attr') ?>" autocomplete="new-password" required>
+                    <button type="button" class="field-eye reg-eye" data-pw="confirm" tabindex="-1"
+                            aria-label="<?= esc(lang('Account.show_password'), 'attr') ?>" aria-pressed="false">
+                      <span class="reg-eye-on"><?= icon('eye', 18) ?></span>
+                      <span class="reg-eye-off"><?= icon('eye-off', 18) ?></span>
+                    </button>
+                  </div>
+                  <div id="err-confirm" class="reg-err<?= $errFor('confirm') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('confirm') ? ' data-server="1"' : '' ?>><?= esc($errFor('confirm')) ?></div>
                 </div>
               </div>
 
@@ -184,56 +222,107 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
 
   <script>
   var I18N_ERR = <?= json_encode([
-      'emp'   => lang('Account.err_empId'),
-      'name'  => lang('Account.err_name'),
-      'phone' => lang('Account.err_phone'),
+      'emp'      => lang('Account.err_empId'),
+      'name'     => lang('Account.err_name'),
+      'phone'    => lang('Account.err_phone'),
+      'passMin'  => lang('Account.srv_password_min'),
+      'confirm'  => lang('Account.srv_confirm_match'),
+      'needTerms' => lang('Account.need_terms'),
+      'fixErrors' => lang('Account.fix_errors'),
+      'showPass' => lang('Account.show_password'),
+      'hidePass' => lang('Account.hide_password'),
   ], JSON_UNESCAPED_UNICODE) ?>;
-    // ตรวจกติกา 3 ช่อง (รหัสพนักงาน/ชื่อ/เบอร์) + ผูกปุ่มส่งกับ checkbox ยอมรับข้อกำหนด
+
+    // ปุ่มลูกตาของช่องรหัสผ่าน (ทั้ง 2 ช่อง)
     (function () {
-      var cb    = document.getElementById('agree');
-      var btn   = document.getElementById('regSubmit');
-      var empId = document.querySelector('[name="empId"]');
-      var name  = document.querySelector('[name="name"]');
-      var phone = document.querySelector('[name="phone"]');
-      var errEmp = document.getElementById('err-empId');
-      var errName = document.getElementById('err-name');
-      var errPhone = document.getElementById('err-phone');
+      document.querySelectorAll('[data-pw]').forEach(function (btn) {
+        var input = document.getElementById(btn.dataset.pw);
+        btn.addEventListener('click', function () {
+          var show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          btn.classList.toggle('is-shown', show);
+          btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+          btn.setAttribute('aria-label', show ? I18N_ERR.hidePass : I18N_ERR.showPass);
+          input.focus();
+        });
+      });
+    })();
+
+    // ตรวจกติกาในหน้า (รหัสพนักงาน/ชื่อ/เบอร์/ความยาวรหัส/ยืนยันตรงกัน) + ผูกปุ่มส่งกับ checkbox
+    (function () {
+      var cb  = document.getElementById('agree');
+      var btn = document.getElementById('regSubmit');
       if (!cb || !btn) return;
 
-      var RE_EMP   = /^[a-zA-Z0-9]{1,8}$/;                  // อังกฤษ+ตัวเลข ≤ 8
+      var RE_EMP   = /^[a-zA-Z0-9]{1,8}$/;   // อังกฤษ+ตัวเลข ≤ 8
       var RE_NAME  = /^[\p{L}\p{M}\s]+$/u;   // ตัวอักษร (ไทย/อังกฤษ) + สระ/วรรณยุกต์ (\p{M}) + เว้นวรรค · ห้ามเลข/สัญลักษณ์
-      var RE_PHONE = /^[0-9]{1,10}$/;                        // ตัวเลข ≤ 10
+      var RE_PHONE = /^[0-9]{1,10}$/;        // ตัวเลข ≤ 10
 
-      // ตรวจ 1 ช่อง: คืน '' ถ้าผ่าน หรือข้อความเตือน (ว่างไม่เตือน - ปล่อย required จับตอนกดส่ง)
-      function chk(el, re, msg) {
-        var v = el.value;
-        if (v.trim() === '') return '';
-        return re.test(v) ? '' : msg;
-      }
-      // แสดง/ซ่อนข้อความเตือน + ขอบแดงของช่อง
-      function apply(input, box, msg) {
-        box.textContent = msg;
-        box.classList.toggle('is-shown', !!msg);
-        input.classList.toggle('is-invalid', !!msg);
-      }
+      // ช่องที่ตรวจสด: [input, กล่อง error, ฟังก์ชันตรวจ -> '' = ผ่าน]
+      var checks = [
+        ['empId',    function (v) { return RE_EMP.test(v)   ? '' : I18N_ERR.emp; }],
+        ['name',     function (v) { return RE_NAME.test(v)  ? '' : I18N_ERR.name; }],
+        ['phone',    function (v) { return RE_PHONE.test(v) ? '' : I18N_ERR.phone; }],
+        ['password', function (v) { return v.length >= 8    ? '' : I18N_ERR.passMin; }],
+        ['confirm',  function (v) { return v === document.getElementById('password').value ? '' : I18N_ERR.confirm; }],
+      ].map(function (c) {
+        return { input: document.getElementById(c[0]), box: document.getElementById('err-' + c[0]), test: c[1] };
+      });
 
       function sync() {
-        var e1 = chk(empId, RE_EMP,  I18N_ERR.emp);
-        var e2 = chk(name,  RE_NAME, I18N_ERR.name);
-        var e3 = chk(phone, RE_PHONE, I18N_ERR.phone);
-        apply(empId, errEmp, e1);
-        apply(name, errName, e2);
-        apply(phone, errPhone, e3);
-        // ปุ่มกดได้เมื่อ: ติ๊กข้อกำหนด + ไม่มีข้อผิดพลาดรูปแบบทั้ง 3 ช่อง
-        btn.disabled = !(cb.checked && !e1 && !e2 && !e3);
+        var bad = 0;
+        checks.forEach(function (c) {
+          // error จาก server ยังคาอยู่จนกว่าผู้ใช้จะแก้ช่องนั้น - นับรวมด้านล่าง
+          if (c.box.dataset.server) return;
+          var v   = c.input.value;
+          var msg = v.trim() === '' ? '' : c.test(v);   // ว่างไม่เตือน - ปล่อย required จับตอนกดส่ง
+          c.box.textContent = msg;
+          c.box.classList.toggle('is-shown', !!msg);
+          c.input.classList.toggle('is-invalid', !!msg);
+          if (msg) { c.input.setAttribute('aria-invalid', 'true'); bad++; } else { c.input.removeAttribute('aria-invalid'); }
+        });
+        // error จาก server ที่ยังไม่ได้แก้ - รวมช่องที่ไม่ได้ตรวจสด (แผนก/ตำแหน่ง/username)
+        if (document.querySelector('.reg-err[data-server]')) bad++;
+        btn.disabled = !cb.checked || bad > 0;
+        btn.title    = !cb.checked ? I18N_ERR.needTerms : (bad > 0 ? I18N_ERR.fixErrors : '');
       }
 
-      [cb, empId, name, phone].forEach(function (el) {
-        if (!el) return;
-        el.addEventListener('input', sync);
-        el.addEventListener('change', sync);
+      checks.forEach(function (c) {
+        c.input.addEventListener('input', function () { delete c.box.dataset.server; sync(); });
+        c.input.addEventListener('change', sync);
       });
+      // แก้รหัสผ่านแล้วต้องตรวจช่องยืนยันใหม่ด้วย
+      document.getElementById('password').addEventListener('input', function () {
+        delete document.getElementById('err-confirm').dataset.server;
+      });
+      cb.addEventListener('change', sync);
+
+      // เคลียร์ error จาก server ของช่องที่ไม่ได้ตรวจสด (select/username) เมื่อผู้ใช้แก้
+      ['dept', 'position', 'username'].forEach(function (n) {
+        var el = document.getElementById(n), box = document.getElementById('err-' + n);
+        if (!el || !box) return;
+        var clear = function () {
+          delete box.dataset.server;
+          box.textContent = '';
+          box.classList.remove('is-shown');
+          el.classList.remove('is-invalid');
+          el.removeAttribute('aria-invalid');
+          sync();
+        };
+        el.addEventListener('input', clear);
+        el.addEventListener('change', clear);
+      });
+
       sync();   // ตั้งค่าเริ่มต้น (รวมกรณี old() ค้างหลัง error)
+
+      // มี error จาก server -> โฟกัสช่องแรกที่ผิด · ไม่มี -> โฟกัสช่องแรกของฟอร์ม
+      var firstBad = document.querySelector('.reg-err.is-shown');
+      if (firstBad) {
+        var f = firstBad.parentElement.querySelector('.form-input') || firstBad.previousElementSibling;
+        if (f && f.focus) f.focus();
+      } else {
+        document.getElementById('empId').focus();
+      }
     })();
   </script>
 </body>

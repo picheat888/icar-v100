@@ -1869,6 +1869,12 @@
   margin: 0 auto;
 }
 
+/* แบรนด์เหนือฟอร์ม - โชว์เฉพาะจอแคบที่ hero ถูกซ่อน */
+.reg-brand-narrow {
+  display: none;
+  margin-bottom: 22px;
+}
+
 .reg-head {
   display: flex;
   justify-content: space-between;
@@ -1956,6 +1962,33 @@
   padding-right: 34px;
 }
 
+/* ช่องที่มีปุ่มลูกตา - ระยะห่างมาจาก .reg-grid gap ไม่ต้องใช้ margin ของ .field */
+.reg-field {
+  margin-bottom: 0;
+}
+
+/* เว้นที่ให้ปุ่มลูกตา - ต้องประกาศหลัง .reg-input ที่ตั้ง padding เป็น shorthand */
+.reg-field .form-input {
+  padding-right: 40px;
+}
+
+/* ปุ่มลูกตา - ใช้คู่กับ .field-eye */
+.reg-eye {
+  color: var(--text-faint);
+}
+
+.reg-eye-off {
+  display: none;
+}
+
+.reg-eye.is-shown .reg-eye-on {
+  display: none;
+}
+
+.reg-eye.is-shown .reg-eye-off {
+  display: block;
+}
+
 .reg-hint {
   font-size: 11.5px;
   margin-top: 5px;
@@ -2031,16 +2064,41 @@
   box-shadow: none;
 }
 
-/* จอเล็ก: ซ่อนแผง hero + ฟอร์มคอลัมน์เดียว */
+/* จอเล็ก: ซ่อนแผง hero (แบรนด์ย้ายมาอยู่เหนือฟอร์ม) + ลดระยะขอบ */
 @media (max-width: 900px) {
   .reg-hero {
     display: none;
   }
+
+  .reg-brand-narrow {
+    display: flex;
+  }
+
+  .reg-main {
+    padding: 30px 20px;
+  }
+
+  .reg-cardhead {
+    padding: 14px 18px;
+  }
+
+  .reg-cardbody {
+    padding: 22px 18px;
+  }
 }
 
+/* จอมือถือ: ฟอร์มคอลัมน์เดียว + ระยะขอบแคบสุด */
 @media (max-width: 560px) {
   .reg-grid {
     grid-template-columns: 1fr;
+  }
+
+  .reg-main {
+    padding: 22px 14px;
+  }
+
+  .reg-cardbody {
+    padding: 18px 14px;
   }
 }
 

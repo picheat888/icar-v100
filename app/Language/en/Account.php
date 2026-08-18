@@ -11,6 +11,8 @@ return [
     'login_btn_loading' => 'Logging in...',
     'show_password'   => 'Show password',
     'hide_password'   => 'Hide password',
+    'need_terms'      => 'Please accept the terms before signing up',
+    'fix_errors'      => 'Please fix the highlighted fields',
     'no_account'      => "Don't have an account?",
     'register_link'   => 'Sign up',
 
