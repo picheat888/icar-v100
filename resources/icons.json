@@ -41,6 +41,9 @@
   "info":         "lucide:circle-alert",
   "check-circle": "lucide:circle-check",
 
+  "return":       "lucide:rotate-ccw",
+  "cancel":       "lucide:circle-x",
+
   "file-excel":   "fa-solid:file-excel",
   "file-pdf":     "fa-solid:file-pdf",
   "file-csv":     "fa-solid:file-csv"

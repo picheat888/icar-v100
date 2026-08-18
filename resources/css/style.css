@@ -727,6 +727,8 @@
 /* ไอคอนปฏิทินนำหน้าแถบหัวข้อวัน - ไม่หดตามข้อความ */
 .cal-icon {
   flex: none;
+  position: relative;
+  top: -1.5px;
 }
 
 /* ป้ายชื่อฟิลด์ในกริดรายละเอียด */
@@ -4792,6 +4794,9 @@
 
 /* ปุ่มจัดการเล็ก (ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/drawer */
 .mr-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border: none;
   border-radius: 7px;
   padding: 6px 12px;

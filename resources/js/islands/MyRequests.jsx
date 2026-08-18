@@ -8,6 +8,7 @@ import ConfirmDialog from '../lib/ConfirmDialog';
 import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
+import Icon from '../lib/Icon';
 
 // ป้ายชื่อสถานะ - ใช้ชุดกลาง แล้วเขียนทับ 3 คำที่หน้านี้เรียกต่างออกไป
 // (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก - ดู STATUS_CLASS ด้านล่าง)
@@ -110,10 +111,10 @@ export default function MyRequests({ endpoints }) {
   const actionButtons = (b, v) => (
     <>
       {v.showCancel && (
-        <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'cancel' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--danger">{t('common.cancel')}</button>
+        <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'cancel' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--danger"><Icon name="cancel" size={14} />{t('common.cancel')}</button>
       )}
       {v.showReturn && (
-        <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'return' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--teal">{t('myreq.return_btn')}</button>
+        <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'return' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--teal"><Icon name="return" size={14} />{t('myreq.return_btn')}</button>
       )}
     </>
   );
