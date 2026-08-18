@@ -327,6 +327,56 @@
   border-color: #c3ccd3;
 }
 
+/* จัดสไตล์รายการที่กางออกมา - Chromium 135+ เท่านั้น
+   เบราว์เซอร์ที่ไม่รองรับข้ามบล็อกนี้แล้วใช้รายการของระบบปฏิบัติการตามเดิม */
+@supports (appearance: base-select) {
+  .form-select,
+  .form-select::picker(select) {
+    appearance: base-select;
+  }
+
+  /* ซ่อนลูกศรของ base-select ใช้ chevron จาก background-image ด้านบนแทน */
+  .form-select::picker-icon {
+    display: none;
+  }
+
+  .form-select::picker(select) {
+    margin-top: 6px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(20, 40, 55, .14);
+  }
+
+  .form-select option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    color: var(--ink);
+    font-size: 13.5px;
+  }
+
+  .form-select option:hover,
+  .form-select option:focus {
+    background: var(--teal-soft);
+  }
+
+  .form-select option:checked {
+    color: var(--teal-hover);
+    font-weight: 600;
+  }
+
+  /* ติ๊กถูกของตัวที่เลือกอยู่ - ดันไปชิดขวา */
+  .form-select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    color: var(--teal);
+  }
+}
+
 /* ----- 1.6 กล่องข้อความแจ้งเตือน ----- */
 .alert-error {
   background: var(--danger-soft);
