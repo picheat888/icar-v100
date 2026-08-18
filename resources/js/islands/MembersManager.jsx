@@ -6,7 +6,7 @@ import { setNavBadge } from '../lib/navBadge';
 import Table from '../lib/Table';
 import Modal from '../lib/Modal';
 
-// ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง ใช้ .pill--* ธรรมดา ไม่ใช่ .st-*
+// ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง
 const STATUS_LABEL = {
   approved: t('status.approved'),
   pending: t('status.pending'),
@@ -96,7 +96,6 @@ export default function MembersManager({ endpoints, departments = [], positions 
     } finally { setBusy(false); busyRef.current = false; }
   };
 
-  // กรองรายการตามฟิลเตอร์
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return rows.filter((m) => {
@@ -159,7 +158,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
       className={large ? 'mm-edit-btn mm-edit-btn--lg' : 'mm-edit-btn'}>{EDIT_ICON}</button>
   );
 
-  // Toggle เปิด/ปิดใช้งาน - approved = เปิด(เขียว) · rejected = ปิด(เทา) · กดแล้วเปิดหน้ายืนยัน/เลือกสิทธิ์ (คงขั้นตอนเดิม)
+  // Toggle เปิด/ปิดใช้งาน - approved = เปิด(เขียว) · rejected = ปิด(เทา) · กดแล้วเปิดหน้ายืนยัน
   const activeToggle = (m) => {
     if (m.status !== 'approved' && m.status !== 'rejected') return null;
     const on = m.status === 'approved';
@@ -407,7 +406,6 @@ function Foot({ onClose, onOk, okText, okKind, busy }) {
   );
 }
 
-// ไอคอนดินสอ (ปุ่มแก้ไข)
 const EDIT_ICON = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
 );

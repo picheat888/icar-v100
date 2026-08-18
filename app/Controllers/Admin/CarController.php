@@ -110,7 +110,7 @@ class CarController extends BaseController
             }
             $data['note'] = trim((string) $this->request->getPost('note')) ?: null;
         } else {
-            // รถบริษัท (self) ไม่มีคนขับประจำ/หมายเหตุ - ล้างค่าเดิมกันข้อมูลคนขับค้างเมื่อเปลี่ยนประเภทจาก other
+            // รถบริษัท (self) ไม่มีคนขับประจำ/หมายเหตุ - ล้างค่าเดิมทิ้ง
             $data['default_driver_id']   = null;
             $data['default_driver_name'] = null;
             $data['note']                = null;
@@ -169,7 +169,7 @@ class CarController extends BaseController
             return $this->fail('ไม่พบรถ', true);
         }
 
-        // กันลบรถที่ยังมีการจอง active อยู่ (pending/approved/cancel_requested) -> คำขอจะค้างแก้ไม่ได้
+        // กันลบรถที่ยังมีการจอง active (pending/approved/cancel_requested)
         $active = db_connect()->table('bookings')
             ->where('car_id', $id)
             ->whereIn('status', ['pending', 'approved', 'cancel_requested'])

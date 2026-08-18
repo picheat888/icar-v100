@@ -89,8 +89,8 @@ class MasterController extends BaseController
             return $this->fail("มี{$label}นี้อยู่แล้ว");
         }
 
-        // ตรวจผลการบันทึกจริง - ถ้าไม่ผ่าน model validation/DB (เช่นชนซ้ำจาก race) อย่ารายงานว่าสำเร็จ
-        // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
+        // ตรวจผลการบันทึกจริง - ไม่ผ่าน model validation/DB ห้ามรายงานว่าสำเร็จ
+        // ห่อ try/catch กันชนชื่อซ้ำระดับ DB (unique constraint)
         try {
             if ($model->insert(['name' => $name]) === false) {
                 return $this->fail("มี{$label}นี้อยู่แล้ว");
@@ -128,7 +128,7 @@ class MasterController extends BaseController
         }
 
         // ตรวจผลการบันทึกจริง - กันรายงานสำเร็จทั้งที่เขียนไม่ลง
-        // ห่อ try/catch กันกรณีชนชื่อซ้ำระดับ DB (unique constraint) จะ throw เป็น 500 ตอน DBDebug เปิด
+        // ห่อ try/catch กันชนชื่อซ้ำระดับ DB (unique constraint)
         try {
             if ($model->update($id, ['name' => $name]) === false) {
                 return $this->fail("มี{$label}นี้อยู่แล้ว");

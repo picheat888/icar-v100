@@ -144,7 +144,8 @@ class RequestController extends BaseController
             $data = array_merge($data, $assign);
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race approve/reject ชนกัน · จับ affectedRows ก่อนปลด lock (RELEASE_LOCK จะรีเซ็ตค่า)
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race approve/reject ชนกัน
+        // ต้องอ่าน affectedRows ก่อนปลด lock
         $bookings->where('id', $id)->where('status', 'pending')->set($data)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
@@ -162,7 +163,7 @@ class RequestController extends BaseController
         return $this->ok('อนุมัติคำขอเรียบร้อย');
     }
 
-    // POST: มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (เฉพาะรถอื่น ๆ) - เติมกรณีอนุมัติแบบยังไม่มอบหมาย
+    // POST: มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (เฉพาะรถอื่น ๆ)
     public function assignDriver()
     {
         $id       = (int) $this->request->getPost('id');
@@ -183,7 +184,7 @@ class RequestController extends BaseController
             return $this->fail($assign['__error']);
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัล
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel
         $bookings->where('id', $id)->where('status', 'approved')->where('booking_type', 'other')->set($assign)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
@@ -242,7 +243,7 @@ class RequestController extends BaseController
         // คนขับบริษัท - กัน "คนขับซ้อนเวลา" (มีงานช่วงเวลาทับกันอยู่แล้ว)
         if ($driver !== '') {
             $driverId = (int) $driver;
-            // ต้องเป็นผู้ใช้กลุ่ม driver จริง - กันมอบหมายงานให้ user/admin ที่ไม่ใช่คนขับ (งานจะไม่มีใครเห็น)
+            // ต้องเป็นผู้ใช้กลุ่ม driver จริง
             if (! $this->isCompanyDriver($driverId)) {
                 return ['__error' => 'ผู้ใช้ที่เลือกไม่ใช่คนขับของบริษัท'];
             }
@@ -482,7 +483,7 @@ class RequestController extends BaseController
             }
         }
 
-        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel ที่อาจเปลี่ยนสถานะระหว่างเปิดโมดัลแก้ไข
+        // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancelแก้ไข
         $bookings->where('id', $id)->whereIn('status', ['pending', 'approved', 'cancel_requested'])->set($data)->update();
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);

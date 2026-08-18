@@ -21,8 +21,7 @@ const STATUS_LABEL = {
 // ป้ายและสีจึงแยกจาก "completed" ปกติ (ดู .mr-st-done)
 const DONE_LABEL = t('myreq.status_done');
 // คลาสสีตามสถานะ - ตัวที่เป็นค่า status enum จริงจาก DB (pending/approved/cancel_requested/completed)
-// ใช้ชุดกลาง .st-* ร่วมกับ island อื่นเสมอ (Dashboard/Timeline ใช้ enum เดียวกันนี้)
-// rejected/cancelled ไม่อยู่ในชุดกลาง (STATUS_META ตัดสองตัวนี้ออกก่อนถึง client เพราะหน้าอื่นไม่เคยแสดง) จึงมี .mr-st-* ของตัวเอง
+// ใช้ชุดสีกลาง .st-* · rejected/cancelled ใช้ .mr-st-* ของหน้านี้
 const STATUS_CLASS = {
   ...ST_CLASS,
   rejected:         'mr-st-rejected',
@@ -30,7 +29,6 @@ const STATUS_CLASS = {
 };
 // ประเภทรถ: ระวังชื่อพารามิเตอร์ชนกับฟังก์ชัน t() แปลภาษา จึงใช้ bt แทน
 const typeLabel = (bt) => (bt === 'other' ? t('myreq.type_other') : t('myreq.type_self'));
-// จำนวนคำขอต่อหน้า (pagination)
 const PER_PAGE = 20;
 // รุ่นรถที่แสดง: รถขับเอง -> car_model / รถอื่น ๆ -> รถที่ Admin จัดให้ (หลังอนุมัติ)
 const carModelLabel = (b) => (b.booking_type === 'other' ? (b.ext_driver_vehicle || '') : (b.car_model || ''));

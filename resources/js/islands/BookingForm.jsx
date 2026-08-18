@@ -5,7 +5,7 @@ import { MONTHS, DOW, pad } from '../lib/date';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
 
-// สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง) - ไม่ว่าง(กำลังถูกใช้) ใช้สีเดียวกับซ่อมบำรุง (pill--amber)
+// สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง)
 const CAR_STATUS = {
   available:   ['car.status_available', 'pill--green'],
   maintenance: ['car.status_maintenance', 'pill--amber'],
@@ -72,7 +72,6 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     setError('');
     // ชนิดการจอง: มี modal = รถขับเอง, ไม่มี = ตามแท็บที่เปิดอยู่
     const type = modal?.type ?? tab;
-    // สถานที่ปลายทางต้องกรอก
     if (!f.location.trim()) {
       setError(t('book.err_location'));
       return;
@@ -106,7 +105,6 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       setError(t('book.err_map_link_length'));
       return;
     }
-    // รถอื่น ๆ ต้องระบุวัตถุประสงค์
     if (type === 'other' && !f.purpose.trim()) {
       setError(t('book.err_purpose'));
       return;

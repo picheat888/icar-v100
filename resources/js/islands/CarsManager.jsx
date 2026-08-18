@@ -7,7 +7,7 @@ import ConfirmDialog from '../lib/ConfirmDialog';
 import DonePopup from '../lib/DonePopup';
 import { TrashIcon } from '../lib/icons';
 
-// เก็บ key ข้อความสถานะ + สี pill กลาง (green/amber) ไว้ ใช้ t() แปลตอน render (ไม่แปลตอน module โหลด)
+// key ข้อความสถานะ + สี pill - ต้องเรียก t() ตอน render ไม่ใช่ตอน module โหลด
 const CAR_STATUS = {
   available:   ['car.status_available', 'green'],
   maintenance: ['car.status_maintenance', 'amber'],

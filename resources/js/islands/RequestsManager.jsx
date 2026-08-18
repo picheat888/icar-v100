@@ -15,14 +15,13 @@ import { setNavBadge } from '../lib/navBadge';
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
 
 // แสดง 3 กลุ่มสถานะฝั่ง Admin: รออนุมัติ / อนุมัติแล้ว / ยกเลิก+ปฏิเสธ (รวมความหมายเดียวกัน)
-// ป้ายชื่อกลุ่ม (สีมาจาก class .st-*/.rq-st-* แยกต่างหาก - ดู STATUS_CLASS)
+// ป้ายชื่อกลุ่ม (สีอยู่ที่ STATUS_CLASS)
 const STATUS_LABEL = {
   pending: t('status.pending'),
   approved: t('status.approved'),
   cancelled: t('status.rejected'),
 };
-// คลาสสีของแต่ละกลุ่ม - 'pending'/'approved' ตรงกับสถานะจริงในชุดสีกลาง .st-* ใช้ตรง ๆ
-// 'cancelled' รวมสถานะจริง 3 ตัว (rejected/cancelled/cancel_requested) เป็นสีเดียว (แดง) ไม่มีในชุดกลาง จึงมี .rq-st-cancelled ของหน้านี้เอง
+// คลาสสีของแต่ละกลุ่ม - 'cancelled' รวม rejected/cancelled/cancel_requested เป็นสีแดงสีเดียว
 const STATUS_CLASS = {
   pending: 'st-pending',
   approved: 'st-approved',

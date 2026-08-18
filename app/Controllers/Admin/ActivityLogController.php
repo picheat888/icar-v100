@@ -97,7 +97,7 @@ class ActivityLogController extends BaseController
         exit;   // จบ response ตรงนี้ ไม่ให้อะไรมาต่อท้ายไฟล์ CSV
     }
 
-    // กันสูตรทำงานใน Excel/Sheets (formula injection) - ค่าที่เริ่มด้วย = + - @ tab CR ให้นำหน้าด้วย '
+    // กัน formula injection ใน Excel/Sheets - ค่าที่ขึ้นต้นด้วย = + - @ tab CR ให้นำหน้าด้วย '
     private function csvSafe(?string $value): string
     {
         $value = (string) $value;

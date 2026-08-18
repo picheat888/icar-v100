@@ -1,6 +1,5 @@
 // CSRF token กลาง - อ่าน/เขียนจาก <meta name="csrf"> ที่ layout ฝังไว้ (shell.php)
-// ทุก island ต้องใช้ตัวนี้แทนการเก็บ token ใน state ของตัวเอง
-// เพราะ Shield หมุน token ทุก POST - ถ้าแต่ละ island เก็บสำเนาของตัวเอง จะค้างไม่ sync ข้าม island (เช่นกดกระดิ่งแล้ว POST หน้าอื่นพัง)
+// Shield หมุน token ทุก POST - ทุก island ต้องอ่าน/เขียนผ่านที่นี่ ห้ามเก็บสำเนาไว้ใน state
 export function getCsrf() {
   const el = document.querySelector('meta[name="csrf"]');
   return el ? el.getAttribute('content') : '';

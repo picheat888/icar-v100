@@ -32,8 +32,7 @@ class RegisterController extends BaseController
     // รับข้อมูลสมัคร -> สร้าง user + profile (pending)
     public function attempt()
     {
-        // ไม่แยกข้อความ "ถูกปฏิเสธ" ออกจาก "ถูกใช้งานแล้ว" - กันเปิดเผยสถานะบัญชีให้คนภายนอกเดา (privacy)
-        // บัญชีที่ถูก reject ก็ยังมี username/emp_id อยู่ในระบบ จึงถูก is_unique ด้านล่างจับด้วยข้อความเดียวกันกับบัญชีทั่วไป
+        // ใช้ข้อความเดียวกันทั้งบัญชีที่ถูกปฏิเสธและที่ถูกใช้งานแล้ว - ห้ามเปิดเผยสถานะบัญชี
         $rules = [
             'empId'    => 'required|alpha_numeric|max_length[8]|is_unique[user_profiles.emp_id]',
             'name'     => 'required|max_length[150]|regex_match[/^[\p{L}\p{M}\s]+$/u]',

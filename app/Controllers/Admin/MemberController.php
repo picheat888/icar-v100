@@ -146,9 +146,9 @@ class MemberController extends BaseController
             ->countAllResults();
     }
 
-    // ===== guard การเปลี่ยนสิทธิ์ (ใช้ร่วม approve()+update() - แหล่งความจริงเดียว กัน drift) =====
+    // ===== guard การเปลี่ยนสิทธิ์ (ใช้ร่วม approve() + update()) =====
 
-    // guard ที่ไม่ต้องล็อก (บัญชีตัวเอง / คนขับมีงานค้าง) - คืนข้อความ error ตัวแรกที่เจอ หรือ null ถ้าผ่าน
+    // guard ที่ไม่ต้องล็อก (บัญชีตัวเอง / คนขับมีงานค้าง) - คืน error ตัวแรก หรือ null ถ้าผ่าน
     private function roleChangeError(int $userId, $user, string $level): ?string
     {
         // เปลี่ยนสิทธิ์บัญชีตัวเองไม่ได้
@@ -253,7 +253,7 @@ class MemberController extends BaseController
         }
 
         // บังคับเปลี่ยนรหัสตอนล็อกอินครั้งถัดไป - แยกจากการตั้งรหัสใหม่ (ติ๊ก=ตั้ง, ไม่ติ๊ก=ยกเลิก)
-        // checkbox ในฟอร์มสะท้อนสถานะจริงของสมาชิก จึงบันทึกตามค่าที่ส่งมาได้เลย (เมธอด Shield idempotent)
+        // บันทึกตามค่า checkbox ที่ส่งมา (เมธอด Shield idempotent)
         // กันบังคับ "บัญชีตัวเอง" - จะโดน popup ล็อกหน้าจอตัวเองทันที (footgun)
         if ($userId !== (int) auth()->id()) {
             if ($this->request->getPost('forceReset')) {

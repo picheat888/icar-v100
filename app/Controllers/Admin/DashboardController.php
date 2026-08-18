@@ -52,8 +52,8 @@ class DashboardController extends BaseController
             'totalBookings'   => (new BookingModel())->where('deleted_at', null)->countAllResults(),
         ];
 
-        // คำขอล่าสุด - เอา "N วันล่าสุด" แบบครบทั้งวัน (ไม่ตัดคำขอกลางวันเดียวกัน) ที่เหลือกด "ดูทั้งหมด"
-        // listAll เรียง start_at DESC อยู่แล้ว คำขอวันเดียวกันจึงเรียงติดกัน → เก็บจนครบ N วันแล้วหยุด
+        // คำขอล่าสุด - เอา "N วันล่าสุด" แบบครบทั้งวัน ไม่ตัดกลางวัน
+        // อาศัยว่า listAll เรียง start_at DESC มาแล้ว
         $maxDays = 3;
         $recent  = [];
         $seenDates = [];

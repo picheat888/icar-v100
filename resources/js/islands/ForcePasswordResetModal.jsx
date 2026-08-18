@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 
-// ไอคอนกุญแจ (วงกลม teal)
 const lockIcon = (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
 );
-// ไอคอนตา (เปิด/ปิด)
 const eye = (open) => open
   ? <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9aa7b2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></svg>
   : <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9aa7b2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6.5 0-10-8-10-8a18.4 18.4 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22" /></svg>;

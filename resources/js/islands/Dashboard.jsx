@@ -174,7 +174,7 @@ export default function Dashboard({ endpoints, links }) {
                         <div className="dash-brow-time">{rangeShort(b.start_at, b.end_at)}</div>
                         {isPending ? (
                           b.booking_type === 'other' ? (
-                            // รถอื่นๆ: ต้องมอบหมายคนขับก่อนอนุมัติ → ไปทำที่หน้าจัดการคำขอ (อนุมัติ inline ตรงนี้ไม่ได้)
+                            // รถอื่นๆ: ต้องมอบหมายคนขับก่อนอนุมัติ → ไปทำที่หน้าจัดการคำขอ
                             <a href={links.requests} className="dash-brow-act dash-mini-btn dash-mini-btn--teal">{t('dash.assign_driver')}</a>
                           ) : (
                             <div className="dash-brow-act dash-brow-btns">
@@ -226,7 +226,7 @@ function Empty({ text }) {
   return <div className="dash-empty">{text}</div>;
 }
 
-// แถบเตือน - ไอคอนวงกลม ! (กระเพื่อม) + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
+// แถบเตือน - ไอคอน + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
 function AlertBar({ title, sub, tone = 'amber' }) {
   const cls = tone === 'teal' ? 'teal' : 'amber';
   return (
