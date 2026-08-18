@@ -58,6 +58,21 @@ export function overlapsDay(b, dayStr) {
   return s <= dayStr && dayStr <= e;
 }
 
+// ช่วงเวลาบนป้ายของวัน dayStr - จองข้ามวันจะเห็น '08:00 →' / '→ 08:00' / 'ทั้งวัน'
+export function dayRange(b, dayStr, end = effectiveEnd(b)) {
+  const onStart = String(b.start_at).slice(0, 10) === dayStr;
+  const onEnd   = String(end).slice(0, 10) === dayStr;
+  if (onStart && onEnd) return `${hhmm(b.start_at)}-${hhmm(end)}`;
+  if (onStart) return `${hhmm(b.start_at)} →`;
+  if (onEnd) return `→ ${hhmm(end)}`;
+  return t('tl.allday');
+}
+
+// ช่วงเต็มพร้อมวันที่ - ใช้ใน tooltip
+export function fullRange(b, end = effectiveEnd(b)) {
+  return `${dmy(b.start_at)} ${hhmm(b.start_at)} - ${dmy(end)} ${hhmm(end)}`;
+}
+
 // ข้อความสั้นบนป้าย: รถขับเอง = รุ่นรถ · รถอื่นๆ = รถที่กรอก/‘รถจัดหา’
 export function bookingLabel(b) {
   if (b.booking_type === 'self') {

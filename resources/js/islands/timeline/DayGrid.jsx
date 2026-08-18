@@ -1,5 +1,5 @@
 import { t } from '../../lib/i18n';
-import { STATUS_META, hhmm, ymd, parseDT, overlapsDay, bookingLabel, effectiveEnd } from './helpers';
+import { STATUS_META, ymd, parseDT, overlapsDay, bookingLabel, effectiveEnd, dayRange, fullRange } from './helpers';
 
 const DAY_START = 6;   // แกนเวลาเริ่ม 06:00
 const DAY_END = 20;    // แกนเวลาจบ 20:00
@@ -114,14 +114,14 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
                         key={b.id}
                         className={`tl-bar st-${statusKey}${isMobile ? ' tl-bar--mobile' : ''}`}
                         onClick={() => onOpenDetail(b)}
-                        title={`${hhmm(b.start_at)}-${hhmm(eEnd)} ${bookingLabel(b)}`}
+                        title={`${fullRange(b, eEnd)} ${bookingLabel(b)}`}
                         // left/width คำนวณจากช่วงเวลาจองจริงบนแกนเวลาต่อเนื่อง - ค่า runtime
                         style={{
                           left: `${((sh - DAY_START) / SPAN) * 100}%`,
                           width: `${Math.max((eh - sh) / SPAN * 100, 2)}%`,
                         }}
                       >
-                        {hhmm(b.start_at)}-{hhmm(eEnd)}
+                        {dayRange(b, dayStr, eEnd)}
                       </div>
                     );
                   })}
@@ -169,14 +169,14 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
                       <div
                         className={`tl-bar st-${statusKey}${isMobile ? ' tl-bar--mobile' : ''}`}
                         onClick={() => onOpenDetail(b)}
-                        title={`${hhmm(b.start_at)}-${hhmm(b.end_at)} ${bookingLabel(b)}`}
+                        title={`${fullRange(b, b.end_at)} ${bookingLabel(b)}`}
                         // left/width คำนวณจากช่วงเวลาจองจริงบนแกนเวลาต่อเนื่อง - ค่า runtime
                         style={{
                           left: `${((sh - DAY_START) / SPAN) * 100}%`,
                           width: `${Math.max((eh - sh) / SPAN * 100, 2)}%`,
                         }}
                       >
-                        {hhmm(b.start_at)}-{hhmm(b.end_at)}
+                        {dayRange(b, dayStr, b.end_at)}
                       </div>
                     </div>
                   </div>

@@ -275,6 +275,7 @@
   "tl.next_day": "Next day",
   "tl.book_car": "+ Booking",
   "tl.day_empty": "No bookings today - all vehicles are available",
+  "tl.allday": "All day",
   "tl.scroll_hint": "← Scroll horizontally to see the time range →",
   "tl.no_self_cars": "No self-driven vehicles in the system",
   "tl.other_cars_label": "Other vehicles (provided)",

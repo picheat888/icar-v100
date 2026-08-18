@@ -1,5 +1,5 @@
 import { t } from '../../lib/i18n';
-import { STATUS_META, hhmm, overlapsDay } from './helpers';
+import { STATUS_META, overlapsDay, dayRange } from './helpers';
 
 // มุมมองรายวันของคนขับ - ลิสต์งานของวันนั้น (การ์ดเรียงตามเวลา)
 // props: bookings, dayStr, onOpenDetail
@@ -25,7 +25,7 @@ export default function DriverDayList({ bookings, dayStr, onOpenDetail }) {
             className={`tl-dl-card st-${statusKey}`}
           >
             <div className="tl-dl-row">
-              <div className="tl-dl-time">{hhmm(b.start_at)}-{hhmm(b.end_at)}</div>
+              <div className="tl-dl-time">{dayRange(b, dayStr, b.end_at)}</div>
               <span className={`tl-dl-badge st-${statusKey}`}>{meta.label}</span>
             </div>
             <div className="tl-dl-loc">{b.location}</div>

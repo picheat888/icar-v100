@@ -1,4 +1,4 @@
-import { STATUS_META, TH_DOW, ymd, hhmm, monthGridRange, overlapsDay, bookingLabel, effectiveEnd } from './helpers';
+import { STATUS_META, TH_DOW, ymd, monthGridRange, overlapsDay, bookingLabel, dayRange, fullRange } from './helpers';
 
 // ปฏิทินรายเดือน - grid 7x6, แต่ละวันโชว์ป้ายการจองสูงสุด 3 + "+N"
 // props: year, month (0-based), bookings, today (Date), onSelectDay(dateStr), onOpenDetail(booking),
@@ -74,10 +74,10 @@ export default function MonthGrid({ year, month, bookings, today, onSelectDay, o
                 <div
                   key={b.id}
                   onClick={(e) => { e.stopPropagation(); onOpenDetail(b); }}
-                  title={`${hhmm(b.start_at)}-${hhmm(effectiveEnd(b))} ${bookingLabel(b)}`}
+                  title={`${fullRange(b)} ${bookingLabel(b)}`}
                   className={`tl-mg-pill st-${statusKey}${compact ? ' tl-mg-pill--compact' : ''}${!c.inMonth ? ' tl-mg-pill--out' : ''}`}
                 >
-                  {hhmm(b.start_at)}-{hhmm(effectiveEnd(b))} {bookingLabel(b)}
+                  {dayRange(b, c.dateStr)} {bookingLabel(b)}
                 </div>
               );
             })}
