@@ -17,14 +17,15 @@ const carIcon = (
 );
 
 /**
- * จองรถ - grid การ์ดรถ (self) / ฟอร์ม (other) → modal จองรถขับเอง 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม)
+ * จองรถ - แท็บรถขับเอง: grid การ์ดรถ → modal 2 คอลัมน์ (ปฏิทินวันไม่ว่างของรถคันนั้น + ฟอร์ม)
+ * แท็บรถอื่น ๆ: ฟอร์มอยู่ในหน้าเลย ไม่มี modal และไม่มีปฏิทิน (ยังไม่ได้เลือกรถ)
  * props: endpoints {store, availability}, cars, baseUrl, backUrl (หน้าปฏิทินการจองรถของ role นั้น)
  */
 export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
   const [tab, setTab] = useState('self');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [modal, setModal] = useState(null); // {type:'self'|'other', car}
+  const [modal, setModal] = useState(null); // {type:'self', car} - ใช้เฉพาะแท็บรถขับเอง
   const [done, setDone] = useState(false);  // ส่งคำขอสำเร็จ -> โชว์ popup ก่อนเด้งไปหน้าถัดไป
   const [f, setF] = useState({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
   const [booked, setBooked] = useState(new Set()); // วันที่มีจอง (YYYY-MM-DD)
@@ -44,11 +45,6 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   const resetForm = () => setF({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
 
-  const openOther = () => {
-    resetForm(); setError(''); setBooked(new Set());
-    const nowDt = new Date(); setCal({ y: nowDt.getFullYear(), m: nowDt.getMonth() });
-    setModal({ type: 'other', car: null });
-  };
   const availReq = useRef(0);   // ลำดับคำขอ availability ล่าสุด - กัน response เก่ามาทับ (race สลับรถเร็ว ๆ)
   const openSelf = (car) => {
     resetForm(); setError(''); setModal({ type: 'self', car }); setLoadErr(false); setBooked(new Set());
@@ -73,6 +69,8 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
 
   const submit = async () => {
     setError('');
+    // แท็บรถอื่น ๆ ฟอร์มอยู่ในหน้าเลย (ไม่มี modal) จึงอ่านชนิดการจองจาก tab แทน
+    const type = modal?.type ?? tab;
     // สถานที่ปลายทางต้องกรอก
     if (!f.location.trim()) {
       setError(t('book.err_location'));
@@ -107,8 +105,13 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       setError(t('book.err_map_link_length'));
       return;
     }
-    const body = { booking_type: modal.type, ...f };
-    if (modal.type === 'self') body.car_id = modal.car.id;
+    // รถอื่น ๆ ต้องบอกวัตถุประสงค์ - Admin ใช้ข้อมูลนี้เลือกรถและจัดลำดับความสำคัญ
+    if (type === 'other' && !f.purpose.trim()) {
+      setError(t('book.err_purpose'));
+      return;
+    }
+    const body = { booking_type: type, ...f };
+    if (type === 'self') body.car_id = modal.car.id;
     setBusy(true);
     let sent = false;   // ส่งสำเร็จแล้วคง busy ไว้ กันกดซ้ำระหว่างรอ popup
     try {
@@ -159,7 +162,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
     return (
       <div className="bk-cal-box">
-        <div className="bk-cal-title">{modal.type === 'other' ? t('book.cal_title_other') : t('book.cal_title_self')}</div>
+        <div className="bk-cal-title">{t('book.cal_title_self')}</div>
         <div className="bk-cal-head">
           <button onClick={prevMonth} className="bk-nav-btn">‹</button>
           <div className="bk-cal-month">{MONTHS[cal.m]} {cal.y}</div>
@@ -187,14 +190,15 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
           </div>
         </div>
         <div className="bk-cal-legend">
-          {modal.type !== 'other' && <span className="bk-cal-legend-dot" />}
-          {modal.type === 'other' ? t('book.cal_hint_other') : t('book.cal_hint_self')}
+          <span className="bk-cal-legend-dot" />
+          {t('book.cal_hint_self')}
         </div>
       </div>
     );
   };
 
-  const formFields = () => (
+  // isOther = แท็บรถอื่น ๆ - บังคับกรอกวัตถุประสงค์ เพราะ Admin ใช้ตัดสินใจจัดหารถ/คนขับ
+  const formFields = (isOther = false) => (
     <>
       {error && <div className="alert-error">{error}</div>}
       <label className="form-label">{t('book.location_label')} <span className="bk-req">*</span></label>
@@ -207,7 +211,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
         <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
-      <label className="form-label">{t('req.purpose_label')}</label>
+      <label className="form-label">{t('req.purpose_label')} {isOther && <span className="bk-req">*</span>}</label>
       <textarea value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} className="form-input form-input--sm bk-textarea" />
     </>
   );
@@ -216,7 +220,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     <div>
       <div className="seg bk-seg">
         <button onClick={() => setTab('self')} className={`seg-btn bk-seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
-        <button onClick={() => setTab('other')} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
+        <button onClick={() => { setTab('other'); resetForm(); setError(''); }} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
       </div>
 
       {tab === 'self' && (
@@ -260,11 +264,15 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         </div>
       )}
 
+      {/* รถอื่น ๆ: ฟอร์มอยู่ในหน้าเลย ไม่ต้องเปิด modal เพราะแท็บนี้ไม่มีอย่างอื่นให้ทำ
+          และไม่มีปฏิทิน เพราะยังไม่ได้เลือกรถจึงไม่มีตารางว่างให้แสดง */}
       {tab === 'other' && (
         <div className={`bk-other-card${narrow ? ' bk-other-card--narrow' : ''}`}>
-          <h3 className="bk-other-title">{t('book.other_form_title')}</h3>
           <p className="bk-other-desc">{t('book.other_form_desc')}</p>
-          <button onClick={openOther} className="btn-primary">{t('book.other_form_btn')}</button>
+          {formFields(true)}
+          <div className="bk-other-foot">
+            <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{t('book.submit_btn')}</button>
+          </div>
         </div>
       )}
 
@@ -273,31 +281,22 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         <div onClick={() => setModal(null)} className={`modal-backdrop${narrow ? ' modal-backdrop--narrow' : ''}`}>
           <div onClick={(e) => e.stopPropagation()} className="modal-box modal-box--wide">
             <div className={`modal-head${narrow ? ' modal-head--narrow' : ''}`}>
-              <h3 className="modal-title">{modal.type === 'self' ? t('book.modal_title_self') : t('book.modal_title_other')}</h3>
+              <h3 className="modal-title">{t('book.modal_title_self')}</h3>
               <button onClick={() => setModal(null)} className="modal-close">{CloseIcon}</button>
             </div>
 
-            {/* 2 คอลัมน์ทั้ง self และ other: ซ้าย = ข้อมูล+ปฏิทิน, ขวา = ฟอร์ม */}
+            {/* 2 คอลัมน์: ซ้าย = รถที่เลือก + ปฏิทินวันที่รถคันนั้นไม่ว่าง, ขวา = ฟอร์ม */}
             <div className={`bk-modal-body${narrow ? ' bk-modal-body--narrow' : ''}`}>
               <div>
-                {modal.type === 'self' ? (
-                  <>
-                    {loadErr && (
-                      <div className="alert-error alert-error--sm">
-                        {t('book.load_avail_err')}
-                      </div>
-                    )}
-                    <div className="bk-info-box">
-                      <div className="bk-info-label">{t('book.selected_car_label')}</div>
-                      <div className="bk-info-value">{modal.car.model} - {modal.car.plate || '-'}</div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="bk-info-box">
-                    <div className="bk-info-label">{t('book.tab_other')}</div>
-                    <div className="bk-info-note">{t('book.other_car_note')}</div>
+                {loadErr && (
+                  <div className="alert-error alert-error--sm">
+                    {t('book.load_avail_err')}
                   </div>
                 )}
+                <div className="bk-info-box">
+                  <div className="bk-info-label">{t('book.selected_car_label')}</div>
+                  <div className="bk-info-value">{modal.car.model} - {modal.car.plate || '-'}</div>
+                </div>
                 {renderCalendar()}
               </div>
               <div>

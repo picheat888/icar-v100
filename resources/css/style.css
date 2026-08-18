@@ -5309,17 +5309,17 @@
   padding: 18px;
 }
 
-.bk-other-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin: 0 0 5px;
-  color: var(--ink-strong);
-}
-
 .bk-other-desc {
   font-size: 13.5px;
   color: var(--muted);
   margin: 0 0 22px;
+}
+
+/* แถวปุ่มส่งคำขอท้ายฟอร์มรถอื่น ๆ (ฟอร์มอยู่ในหน้า ไม่มี footer ของ modal) */
+.bk-other-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
 }
 
 /* เนื้อหาโมดัล - กริด 2 คอลัมน์ ปฏิทินซ้าย ฟอร์มขวา */
