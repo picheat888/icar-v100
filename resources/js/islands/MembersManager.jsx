@@ -480,12 +480,14 @@ function AddForm({ form, set, departments, positions, onCopied }) {
           {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
           <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
           <div className="mm-pass-row">
-            <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
+            <div className="field mm-pass-field">
+              <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
+              <button type="button" onClick={copyPass} className="field-eye" title={t('mem.copy_pass')}>
+                <Icon name="copy" size={15} />
+              </button>
+            </div>
             <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
               <Icon name="return" size={15} />{t('mem.gen_pass')}
-            </button>
-            <button type="button" onClick={copyPass} className="mm-pass-btn" title={t('mem.copy_pass')}>
-              <Icon name="copy" size={15} />
             </button>
           </div>
 

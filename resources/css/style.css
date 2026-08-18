@@ -5234,8 +5234,12 @@
   gap: 8px;
 }
 
-.mm-pass-input {
+.mm-pass-field {
   flex: 1;
+  margin-bottom: 0;
+}
+
+.mm-pass-input {
   font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
   letter-spacing: .3px;
 }
