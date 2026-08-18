@@ -169,8 +169,25 @@ class CarController extends BaseController
                 $oldImage = $cars->find($id)['image'] ?? null;
             }
             $newName = $file->getRandomName();
-            $file->move(WRITEPATH . 'uploads/cars', $newName);
-            $this->shrinkImage(WRITEPATH . 'uploads/cars/' . $newName);
+            $dir     = WRITEPATH . 'uploads/cars';
+            if (! is_dir($dir)) {
+                @mkdir($dir, 0775, true);
+            }
+            // เขียนไม่ได้ = โฟลเดอร์ผิดเจ้าของ/สิทธิ์ ตอบให้ชัดแทนปล่อยเป็น 500
+            if (! is_dir($dir) || ! is_writable($dir)) {
+                log_message('error', 'อัปโหลดรูปรถไม่ได้: เขียนลง ' . $dir . ' ไม่ได้ (เช็คเจ้าของ/สิทธิ์โฟลเดอร์)');
+
+                return $this->fail('เซิร์ฟเวอร์เขียนไฟล์ลงโฟลเดอร์อัปโหลดไม่ได้ - แจ้งผู้ดูแลระบบให้ตรวจสิทธิ์ writable/uploads/cars');
+            }
+
+            try {
+                $file->move($dir, $newName);
+            } catch (\Throwable $e) {
+                log_message('error', 'ย้ายไฟล์อัปโหลดไม่สำเร็จ: ' . $e->getMessage());
+
+                return $this->fail('บันทึกไฟล์รูปไม่สำเร็จ - แจ้งผู้ดูแลระบบ');
+            }
+            $this->shrinkImage($dir . '/' . $newName);
             $data['image'] = $newName;
         }
 
