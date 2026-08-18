@@ -10,6 +10,16 @@ use App\Models\CarModel;
  */
 class CarController extends BaseController
 {
+    // ความยาวสูงสุด - ตรงกับคอลัมน์ในตาราง cars
+    private const MAX_MODEL = 150;   // varchar(150)
+    private const MAX_PLATE = 30;    // varchar(30)
+    private const MAX_NOTE  = 255;   // varchar(255)
+    private const MAX_SEATS = 99;
+
+    // ย่อรูปที่อัปโหลดให้ด้านยาวสุดไม่เกินค่านี้ (px) แล้วบันทึกที่คุณภาพ IMG_QUALITY
+    private const IMG_MAX     = 1600;
+    private const IMG_QUALITY = 82;
+
     // หน้า "จัดการรถ" (เรนเดอร์ island)
     public function index()
     {
@@ -49,20 +59,38 @@ class CarController extends BaseController
         $id    = (int) $this->request->getPost('id');
         $type  = $this->request->getPost('car_type') === 'other' ? 'other' : 'self';
         $model = trim((string) $this->request->getPost('model'));
-        $plate = trim((string) $this->request->getPost('plate'));
+        // ทะเบียน: ยุบช่องว่างซ้อนให้เหลือช่องเดียว + ตัวอังกฤษเป็นพิมพ์ใหญ่ ให้เทียบซ้ำได้ตรง
+        $plate = strtoupper(preg_replace('/\s+/u', ' ', trim((string) $this->request->getPost('plate'))));
+        $note  = trim((string) $this->request->getPost('note'));
 
         $seats = (int) $this->request->getPost('seats');
 
         if ($model === '') {
             return $this->fail('กรุณากรอกรุ่นรถ');
         }
+        if (mb_strlen($model) > self::MAX_MODEL) {
+            return $this->fail('รุ่นรถยาวไม่เกิน ' . self::MAX_MODEL . ' ตัวอักษร');
+        }
         // ทะเบียนบังคับเฉพาะรถบริษัท (self) - รถจัดหาโดย Admin (other) เว้นว่างได้
         if ($type === 'self' && $plate === '') {
             return $this->fail('กรุณากรอกทะเบียนรถ');
         }
+        if ($plate !== '') {
+            if (mb_strlen($plate) < 2 || mb_strlen($plate) > self::MAX_PLATE) {
+                return $this->fail('ทะเบียนต้องยาว 2-' . self::MAX_PLATE . ' ตัวอักษร');
+            }
+            // อนุญาต: พยัญชนะ/สระไทย, A-Z, 0-9, เว้นวรรค, ขีด - ครอบทุกแบบที่ใช้จริง
+            // (กข 1234 · 1กก 1234 · 70-1234 · ทะเบียนที่มีชื่อจังหวัด)
+            if (preg_match('/^[\p{Thai}A-Z0-9 \-]+$/u', $plate) !== 1) {
+                return $this->fail('ทะเบียนใช้ได้เฉพาะตัวอักษรไทย/อังกฤษ ตัวเลข เว้นวรรค และขีด (-)');
+            }
+        }
+        if ($note !== '' && mb_strlen($note) > self::MAX_NOTE) {
+            return $this->fail('หมายเหตุยาวไม่เกิน ' . self::MAX_NOTE . ' ตัวอักษร');
+        }
         // จำนวนที่นั่งติดลบไม่ได้
-        if ($seats < 0) {
-            return $this->fail('จำนวนที่นั่งต้องไม่ติดลบ');
+        if ($seats < 0 || $seats > self::MAX_SEATS) {
+            return $this->fail('จำนวนที่นั่งต้องอยู่ระหว่าง 0-' . self::MAX_SEATS);
         }
         // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ข้ามคันที่กำลังแก้ไข · รถที่ถูกลบแล้วปล่อยทะเบียนคืน
         // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) - ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
@@ -108,7 +136,7 @@ class CarController extends BaseController
                 $data['default_driver_id']   = null;
                 $data['default_driver_name'] = null;
             }
-            $data['note'] = trim((string) $this->request->getPost('note')) ?: null;
+            $data['note'] = $note ?: null;
         } else {
             // รถบริษัท (self) ไม่มีคนขับประจำ/หมายเหตุ - ล้างค่าเดิมทิ้ง
             $data['default_driver_id']   = null;
@@ -138,6 +166,7 @@ class CarController extends BaseController
             }
             $newName = $file->getRandomName();
             $file->move(WRITEPATH . 'uploads/cars', $newName);
+            $this->shrinkImage(WRITEPATH . 'uploads/cars/' . $newName);
             $data['image'] = $newName;
         }
 
@@ -187,6 +216,33 @@ class CarController extends BaseController
         log_activity('ลบรถ ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
 
         return $this->ok('ลบรถแล้ว');
+    }
+
+    // ย่อรูปให้ด้านยาวสุดไม่เกิน IMG_MAX แล้วบันทึกทับ - ข้าม gif (กันภาพเคลื่อนไหวเสีย)
+    private function shrinkImage(string $path): void
+    {
+        $info = @getimagesize($path);
+        if ($info === false) {
+            return;
+        }
+        [$w, $h] = $info;
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if ($ext === 'gif') {
+            return;
+        }
+        if ($w <= self::IMG_MAX && $h <= self::IMG_MAX) {
+            return;
+        }
+
+        try {
+            service('image')
+                ->withFile($path)
+                ->resize(self::IMG_MAX, self::IMG_MAX, true, $w >= $h ? 'width' : 'height')
+                ->save($path, self::IMG_QUALITY);
+        } catch (\Throwable $e) {
+            // ย่อไม่ได้ก็ใช้ไฟล์เดิม (ผ่าน validate ขนาด <= 2 MB มาแล้ว)
+            log_message('warning', 'ย่อรูปรถไม่สำเร็จ: ' . $e->getMessage());
+        }
     }
 
     // ลบไฟล์รูปใน writable/uploads/cars (basename กัน path traversal)

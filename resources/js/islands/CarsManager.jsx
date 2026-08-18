@@ -189,10 +189,10 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
       {modal && (
         <Modal title={modal.isEdit ? (modal.form.car_type === 'other' ? t('car.title_edit_other') : t('car.title_edit_self')) : (modal.form.car_type === 'other' ? t('car.add_other') : t('car.add_self'))} onClose={() => setModal(null)} bodyClass="cm-modal-body">
           <label className="form-label">{t('car.model_label')} <span className="cm-required">*</span></label>
-          <input value={modal.form.model} onChange={(e) => setForm({ model: e.target.value })} placeholder={t('car.model_placeholder')} className="form-input form-input--sm cm-field-mb" />
+          <input value={modal.form.model} onChange={(e) => setForm({ model: e.target.value })} maxLength={150} placeholder={t('car.model_placeholder')} className="form-input form-input--sm cm-field-mb" />
           <div className="cm-grid2">
-            <div><label className="form-label">{t('car.plate_label')}{modal.form.car_type === 'self' && <span className="cm-required"> *</span>}</label><input value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} className="form-input form-input--sm" /></div>
-            <div><label className="form-label">{t('car.seats_label')}</label><input type="number" min="0" value={modal.form.seats} onChange={(e) => setForm({ seats: e.target.value })} placeholder="0" className="form-input form-input--sm" /></div>
+            <div><label className="form-label">{t('car.plate_label')}{modal.form.car_type === 'self' && <span className="cm-required"> *</span>}</label><input value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} maxLength={30} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} className="form-input form-input--sm" /></div>
+            <div><label className="form-label">{t('car.seats_label')}</label><input type="number" min="0" max="99" value={modal.form.seats} onChange={(e) => setForm({ seats: e.target.value })} placeholder="0" className="form-input form-input--sm" /></div>
           </div>
           <label className="form-label">{t('car.status_label')}</label>
           <select value={modal.form.status} onChange={(e) => setForm({ status: e.target.value })} className="form-input form-input--sm form-select cm-select cm-field-mb">
@@ -219,7 +219,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
                   })}
                 </select>
                 <label className="form-label">{t('car.note_label')}</label>
-                <input value={modal.form.note} onChange={(e) => setForm({ note: e.target.value })} placeholder={t('car.note_placeholder')} className="form-input form-input--sm cm-field-mb" />
+                <input value={modal.form.note} onChange={(e) => setForm({ note: e.target.value })} maxLength={255} placeholder={t('car.note_placeholder')} className="form-input form-input--sm cm-field-mb" />
               </>
             );
           })()}
