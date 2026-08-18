@@ -281,7 +281,7 @@
   "myreq.type_other": "รถอื่น ๆ",
   "myreq.type_self": "รถขับเอง",
   "myreq.return_btn": "คืนรถ",
-  "myreq.empty": "ยังไม่มีคำขอจองรถ - ไปที่เมนู “จองรถ” เพื่อสร้างคำขอ",
+  "myreq.empty": "ยังไม่มีคำขอจองรถ",
   "myreq.col_code": "รหัส",
   "myreq.col_type": "ประเภท",
   "myreq.col_model": "รุ่นรถ",

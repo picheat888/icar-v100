@@ -281,7 +281,7 @@
   "myreq.type_other": "Other vehicle",
   "myreq.type_self": "Self-driven",
   "myreq.return_btn": "Return vehicle",
-  "myreq.empty": "No booking requests yet - go to \"Book a vehicle\" to create one",
+  "myreq.empty": "No booking requests yet",
   "myreq.col_code": "Code",
   "myreq.col_type": "Type",
   "myreq.col_model": "Vehicle model",
