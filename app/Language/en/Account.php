@@ -56,6 +56,7 @@ return [
     // server validation (RegisterController)
     'srv_empId_alnum'   => 'Employee ID may contain only a-z, A-Z and 0-9',
     'srv_empId_max'     => 'Employee ID must not exceed 8 characters',
+    'srv_name_max'      => 'Full name must not exceed 150 characters',
     'srv_name_regex'    => 'Full name may contain only letters (Thai/English); no digits or special characters',
     'srv_username_uniq' => 'This username is already taken. Please choose another.',
     'srv_password_min'  => 'Password must be at least 8 characters',

@@ -47,7 +47,7 @@ class RegisterController extends BaseController
 
         $messages = [
             'empId'    => ['required' => lang('Account.err_required'), 'alpha_numeric' => lang('Account.srv_empId_alnum'), 'max_length' => lang('Account.srv_empId_max'), 'is_unique' => lang('Account.err_uniq_emp')],
-            'name'     => ['required' => lang('Account.err_required'), 'regex_match' => lang('Account.srv_name_regex')],
+            'name'     => ['required' => lang('Account.err_required'), 'max_length' => lang('Account.srv_name_max'), 'regex_match' => lang('Account.srv_name_regex')],
             'username' => ['required' => lang('Account.err_required'), 'is_unique' => lang('Account.srv_username_uniq')],
             // strong_password ไม่ต้องกำหนดข้อความ - กฎส่งเหตุผลเจาะจงของตัวเองมา (แปลไทยที่ Language/th/Auth.php)
             'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],

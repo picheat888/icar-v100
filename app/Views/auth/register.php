@@ -118,7 +118,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
                 </div>
                 <div>
                   <label class="form-label reg-label" for="name"><?= lang('Account.full_name') ?> <span class="form-req">*</span></label>
-                  <input id="name" class="form-input reg-input<?= $invalid('name') ?>" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" autocomplete="name" required>
+                  <input id="name" class="form-input reg-input<?= $invalid('name') ?>" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" maxlength="150" autocomplete="name" required>
                   <div id="err-name" class="form-err<?= $errFor('name') ? ' is-shown' : '' ?>" aria-live="polite"<?= $errFor('name') ? ' data-server="1"' : '' ?>><?= esc($errFor('name')) ?></div>
                 </div>
 
@@ -224,6 +224,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
   var I18N_ERR = <?= json_encode([
       'emp'      => lang('Account.err_empId'),
       'name'     => lang('Account.err_name'),
+      'nameMax'  => lang('Account.srv_name_max'),
       'phone'    => lang('Account.err_phone'),
       'passMin'  => lang('Account.srv_password_min'),
       'confirm'  => lang('Account.srv_confirm_match'),
@@ -264,7 +265,7 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
       // ช่องที่ตรวจสด: [input, กล่อง error, ฟังก์ชันตรวจ -> '' = ผ่าน]
       var checks = [
         ['empId',    function (v) { return RE_EMP.test(v)   ? '' : I18N_ERR.emp; }],
-        ['name',     function (v) { return RE_NAME.test(v)  ? '' : I18N_ERR.name; }],
+        ['name',     function (v) { return v.length > 150 ? I18N_ERR.nameMax : (RE_NAME.test(v) ? '' : I18N_ERR.name); }],
         ['phone',    function (v) { return RE_PHONE.test(v) ? '' : I18N_ERR.phone; }],
         ['password', function (v) { return v.length >= 8    ? '' : I18N_ERR.passMin; }],
         ['confirm',  function (v) { return v === document.getElementById('password').value ? '' : I18N_ERR.confirm; }],

@@ -64,7 +64,7 @@ class MemberController extends BaseController
 
         $messages = [
             'empId'    => ['required' => lang('Account.err_required'), 'alpha_numeric' => lang('Account.srv_empId_alnum'), 'max_length' => lang('Account.srv_empId_max'), 'is_unique' => lang('Account.err_uniq_emp')],
-            'name'     => ['required' => lang('Account.err_required'), 'regex_match' => lang('Account.srv_name_regex')],
+            'name'     => ['required' => lang('Account.err_required'), 'max_length' => lang('Account.srv_name_max'), 'regex_match' => lang('Account.srv_name_regex')],
             'username' => ['required' => lang('Account.err_required'), 'is_unique' => lang('Account.srv_username_uniq')],
             'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
@@ -283,7 +283,7 @@ class MemberController extends BaseController
             return $this->fail('กรุณากรอกชื่อ-นามสกุล');
         }
         if (mb_strlen($name) > 150) {
-            return $this->fail('ชื่อ-นามสกุลยาวเกินไป (สูงสุด 150 ตัวอักษร)');
+            return $this->fail(lang('Account.srv_name_max'));
         }
         if ($phone !== '' && ! preg_match(\App\Validation\PhoneRules::PATTERN, $phone)) {
             return $this->fail(lang('Account.srv_phone_format'));

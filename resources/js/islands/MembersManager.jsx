@@ -389,7 +389,7 @@ function Edit({ form, set, departments, positions, pending, username }) {
       <label className="form-label">{t('mem.username_label')}</label>
       <input value={username || '-'} readOnly className="form-input form-input--sm mm-field-mb" />
       <label className="form-label">{t('mem.col_full_name')}</label>
-      <input value={form.name} onChange={(e) => u('name', e.target.value)} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
+      <input value={form.name} onChange={(e) => u('name', e.target.value)} maxLength={150} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
       <div className="mm-form-grid">
         <div>
           <label className="form-label">{t('mem.dept_label')}</label>
@@ -453,7 +453,7 @@ function AddForm({ form, set, departments, positions, onCopied }) {
           <label className="form-label">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
           <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} placeholder={t('mem.emp_id_ph')} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.col_full_name')} <span className="form-req">*</span></label>
-          <input value={form.name} onChange={(e) => u('name', e.target.value)} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
+          <input value={form.name} onChange={(e) => u('name', e.target.value)} maxLength={150} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.dept_label')} <span className="form-req">*</span></label>
           <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             <option value="">{t('mem.choose_dept')}</option>
