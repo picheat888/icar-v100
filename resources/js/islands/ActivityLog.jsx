@@ -4,6 +4,7 @@ import { t } from '../lib/i18n';
 import { SHORT_MONTHS, pad } from '../lib/date';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
+import Pager from '../lib/Pager';
 
 // 'YYYY-MM-DD HH:MM:SS' -> '21 ก.ค. 2026 · 14:30'
 const fmtTime = (s) => {
@@ -14,6 +15,9 @@ const fmtTime = (s) => {
 };
 // วันนี้/ก่อนหน้า สำหรับ default range (YYYY-MM-DD)
 const ymd = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+
+// จำนวนแถวต่อหน้าที่เลือกได้ - ต้องตรงกับ PER_PAGE_OPTIONS ใน Admin\ActivityLogController
+const PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
 // คลาส pill กลางตามบทบาท (ชุดจำกัด admin/user/driver)
 const ROLE_PILL = {
@@ -35,6 +39,8 @@ export default function ActivityLog({ endpoints }) {
   const [to, setTo] = useState(ymd(today));
   const [logs, setLogs] = useState([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(PER_PAGE_OPTIONS[0]);
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const { showToast, ToastView } = useToast();
@@ -46,12 +52,18 @@ export default function ActivityLog({ endpoints }) {
     const seq = ++seqRef.current;
     setLoading(true);
     setLoadErr(false);
-    fetch(`${endpoints.data}?from=${from}&to=${to}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+    fetch(`${endpoints.data}?from=${from}&to=${to}&page=${page}&perPage=${perPage}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => r.json())
-      .then((d) => { if (seq === seqRef.current) { setLogs(d.logs || []); setTotal(d.total || 0); } })
+      .then((d) => {
+        if (seq !== seqRef.current) return;
+        setLogs(d.logs || []);
+        setTotal(d.total || 0);
+        // server เป็นคนตัดสินหน้าสุดท้าย (เช่นเปลี่ยนช่วงวันที่แล้วรายการลดลง) จึงอ่านกลับมาใช้
+        if (d.page && d.page !== page) setPage(d.page);
+      })
       .finally(() => { if (seq === seqRef.current) setLoading(false); })
       .catch(() => { if (seq === seqRef.current) setLoadErr(true); });
-  }, [endpoints.data, from, to]);
+  }, [endpoints.data, from, to, page, perPage]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -66,6 +78,7 @@ export default function ActivityLog({ endpoints }) {
   );
 
   const mobile = device === 'mobile';
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
 
   return (
     <div>
@@ -74,9 +87,9 @@ export default function ActivityLog({ endpoints }) {
         <div>
           <label className="form-label">{t('log.date_range_label')}</label>
           <div className="al-date-row">
-            <input type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} className="form-input form-input--sm al-date-input" />
+            <input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
             <span className="al-arrow">→</span>
-            <input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} className="form-input form-input--sm al-date-input" />
+            <input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
           </div>
         </div>
         <button onClick={exportCsv} className="btn-primary al-export-btn">
@@ -126,11 +139,23 @@ export default function ActivityLog({ endpoints }) {
           </Table>
         </div>
       )}
-      {!loading && logs.length > 0 && (
-        <div className="al-summary">
-          {total > logs.length
-            ? t('log.showing_recent', { shown: logs.length, total })
-            : t('log.total_items', { n: total })}
+      {/* ท้ายตาราง: เลือกจำนวนแถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา)
+          หน้าเดียวจบก็ยังโชว์ตัวเลือกไว้ ไม่งั้นเลือก 100 แล้วจะกลับมา 10 ไม่ได้ */}
+      {!loading && total > 0 && (
+        <div className="al-foot">
+          <label className="al-perpage">
+            {t('log.rows_per_page')}
+            <select
+              value={perPage}
+              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+              className="form-input form-input--sm al-perpage-select"
+            >
+              {PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
+          {totalPages > 1
+            ? <Pager page={page} totalPages={totalPages} total={total} perPage={perPage} onPage={setPage} />
+            : <div className="al-summary">{t('log.total_items', { n: total })}</div>}
         </div>
       )}
       <ToastView />

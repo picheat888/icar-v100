@@ -22,13 +22,13 @@ class ActivityLogController extends BaseController
         ]);
     }
 
-    // จำนวนแถวสูงสุดที่แสดงบนหน้าเว็บ (เกินกว่านี้ให้ Export CSV ดูครบ)
-    private const PAGE_LIMIT = 15;
+    // จำนวนแถวต่อหน้าที่เลือกได้ - รับเฉพาะค่าในลิสต์นี้ ค่าอื่นตกไปใช้ค่าแรก
+    private const PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
     // จำนวนแถวต่อชุดตอน export CSV - ยิ่งเล็กยิ่งใช้หน่วยความจำน้อย
     private const EXPORT_CHUNK = 500;
 
-    // JSON: log ตามช่วงวันที่ (สูงสุด 15 แถวล่าสุด + จำนวนรวมทั้งหมด)
+    // JSON: log ตามช่วงวันที่ แบ่งหน้าตาม page/perPage
     public function data()
     {
         // กันเปิดตรงจาก browser -> เด้งกลับหน้าหลัก (กันโชว์ JSON ดิบ)
@@ -37,19 +37,33 @@ class ActivityLogController extends BaseController
         }
 
         [$from, $to] = $this->range();
+
+        // perPage ต้องอยู่ในลิสต์ที่อนุญาต กัน client ขอทีเดียวหลักแสนแถว
+        $perPage = (int) $this->request->getGet('perPage');
+        if (! in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
+            $perPage = self::PER_PAGE_OPTIONS[0];
+        }
+
         $model = new ActivityLogModel();
         $total = $model->countInRange($from, $to);
-        $rows  = $model->inRange($from, $to, self::PAGE_LIMIT);
+
+        // กันหน้าเกินช่วงที่มีจริง (เช่นเปลี่ยนช่วงวันที่แล้วรายการลดลง)
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page       = max(1, (int) $this->request->getGet('page'));
+        $page       = min($page, $totalPages);
+
+        $rows = $model->inRange($from, $to, $perPage, ($page - 1) * $perPage);
         foreach ($rows as &$r) {
             $r['role_label'] = $this->roleLabels[$r['role']] ?? '-';
         }
 
         return $this->response->setJSON([
-            'logs'  => $rows,
-            'total' => $total,
-            'limit' => self::PAGE_LIMIT,
-            'from'  => $from,
-            'to'    => $to,
+            'logs'    => $rows,
+            'total'   => $total,
+            'page'    => $page,
+            'perPage' => $perPage,
+            'from'    => $from,
+            'to'      => $to,
         ]);
     }
 

@@ -2901,6 +2901,41 @@
   color: var(--text-faint);
 }
 
+/* ท้ายตารางประวัติการใช้งาน - เลือกจำนวนแถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา) */
+.al-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* .al-summary ในนี้มี margin จาก .al-foot แล้ว */
+.al-foot .al-summary {
+  margin-top: 0;
+}
+
+/* .pager มี margin-top ของตัวเอง - ในแถวนี้ให้จัดชิดขวาแทน */
+.al-foot .pager {
+  margin-top: 0;
+  margin-left: auto;
+}
+
+.al-perpage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.al-perpage-select {
+  width: auto;
+  padding-right: 28px;
+}
+
 /* กริดการ์ดรถ (จัดการรถ) - desktop เริ่มต้น จอแคบดู media query 720px */
 .car-grid {
   display: grid;
