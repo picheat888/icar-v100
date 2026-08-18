@@ -17,15 +17,16 @@ const carIcon = (
 );
 
 /**
- * จองรถ - แท็บรถขับเอง: grid การ์ดรถ → modal 2 คอลัมน์ (ปฏิทินวันไม่ว่างของรถคันนั้น + ฟอร์ม)
- * แท็บรถอื่น ๆ: 2 คอลัมน์ในหน้าเลย ไม่มี modal - ปฏิทินเป็นทางลัดเลือกวัน (ไม่มีวันไม่ว่างให้แสดง)
+ * จองรถ - 2 แท็บ
+ * รถขับเอง: grid การ์ดรถ → modal 2 คอลัมน์ (ปฏิทินวันไม่ว่างของรถคันนั้น + ฟอร์ม)
+ * รถอื่น ๆ: 2 คอลัมน์ในหน้า (ปฏิทินเลือกวัน + ฟอร์ม)
  * props: endpoints {store, availability}, cars, baseUrl, backUrl (หน้าปฏิทินการจองรถของ role นั้น)
  */
 export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
   const [tab, setTab] = useState('self');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [modal, setModal] = useState(null); // {type:'self', car} - ใช้เฉพาะแท็บรถขับเอง
+  const [modal, setModal] = useState(null); // {type:'self', car} - เฉพาะแท็บรถขับเอง
   const [done, setDone] = useState(false);  // ส่งคำขอสำเร็จ -> โชว์ popup ก่อนเด้งไปหน้าถัดไป
   const [f, setF] = useState({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
   const [booked, setBooked] = useState(new Set()); // วันที่มีจอง (YYYY-MM-DD)
@@ -69,7 +70,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
 
   const submit = async () => {
     setError('');
-    // แท็บรถอื่น ๆ ฟอร์มอยู่ในหน้าเลย (ไม่มี modal) จึงอ่านชนิดการจองจาก tab แทน
+    // ชนิดการจอง: มี modal = รถขับเอง, ไม่มี = ตามแท็บที่เปิดอยู่
     const type = modal?.type ?? tab;
     // สถานที่ปลายทางต้องกรอก
     if (!f.location.trim()) {
@@ -105,7 +106,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       setError(t('book.err_map_link_length'));
       return;
     }
-    // รถอื่น ๆ ต้องบอกวัตถุประสงค์ - Admin ใช้ข้อมูลนี้เลือกรถและจัดลำดับความสำคัญ
+    // รถอื่น ๆ ต้องระบุวัตถุประสงค์
     if (type === 'other' && !f.purpose.trim()) {
       setError(t('book.err_purpose'));
       return;
@@ -151,8 +152,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   const prevMonth = () => setCal((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
   const nextMonth = () => setCal((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
 
-  // isOther = แท็บรถอื่น ๆ - ยังไม่ได้เลือกรถจึงไม่มีวันที่ไม่ว่างให้แสดง ปฏิทินทำหน้าที่เป็นทางลัด
-  // เลือกวัน แล้วเติมเวลา 08:00-17:00 ให้ (ไม่มีจุดสีและไม่มี legend จุด)
+  // isOther = รถอื่น ๆ - ไม่มีจุดสีวันไม่ว่าง (ยังไม่ได้เลือกรถ)
   const renderCalendar = (isOther = false) => {
     const first = new Date(cal.y, cal.m, 1).getDay();
     const days = new Date(cal.y, cal.m + 1, 0).getDate();
@@ -199,7 +199,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     );
   };
 
-  // isOther = แท็บรถอื่น ๆ - บังคับกรอกวัตถุประสงค์ เพราะ Admin ใช้ตัดสินใจจัดหารถ/คนขับ
+  // isOther = รถอื่น ๆ - วัตถุประสงค์เป็นช่องบังคับ
   const formFields = (isOther = false) => (
     <>
       {error && <div className="alert-error">{error}</div>}
@@ -266,8 +266,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         </div>
       )}
 
-      {/* รถอื่น ๆ: ฟอร์มอยู่ในหน้าเลย ไม่ต้องเปิด modal เพราะแท็บนี้ไม่มีอย่างอื่นให้ทำ
-          และไม่มีปฏิทิน เพราะยังไม่ได้เลือกรถจึงไม่มีตารางว่างให้แสดง */}
+      {/* รถอื่น ๆ: ปฏิทินซ้าย ฟอร์มขวา */}
       {tab === 'other' && (
         <div className={`bk-other-card${narrow ? ' bk-other-card--narrow' : ''}`}>
           <p className="bk-other-desc">{t('book.other_form_desc')}</p>

@@ -12,14 +12,14 @@ import { ICONS } from './icons-data';
 export default function Icon({ name, size = 20, className = '', strokeWidth = 2 }) {
   const data = ICONS[name];
 
-  // ไม่มีชื่อนี้ในทะเบียน - ไม่เรนเดอร์อะไร ดีกว่าทำให้ island ทั้งตัวพัง
+  // ไม่มีชื่อนี้ในทะเบียน - ไม่เรนเดอร์อะไร
   if (!data) {
     if (import.meta.env.DEV) console.warn(`[Icon] ไม่พบไอคอน "${name}" (เพิ่มได้ที่ resources/icons.json)`);
 
     return null;
   }
 
-  // lucide เป็นไอคอนเส้น ส่วน Font Awesome เป็นรูปทึบ จึงใส่ attribute คนละชุด
+  // lucide เป็นเส้น Font Awesome เป็นทึบ - attribute คนละชุด
   const isStroke = data.kind === 'stroke';
   const paint = isStroke
     ? { fill: 'none', stroke: 'currentColor', strokeWidth, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -33,7 +33,7 @@ export default function Icon({ name, size = 20, className = '', strokeWidth = 2 
       className={className}
       aria-hidden="true"
       {...paint}
-      // เนื้อใน svg มาจากไฟล์ที่ generate ตอน build จาก package ในเครื่อง ไม่ใช่ข้อมูลจากผู้ใช้
+      // เนื้อใน svg มาจากไฟล์ที่ generate ตอน build ไม่ใช่ข้อมูลจากผู้ใช้
       dangerouslySetInnerHTML={{ __html: data.body }}
     />
   );

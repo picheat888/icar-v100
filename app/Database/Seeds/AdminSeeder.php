@@ -12,9 +12,6 @@ use CodeIgniter\Shield\Models\UserModel;
  * สร้างบัญชี Admin คนแรกสำหรับระบบที่เพิ่งติดตั้ง (ใช้บน production ได้)
  *
  * ทำครบในคำสั่งเดียว: user ของ Shield + กลุ่ม admin + โปรไฟล์สถานะ approved
- * จำเป็นเพราะสมัครผ่านหน้าเว็บจะได้ status=pending ซึ่งต้องมี admin มาอนุมัติ
- * ระบบที่ยังไม่มี admin จึงเข้าใช้งานไม่ได้เลย
- *
  * ถามค่าทีละช่องทาง CLI ไม่มีรหัสผ่าน default ฝังไว้ในโค้ด
  * รันซ้ำได้ ถ้ามีบัญชีอยู่แล้วจะเติมเฉพาะส่วนที่ขาด (กลุ่ม / โปรไฟล์)
  *
@@ -50,8 +47,7 @@ class AdminSeeder extends Seeder
     {
         $email = CLI::prompt('Email', null, 'required|valid_email');
 
-        // ใช้ความยาวขั้นต่ำตาม Config\Auth - ไม่ใส่ strong_password เพราะกฎนั้นออกแบบมาสำหรับ
-        // ตรวจรหัสผ่านของผู้ใช้ที่ล็อกอินอยู่ (Shield เองก็ถอดออกตอนสร้าง user ผ่าน CLI)
+        // ความยาวขั้นต่ำตาม Config\Auth
         $minLength = config('Auth')->minimumPasswordLength;
         $rule      = "required|min_length[{$minLength}]";
 

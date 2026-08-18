@@ -120,7 +120,7 @@ class BookingController extends BaseController
         if ($location === '') {
             return $this->fail('กรุณากรอกสถานที่ปลายทาง');
         }
-        // รถอื่น ๆ ต้องระบุวัตถุประสงค์ - Admin ใช้ข้อมูลนี้เลือกรถและคนขับ (รถขับเองไม่ต้อง เพราะผู้ใช้เลือกรถเอง)
+        // รถอื่น ๆ ต้องระบุวัตถุประสงค์ (รถขับเองไม่บังคับ)
         if ($type === 'other' && trim((string) $this->request->getPost('purpose')) === '') {
             return $this->fail('กรุณาระบุวัตถุประสงค์ในการใช้รถ');
         }

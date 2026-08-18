@@ -58,7 +58,7 @@ export default function ActivityLog({ endpoints }) {
         if (seq !== seqRef.current) return;
         setLogs(d.logs || []);
         setTotal(d.total || 0);
-        // server เป็นคนตัดสินหน้าสุดท้าย (เช่นเปลี่ยนช่วงวันที่แล้วรายการลดลง) จึงอ่านกลับมาใช้
+        // server ปรับหน้าให้อยู่ในช่วงที่มีจริง
         if (d.page && d.page !== page) setPage(d.page);
       })
       .finally(() => { if (seq === seqRef.current) setLoading(false); })
@@ -139,8 +139,7 @@ export default function ActivityLog({ endpoints }) {
           </Table>
         </div>
       )}
-      {/* ท้ายตาราง: เลือกจำนวนแถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา)
-          หน้าเดียวจบก็ยังโชว์ตัวเลือกไว้ ไม่งั้นเลือก 100 แล้วจะกลับมา 10 ไม่ได้ */}
+      {/* ท้ายตาราง: เลือกจำนวนแถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา) */}
       {!loading && total > 0 && (
         <div className="al-foot">
           <label className="al-perpage">

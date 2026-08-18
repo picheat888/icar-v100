@@ -57,8 +57,7 @@
   background: linear-gradient(145deg, var(--teal), var(--teal-deep));
 }
 
-/* โลโก้รูปภาพ (logo-1.png) - เป็น app icon เต็มใบ มีพื้นหลังและมุมโค้งในตัว
-   จึงใช้แทนทั้งกล่อง .brand-icon ไม่ใช่วางไว้ข้างใน */
+/* โลโก้รูปภาพ (logo-1.png) - เป็น app icon เต็มใบ มีพื้นหลังและมุมโค้งในตัว */
 .brand-logo {
   flex: none;
   width: var(--brand-size, 40px);
@@ -119,7 +118,7 @@
   background: rgba(255, 255, 255, .14);
 }
 
-/* พื้นโลโก้เป็น teal ใกล้เคียงกับ hero จึงรองพื้นขาวให้อ่านออก */
+/* บนพื้น teal: รองพื้นขาวให้โลโก้ */
 .brand--on-teal .brand-logo {
   background: #fff;
   padding: 3px;
@@ -312,10 +311,8 @@
   font-size: 14px;
 }
 
-/* ช่องเลือก - ใช้คู่กับ .form-input
-   ซ่อนลูกศรของระบบปฏิบัติการแล้ววาดเอง ให้เข้าชุดกับไอคอน lucide ที่เหลือ
-   (chevron-down เส้นหนา 2 ปลายมน) · ต้องอยู่หลัง .form-input เพราะ background
-   ของ .form-input เป็น shorthand ซึ่งล้าง background-image ทิ้ง */
+/* ช่องเลือก - ใช้คู่กับ .form-input และต้องประกาศหลัง .form-input
+   ลูกศรเป็น chevron-down ของ lucide วาดผ่าน data URI */
 .form-select {
   appearance: none;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2354616c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
@@ -2919,7 +2916,7 @@
   color: var(--text-faint);
 }
 
-/* ท้ายตารางประวัติการใช้งาน - เลือกจำนวนแถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา) */
+/* ท้ายตารางประวัติการใช้งาน - แถวต่อหน้า (ซ้าย) + แบ่งหน้า (ขวา) */
 .al-foot {
   display: flex;
   align-items: center;
@@ -2929,12 +2926,10 @@
   margin-top: 12px;
 }
 
-/* .al-summary ในนี้มี margin จาก .al-foot แล้ว */
 .al-foot .al-summary {
   margin-top: 0;
 }
 
-/* .pager มี margin-top ของตัวเอง - ในแถวนี้ให้จัดชิดขวาแทน */
 .al-foot .pager {
   margin-top: 0;
   margin-left: auto;
@@ -2949,7 +2944,7 @@
   white-space: nowrap;
 }
 
-/* ให้สูงและมีเส้นขอบเท่าปุ่มแบ่งหน้าที่อยู่แถวเดียวกัน (.pager-btn = 36px) */
+/* ขนาดเท่า .pager-btn ที่อยู่แถวเดียวกัน */
 .al-perpage-select {
   width: auto;
   height: 36px;
@@ -5376,7 +5371,7 @@
   margin: 0 0 22px;
 }
 
-/* เนื้อหาการ์ดรถอื่น ๆ - ปฏิทินซ้าย ฟอร์มขวา สัดส่วนเดียวกับในโมดัล */
+/* เนื้อหาการ์ดรถอื่น ๆ - ปฏิทินซ้าย ฟอร์มขวา */
 .bk-other-body {
   display: grid;
   grid-template-columns: 1.04fr .96fr;
@@ -5389,7 +5384,7 @@
   gap: 18px;
 }
 
-/* แถวปุ่มส่งคำขอท้ายฟอร์มรถอื่น ๆ (ฟอร์มอยู่ในหน้า ไม่มี footer ของ modal) */
+/* แถวปุ่มส่งคำขอท้ายฟอร์มรถอื่น ๆ */
 .bk-other-foot {
   display: flex;
   justify-content: flex-end;

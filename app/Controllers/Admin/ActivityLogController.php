@@ -38,7 +38,7 @@ class ActivityLogController extends BaseController
 
         [$from, $to] = $this->range();
 
-        // perPage ต้องอยู่ในลิสต์ที่อนุญาต กัน client ขอทีเดียวหลักแสนแถว
+        // perPage ต้องอยู่ในลิสต์ที่อนุญาต
         $perPage = (int) $this->request->getGet('perPage');
         if (! in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
             $perPage = self::PER_PAGE_OPTIONS[0];
@@ -47,7 +47,7 @@ class ActivityLogController extends BaseController
         $model = new ActivityLogModel();
         $total = $model->countInRange($from, $to);
 
-        // กันหน้าเกินช่วงที่มีจริง (เช่นเปลี่ยนช่วงวันที่แล้วรายการลดลง)
+        // หน้าต้องอยู่ในช่วงที่มีจริง
         $totalPages = max(1, (int) ceil($total / $perPage));
         $page       = max(1, (int) $this->request->getGet('page'));
         $page       = min($page, $totalPages);

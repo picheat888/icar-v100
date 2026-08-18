@@ -1,8 +1,7 @@
 import Icon from './Icon';
 
-// ไอคอนที่ใช้ซ้ำข้าม island - ประกอบจากชุดกลาง (resources/icons.json) ผ่าน <Icon />
-// เก็บไว้เป็น element สำเร็จรูปเพื่อให้ที่เรียกใช้เดิมเขียน {CloseIcon} ได้เหมือนเดิม
-// ไอคอนใหม่ ๆ เรียก <Icon name="..." /> ตรง ๆ ได้เลย ไม่ต้องมาเพิ่มที่นี่
+// ไอคอนที่ใช้ซ้ำข้าม island - element สำเร็จรูปจากชุดกลาง (resources/icons.json)
+// ไอคอนอื่นเรียก <Icon name="..." /> ตรง ๆ ได้เลย
 
 // กากบาทปิดโมดัล/drawer
 export const CloseIcon = <Icon name="close" size={22} />;

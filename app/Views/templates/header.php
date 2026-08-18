@@ -8,11 +8,10 @@ $role         = $role ?? 'user';
 $pageTitle    = $pageTitle ?? '';
 $pageSubtitle = $pageSubtitle ?? '';
 
-// ข้อมูลผู้ใช้ปัจจุบันจาก Shield (ใช้เช็ค force_reset ด้านล่าง)
+// ผู้ใช้ปัจจุบันจาก Shield - ใช้เช็ค force_reset ด้านล่าง
 $user = function_exists('auth') ? auth()->user() : null;
 
-// ชื่อที่แสดงข้าง avatar - ชื่อ-นามสกุลจาก user_profiles (ไม่มีก็ fallback เป็น username)
-// โหลด helper ที่นี่เพราะ layout ของ user/driver ไม่ได้โหลด nav ไว้เหมือน layout admin
+// ชื่อที่แสดงข้าง avatar - ชื่อ-นามสกุลจาก user_profiles
 helper('nav');
 $name = current_full_name();
 

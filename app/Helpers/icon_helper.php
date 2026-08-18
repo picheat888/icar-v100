@@ -20,14 +20,14 @@ if (! function_exists('icon')) {
 
         $icons ??= require __DIR__ . '/icons_data.php';
 
-        // ไม่มีชื่อนี้ในทะเบียน - คืนคอมเมนต์ไว้ให้เห็นตอน view source แทนที่จะพังทั้งหน้า
+        // ไม่มีชื่อนี้ในทะเบียน - คืนคอมเมนต์ไว้ให้เห็นตอน view source
         if (! isset($icons[$name])) {
             return '<!-- ไม่พบไอคอน: ' . esc($name) . ' (เพิ่มได้ที่ resources/icons.json) -->';
         }
 
         $data = $icons[$name];
 
-        // lucide เป็นไอคอนเส้น ส่วน Font Awesome เป็นรูปทึบ จึงใส่ attribute คนละชุด
+        // lucide เป็นเส้น Font Awesome เป็นทึบ - attribute คนละชุด
         $paint = $data['kind'] === 'stroke'
             ? 'fill="none" stroke="currentColor" stroke-width="' . $strokeWidth . '" stroke-linecap="round" stroke-linejoin="round"'
             : 'fill="currentColor"';

@@ -7,7 +7,7 @@
 $role   = $role   ?? 'user';
 $active = $active ?? '';
 
-// ไอคอนของแต่ละเมนู - มาจากชุดกลาง (resources/icons.json) ผ่าน helper icon()
+// ไอคอนของแต่ละเมนู - ชุดกลางที่ resources/icons.json
 helper('icon');
 $icons = [
     'dashboard'  => icon('dashboard', 19),
