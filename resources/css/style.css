@@ -5244,6 +5244,12 @@
   letter-spacing: .3px;
 }
 
+/* ยังว่างอยู่ - ใช้ฟอนต์ปกติให้ placeholder ภาษาไทยอ่านได้เหมือนช่องอื่น */
+.mm-pass-input:placeholder-shown {
+  font-family: var(--font-ui);
+  letter-spacing: normal;
+}
+
 .mm-pass-btn {
   display: inline-flex;
   align-items: center;
