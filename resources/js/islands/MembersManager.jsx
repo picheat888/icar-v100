@@ -313,7 +313,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
 
       {/* โมดัล */}
       {modal?.type === 'add' && (
-        <Modal title={t('mem.add_title')} onClose={() => setModal(null)} bodyClass="mm-modal-body" lockBackdrop>
+        <Modal title={t('mem.add_title')} onClose={() => setModal(null)} bodyClass="mm-modal-body" wide lockBackdrop>
           <div className="mm-add-hint">{t('mem.add_hint')}</div>
           <AddForm
             form={modal.form}
@@ -447,66 +447,54 @@ function AddForm({ form, set, departments, positions, onCopied }) {
 
   return (
     <>
-      <div className="mm-add-section">{t('mem.emp_section')}</div>
-      <div className="mm-form-grid">
+      <div className="mm-add-grid">
         <div>
+          <div className="mm-add-section">{t('mem.emp_section')}</div>
           <label className="form-label">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
-          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} className="form-input form-input--sm" />
-        </div>
-        <div>
+          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.col_full_name')} <span className="form-req">*</span></label>
-          <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm" />
-        </div>
-      </div>
-      <div className="mm-form-grid">
-        <div>
+          <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.dept_label')} <span className="form-req">*</span></label>
-          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select">
+          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             <option value="">{t('mem.not_specified_option')}</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
-        </div>
-        <div>
           <label className="form-label">{t('mem.position_label')} <span className="form-req">*</span></label>
-          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select">
+          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             <option value="">{t('mem.not_specified_option')}</option>
             {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
+          <label className="form-label">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
+          <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" className="form-input form-input--sm" />
         </div>
-      </div>
-      <label className="form-label">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
-      <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" className="form-input form-input--sm mm-field-mb" />
 
-      <div className="mm-add-section">{t('mem.login_section')}</div>
-      <div className="mm-form-grid">
         <div>
+          <div className="mm-add-section">{t('mem.login_section')}</div>
           <label className="form-label">{t('mem.username_label')} <span className="form-req">*</span></label>
-          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" className="form-input form-input--sm" />
-        </div>
-        <div>
+          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.role_level_label')} <span className="form-req">*</span></label>
-          <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select">
+          <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
           </select>
+
+          {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
+          <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
+          <div className="mm-pass-row">
+            <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
+            <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
+              <Icon name="return" size={15} />{t('mem.gen_pass')}
+            </button>
+            <button type="button" onClick={copyPass} className="mm-pass-btn" title={t('mem.copy_pass')}>
+              <Icon name="copy" size={15} />
+            </button>
+          </div>
+
+          <label className="mm-checkbox-row mm-force-add">
+            <input type="checkbox" checked={form.force_reset} onChange={(e) => u('force_reset', e.target.checked)} className="mm-checkbox" />
+            <span className="mm-checkbox-label">{t('mem.force_reset_label')}</span>
+          </label>
         </div>
       </div>
-
-      {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
-      <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
-      <div className="mm-pass-row">
-        <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
-        <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
-          <Icon name="return" size={15} />{t('mem.gen_pass')}
-        </button>
-        <button type="button" onClick={copyPass} className="mm-pass-btn" title={t('mem.copy_pass')}>
-          <Icon name="copy" size={15} />
-        </button>
-      </div>
-
-      <label className="mm-checkbox-row mm-force-add">
-        <input type="checkbox" checked={form.force_reset} onChange={(e) => u('force_reset', e.target.checked)} className="mm-checkbox" />
-        <span className="mm-checkbox-label">{t('mem.force_reset_label')}</span>
-      </label>
     </>
   );
 }
