@@ -137,8 +137,8 @@ class CarController extends BaseController
                 $oldImage = $cars->find($id)['image'] ?? null;
             }
             $newName = $file->getRandomName();
-            $file->move(FCPATH . 'uploads/cars', $newName);
-            $data['image'] = 'uploads/cars/' . $newName;
+            $file->move(WRITEPATH . 'uploads/cars', $newName);
+            $data['image'] = $newName;
         }
 
         if ($id) {
@@ -152,8 +152,8 @@ class CarController extends BaseController
         }
 
         // เปลี่ยนรูปสำเร็จ -> ลบไฟล์รูปเก่าทิ้ง
-        if ($oldImage && isset($data['image']) && $oldImage !== $data['image'] && is_file(FCPATH . $oldImage)) {
-            @unlink(FCPATH . $oldImage);
+        if ($oldImage && isset($data['image']) && $oldImage !== $data['image']) {
+            $this->deleteImage($oldImage);
         }
 
         return $this->ok($msg);
@@ -182,14 +182,24 @@ class CarController extends BaseController
         $cars->delete($id);
 
         // ลบไฟล์รูปในโฟลเดอร์ทิ้งทันที (ไม่เก็บไฟล์กำพร้าไว้)
-        $image = $car['image'] ?? null;
-        if ($image && is_file(FCPATH . $image)) {
-            @unlink(FCPATH . $image);
-        }
+        $this->deleteImage($car['image'] ?? null);
 
         log_activity('ลบรถ ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
 
         return $this->ok('ลบรถแล้ว');
+    }
+
+    // ลบไฟล์รูปใน writable/uploads/cars (basename กัน path traversal)
+    private function deleteImage(?string $name): void
+    {
+        $name = basename((string) $name);
+        if ($name === '') {
+            return;
+        }
+        $path = WRITEPATH . 'uploads/cars/' . $name;
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 
     // ===== helper ตอบ JSON พร้อม csrf ใหม่ =====

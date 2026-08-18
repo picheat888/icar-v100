@@ -29,6 +29,19 @@ class CarModel extends Model
     // ดึงรถตามประเภท (self / other)
     public function byType(string $type): array
     {
-        return $this->where('car_type', $type)->orderBy('id', 'DESC')->findAll();
+        return self::withExistingImage($this->where('car_type', $type)->orderBy('id', 'DESC')->findAll());
+    }
+
+    // ล้างค่า image ของแถวที่ไฟล์ไม่มีอยู่จริง - กัน UI โชว์รูปแตก (ไฟล์อยู่ writable/uploads/cars)
+    public static function withExistingImage(array $rows): array
+    {
+        foreach ($rows as &$r) {
+            $name = basename((string) ($r['image'] ?? ''));
+            if ($name === '' || ! is_file(WRITEPATH . 'uploads/cars/' . $name)) {
+                $r['image'] = null;
+            }
+        }
+
+        return $rows;
     }
 }

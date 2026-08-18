@@ -4,7 +4,7 @@ return [
     'dashboard'  => 'Dashboard',
     'calendar'   => 'Booking',
     'users'      => 'User Management',
-    'bookings'   => 'Booking Management',
+    'bookings'   => 'Booking Requests',
     'cars'       => 'Vehicle Management',
     'myRequests' => 'My Requests',
     'log'        => 'Activity Log',

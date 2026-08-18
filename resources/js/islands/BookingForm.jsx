@@ -239,7 +239,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
                 return (
                   <div key={v.id} className="book-card">
                     <div className="book-card-img">
-                      {v.image ? <img src={baseUrl + v.image} alt={v.model} className="car-photo" /> : carIcon}
+                      {v.image ? <img src={baseUrl + 'car-image/' + v.id} alt={v.model} className="car-photo" /> : carIcon}
                     </div>
                     <div className="book-card-body">
                       <div className="bk-card-head">

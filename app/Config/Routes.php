@@ -74,6 +74,9 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
     $routes->post('change-password', 'ProfileController::updatePassword');  // บันทึกรหัสผ่านใหม่
     $routes->post('force-reset-password', 'ProfileController::forceReset'); // บันทึกรหัสใหม่จาก popup บังคับเปลี่ยนรหัส
 
+    // รูปรถ - ไฟล์อยู่นอก webroot จึงต้องผ่าน controller (ทุก role ที่ล็อกอินดูได้)
+    $routes->get('car-image/(:num)', 'CarImageController::show/$1');
+
     // แจ้งเตือน (กระดิ่ง) - ทุก role ที่ล็อกอิน
     $routes->get('notifications/data',      'NotificationController::data');
     $routes->post('notifications/read',     'NotificationController::read');

@@ -51,7 +51,7 @@ class BookingController extends BaseController
     public function index()
     {
         // รถขับเองทั้งหมด (โชว์รวมที่ซ่อมบำรุงด้วย แต่กดจองไม่ได้)
-        $cars     = (new CarModel())->where('car_type', 'self')->orderBy('model')->findAll();
+        $cars     = CarModel::withExistingImage((new CarModel())->where('car_type', 'self')->orderBy('model')->findAll());
         $bookings = new BookingModel();
 
         $now  = date('Y-m-d H:i:s');

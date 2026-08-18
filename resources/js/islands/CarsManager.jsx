@@ -157,7 +157,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
             <div key={c.id} className="car-card">
               <div className="car-card-img">
                 {c.image
-                  ? <img src={baseUrl + c.image} alt={c.model} className="car-photo" />
+                  ? <img src={baseUrl + 'car-image/' + c.id} alt={c.model} className="car-photo" />
                   : <CarIcon />}
               </div>
               <div className="car-card-body">
@@ -227,7 +227,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
           <label className="form-label">{t('car.image_label')}</label>
           <input type="file" accept="image/*" onChange={(e) => setForm({ imageFile: e.target.files[0] || null })} className="form-input form-input--sm cm-file-input" />
           {modal.form.image && !modal.form.imageFile && (
-            <img src={baseUrl + modal.form.image} alt="" className="cm-preview-img" />
+            <img src={baseUrl + 'car-image/' + modal.form.id} alt="" className="cm-preview-img" />
           )}
 
           <div className="cm-modal-footer">

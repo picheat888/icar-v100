@@ -1144,6 +1144,14 @@
   font-weight: 600;
 }
 
+/* ชื่อเมนู - ห้ามตกบรรทัด ทุกแถวจะสูงเท่ากันไม่ว่าชื่อยาวแค่ไหน (ยาวเกินตัดด้วย ...) */
+.nav-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* ปุ่มออกจากระบบ (ท้าย sidebar) */
 .nav-logout {
   display: flex;
