@@ -59,7 +59,7 @@ class MemberController extends BaseController
             'password' => 'required|min_length[8]|max_length[72]|strong_password[]',
             'dept'     => 'required|is_not_unique[departments.id]',
             'position' => 'required|is_not_unique[positions.id]',
-            'phone'    => 'required|regex_match[/^[0-9]+$/]|max_length[10]',
+            'phone'    => 'required|thai_phone',
         ];
 
         $messages = [
@@ -69,7 +69,7 @@ class MemberController extends BaseController
             'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
             'position' => ['required' => lang('Account.srv_pos_req'), 'is_not_unique' => lang('Account.srv_pos_invalid')],
-            'phone'    => ['required' => lang('Account.srv_phone_req'), 'regex_match' => lang('Account.srv_phone_regex'), 'max_length' => lang('Account.srv_phone_max')],
+            'phone'    => ['required' => lang('Account.srv_phone_req'), 'thai_phone' => lang('Account.srv_phone_format')],
         ];
 
         $level = (string) $this->request->getPost('level');
@@ -285,8 +285,8 @@ class MemberController extends BaseController
         if (mb_strlen($name) > 150) {
             return $this->fail('ชื่อ-นามสกุลยาวเกินไป (สูงสุด 150 ตัวอักษร)');
         }
-        if ($phone !== '' && mb_strlen($phone) > 30) {
-            return $this->fail('เบอร์โทรยาวเกินไป');
+        if ($phone !== '' && ! preg_match(\App\Validation\PhoneRules::PATTERN, $phone)) {
+            return $this->fail(lang('Account.srv_phone_format'));
         }
         if ($dept !== null && ! (new DepartmentModel())->find((int) $dept)) {
             return $this->fail('แผนกไม่ถูกต้อง');

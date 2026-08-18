@@ -41,7 +41,7 @@ class RegisterController extends BaseController
             'confirm'  => 'required|matches[password]',
             'dept'     => 'required|is_not_unique[departments.id]',
             'position' => 'required|is_not_unique[positions.id]',
-            'phone'    => 'required|regex_match[/^[0-9]+$/]|max_length[10]',
+            'phone'    => 'required|thai_phone',
             'terms'    => 'required',
         ];
 
@@ -54,7 +54,7 @@ class RegisterController extends BaseController
             'confirm'  => ['matches' => lang('Account.srv_confirm_match')],
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
             'position' => ['required' => lang('Account.srv_pos_req'), 'is_not_unique' => lang('Account.srv_pos_invalid')],
-            'phone'    => ['required' => lang('Account.srv_phone_req'), 'regex_match' => lang('Account.srv_phone_regex'), 'max_length' => lang('Account.srv_phone_max')],
+            'phone'    => ['required' => lang('Account.srv_phone_req'), 'thai_phone' => lang('Account.srv_phone_format')],
             'terms'    => ['required' => lang('Account.err_terms')],
         ];
 

@@ -28,6 +28,8 @@ class Validation extends BaseConfig
         CreditCardRules::class,
         // กฎ strong_password[] ของ Shield (composition / dictionary / ไม่ใกล้เคียงข้อมูลส่วนตัว)
         PasswordRules::class,
+        // กฎ thai_phone ของแอป (มือถือ 10 หลัก / เบอร์บ้าน 9 หลัก)
+        \App\Validation\PhoneRules::class,
     ];
 
     /**

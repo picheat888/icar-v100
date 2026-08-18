@@ -46,7 +46,7 @@ return [
 
     'err_empId'       => 'Only a-z, A-Z and 0-9 are allowed, up to 8 characters.',
     'err_name'        => 'Only letters (Thai/English) are allowed. No digits or special characters.',
-    'err_phone'       => 'Only digits 0-9 are allowed, up to 10 characters.',
+    'err_phone'       => 'Invalid number - 10 digits for mobile or 9 digits for landline',
     'err_required'    => 'Please fill in all required fields.',
     'err_terms'       => 'Please accept the terms of use before signing up.',
     'err_uniq_emp'    => 'This employee ID is already in use.',
@@ -65,8 +65,7 @@ return [
     'srv_pos_req'       => 'Please select a position',
     'srv_pos_invalid'   => 'Invalid position',
     'srv_phone_req'     => 'Please enter a phone number',
-    'srv_phone_regex'   => 'Phone number may contain only digits 0-9',
-    'srv_phone_max'     => 'Phone number must not exceed 10 characters',
+    'srv_phone_format'  => 'Invalid phone number - 10 digits for mobile or 9 digits for landline, digits only',
 
     // hero panel (login)
     'hero_title'        => 'Car Booking Management System',
