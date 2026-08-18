@@ -180,19 +180,19 @@ export default function MembersManager({ endpoints, departments = [], positions 
       <div className="filter-card">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder={t('mem.search_placeholder')} className="form-input form-input--sm mm-input--search" />
-        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="form-input form-input--sm mm-filter-select">
+        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="form-input form-input--sm form-select mm-filter-select">
           <option value="all">{t('mem.all_status')}</option>
           <option value="pending">{t('status.pending')}</option>
           <option value="approved">{t('status.approved')}</option>
           <option value="rejected">{t('status.rejected')}</option>
         </select>
-        <select value={fRole} onChange={(e) => setFRole(e.target.value)} className="form-input form-input--sm mm-filter-select">
+        <select value={fRole} onChange={(e) => setFRole(e.target.value)} className="form-input form-input--sm form-select mm-filter-select">
           <option value="all">{t('mem.all_roles')}</option>
           <option value="user">{t('mem.role_user')}</option>
           <option value="driver">{t('mem.role_driver')}</option>
           <option value="admin">Admin</option>
         </select>
-        <select value={fDept} onChange={(e) => setFDept(e.target.value)} className="form-input form-input--sm mm-filter-select">
+        <select value={fDept} onChange={(e) => setFDept(e.target.value)} className="form-input form-input--sm form-select mm-filter-select">
           <option value="all">{t('mem.all_depts')}</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </select>
@@ -296,7 +296,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
             <div className="mm-member-box-sub">{modal.member.emp_id} · {modal.member.dept || '-'} · {modal.member.position || '-'}</div>
           </div>
           <label className="form-label">{t('mem.select_role_label')}</label>
-          <select value={modal.level} onChange={(e) => setModal({ ...modal, level: e.target.value })} className="form-input form-input--sm mm-select">
+          <select value={modal.level} onChange={(e) => setModal({ ...modal, level: e.target.value })} className="form-input form-input--sm form-select mm-select">
             {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
           </select>
           <Foot onClose={() => setModal(null)} onOk={doApprove} okText={modal.member.status === 'rejected' ? t('mem.confirm_enable') : t('mem.confirm_approve')} okKind="success" busy={busy} />
@@ -356,14 +356,14 @@ function Edit({ form, set, departments, positions, pending, username }) {
       <div className="mm-form-grid">
         <div>
           <label className="form-label">{t('mem.dept_label')}</label>
-          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm mm-select">
+          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select">
             <option value="">{t('mem.not_specified_option')}</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         </div>
         <div>
           <label className="form-label">{t('mem.position_label')}</label>
-          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm mm-select">
+          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select">
             <option value="">{t('mem.not_specified_option')}</option>
             {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
@@ -372,7 +372,7 @@ function Edit({ form, set, departments, positions, pending, username }) {
       <label className="form-label">{t('mem.phone_full_label')}</label>
       <input value={form.phone} onChange={(e) => u('phone', e.target.value)} className="form-input form-input--sm mm-field-mb" />
       <label className="form-label">{t('mem.role_level_label')}</label>
-      <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm mm-select">
+      <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select">
         {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
       </select>
       {pending && <div className="mm-pending-note">{t('mem.pending_note')}</div>}

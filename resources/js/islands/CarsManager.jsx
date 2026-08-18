@@ -195,7 +195,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
             <div><label className="form-label">{t('car.seats_label')}</label><input type="number" min="0" value={modal.form.seats} onChange={(e) => setForm({ seats: e.target.value })} placeholder="0" className="form-input form-input--sm" /></div>
           </div>
           <label className="form-label">{t('car.status_label')}</label>
-          <select value={modal.form.status} onChange={(e) => setForm({ status: e.target.value })} className="form-input form-input--sm cm-select cm-field-mb">
+          <select value={modal.form.status} onChange={(e) => setForm({ status: e.target.value })} className="form-input form-input--sm form-select cm-select cm-field-mb">
             <option value="available">{t('car.status_available')}</option>
             <option value="maintenance">{t('car.status_maintenance')}</option>
           </select>
@@ -211,7 +211,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
             return (
               <>
                 <label className="form-label">{t('car.regular_driver_label')}</label>
-                <select value={modal.form.driver_id} onChange={(e) => setForm({ driver_id: e.target.value })} className="form-input form-input--sm cm-select cm-field-mb">
+                <select value={modal.form.driver_id} onChange={(e) => setForm({ driver_id: e.target.value })} className="form-input form-input--sm form-select cm-select cm-field-mb">
                   <option value="">{t('car.no_driver_option')}</option>
                   {drivers.map((d) => {
                     const taken = takenBy[String(d.id)];   // ถ้าผูกกับรถคันอื่นแล้ว = เลือกไม่ได้

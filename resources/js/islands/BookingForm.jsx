@@ -413,9 +413,9 @@ function DateTimeField({ value, onChange, placeholder }) {
             {/* เวลา: ชั่วโมง : นาที */}
             <div className="bk-dtp-time-row">
               <span className="bk-dtp-time-label">{t('book.time_label')}</span>
-              <select value={hh} onChange={(e) => setHh(e.target.value)} className="form-input form-input--sm bk-dtp-select">{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
+              <select value={hh} onChange={(e) => setHh(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
               <span className="bk-dtp-colon">:</span>
-              <select value={mm} onChange={(e) => setMm(e.target.value)} className="form-input form-input--sm bk-dtp-select">{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+              <select value={mm} onChange={(e) => setMm(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
             </div>
             {/* เตือนเมื่อเลือกเวลาที่ผ่านมาแล้ว */}
             {selPast && <div className="bk-dtp-warn">{t('book.past_datetime_err')}</div>}

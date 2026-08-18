@@ -331,7 +331,7 @@ export default function RequestsManager({ endpoints }) {
         {isOther ? driverPicker() : (
           <>
             <label className="form-label">{t('req.car_self_label')}</label>
-            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm rq-select">
+            <select value={modal.form.car_id} onChange={(e) => setForm({ car_id: e.target.value })} className="form-input form-input--sm form-select rq-select">
               {cars.map((c) => <option key={c.id} value={c.id}>{c.model}{c.plate ? ` - ${c.plate}` : ''} ({t('req.seats_count', { n: c.seats })})</option>)}
             </select>
           </>
@@ -365,7 +365,7 @@ export default function RequestsManager({ endpoints }) {
     return (
       <>
         <label className="form-label">{t('req.pick_driver_label')}</label>
-        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} className="form-input form-input--sm rq-select rq-field-gap-lg">
+        <select value={modal.form.driver} onChange={(e) => pickDriver(e.target.value)} className="form-input form-input--sm form-select rq-select rq-field-gap-lg">
           <option value="">{t('req.not_assigned_option')}</option>
           {drivers.map((d) => <option key={d.id} value={d.id}>{d.name || t('req.driver_hash', { n: d.id })}</option>)}
           <option value="external">{t('req.external_driver_option')}</option>
@@ -423,10 +423,10 @@ export default function RequestsManager({ endpoints }) {
       {/* ฟิลเตอร์ */}
       <div className="filter-card">
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('req.search_placeholder')} className="form-input form-input--sm rq-input-search" />
-        <select value={fType} onChange={(e) => setFType(e.target.value)} className="form-input form-input--sm rq-filter-select">
+        <select value={fType} onChange={(e) => setFType(e.target.value)} className="form-input form-input--sm form-select rq-filter-select">
           <option value="all">{t('req.all_types')}</option><option value="self">{t('req.car_self')}</option><option value="other">{t('req.car_other')}</option>
         </select>
-        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="form-input form-input--sm rq-filter-select">
+        <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} className="form-input form-input--sm form-select rq-filter-select">
           <option value="all">{t('req.all_statuses')}</option><option value="pending">{t('status.pending')}</option><option value="approved">{t('status.approved')}</option><option value="cancelled">{t('status.rejected')}</option>
         </select>
         {/* กรองตามวันที่ใช้รถ (เฉพาะวันที่ต้องการ) */}

@@ -1845,6 +1845,7 @@
 
 .reg-select {
   cursor: pointer;
+  padding-right: 34px;
 }
 
 .reg-req {

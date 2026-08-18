@@ -105,7 +105,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
 
                 <div>
                   <label class="form-label reg-label"><?= lang('Account.department') ?> <span class="reg-req">*</span></label>
-                  <select class="form-input reg-input reg-select" name="dept" required>
+                  <select class="form-input form-select reg-input reg-select" name="dept" required>
                     <option value=""><?= lang('Account.choose_dept') ?></option>
                     <?php foreach ($departments as $d): ?>
                       <option value="<?= esc($d['id'], 'attr') ?>" <?= old('dept') == $d['id'] ? 'selected' : '' ?>><?= esc($d['name']) ?></option>
@@ -114,7 +114,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
                 </div>
                 <div>
                   <label class="form-label reg-label"><?= lang('Account.position') ?> <span class="reg-req">*</span></label>
-                  <select class="form-input reg-input reg-select" name="position" required>
+                  <select class="form-input form-select reg-input reg-select" name="position" required>
                     <option value=""><?= lang('Account.choose_pos') ?></option>
                     <?php foreach ($positions as $p): ?>
                       <option value="<?= esc($p['id'], 'attr') ?>" <?= old('position') == $p['id'] ? 'selected' : '' ?>><?= esc($p['name']) ?></option>
