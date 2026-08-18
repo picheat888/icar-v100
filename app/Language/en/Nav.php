@@ -16,4 +16,5 @@ return [
     'role_admin' => 'Admin',
     'role_user'  => 'User',
     'role_driver'=> 'Driver',
+    'guest_name' => 'Guest',
 ];

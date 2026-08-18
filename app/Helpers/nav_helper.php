@@ -16,3 +16,30 @@ if (! function_exists('admin_nav_badges')) {
         ];
     }
 }
+
+if (! function_exists('current_full_name')) {
+    /**
+     * ชื่อ - นามสกุล ของผู้ใช้ที่ล็อกอินอยู่ (จาก user_profiles)
+     * ไม่มีโปรไฟล์หรือชื่อว่าง คืน username แทน · ยังไม่ล็อกอิน คืนคำกลาง ๆ
+     * ผลถูกจำไว้ต่อ 1 request กันยิง query ซ้ำเมื่อถูกเรียกหลายที่
+     */
+    function current_full_name(): string
+    {
+        static $name;
+
+        if ($name !== null) {
+            return $name;
+        }
+
+        $user = function_exists('auth') ? auth()->user() : null;
+
+        if (! $user) {
+            return $name = lang('Nav.guest_name');
+        }
+
+        $profile  = (new UserProfileModel())->findByUserId((int) $user->id);
+        $fullName = trim((string) ($profile['full_name'] ?? ''));
+
+        return $name = $fullName !== '' ? $fullName : (string) $user->username;
+    }
+}

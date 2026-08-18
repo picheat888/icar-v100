@@ -8,10 +8,13 @@ $role         = $role ?? 'user';
 $pageTitle    = $pageTitle ?? '';
 $pageSubtitle = $pageSubtitle ?? '';
 
-// ข้อมูลผู้ใช้ปัจจุบันจาก Shield
-$user     = function_exists('auth') ? auth()->user() : null;
-$username = $user?->username ?? 'ผู้ใช้งาน';
-$name     = $user?->name ?? $username;                 // เผื่อมี field name ภายหลัง
+// ข้อมูลผู้ใช้ปัจจุบันจาก Shield (ใช้เช็ค force_reset ด้านล่าง)
+$user = function_exists('auth') ? auth()->user() : null;
+
+// ชื่อที่แสดงข้าง avatar - ชื่อ-นามสกุลจาก user_profiles (ไม่มีก็ fallback เป็น username)
+// โหลด helper ที่นี่เพราะ layout ของ user/driver ไม่ได้โหลด nav ไว้เหมือน layout admin
+helper('nav');
+$name = current_full_name();
 
 // ป้ายบทบาท - แปลตาม locale ปัจจุบัน
 $roleLabels = ['admin' => lang('Nav.role_admin'), 'user' => lang('Nav.role_user'), 'driver' => lang('Nav.role_driver')];
