@@ -11,10 +11,11 @@ use App\Models\CarModel;
 class CarController extends BaseController
 {
     // ความยาวสูงสุด - ตรงกับคอลัมน์ในตาราง cars
-    private const MAX_MODEL = 150;   // varchar(150)
+    private const MAX_MODEL = 100;   // คอลัมน์เป็น varchar(150) - จำกัดที่ 100
     private const MAX_PLATE = 30;    // varchar(30)
     private const MAX_NOTE  = 255;   // varchar(255)
-    private const MAX_SEATS = 99;
+    private const MIN_SEATS = 1;     // ต้องมีที่นั่งอย่างน้อย 1 (0 ไม่ได้)
+    private const MAX_SEATS = 40;
 
     // ย่อรูปที่อัปโหลดให้ด้านยาวสุดไม่เกินค่านี้ (px) แล้วบันทึกที่คุณภาพ IMG_QUALITY
     private const IMG_MAX     = 1600;
@@ -88,9 +89,8 @@ class CarController extends BaseController
         if ($note !== '' && mb_strlen($note) > self::MAX_NOTE) {
             return $this->fail('หมายเหตุยาวไม่เกิน ' . self::MAX_NOTE . ' ตัวอักษร');
         }
-        // จำนวนที่นั่งติดลบไม่ได้
-        if ($seats < 0 || $seats > self::MAX_SEATS) {
-            return $this->fail('จำนวนที่นั่งต้องอยู่ระหว่าง 0-' . self::MAX_SEATS);
+        if ($seats < self::MIN_SEATS || $seats > self::MAX_SEATS) {
+            return $this->fail('จำนวนที่นั่งต้องอยู่ระหว่าง ' . self::MIN_SEATS . '-' . self::MAX_SEATS . ' ที่นั่ง');
         }
         // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ข้ามคันที่กำลังแก้ไข · รถที่ถูกลบแล้วปล่อยทะเบียนคืน
         // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) - ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
@@ -156,9 +156,13 @@ class CarController extends BaseController
         $file = $this->request->getFile('image');
         if ($file && $file->getError() !== UPLOAD_ERR_NO_FILE) {
             if (! $this->validate([
-                'image' => 'uploaded[image]|is_image[image]|mime_in[image,image/jpg,image/jpeg,image/png,image/webp,image/gif]|max_size[image,2048]',
+                'image' => 'uploaded[image]|is_image[image]'
+                    . '|mime_in[image,image/jpeg,image/pjpeg,image/png,image/webp]'
+                    . '|ext_in[image,jpg,jpeg,png,webp]'
+                    . '|max_size[image,2048]',
             ])) {
-                return $this->fail('อัปโหลดได้เฉพาะไฟล์รูปภาพ (jpg/png/webp/gif) ขนาดไม่เกิน 2 MB');
+                return $this->fail('อัปโหลดได้เฉพาะไฟล์ jpg, png, webp ขนาดไม่เกิน 2 MB'
+                    . ' (ไฟล์ HEIC จาก iPhone ยังไม่รองรับ - ตั้งกล้องเป็น "ประสิทธิภาพสูงสุด" เป็น "รูปแบบที่เข้ากันได้มากที่สุด" หรือส่งเป็น jpg)');
             }
             // เก็บ path รูปเก่าไว้ลบหลังบันทึกรูปใหม่ (กรณีแก้ไข)
             if ($id) {
@@ -218,7 +222,7 @@ class CarController extends BaseController
         return $this->ok('ลบรถแล้ว');
     }
 
-    // ย่อรูปให้ด้านยาวสุดไม่เกิน IMG_MAX แล้วบันทึกทับ - ข้าม gif (กันภาพเคลื่อนไหวเสีย)
+    // ย่อรูปให้ด้านยาวสุดไม่เกิน IMG_MAX แล้วบันทึกทับ
     private function shrinkImage(string $path): void
     {
         $info = @getimagesize($path);
@@ -226,10 +230,6 @@ class CarController extends BaseController
             return;
         }
         [$w, $h] = $info;
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        if ($ext === 'gif') {
-            return;
-        }
         if ($w <= self::IMG_MAX && $h <= self::IMG_MAX) {
             return;
         }
