@@ -5302,7 +5302,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 28px;
-  max-width: 680px;
+  max-width: 960px;
 }
 
 .bk-other-card--narrow {
@@ -5313,6 +5313,19 @@
   font-size: 13.5px;
   color: var(--muted);
   margin: 0 0 22px;
+}
+
+/* เนื้อหาการ์ดรถอื่น ๆ - ปฏิทินซ้าย ฟอร์มขวา สัดส่วนเดียวกับในโมดัล */
+.bk-other-body {
+  display: grid;
+  grid-template-columns: 1.04fr .96fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.bk-other-body--narrow {
+  grid-template-columns: 1fr;
+  gap: 18px;
 }
 
 /* แถวปุ่มส่งคำขอท้ายฟอร์มรถอื่น ๆ (ฟอร์มอยู่ในหน้า ไม่มี footer ของ modal) */

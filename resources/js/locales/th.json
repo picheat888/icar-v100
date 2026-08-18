@@ -340,6 +340,8 @@
   "book.err_map_link_scheme": "ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น",
   "book.err_map_link_length": "ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)",
   "book.cal_title_self": "ตารางว่างของรถคันนี้",
+  "book.cal_hint_other": "แตะวันเพื่อเลือกวันเริ่ม",
+  "book.cal_title_other": "เลือกวันที่ต้องการใช้รถ",
   "book.cal_hint_self": "วันที่มีการจอง · แตะวันเพื่อเลือกวันเริ่ม",
   "book.location_label": "ชื่อสถานที่เดินทาง",
   "book.location_placeholder": "เช่น นิคมอุตสาหกรรมอมตะนคร",

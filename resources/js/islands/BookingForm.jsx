@@ -18,7 +18,7 @@ const carIcon = (
 
 /**
  * จองรถ - แท็บรถขับเอง: grid การ์ดรถ → modal 2 คอลัมน์ (ปฏิทินวันไม่ว่างของรถคันนั้น + ฟอร์ม)
- * แท็บรถอื่น ๆ: ฟอร์มอยู่ในหน้าเลย ไม่มี modal และไม่มีปฏิทิน (ยังไม่ได้เลือกรถ)
+ * แท็บรถอื่น ๆ: 2 คอลัมน์ในหน้าเลย ไม่มี modal - ปฏิทินเป็นทางลัดเลือกวัน (ไม่มีวันไม่ว่างให้แสดง)
  * props: endpoints {store, availability}, cars, baseUrl, backUrl (หน้าปฏิทินการจองรถของ role นั้น)
  */
 export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
@@ -151,7 +151,9 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   const prevMonth = () => setCal((c) => (c.m === 0 ? { y: c.y - 1, m: 11 } : { y: c.y, m: c.m - 1 }));
   const nextMonth = () => setCal((c) => (c.m === 11 ? { y: c.y + 1, m: 0 } : { y: c.y, m: c.m + 1 }));
 
-  const renderCalendar = () => {
+  // isOther = แท็บรถอื่น ๆ - ยังไม่ได้เลือกรถจึงไม่มีวันที่ไม่ว่างให้แสดง ปฏิทินทำหน้าที่เป็นทางลัด
+  // เลือกวัน แล้วเติมเวลา 08:00-17:00 ให้ (ไม่มีจุดสีและไม่มี legend จุด)
+  const renderCalendar = (isOther = false) => {
     const first = new Date(cal.y, cal.m, 1).getDay();
     const days = new Date(cal.y, cal.m + 1, 0).getDate();
     const cells = [];
@@ -162,7 +164,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
     return (
       <div className="bk-cal-box">
-        <div className="bk-cal-title">{t('book.cal_title_self')}</div>
+        <div className="bk-cal-title">{t(isOther ? 'book.cal_title_other' : 'book.cal_title_self')}</div>
         <div className="bk-cal-head">
           <button onClick={prevMonth} className="bk-nav-btn">‹</button>
           <div className="bk-cal-month">{MONTHS[cal.m]} {cal.y}</div>
@@ -190,8 +192,8 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
           </div>
         </div>
         <div className="bk-cal-legend">
-          <span className="bk-cal-legend-dot" />
-          {t('book.cal_hint_self')}
+          {!isOther && <span className="bk-cal-legend-dot" />}
+          {t(isOther ? 'book.cal_hint_other' : 'book.cal_hint_self')}
         </div>
       </div>
     );
@@ -220,7 +222,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     <div>
       <div className="seg bk-seg">
         <button onClick={() => setTab('self')} className={`seg-btn bk-seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
-        <button onClick={() => { setTab('other'); resetForm(); setError(''); }} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
+        <button onClick={() => { setTab('other'); resetForm(); setError(''); const n = new Date(); setCal({ y: n.getFullYear(), m: n.getMonth() }); }} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
       </div>
 
       {tab === 'self' && (
@@ -269,7 +271,10 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       {tab === 'other' && (
         <div className={`bk-other-card${narrow ? ' bk-other-card--narrow' : ''}`}>
           <p className="bk-other-desc">{t('book.other_form_desc')}</p>
-          {formFields(true)}
+          <div className={`bk-other-body${narrow ? ' bk-other-body--narrow' : ''}`}>
+            <div>{renderCalendar(true)}</div>
+            <div>{formFields(true)}</div>
+          </div>
           <div className="bk-other-foot">
             <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{t('book.submit_btn')}</button>
           </div>
