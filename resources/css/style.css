@@ -1721,9 +1721,32 @@
   margin-bottom: 18px;
 }
 
-/* ช่องสุดท้ายก่อนปุ่ม - เว้นมากกว่า */
-.login-input--last {
+/* ช่องรหัสผ่าน (ช่องสุดท้ายก่อนปุ่ม) - เว้นมากกว่าช่องอื่น */
+.login-field {
   margin-bottom: 24px;
+}
+
+/* ปุ่มลูกตา - ใช้คู่กับ .field-eye */
+.login-eye {
+  color: var(--text-faint);
+}
+
+.login-eye-off {
+  display: none;
+}
+
+.login-eye.is-shown .login-eye-on {
+  display: none;
+}
+
+.login-eye.is-shown .login-eye-off {
+  display: block;
+}
+
+/* แบรนด์เหนือฟอร์ม - โชว์เฉพาะจอแคบที่ hero ถูกซ่อน */
+.login-brand-narrow {
+  display: none;
+  margin-bottom: 30px;
 }
 
 .login-submit {
@@ -1746,7 +1769,7 @@
   text-decoration: underline;
 }
 
-/* จอแคบ: ซ่อน hero เหลือเฉพาะฟอร์ม */
+/* จอแคบ: ซ่อน hero เหลือเฉพาะฟอร์ม (แบรนด์ย้ายมาอยู่เหนือฟอร์ม) */
 @media (max-width: 860px) {
   .login-hero {
     display: none;
@@ -1755,6 +1778,17 @@
   .login-form {
     width: 100%;
     max-width: 100%;
+    padding: 44px 30px;
+  }
+
+  .login-brand-narrow {
+    display: flex;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-form {
+    padding: 34px 22px;
   }
 }
 

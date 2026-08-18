@@ -4,7 +4,7 @@
  * เรนเดอร์โดย Shield (Config\Auth::$views['login']) โพสต์กลับ route login ของ Shield
  * field: login / password (ตาม Shield) + CSRF
  */
-helper(['vite', 'setting']);
+helper(['vite', 'setting', 'icon']);
 
 // อ่าน error จาก Shield (credential ผิด / ยังไม่อนุมัติ ฯลฯ)
 $errors = session('errors') ?? [];
@@ -62,25 +62,43 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
 
     <!-- ===== Form ===== -->
     <div class="login-form">
+      <!-- แบรนด์สำหรับจอแคบ (hero ถูกซ่อน) -->
+      <div class="brand login-brand-narrow">
+        <img src="<?= base_url('logo-1.png') ?>" alt="" class="brand-logo">
+        <div class="brand-text">
+          <div class="brand-name">iCar</div>
+          <div class="brand-sub">BOOKING</div>
+        </div>
+      </div>
+
       <h2 class="title title--xl"><?= lang('Account.login_title') ?></h2>
       <p class="subtext subtext--lg login-sub"><?= lang('Account.login_subtitle') ?></p>
 
       <?php if (! empty($error)): ?>
-        <div class="alert-error"><?= esc($error) ?></div>
+        <div class="alert-error" role="alert"><?= esc($error) ?></div>
       <?php endif; ?>
 
-      <form action="<?= url_to('login') ?>" method="post">
+      <form action="<?= url_to('login') ?>" method="post" id="login-form">
         <?= csrf_field() ?>
 
-        <label class="form-label"><?= lang('Account.username_label') ?></label>
+        <label class="form-label" for="login"><?= lang('Account.username_label') ?></label>
         <input id="login" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph'), 'attr') ?>" autocomplete="username"
+               required<?= empty($error) ? ' autofocus' : '' ?>
                class="form-input login-input">
 
-        <label class="form-label"><?= lang('Account.password_label') ?></label>
-        <input id="password" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph'), 'attr') ?>" autocomplete="current-password"
-               class="form-input login-input login-input--last">
+        <label class="form-label" for="password"><?= lang('Account.password_label') ?></label>
+        <div class="field login-field">
+          <input id="password" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph'), 'attr') ?>" autocomplete="current-password"
+                 required<?= empty($error) ? '' : ' autofocus' ?>
+                 class="form-input">
+          <button type="button" id="pw-toggle" class="field-eye login-eye" tabindex="-1"
+                  aria-label="<?= esc(lang('Account.show_password'), 'attr') ?>" aria-pressed="false">
+            <span class="login-eye-on"><?= icon('eye', 19) ?></span>
+            <span class="login-eye-off"><?= icon('eye-off', 19) ?></span>
+          </button>
+        </div>
 
-        <button type="submit" class="btn-primary btn-block login-submit"><?= lang('Account.login_btn') ?></button>
+        <button type="submit" id="login-submit" class="btn-primary btn-block login-submit"><?= lang('Account.login_btn') ?></button>
       </form>
 
       <p class="login-foot"><?= lang('Account.no_account') ?>
@@ -89,5 +107,29 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
     </div>
   </div>
 
+  <script>
+  (function () {
+    // ปุ่มลูกตา: สลับ type ของช่องรหัสผ่าน + สลับไอคอน/aria
+    var pw     = document.getElementById('password');
+    var toggle = document.getElementById('pw-toggle');
+    var LABEL  = <?= json_encode(['show' => lang('Account.show_password'), 'hide' => lang('Account.hide_password')]) ?>;
+    toggle.addEventListener('click', function () {
+      var show = pw.type === 'password';
+      pw.type = show ? 'text' : 'password';
+      toggle.classList.toggle('is-shown', show);
+      toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+      toggle.setAttribute('aria-label', show ? LABEL.hide : LABEL.show);
+      pw.focus();
+    });
+
+    // กันกดปุ่มซ้ำ (ยิงซ้ำจะไปกิน throttle ของตัวเอง)
+    var form   = document.getElementById('login-form');
+    var submit = document.getElementById('login-submit');
+    form.addEventListener('submit', function () {
+      submit.disabled    = true;
+      submit.textContent = <?= json_encode(lang('Account.login_btn_loading')) ?>;
+    });
+  })();
+  </script>
 </body>
 </html>

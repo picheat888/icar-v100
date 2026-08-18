@@ -35,10 +35,10 @@ class LoginController extends ShieldLoginController
         /** @var Session $authenticator */
         $authenticator = auth('session')->getAuthenticator();
 
-        // ตรวจ credential
+        // ตรวจ credential - ข้อความเดียวทุกกรณี ไม่บอกว่า username นั้นมีอยู่จริงหรือไม่
         $result = $authenticator->remember($remember)->attempt($credentials);
         if (! $result->isOK()) {
-            return redirect()->route('login')->withInput()->with('error', $result->reason());
+            return redirect()->route('login')->withInput()->with('error', lang('Auth.badAttempt'));
         }
 
         // ด่านสถานะอนุมัติ: ต้อง approved เท่านั้น (ไม่มีโปรไฟล์ = ยังไม่อนุมัติ ให้สอดคล้องกับ AccountStatusFilter)

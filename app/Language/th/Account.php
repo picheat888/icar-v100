@@ -9,6 +9,9 @@ return [
     'username_ph'     => 'กรอกชื่อผู้ใช้',
     'password_ph'     => 'กรอกรหัสผ่าน',
     'login_btn'       => 'เข้าสู่ระบบ',
+    'login_btn_loading' => 'กำลังเข้าสู่ระบบ...',
+    'show_password'   => 'แสดงรหัสผ่าน',
+    'hide_password'   => 'ซ่อนรหัสผ่าน',
     'no_account'      => 'ยังไม่มีบัญชี?',
     'register_link'   => 'สมัครสมาชิก',
 

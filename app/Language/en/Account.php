@@ -8,6 +8,9 @@ return [
     'username_ph'     => 'Enter your username',
     'password_ph'     => 'Enter your password',
     'login_btn'       => 'Log in',
+    'login_btn_loading' => 'Logging in...',
+    'show_password'   => 'Show password',
+    'hide_password'   => 'Hide password',
     'no_account'      => "Don't have an account?",
     'register_link'   => 'Sign up',
 
