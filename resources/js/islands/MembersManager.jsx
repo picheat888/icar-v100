@@ -125,7 +125,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
     String(m.user_id) !== String(currentUserId) && !(m.role === 'admin' && activeAdmins <= 1);
 
   // ===== actions =====
-  const openAdd = () => setModal({ type: 'add', form: { ...EMPTY_NEW, password: genPassword() } });
+  const openAdd = () => setModal({ type: 'add', form: { ...EMPTY_NEW } });
 
   const doCreate = async () => {
     const f = modal.form;
@@ -389,7 +389,7 @@ function Edit({ form, set, departments, positions, pending, username }) {
       <label className="form-label">{t('mem.username_label')}</label>
       <input value={username || '-'} readOnly className="form-input form-input--sm mm-field-mb" />
       <label className="form-label">{t('mem.col_full_name')}</label>
-      <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm mm-field-mb" />
+      <input value={form.name} onChange={(e) => u('name', e.target.value)} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
       <div className="mm-form-grid">
         <div>
           <label className="form-label">{t('mem.dept_label')}</label>
@@ -451,27 +451,27 @@ function AddForm({ form, set, departments, positions, onCopied }) {
         <div>
           <div className="mm-add-section">{t('mem.emp_section')}</div>
           <label className="form-label">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
-          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} className="form-input form-input--sm mm-field-mb" />
+          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} placeholder={t('mem.emp_id_ph')} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.col_full_name')} <span className="form-req">*</span></label>
-          <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm mm-field-mb" />
+          <input value={form.name} onChange={(e) => u('name', e.target.value)} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.dept_label')} <span className="form-req">*</span></label>
           <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
-            <option value="">{t('mem.not_specified_option')}</option>
+            <option value="">{t('mem.choose_dept')}</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
           <label className="form-label">{t('mem.position_label')} <span className="form-req">*</span></label>
           <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
-            <option value="">{t('mem.not_specified_option')}</option>
+            <option value="">{t('mem.choose_pos')}</option>
             {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <label className="form-label">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
-          <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" className="form-input form-input--sm" />
+          <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" placeholder={t('mem.phone_ph')} className="form-input form-input--sm" />
         </div>
 
         <div>
           <div className="mm-add-section">{t('mem.login_section')}</div>
           <label className="form-label">{t('mem.username_label')} <span className="form-req">*</span></label>
-          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-field-mb" />
+          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" placeholder={t('mem.username_ph')} className="form-input form-input--sm mm-field-mb" />
           <label className="form-label">{t('mem.role_level_label')} <span className="form-req">*</span></label>
           <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
@@ -481,7 +481,7 @@ function AddForm({ form, set, departments, positions, onCopied }) {
           <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
           <div className="mm-pass-row">
             <div className="field mm-pass-field">
-              <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
+              <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" placeholder={t('mem.pass_ph')} className="form-input form-input--sm mm-pass-input" />
               <button type="button" onClick={copyPass} className="field-eye" title={t('mem.copy_pass')}>
                 <Icon name="copy" size={15} />
               </button>
