@@ -33,19 +33,8 @@ $roleLabel  = $roleLabels[$role] ?? $role;
     </div>
   </div>
 
-  <!-- ขวา: กระดิ่งแจ้งเตือน + โปรไฟล์ -->
+  <!-- ขวา: สลับภาษา + กระดิ่งแจ้งเตือน + โปรไฟล์ -->
   <div class="app-header-right">
-    <?php
-    $notiProps = ['endpoints' => [
-        'data'    => site_url('notifications/data'),
-        'seen'    => site_url('notifications/seen'),
-        'read'    => site_url('notifications/read'),
-        'readAll' => site_url('notifications/read-all'),
-    ]];
-    ?>
-    <div id="notification-bell" data-props='<?= esc(json_encode($notiProps), 'attr') ?>'></div>
-    <?= vite_asset('resources/js/entries/notification-bell.jsx') ?>
-
     <?php
     // popup บังคับเปลี่ยนรหัส - เรนเดอร์เฉพาะ user ที่ถูกตั้ง force_reset (เด้งครอบทั้งแอปทันทีหลัง login)
     if ($user && $user->requiresPasswordReset()):
@@ -57,6 +46,17 @@ $roleLabel  = $roleLabels[$role] ?? $role;
 
     <!-- ตัวสลับภาษา TH | EN (บนมือถือย้ายไปในเมนูโปรไฟล์) -->
     <span class="hdr-lang"><?= $this->include('templates/lang_switch') ?></span>
+
+    <?php
+    $notiProps = ['endpoints' => [
+        'data'    => site_url('notifications/data'),
+        'seen'    => site_url('notifications/seen'),
+        'read'    => site_url('notifications/read'),
+        'readAll' => site_url('notifications/read-all'),
+    ]];
+    ?>
+    <div id="notification-bell" data-props='<?= esc(json_encode($notiProps), 'attr') ?>'></div>
+    <?= vite_asset('resources/js/entries/notification-bell.jsx') ?>
 
   <!-- โปรไฟล์ -->
   <div class="hdr-profile">
