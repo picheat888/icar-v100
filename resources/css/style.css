@@ -5190,6 +5190,82 @@
   line-height: 1.5;
 }
 
+/* ปุ่มเพิ่มสมาชิก - ท้ายแถบฟิลเตอร์ */
+.mm-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* แถบบอกว่าเพิ่มจากหน้านี้ใช้งานได้ทันที */
+.mm-add-hint {
+  margin-bottom: 18px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  background: var(--teal-soft);
+  color: var(--teal-hover);
+  font-size: 12.5px;
+}
+
+/* หัวข้อกลุ่มฟิลด์ในฟอร์มเพิ่มสมาชิก */
+.mm-add-section {
+  margin-bottom: 10px;
+  color: var(--ink-strong);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.mm-form-grid + .mm-add-section,
+.mm-field-mb + .mm-add-section {
+  margin-top: 20px;
+}
+
+/* ดอกจันหน้าฟิลด์บังคับ */
+.mm-req {
+  color: var(--danger);
+}
+
+/* แถวรหัสผ่าน - ช่องกรอก + ปุ่มสุ่ม + ปุ่มคัดลอก */
+.mm-pass-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mm-pass-input {
+  flex: 1;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  letter-spacing: .3px;
+}
+
+.mm-pass-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-soft);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mm-pass-btn:hover {
+  border-color: #c3ccd3;
+  color: var(--teal-hover);
+}
+
+.mm-force-add {
+  margin-top: 16px;
+}
 /* ข้อความอธิบายย่อยข้างเช็กบ็อกซ์ */
 .mm-checkbox-hint {
   font-size: 12px;

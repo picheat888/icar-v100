@@ -42,6 +42,7 @@
   "check-circle": "lucide:circle-check",
 
   "return":       "lucide:rotate-ccw",
+  "copy":         "lucide:copy",
   "cancel":       "lucide:circle-x",
 
   "file-excel":   "fa-solid:file-excel",

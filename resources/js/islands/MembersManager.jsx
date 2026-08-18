@@ -5,6 +5,7 @@ import { useToast } from '../lib/Toast';
 import { setNavBadge } from '../lib/navBadge';
 import Table from '../lib/Table';
 import Modal from '../lib/Modal';
+import Icon from '../lib/Icon';
 
 // ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง
 const STATUS_LABEL = {
@@ -24,9 +25,16 @@ const ROLES = [
 ];
 const roleLabel = (r) => ({ user: t('mem.role_user'), driver: t('mem.role_driver'), admin: 'Admin' }[r] || '-');
 
+// ชุดตัวอักษรของรหัสผ่านสุ่ม - ไม่มี 0 O 1 l I เพื่อให้บอกด้วยเสียงแล้วไม่สับสน
+const PASS_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%*?';
+const genPassword = (len = 12) =>
+  Array.from(crypto.getRandomValues(new Uint32Array(len)), (n) => PASS_CHARS[n % PASS_CHARS.length]).join('');
+
+const EMPTY_NEW = { empId: '', name: '', dept: '', position: '', phone: '', username: '', password: '', level: 'user', force_reset: true };
+
 /**
- * จัดการสมาชิก - ตาราง + ฟิลเตอร์ + โมดัล อนุมัติ/แก้ไข
- * props: endpoints {data, approve, reject, update}, departments[], positions[]
+ * จัดการสมาชิก - ตาราง + ฟิลเตอร์ + โมดัล เพิ่ม/อนุมัติ/แก้ไข
+ * props: endpoints {data, create, approve, reject, update}, departments[], positions[]
  */
 export default function MembersManager({ endpoints, departments = [], positions = [], currentUserId = null }) {
   const [rows, setRows] = useState([]);
@@ -117,6 +125,18 @@ export default function MembersManager({ endpoints, departments = [], positions 
     String(m.user_id) !== String(currentUserId) && !(m.role === 'admin' && activeAdmins <= 1);
 
   // ===== actions =====
+  const openAdd = () => setModal({ type: 'add', form: { ...EMPTY_NEW, password: genPassword() } });
+
+  const doCreate = async () => {
+    const f = modal.form;
+    const sent = await post(endpoints.create, {
+      empId: f.empId, name: f.name, dept: f.dept, position: f.position, phone: f.phone,
+      username: f.username, password: f.password, level: f.level,
+      force_reset: f.force_reset ? 1 : '',
+    });
+    if (sent) setModal(null);
+  };
+
   const doApprove = async () => {
     if (await post(endpoints.approve, { user_id: modal.member.user_id, level: modal.level })) setModal(null);
   };
@@ -196,6 +216,9 @@ export default function MembersManager({ endpoints, departments = [], positions 
           <option value="all">{t('mem.all_depts')}</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </select>
+        <button onClick={openAdd} className="btn-primary mm-add-btn">
+          <Icon name="plus" size={16} />{t('mem.add_btn')}
+        </button>
       </div>
 
       {loading && <div className="mm-loading">{t('common.loading')}</div>}
@@ -289,6 +312,20 @@ export default function MembersManager({ endpoints, departments = [], positions 
       )}
 
       {/* โมดัล */}
+      {modal?.type === 'add' && (
+        <Modal title={t('mem.add_title')} onClose={() => setModal(null)} bodyClass="mm-modal-body" lockBackdrop>
+          <div className="mm-add-hint">{t('mem.add_hint')}</div>
+          <AddForm
+            form={modal.form}
+            set={(form) => setModal({ ...modal, form })}
+            departments={departments}
+            positions={positions}
+            onCopied={() => showToast(t('mem.copied'))}
+          />
+          <Foot onClose={() => setModal(null)} onOk={doCreate} okText={t('mem.confirm_add')} okKind="success" busy={busy} />
+        </Modal>
+      )}
+
       {modal?.type === 'approve' && (
         <Modal title={modal.member.status === 'rejected' ? t('mem.title_enable') : t('mem.title_approve')} onClose={() => setModal(null)} bodyClass="mm-modal-body">
           <div className="mm-member-box">
@@ -397,6 +434,83 @@ function EditPass({ form, set }) {
 }
 
 // ปุ่มท้ายโมดัล - okKind: success(อนุมัติ) / danger(ปฏิเสธ) / teal(บันทึก)
+// ฟอร์มเพิ่มสมาชิก - เรียงฟิลด์ตามลำดับเดียวกับหน้าสมัคร
+function AddForm({ form, set, departments, positions, onCopied }) {
+  const u = (k, v) => set({ ...form, [k]: v });
+
+  const copyPass = async () => {
+    try {
+      await navigator.clipboard.writeText(form.password);
+      onCopied();
+    } catch { /* คลิปบอร์ดถูกปฏิเสธ - ผู้ใช้เลือกคัดลอกเองจากช่องได้ */ }
+  };
+
+  return (
+    <>
+      <div className="mm-add-section">{t('mem.emp_section')}</div>
+      <div className="mm-form-grid">
+        <div>
+          <label className="form-label">{t('mem.col_emp_id')} <span className="mm-req">*</span></label>
+          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} className="form-input form-input--sm" />
+        </div>
+        <div>
+          <label className="form-label">{t('mem.col_full_name')} <span className="mm-req">*</span></label>
+          <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm" />
+        </div>
+      </div>
+      <div className="mm-form-grid">
+        <div>
+          <label className="form-label">{t('mem.dept_label')} <span className="mm-req">*</span></label>
+          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select">
+            <option value="">{t('mem.not_specified_option')}</option>
+            {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="form-label">{t('mem.position_label')} <span className="mm-req">*</span></label>
+          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select">
+            <option value="">{t('mem.not_specified_option')}</option>
+            {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+      </div>
+      <label className="form-label">{t('mem.phone_full_label')} <span className="mm-req">*</span></label>
+      <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" className="form-input form-input--sm mm-field-mb" />
+
+      <div className="mm-add-section">{t('mem.login_section')}</div>
+      <div className="mm-form-grid">
+        <div>
+          <label className="form-label">{t('mem.username_label')} <span className="mm-req">*</span></label>
+          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" className="form-input form-input--sm" />
+        </div>
+        <div>
+          <label className="form-label">{t('mem.role_level_label')} <span className="mm-req">*</span></label>
+          <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select">
+            {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
+      <label className="form-label">{t('mem.temp_pass_label')} <span className="mm-req">*</span></label>
+      <div className="mm-pass-row">
+        <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
+        <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
+          <Icon name="return" size={15} />{t('mem.gen_pass')}
+        </button>
+        <button type="button" onClick={copyPass} className="mm-pass-btn" title={t('mem.copy_pass')}>
+          <Icon name="copy" size={15} />
+        </button>
+      </div>
+
+      <label className="mm-checkbox-row mm-force-add">
+        <input type="checkbox" checked={form.force_reset} onChange={(e) => u('force_reset', e.target.checked)} className="mm-checkbox" />
+        <span className="mm-checkbox-label">{t('mem.force_reset_label')}</span>
+      </label>
+    </>
+  );
+}
+
 function Foot({ onClose, onOk, okText, okKind, busy }) {
   return (
     <div className="mm-modal-foot">

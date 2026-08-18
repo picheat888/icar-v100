@@ -6,6 +6,7 @@
 $props = [
     'endpoints' => [
         'data'    => site_url('admin/members/data'),
+        'create'  => site_url('admin/members/create'),
         'approve' => site_url('admin/members/approve'),
         'reject'  => site_url('admin/members/reject'),
         'update'  => site_url('admin/members/update'),

@@ -33,6 +33,7 @@ $routes->group('admin', ['filter' => 'group:admin'], static function ($routes) {
     // จัดการสมาชิก (หน้า + JSON endpoint ของ island)
     $routes->get('members',          'Admin\MemberController::index');
     $routes->get('members/data',     'Admin\MemberController::data');
+    $routes->post('members/create',  'Admin\MemberController::create');
     $routes->post('members/approve', 'Admin\MemberController::approve');
     $routes->post('members/reject',  'Admin\MemberController::reject');
     $routes->post('members/update',  'Admin\MemberController::update');

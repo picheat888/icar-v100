@@ -23,6 +23,7 @@ return [
     'chevron-right' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<path d="m9 18 6-6-6-6" />'],
     'clock' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" />'],
     'close' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<path d="M18 6 6 18" /> <path d="m6 6 12 12" />'],
+    'copy' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<rect width="14" height="14" x="8" y="8" rx="2" ry="2" /> <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />'],
     'dashboard' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" />'],
     'eye' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /> <circle cx="12" cy="12" r="3" />'],
     'eye-off' => ['vb' => '0 0 24 24', 'kind' => 'stroke', 'body' => '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /> <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /> <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /> <path d="m2 2 20 20" />'],

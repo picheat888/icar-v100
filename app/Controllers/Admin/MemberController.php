@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\DepartmentModel;
 use App\Models\PositionModel;
 use App\Models\UserProfileModel;
+use CodeIgniter\Shield\Entities\User;
 use CodeIgniter\Shield\Models\UserModel;
 
 /**
@@ -45,6 +46,74 @@ class MemberController extends BaseController
         }
 
         return $this->response->setJSON(['members' => $rows]);
+    }
+
+    // POST: Admin เพิ่มสมาชิกเอง - สร้างบัญชี + โปรไฟล์สถานะ approved ในขั้นตอนเดียว
+    public function create()
+    {
+        $rules = [
+            'empId'    => 'required|alpha_numeric|max_length[8]|is_unique[user_profiles.emp_id]',
+            'name'     => 'required|max_length[150]|regex_match[/^[\p{L}\p{M}\s]+$/u]',
+            'username' => 'required|min_length[3]|max_length[30]|regex_match[/\A[a-zA-Z0-9._]+\z/]|is_unique[users.username]',
+            'password' => 'required|min_length[8]|max_length[72]|strong_password[]',
+            'dept'     => 'required|is_not_unique[departments.id]',
+            'position' => 'required|is_not_unique[positions.id]',
+            'phone'    => 'required|regex_match[/^[0-9]+$/]|max_length[10]',
+        ];
+
+        $messages = [
+            'empId'    => ['required' => lang('Account.err_required'), 'alpha_numeric' => lang('Account.srv_empId_alnum'), 'max_length' => lang('Account.srv_empId_max'), 'is_unique' => lang('Account.err_uniq_emp')],
+            'name'     => ['required' => lang('Account.err_required'), 'regex_match' => lang('Account.srv_name_regex')],
+            'username' => ['required' => lang('Account.err_required'), 'is_unique' => lang('Account.srv_username_uniq')],
+            'password' => ['required' => lang('Account.err_required'), 'min_length' => lang('Account.srv_password_min')],
+            'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
+            'position' => ['required' => lang('Account.srv_pos_req'), 'is_not_unique' => lang('Account.srv_pos_invalid')],
+            'phone'    => ['required' => lang('Account.srv_phone_req'), 'regex_match' => lang('Account.srv_phone_regex'), 'max_length' => lang('Account.srv_phone_max')],
+        ];
+
+        $level = (string) $this->request->getPost('level');
+        if (! in_array($level, ['user', 'driver', 'admin'], true)) {
+            return $this->fail('สิทธิ์ไม่ถูกต้อง');
+        }
+
+        // กฎ strong_password ของ Shield อ่าน username + email ไปเทียบความใกล้เคียง
+        $data          = $this->request->getPost();
+        $data['email'] = ((string) ($data['username'] ?? '')) . '@icar.local';
+
+        if (! $this->validateData($data, $rules, $messages)) {
+            return $this->fail(implode(' ', $this->validator->getErrors()));
+        }
+
+        $req   = $this->request;
+        $users = new UserModel();
+        $users->save(new User([
+            'username' => $req->getPost('username'),
+            'email'    => $data['email'],
+            'password' => $req->getPost('password'),
+        ]));
+
+        $user = $users->findById($users->getInsertID());
+        $user->addGroup($level);
+        $user->activate();
+
+        // ติ๊ก "บังคับเปลี่ยนรหัสผ่าน" -> เด้ง ForcePasswordResetModal ตอนล็อกอินครั้งแรก
+        if ($req->getPost('force_reset')) {
+            $user->forcePasswordReset();
+        }
+
+        (new UserProfileModel())->insert([
+            'user_id'       => $user->id,
+            'emp_id'        => $req->getPost('empId'),
+            'full_name'     => $req->getPost('name'),
+            'department_id' => $req->getPost('dept') ?: null,
+            'position_id'   => $req->getPost('position') ?: null,
+            'phone'         => $req->getPost('phone') ?: null,
+            'status'        => 'approved',
+        ]);
+
+        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')');
+
+        return $this->ok('เพิ่มสมาชิกเรียบร้อย');
     }
 
     // POST: อนุมัติสมาชิก + กำหนด role
