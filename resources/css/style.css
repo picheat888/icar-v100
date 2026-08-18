@@ -335,6 +335,10 @@
     appearance: base-select;
   }
 
+  .form-select {
+    align-items: center;
+  }
+
   /* ซ่อนลูกศรของ base-select ใช้ chevron จาก background-image ด้านบนแทน */
   .form-select::picker-icon {
     display: none;
