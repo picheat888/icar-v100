@@ -148,7 +148,7 @@ export default function ActivityLog({ endpoints }) {
             <select
               value={perPage}
               onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              className="form-input form-input--sm al-perpage-select"
+              className="form-input form-select al-perpage-select"
             >
               {PER_PAGE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>

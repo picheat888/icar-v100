@@ -312,6 +312,24 @@
   font-size: 14px;
 }
 
+/* ช่องเลือก - ใช้คู่กับ .form-input
+   ซ่อนลูกศรของระบบปฏิบัติการแล้ววาดเอง ให้เข้าชุดกับไอคอน lucide ที่เหลือ
+   (chevron-down เส้นหนา 2 ปลายมน) · ต้องอยู่หลัง .form-input เพราะ background
+   ของ .form-input เป็น shorthand ซึ่งล้าง background-image ทิ้ง */
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2354616c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  background-size: 15px 15px;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.form-select:hover {
+  border-color: #c3ccd3;
+}
+
 /* ----- 1.6 กล่องข้อความแจ้งเตือน ----- */
 .alert-error {
   background: var(--danger-soft);
@@ -2931,9 +2949,17 @@
   white-space: nowrap;
 }
 
+/* ให้สูงและมีเส้นขอบเท่าปุ่มแบ่งหน้าที่อยู่แถวเดียวกัน (.pager-btn = 36px) */
 .al-perpage-select {
   width: auto;
-  padding-right: 28px;
+  height: 36px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 11px;
+  border-color: #e2e7ea;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-soft);
 }
 
 /* กริดการ์ดรถ (จัดการรถ) - desktop เริ่มต้น จอแคบดู media query 720px */
