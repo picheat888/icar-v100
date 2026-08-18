@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'dashboard'           => 'แดชบอร์ด',
+    'dashboard'           => 'Dashboard',
     'dashboard_sub'       => 'สรุปภาพรวมระบบ',
     'calendar'            => 'ปฏิทินการจองรถ',
     'calendar_sub'        => 'ตรวจสอบช่วงเวลาและสถานะการจองรถ',

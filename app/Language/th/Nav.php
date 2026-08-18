@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'dashboard'  => 'แดชบอร์ด',
+    'dashboard'  => 'Dashboard',
     'calendar'   => 'ปฏิทินการจองรถ',
     'users'      => 'จัดการผู้ใช้งาน',
     'bookings'   => 'จัดการการจองรถ',
