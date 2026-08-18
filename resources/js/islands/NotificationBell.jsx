@@ -1,17 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { thTime } from '../lib/date';
 import { t } from '../lib/i18n';
-
-// อ่าน CSRF ล่าสุดจาก meta
-function getCsrf() {
-  const el = document.querySelector('meta[name="csrf"]');
-  return el ? el.getAttribute('content') : '';
-}
-// อัปเดต CSRF ลง meta (หลัง action คืนค่าใหม่)
-function setCsrf(v) {
-  const el = document.querySelector('meta[name="csrf"]');
-  if (el && v) el.setAttribute('content', v);
-}
+import { getCsrf, setCsrf } from '../lib/csrf';
 
 // กระดิ่งแจ้งเตือน - badge + dropdown + poll 60วิ + load-more
 export default function NotificationBell({ endpoints }) {
