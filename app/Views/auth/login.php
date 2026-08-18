@@ -81,24 +81,28 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
       <form action="<?= url_to('login') ?>" method="post" id="login-form" novalidate>
         <?= csrf_field() ?>
 
-        <label class="form-label" for="login"><?= lang('Account.username_label') ?></label>
-        <input id="login" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph'), 'attr') ?>" autocomplete="username"
-               required<?= empty($error) ? ' autofocus' : '' ?>
-               class="form-input login-input">
-        <div id="err-login" class="form-err" aria-live="polite"></div>
-
-        <label class="form-label" for="password"><?= lang('Account.password_label') ?></label>
-        <div class="field login-field">
-          <input id="password" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph'), 'attr') ?>" autocomplete="current-password"
-                 required<?= empty($error) ? '' : ' autofocus' ?>
+        <div class="login-row">
+          <label class="form-label" for="login"><?= lang('Account.username_label') ?></label>
+          <input id="login" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph'), 'attr') ?>" autocomplete="username"
+                 required<?= empty($error) ? ' autofocus' : '' ?>
                  class="form-input">
-          <button type="button" id="pw-toggle" class="field-eye login-eye" tabindex="-1"
-                  aria-label="<?= esc(lang('Account.show_password'), 'attr') ?>" aria-pressed="false">
-            <span class="login-eye-on"><?= icon('eye', 19) ?></span>
-            <span class="login-eye-off"><?= icon('eye-off', 19) ?></span>
-          </button>
+          <div id="err-login" class="form-err" aria-live="polite"></div>
         </div>
-        <div id="err-password" class="form-err" aria-live="polite"></div>
+
+        <div class="login-row login-row--last">
+          <label class="form-label" for="password"><?= lang('Account.password_label') ?></label>
+          <div class="field login-field">
+            <input id="password" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph'), 'attr') ?>" autocomplete="current-password"
+                   required<?= empty($error) ? '' : ' autofocus' ?>
+                   class="form-input">
+            <button type="button" id="pw-toggle" class="field-eye login-eye" tabindex="-1"
+                    aria-label="<?= esc(lang('Account.show_password'), 'attr') ?>" aria-pressed="false">
+              <span class="login-eye-on"><?= icon('eye', 19) ?></span>
+              <span class="login-eye-off"><?= icon('eye-off', 19) ?></span>
+            </button>
+          </div>
+          <div id="err-password" class="form-err" aria-live="polite"></div>
+        </div>
 
         <button type="submit" id="login-submit" class="btn-primary btn-block login-submit"><?= lang('Account.login_btn') ?></button>
       </form>

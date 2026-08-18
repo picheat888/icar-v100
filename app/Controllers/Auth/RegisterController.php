@@ -55,7 +55,7 @@ class RegisterController extends BaseController
             'dept'     => ['required' => lang('Account.srv_dept_req'), 'is_not_unique' => lang('Account.srv_dept_invalid')],
             'position' => ['required' => lang('Account.srv_pos_req'), 'is_not_unique' => lang('Account.srv_pos_invalid')],
             'phone'    => ['required' => lang('Account.srv_phone_req'), 'thai_phone' => lang('Account.srv_phone_format')],
-            'terms'    => ['required' => lang('Account.err_terms')],
+            'terms'    => ['required' => lang('Account.need_terms')],
         ];
 
         // ใส่ email สังเคราะห์ (username@icar.local - ค่าเดียวกับที่จะบันทึกจริง) ลงในชุดข้อมูลที่ validate

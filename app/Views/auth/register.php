@@ -222,14 +222,15 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
 
   <script>
   var I18N_ERR = <?= json_encode([
-      'emp'      => lang('Account.err_empId'),
-      'name'     => lang('Account.err_name'),
+      'emp'      => lang('Account.srv_empId_alnum'),
+      'empMax'   => lang('Account.srv_empId_max'),
+      'name'     => lang('Account.srv_name_regex'),
       'nameMax'  => lang('Account.srv_name_max'),
-      'phone'    => lang('Account.err_phone'),
+      'phone'    => lang('Account.srv_phone_format'),
       'passMin'  => lang('Account.srv_password_min'),
       'confirm'  => lang('Account.srv_confirm_match'),
       'needTerms' => lang('Account.need_terms'),
-      'fieldReq'  => lang('Account.err_field_req'),
+      'fieldReq'  => lang('Account.err_required'),
       'deptReq'   => lang('Account.srv_dept_req'),
       'posReq'    => lang('Account.srv_pos_req'),
       'fixErrors' => lang('Account.fix_errors'),
@@ -258,13 +259,13 @@ $invalid = static fn (string $f): string => $errFor($f) !== '' ? ' is-invalid" a
       var btn = document.getElementById('regSubmit');
       if (!cb || !btn) return;
 
-      var RE_EMP   = /^[a-zA-Z0-9]{1,8}$/;   // อังกฤษ+ตัวเลข ≤ 8
+      var RE_EMP   = /^[a-zA-Z0-9]+$/;       // อังกฤษ+ตัวเลข (ความยาวแยกเช็คเพื่อให้ข้อความตรงกับ server)
       var RE_NAME  = /^[\p{L}\p{M}\s]+$/u;   // ตัวอักษร (ไทย/อังกฤษ) + สระ/วรรณยุกต์ (\p{M}) + เว้นวรรค · ห้ามเลข/สัญลักษณ์
       var RE_PHONE = /^0(?:[689]\d{8}|[2-7]\d{7})$/;   // มือถือ 10 หลัก (06/08/09) หรือเบอร์บ้าน 9 หลัก (02-07)
 
       // ช่องที่ตรวจสด: [input, กล่อง error, ฟังก์ชันตรวจ -> '' = ผ่าน]
       var checks = [
-        ['empId',    function (v) { return RE_EMP.test(v)   ? '' : I18N_ERR.emp; }],
+        ['empId',    function (v) { return v.length > 8 ? I18N_ERR.empMax : (RE_EMP.test(v) ? '' : I18N_ERR.emp); }],
         ['name',     function (v) { return v.length > 150 ? I18N_ERR.nameMax : (RE_NAME.test(v) ? '' : I18N_ERR.name); }],
         ['phone',    function (v) { return RE_PHONE.test(v) ? '' : I18N_ERR.phone; }],
         ['password', function (v) { return v.length >= 8    ? '' : I18N_ERR.passMin; }],

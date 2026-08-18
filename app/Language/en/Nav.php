@@ -11,7 +11,7 @@ return [
     'myJobs'     => 'My Jobs',
     'dept'       => 'Departments',
     'position'   => 'Positions',
-    'logout'     => 'Log out',
+    'logout'     => 'Sign out',
     'profile'    => 'Profile',
     'role_admin' => 'Admin',
     'role_user'  => 'User',

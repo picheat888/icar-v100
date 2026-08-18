@@ -34,5 +34,5 @@ return [
     'reg_success_line1'          => 'Please wait for the admin to approve your account.',
     'reg_success_line2'          => 'You will be able to sign in once your account is approved.',
     'reg_success_status'         => 'Account status: Pending approval',
-    'reg_success_back_login'     => 'Back to Login',
+    'reg_success_back_login'     => 'Back to sign in',
 ];
