@@ -201,17 +201,17 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   const formFields = (isOther = false) => (
     <>
       {error && <div className="alert-error">{error}</div>}
-      <label className="form-label">{t('book.location_label')} <span className="bk-req">*</span></label>
+      <label className="form-label">{t('book.location_label')} <span className="form-req">*</span></label>
       <input value={f.location} onChange={(e) => set('location', e.target.value)} placeholder={t('book.location_placeholder')} className="form-input form-input--sm bk-field-mb" />
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.start_label')} <span className="bk-req">*</span></label><DateTimeField value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} /></div>
-        <div><label className="form-label">{t('req.end_label')} <span className="bk-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
+        <div><label className="form-label">{t('req.start_label')} <span className="form-req">*</span></label><DateTimeField value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} /></div>
+        <div><label className="form-label">{t('req.end_label')} <span className="form-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
       </div>
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
         <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
         <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
-      <label className="form-label">{t('req.purpose_label')} {isOther && <span className="bk-req">*</span>}</label>
+      <label className="form-label">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>
       <textarea value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} className="form-input form-input--sm bk-textarea" />
     </>
   );

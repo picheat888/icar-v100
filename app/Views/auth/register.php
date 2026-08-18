@@ -93,18 +93,18 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
 
               <div class="reg-grid">
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.emp_id') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.emp_id') ?> <span class="form-req">*</span></label>
                   <input class="form-input reg-input" name="empId" value="<?= esc(old('empId')) ?>" placeholder="<?= esc(lang('Account.emp_id_ph'), 'attr') ?>" maxlength="8" required>
                   <div id="err-empId" class="reg-err"></div>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.full_name') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.full_name') ?> <span class="form-req">*</span></label>
                   <input class="form-input reg-input" name="name" value="<?= esc(old('name')) ?>" placeholder="<?= esc(lang('Account.full_name_ph'), 'attr') ?>" required>
                   <div id="err-name" class="reg-err"></div>
                 </div>
 
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.department') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.department') ?> <span class="form-req">*</span></label>
                   <select class="form-input form-select reg-input reg-select" name="dept" required>
                     <option value=""><?= lang('Account.choose_dept') ?></option>
                     <?php foreach ($departments as $d): ?>
@@ -113,7 +113,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
                   </select>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.position') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.position') ?> <span class="form-req">*</span></label>
                   <select class="form-input form-select reg-input reg-select" name="position" required>
                     <option value=""><?= lang('Account.choose_pos') ?></option>
                     <?php foreach ($positions as $p): ?>
@@ -123,7 +123,7 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
                 </div>
 
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.phone') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.phone') ?> <span class="form-req">*</span></label>
                   <input class="form-input reg-input" name="phone" value="<?= esc(old('phone')) ?>" placeholder="<?= esc(lang('Account.phone_ph'), 'attr') ?>" maxlength="10" inputmode="numeric" required>
                   <div id="err-phone" class="reg-err"></div>
                 </div>
@@ -139,18 +139,18 @@ $firstErr  = is_array($errors) && $errors ? reset($errors) : (string) (session('
               </div>
 
               <div class="reg-mb">
-                <label class="form-label reg-label"><?= lang('Account.username_label') ?> <span class="reg-req">*</span></label>
+                <label class="form-label reg-label"><?= lang('Account.username_label') ?> <span class="form-req">*</span></label>
                 <input class="form-input reg-input" name="username" value="<?= esc(old('username')) ?>" placeholder="<?= esc(lang('Account.username_ph_reg'), 'attr') ?>" autocomplete="username" required>
                 <div class="subtext subtext--faint reg-hint"><?= lang('Account.username_hint') ?></div>
               </div>
 
               <div class="reg-grid">
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.password') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.password') ?> <span class="form-req">*</span></label>
                   <input class="form-input reg-input" name="password" type="password" placeholder="<?= esc(lang('Account.password_ph_reg'), 'attr') ?>" autocomplete="new-password" required>
                 </div>
                 <div>
-                  <label class="form-label reg-label"><?= lang('Account.confirm_pass') ?> <span class="reg-req">*</span></label>
+                  <label class="form-label reg-label"><?= lang('Account.confirm_pass') ?> <span class="form-req">*</span></label>
                   <input class="form-input reg-input" name="confirm" type="password" placeholder="<?= esc(lang('Account.confirm_ph'), 'attr') ?>" autocomplete="new-password" required>
                 </div>
               </div>

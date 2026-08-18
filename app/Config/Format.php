@@ -57,7 +57,8 @@ class Format extends BaseConfig
      * @var array<string, int>
      */
     public array $formatterOptions = [
-        'application/json' => JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        // JSON_INVALID_UTF8_SUBSTITUTE: ไบต์ที่ไม่ใช่ UTF-8 จะถูกแทนด้วย U+FFFD แทนที่จะโยน exception
+        'application/json' => JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE,
         'application/xml'  => 0,
         'text/xml'         => 0,
     ];

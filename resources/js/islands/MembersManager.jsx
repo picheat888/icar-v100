@@ -450,41 +450,41 @@ function AddForm({ form, set, departments, positions, onCopied }) {
       <div className="mm-add-section">{t('mem.emp_section')}</div>
       <div className="mm-form-grid">
         <div>
-          <label className="form-label">{t('mem.col_emp_id')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
           <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} className="form-input form-input--sm" />
         </div>
         <div>
-          <label className="form-label">{t('mem.col_full_name')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.col_full_name')} <span className="form-req">*</span></label>
           <input value={form.name} onChange={(e) => u('name', e.target.value)} className="form-input form-input--sm" />
         </div>
       </div>
       <div className="mm-form-grid">
         <div>
-          <label className="form-label">{t('mem.dept_label')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.dept_label')} <span className="form-req">*</span></label>
           <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select">
             <option value="">{t('mem.not_specified_option')}</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="form-label">{t('mem.position_label')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.position_label')} <span className="form-req">*</span></label>
           <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select">
             <option value="">{t('mem.not_specified_option')}</option>
             {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
       </div>
-      <label className="form-label">{t('mem.phone_full_label')} <span className="mm-req">*</span></label>
+      <label className="form-label">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
       <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" className="form-input form-input--sm mm-field-mb" />
 
       <div className="mm-add-section">{t('mem.login_section')}</div>
       <div className="mm-form-grid">
         <div>
-          <label className="form-label">{t('mem.username_label')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.username_label')} <span className="form-req">*</span></label>
           <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" className="form-input form-input--sm" />
         </div>
         <div>
-          <label className="form-label">{t('mem.role_level_label')} <span className="mm-req">*</span></label>
+          <label className="form-label">{t('mem.role_level_label')} <span className="form-req">*</span></label>
           <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select">
             {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
           </select>
@@ -492,7 +492,7 @@ function AddForm({ form, set, departments, positions, onCopied }) {
       </div>
 
       {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
-      <label className="form-label">{t('mem.temp_pass_label')} <span className="mm-req">*</span></label>
+      <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
       <div className="mm-pass-row">
         <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" className="form-input form-input--sm mm-pass-input" />
         <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>

@@ -255,6 +255,11 @@
   margin-bottom: 7px;
 }
 
+/* ดอกจันหน้าฟิลด์บังคับกรอก */
+.form-req {
+  color: var(--danger);
+}
+
 .form-input {
   width: 100%;
   box-sizing: border-box;
@@ -1902,10 +1907,6 @@
 .reg-select {
   cursor: pointer;
   padding-right: 34px;
-}
-
-.reg-req {
-  color: var(--danger);
 }
 
 .reg-hint {
@@ -5223,11 +5224,6 @@
   margin-top: 20px;
 }
 
-/* ดอกจันหน้าฟิลด์บังคับ */
-.mm-req {
-  color: var(--danger);
-}
-
 /* แถวรหัสผ่าน - ช่องกรอก + ปุ่มสุ่ม + ปุ่มคัดลอก */
 .mm-pass-row {
   display: flex;
@@ -5384,10 +5380,6 @@
 
 /* ===== BookingForm: จองรถ - เลือกรถ (grid การ์ด) + modal 2 คอลัมน์ (ปฏิทินว่าง + ฟอร์ม) + custom datetime picker ===== */
 /* เครื่องหมาย * ของฟิลด์บังคับกรอก */
-.bk-req {
-  color: var(--danger);
-}
-
 /* ระยะห่างล่างของช่องกรอกเดี่ยวในฟอร์ม */
 .bk-field-mb {
   margin-bottom: 16px;

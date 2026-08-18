@@ -83,9 +83,10 @@ class Filters extends BaseFilters
             // ตั้ง locale จาก cookie 'lang' ก่อน filter อื่นทำงาน (ต้องมาก่อน csrf)
             'locale',
             // 'honeypot',
+            // ตีกลับ request ที่มีไบต์ไม่ใช่ UTF-8 หรืออักขระควบคุม (ยกเว้น \r \n \t)
+            'invalidchars',
             // CSRF (session-based) - ฟอร์มใช้ csrf_field() · island แนบ X-CSRF-TOKEN header + อัปเดต token จาก response
             'csrf',
-            // 'invalidchars',
             // เช็คสถานะบัญชีทุก request ยกเว้นหน้า auth (กันคนถูกปิดใช้งานระหว่างล็อกอินอยู่)
             'accountstatus' => ['except' => ['login', 'login/*', 'register', 'register/*', 'logout', 'auth/*']],
             // บังคับเปลี่ยนรหัส (force_reset=1): บล็อกการเปลี่ยนข้อมูลจนกว่าจะตั้งรหัสใหม่ผ่าน popup
