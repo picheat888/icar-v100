@@ -11,7 +11,7 @@ class NotificationController extends BaseController
 {
     private const PAGE = 10;   // จำนวนต่อหน้า
 
-    // JSON: รายการล่าสุด + จำนวนยังไม่เห็น + มีเก่ากว่านี้ไหม
+    // JSON: รายการล่าสุด + จำนวนยังไม่อ่าน + มีเก่ากว่านี้ไหม
     public function data()
     {
         // กันเปิดตรงจาก browser -> เด้งกลับหน้าหลัก (กันโชว์ JSON ดิบ)
@@ -34,17 +34,9 @@ class NotificationController extends BaseController
 
         return $this->response->setJSON([
             'items'       => $items,
-            'unseenCount' => $m->unseenCount($userId),
+            'unreadCount' => $m->unreadCount($userId),
             'hasMore'     => ($offset + self::PAGE) < $m->totalFor($userId),
         ]);
-    }
-
-    // เปิด dropdown -> เห็นแล้วทั้งหมด (เคลียร์ badge)
-    public function seen()
-    {
-        (new NotificationModel())->markAllSeen((int) auth()->id());
-
-        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
     }
 
     // กดรายการ -> อ่านแล้ว 1 อัน

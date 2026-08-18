@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /**
- * Model ตาราง notifications - แจ้งเตือนรายผู้ใช้
+ * Model ตาราง notifications - แจ้งเตือนรายผู้ใช้ (read_at = ยังไม่อ่าน คุม badge + ไฮไลต์แถว)
  */
 class NotificationModel extends Model
 {
@@ -13,7 +13,7 @@ class NotificationModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
-    protected $allowedFields = ['user_id', 'type', 'message', 'link', 'seen_at', 'read_at'];
+    protected $allowedFields = ['user_id', 'type', 'message', 'link', 'read_at'];
 
     // สร้างแจ้งเตือน 1 แถวให้ผู้ใช้คนหนึ่ง
     public function push(int $userId, string $type, string $message, ?string $link = null): void
@@ -58,19 +58,10 @@ class NotificationModel extends Model
         return $this->where('user_id', $userId)->countAllResults();
     }
 
-    // จำนวนที่ยังไม่เห็น (คุม badge)
-    public function unseenCount(int $userId): int
+    // จำนวนที่ยังไม่อ่าน (คุม badge - ลดลงเมื่อกดรายการ ไม่ใช่เมื่อเปิดกล่อง)
+    public function unreadCount(int $userId): int
     {
-        return $this->where('user_id', $userId)->where('seen_at', null)->countAllResults();
-    }
-
-    // ทำเครื่องหมาย "เห็นแล้ว" ทั้งหมด (ตอนเปิด dropdown)
-    public function markAllSeen(int $userId): void
-    {
-        $this->set('seen_at', date('Y-m-d H:i:s'))
-            ->where('user_id', $userId)
-            ->where('seen_at', null)
-            ->update();
+        return $this->where('user_id', $userId)->where('read_at', null)->countAllResults();
     }
 
     // ทำเครื่องหมาย "อ่านแล้ว" 1 รายการ (เฉพาะของผู้ใช้นั้น)

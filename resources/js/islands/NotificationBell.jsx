@@ -27,7 +27,7 @@ const TYPE_ICON = {
 export default function NotificationBell({ endpoints }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
-  const [unseen, setUnseen] = useState(0);
+  const [unread, setUnread] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -35,10 +35,13 @@ export default function NotificationBell({ endpoints }) {
   const btnRef = useRef(null);
   const openRef = useRef(false);
   const chainRef = useRef(Promise.resolve());
+  const readEpoch = useRef(0);
 
-  // GET รายการ (offset 0 = แทนที่, มากกว่านั้น = ต่อท้าย) · applyUnseen=false ให้ badge คุมจากที่อื่น
-  const fetchPage = useCallback((offset, append, applyUnseen = true) => {
+  // GET รายการ (offset 0 = แทนที่, มากกว่านั้น = ต่อท้าย)
+  const fetchPage = useCallback((offset, append) => {
     setLoading(true);
+    const epoch = readEpoch.current;
+
     return fetch(`${endpoints.data}?offset=${offset}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => {
         if (! r.ok) throw new Error(`HTTP ${r.status}`);
@@ -47,7 +50,8 @@ export default function NotificationBell({ endpoints }) {
       })
       .then((d) => {
         setFailed(false);
-        if (applyUnseen) setUnseen(d.unseenCount || 0);
+        // ถ้าผู้ใช้กดอ่านระหว่างรอ response ค่านับจาก server จะเก่ากว่า - ปล่อยให้ค่าที่หักไว้แล้วชนะ
+        if (epoch === readEpoch.current) setUnread(d.unreadCount || 0);
         setHasMore(!!d.hasMore);
         setItems((prev) => (append ? [...prev, ...(d.items || [])] : (d.items || [])));
       })
@@ -100,14 +104,11 @@ export default function NotificationBell({ endpoints }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  // สลับเปิด/ปิด - ตอนเปิด: โหลดหน้าแรกใหม่ + เคลียร์ badge (ไม่รับ unseenCount จาก response กันค่าเก่าทับ 0)
+  // สลับเปิด/ปิด - ตอนเปิดโหลดหน้าแรกใหม่ (badge ไม่หายจากการเปิด ต้องกดอ่านรายการ)
   const toggle = () => {
     const next = ! open;
     setOpen(next);
-    if (! next) return;
-    fetchPage(0, false, false);
-    setUnseen(0);
-    post(endpoints.seen);
+    if (next) fetchPage(0, false);
   };
 
   // ลิงก์ปลอดภัย: อนุญาตเฉพาะ http(s) หรือ path ภายใน (ขึ้นต้นด้วย /) - กัน javascript:/data: (defense-in-depth)
@@ -115,6 +116,10 @@ export default function NotificationBell({ endpoints }) {
 
   // กดรายการ -> อ่านแล้ว + ไปลิงก์ (ไปหลัง POST เสร็จ กัน request ถูกตัด) · ไม่มีลิงก์ = ปิดกล่อง
   const onItem = (n) => {
+    if (! n.isRead) {
+      readEpoch.current++;
+      setUnread((c) => Math.max(0, c - 1));
+    }
     setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, isRead: true } : x)));
     post(endpoints.read, { id: n.id }, { keepalive: true })
       .finally(() => { if (safeLink(n.link)) window.location = n.link; else setOpen(false); });
@@ -122,11 +127,11 @@ export default function NotificationBell({ endpoints }) {
 
   // อ่านทั้งหมด
   const onReadAll = () => {
+    readEpoch.current++;
+    setUnread(0);
     post(endpoints.readAll);
     setItems((prev) => prev.map((x) => ({ ...x, isRead: true })));
   };
-
-  const unreadCount = items.reduce((n, x) => n + (x.isRead ? 0 : 1), 0);
 
   // จัดกลุ่มแจ้งเตือนตามวัน (items เรียงใหม่->เก่าอยู่แล้ว กลุ่มเดียวกันจึงต่อเนื่องกัน)
   const groups = [];
@@ -162,26 +167,26 @@ export default function NotificationBell({ endpoints }) {
         type="button"
         onClick={toggle}
         className="nb-btn"
-        aria-label={unseen > 0 ? t('notif.aria_unread', { n: unseen }) : t('notif.title')}
+        aria-label={unread > 0 ? t('notif.aria_unread', { n: unread }) : t('notif.title')}
         aria-expanded={open}
         aria-haspopup="dialog"
       >
         <Icon name="bell" size={20} />
-        {unseen > 0 && (
+        {unread > 0 && (
           <span className="nb-badge" aria-hidden="true">
-            {unseen > 99 ? '99+' : unseen}
+            {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
       {/* ประกาศจำนวนใหม่ให้ screen reader (ไม่แสดงบนจอ) */}
-      <span className="sr-only" aria-live="polite">{unseen > 0 ? t('notif.aria_unread', { n: unseen }) : ''}</span>
+      <span className="sr-only" aria-live="polite">{unread > 0 ? t('notif.aria_unread', { n: unread }) : ''}</span>
 
       {/* dropdown */}
       {open && (
         <div className="nb-dropdown" role="dialog" aria-label={t('notif.title')}>
           <div className="nb-head">
             <span className="title title--sm">{t('notif.title')}</span>
-            <button type="button" onClick={onReadAll} disabled={unreadCount === 0} className="nb-readall">{t('notif.read_all')}</button>
+            <button type="button" onClick={onReadAll} disabled={unread === 0} className="nb-readall">{t('notif.read_all')}</button>
           </div>
 
           <div className="nb-list">

@@ -76,7 +76,6 @@ $routes->group('', ['filter' => 'session'], static function ($routes) {
 
     // แจ้งเตือน (กระดิ่ง) - ทุก role ที่ล็อกอิน
     $routes->get('notifications/data',      'NotificationController::data');
-    $routes->post('notifications/seen',     'NotificationController::seen');
     $routes->post('notifications/read',     'NotificationController::read');
     $routes->post('notifications/read-all', 'NotificationController::readAll');
 });

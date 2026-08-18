@@ -4071,19 +4071,21 @@
 /* ตัวเลขแจ้งเตือนค้าง มุมขวาบนของปุ่มกระดิ่ง */
 .nb-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
+  top: -5px;
+  right: -5px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
   background: var(--notify);
   color: #fff;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* ชดเชยตัวเลขที่ลอยสูงกว่าจุดกึ่งกลางวง 0.5px */
+  padding-top: 1px;
 }
 
 /* กล่อง dropdown รายการแจ้งเตือน */
@@ -4091,7 +4093,7 @@
   position: absolute;
   right: 0;
   top: 52px;
-  width: 376px;
+  width: 420px;
   max-width: 90vw;
   background: #fff;
   border: 1px solid var(--border);

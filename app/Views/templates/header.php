@@ -50,7 +50,6 @@ $roleLabel  = $roleLabels[$role] ?? $role;
     <?php
     $notiProps = ['endpoints' => [
         'data'    => site_url('notifications/data'),
-        'seen'    => site_url('notifications/seen'),
         'read'    => site_url('notifications/read'),
         'readAll' => site_url('notifications/read-all'),
     ]];
