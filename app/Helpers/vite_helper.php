@@ -46,12 +46,9 @@ if (! function_exists('vite_asset')) {
         $isDev     = env('vite.dev', false) === true || env('vite.dev') === 'true';
         $devServer = rtrim((string) env('vite.server', 'http://localhost:5173'), '/');
 
-        // dev: โหลดตรงจาก Vite dev server พร้อม react refresh
+        // dev: โหลดตรงจาก Vite dev server (preamble + @vite/client ปล่อยไว้ใน <head> โดย vite_css)
         if ($isDev) {
-            $tags = vite_dev_preamble($devServer);
-            $tags .= '<script type="module" src="' . $devServer . '/' . ltrim($entry, '/') . '"></script>';
-
-            return $tags;
+            return '<script type="module" src="' . $devServer . '/' . ltrim($entry, '/') . '"></script>';
         }
 
         // prod: อ่าน manifest หา path จริงของไฟล์ที่ build แล้ว
@@ -91,11 +88,17 @@ if (! function_exists('vite_asset')) {
 
 if (! function_exists('vite_css')) {
     /**
-     * โหลด Tailwind CSS หลัก (entry 'resources/css/app.css')
-     * เรียกใน <head> ของ layout
+     * โหลด Tailwind CSS หลัก (entry 'resources/css/app.css') - เรียกใน <head> ของ layout
+     *
+     * โหมด dev ปล่อย React Refresh preamble + @vite/client นำหน้าด้วย ซึ่งต้องอยู่ใน <head>
+     * เพราะ CI4 รัน view ของ section content ก่อน layout ถ้าไปปล่อยตอน vite_asset() ตัวแรก
+     * ที่ถูกเรียก preamble จะไปโผล่ท้ายหน้า หลัง island ที่อยู่ใน header ซึ่งจะพังทันที
      */
     function vite_css(): string
     {
-        return vite_asset('resources/css/app.css');
+        $isDev     = env('vite.dev', false) === true || env('vite.dev') === 'true';
+        $devServer = rtrim((string) env('vite.server', 'http://localhost:5173'), '/');
+
+        return ($isDev ? vite_dev_preamble($devServer) : '') . vite_asset('resources/css/app.css');
     }
 }
