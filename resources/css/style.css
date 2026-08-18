@@ -4091,7 +4091,7 @@
   position: absolute;
   right: 0;
   top: 52px;
-  width: 340px;
+  width: 376px;
   max-width: 90vw;
   background: #fff;
   border: 1px solid var(--border);
@@ -4106,7 +4106,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -4128,7 +4128,7 @@
 
 /* พื้นที่เลื่อนรายการแจ้งเตือน */
 .nb-list {
-  max-height: 380px;
+  max-height: 420px;
   overflow-y: auto;
 }
 
@@ -4142,27 +4142,35 @@
 
 /* หัวกลุ่มวัน (วันนี้ / เมื่อวาน / วันที่) */
 .nb-daylabel {
-  padding: 7px 14px;
-  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 16px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--text-faint);
-  background: #fafbfc;
-  border-bottom: 1px solid var(--hover-bg);
+  letter-spacing: .2px;
+  color: var(--text-mute);
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--line);
 }
 
 /* แถวแจ้งเตือนแต่ละรายการ - ไอคอนประเภท + ข้อความ/เวลา */
 .nb-item {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
   width: 100%;
-  padding: 11px 14px;
+  padding: 13px 16px;
   border: none;
-  border-bottom: 1px solid var(--hover-bg);
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
   background: #fff;
   text-align: left;
   font-family: inherit;
+}
+
+.nb-item:last-child {
+  border-bottom: none;
 }
 
 .nb-item:hover {
@@ -4182,8 +4190,8 @@
 /* ไอคอนประเภทแจ้งเตือน (วงกลมพื้นอ่อน) */
 .nb-item-ic {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -4222,15 +4230,21 @@
 .nb-item-msg {
   display: block;
   font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ยังไม่อ่าน - เข้มกว่าที่อ่านแล้ว */
+.nb-item--unread .nb-item-msg {
   color: var(--ink-strong);
-  line-height: 1.4;
 }
 
 /* เวลาแจ้งเตือน - ใช้คู่กับ .subtext .subtext--faint (สี var(--text-faint) มาจากตรงนั้น) */
 .nb-item-time {
   display: block;
-  font-size: 11.5px;
-  margin-top: 3px;
+  font-size: 12px;
+  margin-top: 5px;
 }
 
 /* ปุ่มโหลดรายการเพิ่ม ท้ายรายการ */
