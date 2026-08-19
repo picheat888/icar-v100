@@ -14,8 +14,34 @@ class MasterDataSeeder extends Seeder
     {
         $now = date('Y-m-d H:i:s');
 
-        $departments = ['ฝ่ายผลิต', 'ฝ่ายขนส่ง', 'ฝ่ายบุคคล', 'ฝ่ายจัดซื้อ', 'ฝ่ายบัญชี', 'ฝ่ายเทคโนโลยีสารสนเทศ'];
-        $positions   = ['หัวหน้ากะ', 'พนักงานขับรถ', 'เจ้าหน้าที่ฝ่ายบุคคล', 'เจ้าหน้าที่จัดซื้อ', 'นักบัญชี', 'ผู้ดูแลระบบ'];
+        $departments = ['Accounting (ACC)',
+                        'Forklift (FK)',
+                        'Filling (FL)',
+                        'General Affair (GA)',
+                        'Logistics (LG)',
+                        'Maintenance (MN)',
+                        'Machine Operations (MO)',
+                        'Loading (LD)',
+                        'Production (PD)',
+                        'Production - Packing (PK)',
+                        'Production - Raw Material (RM)',
+                        'Production - Stock (ST)',
+                        'Production - Warehouse (WH)',
+                        'Production - Retort (RT)',
+                        'Purchase (PU)',
+                        'Quality Control (QC)',
+                        'Safety (SE)'];
+        $positions   = ['Manager',
+                        'Assist manager',
+                        'Senior supervisor',
+                        'Supervisor',
+                        'Assist Supervisor',
+                        'Leader',
+                        'Sub Leader',
+                        'Head of line',
+                        'Assist officer',
+                        'Staff/officer',
+                        'Operator'];
 
         // เพิ่มเฉพาะที่ยังไม่มี (กันซ้ำเมื่อ seed หลายครั้ง)
         foreach ($departments as $name) {
