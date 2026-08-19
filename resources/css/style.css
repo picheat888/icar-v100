@@ -4976,6 +4976,9 @@
 
 /* ปุ่มเล็กในการ์ด (แก้ไข/ลบ) */
 .cm-mini-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border-radius: 7px;
   padding: 6px 13px;
   font-size: 13px;
@@ -5060,6 +5063,9 @@
 
 /* ปุ่มยกเลิก */
 .cm-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   background: var(--surface);
   color: var(--text-soft);
   border: none;

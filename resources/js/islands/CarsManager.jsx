@@ -6,6 +6,7 @@ import Modal from '../lib/Modal';
 import ConfirmDialog from '../lib/ConfirmDialog';
 import DonePopup from '../lib/DonePopup';
 import { TrashIcon } from '../lib/icons';
+import Icon from '../lib/Icon';
 
 // key ข้อความสถานะ + สี pill - ต้องเรียก t() ตอน render ไม่ใช่ตอน module โหลด
 const CAR_STATUS = {
@@ -143,7 +144,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
         </div>
         <div className="cm-actions">
           <button onClick={openAdd} className="btn-primary">
-            + {tab === 'self' ? t('car.add_self') : t('car.add_other')}
+            <Icon name="plus" size={18} />{tab === 'self' ? t('car.add_self') : t('car.add_other')}
           </button>
         </div>
       </div>
@@ -176,8 +177,8 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
                   </div>
                 )}
                 <div className="cm-card-actions">
-                  <button onClick={() => openEdit(c)} className="cm-mini-btn cm-mini-btn--edit">{t('common.edit')}</button>
-                  <button onClick={() => del(c)} className="cm-mini-btn cm-mini-btn--delete">{t('common.delete')}</button>
+                  <button onClick={() => openEdit(c)} className="cm-mini-btn cm-mini-btn--edit"><Icon name="pencil" size={14} />{t('common.edit')}</button>
+                  <button onClick={() => del(c)} className="cm-mini-btn cm-mini-btn--delete"><Icon name="trash" size={14} />{t('common.delete')}</button>
                 </div>
               </div>
             </div>
@@ -231,8 +232,8 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
           )}
 
           <div className="cm-modal-footer">
-            <button onClick={() => setModal(null)} className="cm-btn-cancel">{t('common.cancel')}</button>
-            <button onClick={save} disabled={busy} className={`btn-primary${busy ? ' cm-btn-busy' : ''}`}>{t('common.save')}</button>
+            <button onClick={() => setModal(null)} className="cm-btn-cancel"><Icon name="close" size={16} />{t('common.cancel')}</button>
+            <button onClick={save} disabled={busy} className={`btn-primary${busy ? ' cm-btn-busy' : ''}`}><Icon name="check" size={17} />{t('common.save')}</button>
           </div>
         </Modal>
       )}
