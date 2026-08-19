@@ -119,7 +119,7 @@
   "req.invalid_map_link": "ลิงก์แผนที่ไม่ถูกต้อง",
   "req.edit_request": "แก้ไขคำขอ",
   "req.cancel_request": "ยกเลิกการจอง",
-  "req.confirm_cancel_msg": "ยืนยันยกเลิกคำขอนี้? รถจะถูกปล่อยคืนให้จองได้อีกครั้ง",
+  "req.confirm_cancel_msg": "ยืนยันยกเลิกคำขอนี้? รถจะถูกคืนเข้าระบบให้จองได้อีกครั้ง",
   "req.note_optional_label": "หมายเหตุ (ถ้ามี)",
   "req.no_cancel": "ไม่ยกเลิก",
   "req.confirm_cancel_request": "ยืนยันยกเลิกการจอง",
