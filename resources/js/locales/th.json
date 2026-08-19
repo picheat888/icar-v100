@@ -131,7 +131,7 @@
   "req.note_to_requester_placeholder": "ระบุหมายเหตุถึงผู้ขอ (ถ้ามี)",
   "req.cancel_req_pre": "ผู้ขอส่งคำขอ",
   "req.cancel_req_mid": " ยกเลิกการจอง ",
-  "req.cancel_req_post": "นี้ - กดยืนยันเพื่อยกเลิกและปล่อยรถคืน",
+  "req.cancel_req_post": "นี้ - กดยืนยันเพื่อยกเลิก และคืนรถ",
   "req.assigned_driver_label": "คนขับที่มอบหมาย: ",
   "req.status_colon": "สถานะ:",
   "req.returned_at_label": "คืนรถเมื่อ: ",
