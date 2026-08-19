@@ -361,10 +361,16 @@ class RequestController extends BaseController
             return $this->fail('คำขอนี้ยกเลิกไม่ได้ (สถานะจบแล้ว)', true);
         }
 
+        // เหตุผลบังคับ - ผู้ขอจะเห็นว่าถูกยกเลิกเพราะอะไร (เหมือน reject)
+        $note = trim((string) $this->request->getPost('admin_note'));
+        if ($note === '') {
+            return $this->fail('กรุณากรอกเหตุผลที่ยกเลิกการจอง');
+        }
+
         // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - เฉพาะที่ยัง active
         $bookings->where('id', $id)->whereIn('status', ['pending', 'approved', 'cancel_requested'])->set([
             'status'      => 'cancelled',
-            'admin_note'  => trim((string) $this->request->getPost('admin_note')) ?: $b['admin_note'],
+            'admin_note'  => $note,
             'approved_by' => (int) auth()->id(),
             'approved_at' => date('Y-m-d H:i:s'),
         ])->update();

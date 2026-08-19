@@ -11,6 +11,7 @@ import Table from '../lib/Table';
 import { useToast } from '../lib/Toast';
 import DonePopup from '../lib/DonePopup';
 import { setNavBadge } from '../lib/navBadge';
+import { STATUS_LABEL as REAL_STATUS, ST_CLASS } from '../lib/status';
 
 // normalize เวลา → 'YYYY-MM-DD HH:MM:SS' (รับทั้งจาก DB และ input datetime-local)
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
@@ -577,102 +578,153 @@ export default function RequestsManager({ endpoints }) {
         const pending = b.status === 'pending';
         const isCancelReq = b.status === 'cancel_requested';
         const isOther = b.booking_type === 'other';
-        const isActive = pending || isCancelReq || b.status === 'approved';   // แก้ไขได้
-        const canAdminCancel = pending || b.status === 'approved';            // ยกเลิกโดย Admin ได้ (cancel_requested มีปุ่มยืนยันอยู่แล้ว)
-        const fields = [
-          [t('req.requester_label'), b.requester_name || '-'], [t('req.dept_label'), b.dept_name || '-'], [t('req.type_label'), typeLabel(b.booking_type)],
-          [t('req.passenger_count_label'), t('req.people', { n: b.people })], [t('req.col_time_range'), `${thDateTime(b.start_at)} → ${thDateTime(b.end_at)}`],
-          [t('req.location_short'), b.location], [t('req.purpose_label'), b.purpose || '-'],
-        ];
-        if (b.booking_type === 'self') fields.push([t('req.car_label'), b.car_model ? `${b.car_model} (${b.car_plate})` : '-']);
+        const isApproved = b.status === 'approved';
+        const isActive = pending || isCancelReq || isApproved;   // แก้ไขคำขอได้
+        // ยกเลิกการจอง = เฉพาะงานที่อนุมัติแล้ว · pending ใช้ "ปฏิเสธ" · cancel_requested ใช้ "ยืนยันการยกเลิก"
+        const canAdminCancel = isApproved;
+        const inMode = modal.editing || modal.cancelling || modal.rejecting;
         return (
-          <div onClick={() => setModal(null)} className="icar-drawer-backdrop">
-            <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
-              <div className="modal-head">
-                <h3 className="modal-title">{t('req.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setModal(null)} className="modal-close">{CloseIcon}</button>
-              </div>
-              <div className="rq-drawer-body">
-                {modalErr && <div className="rq-alert-gap"><Alert>{modalErr}</Alert></div>}
-                <div className="rq-detail-grid">
-                  {fields.map(([k, v]) => <div key={k}><div className="detail-label">{k}</div><div className="rq-detail-value">{v}</div></div>)}
+          <div onClick={() => setModal(null)} className="rq-focus-backdrop">
+            <div onClick={(e) => e.stopPropagation()} className="rq-focus-panel" role="dialog" aria-label={t('req.detail_title', { code: b.booking_code })}>
+
+              {/* หัว: รหัสคำขอ + สถานะ */}
+              <div className="rq-focus-head">
+                <div className="rq-focus-head-main">
+                  <h3 className="rq-focus-code">{b.booking_code}</h3>
+                  <span className="rq-focus-kind">{typeLabel(b.booking_type)}</span>
                 </div>
-                {b.map_link && (isSafeUrl(b.map_link)
-                  ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link">{t('req.open_in_maps')}</a>
-                  : <span className="rq-map-link rq-map-link--invalid">{t('req.invalid_map_link')}</span>)}
-
-                {/* แถบเครื่องมือ Admin: แก้ไข/ยกเลิก คำขอที่ยัง active */}
-                {isActive && !modal.editing && !modal.cancelling && !modal.rejecting && (
-                  <div className="rq-toolbar-row">
-                    <button onClick={enterEdit} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--edit">{bIcon('pencil')}{t('req.edit_request')}</button>
-                    {canAdminCancel && <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--cancel">{bIcon('cancel')}{t('req.cancel_request')}</button>}
-                  </div>
-                )}
-
-                {modal.editing ? editForm() : modal.cancelling ? (
-                  <div className="rq-modal-section">
-                    <div className="rq-notice rq-notice--danger">{t('req.confirm_cancel_msg')}</div>
-                    <label className="form-label">{t('req.note_optional_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} className="form-input form-input--sm rq-textarea" />
-                    <div className="rq-modal-actions rq-modal-actions--mt14">
-                      <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
-                      <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
-                    </div>
-                  </div>
-                ) : modal.rejecting ? (
-                  // ป็อปอัปปฏิเสธ - บังคับกรอกเหตุผล (ผู้ขอจะเห็นเหตุผลนี้)
-                  <div className="rq-modal-section">
-                    <div className="rq-notice rq-notice--danger">{t('req.reject_reason_notice')}</div>
-                    <label className="form-label">{t('req.reject_reason_label')} <span className="rq-required">*</span></label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} className="form-input form-input--sm rq-textarea" autoFocus />
-                    <div className="rq-modal-actions rq-modal-actions--mt14">
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
-                      <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_reject')}</button>
-                    </div>
-                  </div>
-                ) : pending ? (
-                  <div className="rq-modal-section rq-modal-section--lg">
-                    {isOther && driverPicker()}
-                    <label className="form-label">{t('req.reply_note_label')}</label>
-                    <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} className="form-input form-input--sm rq-textarea" />
-                    <div className="rq-modal-actions rq-modal-actions--mt20">
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
-                      <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.approve')}</button>
-                    </div>
-                  </div>
-                ) : isCancelReq ? (
-                  <div className="rq-modal-section rq-modal-section--lg">
-                    <div className="rq-notice rq-notice--warn">
-                      {t('req.cancel_req_pre')}<b>{t('req.cancel_req_mid')}</b>{t('req.cancel_req_post')}
-                    </div>
-                    {driverAssigned(b) && <div className="rq-assigned-note rq-assigned-note--gap">{t('req.assigned_driver_label')}<b>{driverAssigned(b)}</b></div>}
-                    <div className="rq-modal-actions">
-                      <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                      <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="rq-modal-section rq-modal-section--col">
-                    <div className="rq-status-row"><span className="rq-status-row-label">{t('req.status_colon')}</span><span className={`pill pill--sm rq-badge ${sc}`}>{sl}</span></div>
-                    {driverAssigned(b) && <div className="rq-assigned-note">{t('req.assigned_driver_label')}<b>{driverAssigned(b)}</b></div>}
-                    {b.status === 'completed' && b.returned_at && <div className="rq-returned-note">{t('req.returned_at_label')}<b>{thDateTime(b.returned_at)}</b></div>}
-                    {b.admin_note && <div className="rq-admin-note">{t('req.note_label')}{b.admin_note}</div>}
-
-                    {/* มอบหมาย/เปลี่ยนคนขับ - เฉพาะคำขอรถอื่น ๆ ที่อนุมัติแล้ว (เติมกรณีอนุมัติแบบยังไม่มอบหมาย) */}
-                    {b.status === 'approved' && isOther && (modal.assigning ? (
-                      <div className="rq-modal-section rq-modal-section--assign">
-                        {driverPicker()}
-                        <div className="rq-modal-actions rq-modal-actions--mt6">
-                          <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
-                          <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('req.save_driver')}</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button onClick={() => setModal((m) => ({ ...m, assigning: true }))} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
-                    ))}
-                  </div>
-                )}
+                <span className={`pill pill--sm rq-badge ${ST_CLASS[b.status] || sc}`}>{REAL_STATUS[b.status] || sl}</span>
+                <button onClick={() => setModal(null)} className="modal-close rq-focus-x" aria-label={t('common.close')}>{CloseIcon}</button>
               </div>
+
+              {modalErr && <div className="rq-focus-err"><Alert>{modalErr}</Alert></div>}
+
+              {modal.editing ? (
+                <div className="rq-focus-edit">{editForm()}</div>
+              ) : (
+                <div className="rq-focus-cols">
+
+                  {/* ===== ซ้าย: ข้อมูลที่ผู้ขอส่งมา (อ่านอย่างเดียว) ===== */}
+                  <div className="rq-focus-col rq-focus-col--request">
+                    <div className="rq-focus-colhead">
+                      <span className="rq-focus-coltitle">{t('req.sec_request')}</span>
+                      {isActive && ! inMode && (
+                        <button onClick={enterEdit} disabled={busy} className="rq-focus-edit-btn">{bIcon('pencil')}{t('common.edit')}</button>
+                      )}
+                    </div>
+
+                    <div className="rq-focus-sec">
+                      <div className="rq-focus-sectitle">{t('req.sec_requester')}</div>
+                      <div className="rq-focus-value">{b.requester_name || '-'}</div>
+                      <div className="rq-focus-sub">{b.dept_name || '-'}</div>
+                    </div>
+
+                    <div className="rq-focus-sec">
+                      <div className="rq-focus-sectitle">{t('req.sec_trip')}</div>
+                      <div className="rq-focus-field">
+                        <div className="detail-label">{t('req.col_time_range')}</div>
+                        <div className="rq-focus-value">{thDateTime(b.start_at)} <span className="rq-focus-to">{t('req.to_word')}</span> {thDateTime(b.end_at)}</div>
+                      </div>
+                      <div className="rq-focus-field">
+                        <div className="detail-label">{t('req.location_short')}</div>
+                        <div className="rq-focus-value">{b.location}</div>
+                        {b.map_link && (isSafeUrl(b.map_link)
+                          ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link">{t('req.open_in_maps')}</a>
+                          : <span className="rq-map-link rq-map-link--invalid">{t('req.invalid_map_link')}</span>)}
+                      </div>
+                      <div className="rq-focus-pair">
+                        <div><div className="detail-label">{t('req.passenger_count_label')}</div><div className="rq-focus-value">{t('req.people', { n: b.people })}</div></div>
+                        <div><div className="detail-label">{t('req.purpose_label')}</div><div className="rq-focus-value">{b.purpose || '-'}</div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ===== ขวา: สิ่งที่ Admin ตัดสินใจ ===== */}
+                  <div className="rq-focus-col rq-focus-col--decide">
+                    <div className="rq-focus-colhead">
+                      <span className="rq-focus-coltitle">{t('req.sec_manage')}</span>
+                    </div>
+
+                    {/* รถ & คนขับ */}
+                    <div className="rq-focus-sec">
+                      <div className="rq-focus-sectitle">{t('req.sec_vehicle')}</div>
+                      {! isOther && <div className="rq-focus-value">{b.car_model ? `${b.car_model} (${b.car_plate})` : '-'}</div>}
+                      {isOther && ! inMode && pending && driverPicker()}
+                      {isOther && ! pending && (
+                        driverAssigned(b)
+                          ? <div className="rq-focus-value">{driverAssigned(b)}</div>
+                          : <div className="rq-focus-sub">{t('req.no_driver_yet')}</div>
+                      )}
+                      {/* เติมคนขับให้งานที่อนุมัติแล้วแต่ยังไม่ได้มอบหมาย */}
+                      {isApproved && isOther && ! inMode && (modal.assigning ? (
+                        <div className="rq-focus-assign">
+                          {driverPicker()}
+                          <div className="rq-modal-actions rq-modal-actions--mt6">
+                            <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
+                            <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('req.save_driver')}</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button onClick={() => setModal((m) => ({ ...m, assigning: true }))} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
+                      ))}
+                    </div>
+
+                    {/* คืนรถจริง (งานที่จบแล้ว) */}
+                    {b.status === 'completed' && b.returned_at && (
+                      <div className="rq-focus-sec">
+                        <div className="rq-focus-sectitle">{t('req.returned_at_label')}</div>
+                        <div className="rq-focus-value">{thDateTime(b.returned_at)}</div>
+                      </div>
+                    )}
+
+                    {/* หมายเหตุ: กรอกได้เมื่อยังตัดสินใจได้ · อ่านอย่างเดียวเมื่อจบแล้ว */}
+                    <div className="rq-focus-sec rq-focus-sec--grow">
+                      <div className="rq-focus-sectitle">
+                        {modal.rejecting ? t('req.reject_reason_label') : modal.cancelling ? t('req.cancel_reason_label') : pending ? t('req.reply_note_label') : t('req.sec_note')}
+                        {(modal.rejecting || modal.cancelling) && <span className="rq-required"> *</span>}
+                      </div>
+                      {pending || modal.rejecting || modal.cancelling ? (
+                        <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })}
+                          placeholder={modal.rejecting ? t('req.reject_reason_placeholder') : t('req.note_to_requester_placeholder')}
+                          rows={4} className="form-input form-input--sm rq-textarea" autoFocus={modal.rejecting || modal.cancelling} />
+                      ) : (
+                        <div className={b.admin_note ? 'rq-focus-value' : 'rq-focus-sub'}>{b.admin_note || t('req.no_note')}</div>
+                      )}
+                    </div>
+
+                    {/* คำเตือนของโหมดที่กำลังทำ */}
+                    {modal.rejecting && <div className="rq-notice rq-notice--danger">{t('req.reject_reason_notice')}</div>}
+                    {modal.cancelling && <div className="rq-notice rq-notice--danger">{t('req.confirm_cancel_msg')}</div>}
+                    {isCancelReq && ! inMode && (
+                      <div className="rq-notice rq-notice--warn">
+                        {t('req.cancel_req_pre')}<b>{t('req.cancel_req_mid')}</b>{t('req.cancel_req_post')}
+                      </div>
+                    )}
+
+                    {/* ===== ปุ่ม - ชุดเดียวต่อสถานะ ===== */}
+                    <div className="rq-focus-actions">
+                      {modal.rejecting ? (<>
+                        <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
+                        <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_reject')}</button>
+                      </>) : modal.cancelling ? (<>
+                        <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
+                        <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
+                      </>) : pending ? (<>
+                        <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
+                        <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.approve')}</button>
+                      </>) : isCancelReq ? (<>
+                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
+                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
+                      </>) : canAdminCancel ? (<>
+                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
+                        <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>
+                      </>) : (
+                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );

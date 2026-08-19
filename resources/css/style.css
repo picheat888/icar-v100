@@ -4595,6 +4595,218 @@
   line-height: 1.5;
 }
 
+/* ===== Focus panel รายละเอียดคำขอ - กลางจอ 2 คอลัมน์ =====
+   ซ้าย = ข้อมูลที่ผู้ขอส่งมา (อ่านอย่างเดียว) · ขวา = สิ่งที่ Admin ตัดสินใจ */
+.rq-focus-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--backdrop);
+}
+
+.rq-focus-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 940px;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: var(--modal-shadow);
+}
+
+/* หัว: รหัสคำขอ + ประเภท + ป้ายสถานะ + ปุ่มปิด */
+.rq-focus-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rq-focus-head-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rq-focus-code {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.rq-focus-kind {
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+.rq-focus-x {
+  flex: none;
+}
+
+.rq-focus-err {
+  padding: 12px 20px 0;
+}
+
+/* 2 คอลัมน์ - ฝั่งขวากว้างกว่าเพราะมีช่องกรอกกับปุ่ม */
+.rq-focus-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  overflow-y: auto;
+}
+
+.rq-focus-col {
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 20px;
+}
+
+/* เส้นแบ่ง + พื้นต่างเล็กน้อย ให้เห็นว่าเป็นคนละหน้าที่ */
+.rq-focus-col--decide {
+  border-left: 1px solid var(--line);
+  background: var(--bg-content);
+}
+
+.rq-focus-colhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rq-focus-coltitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+/* ปุ่มแก้ไข - อยู่หัวคอลัมน์ซ้าย เพราะแก้ข้อมูลของคำขอ ไม่ใช่การตัดสินใจ */
+.rq-focus-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rq-focus-edit-btn:hover {
+  background: var(--hover-bg);
+  color: var(--ink-strong);
+}
+
+/* กลุ่มข้อมูลย่อยในแต่ละคอลัมน์ */
+.rq-focus-sec {
+  margin-bottom: 18px;
+}
+
+.rq-focus-sec--grow {
+  flex: 1;
+}
+
+.rq-focus-sectitle {
+  margin-bottom: 7px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.rq-focus-field {
+  margin-bottom: 12px;
+}
+
+/* 2 ช่องเล็กเรียงคู่ (จำนวนคน / วัตถุประสงค์) */
+.rq-focus-pair {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 18px;
+}
+
+.rq-focus-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+/* คำว่า "ถึง" คั่นช่วงเวลา - เบากว่าตัวเลขให้อ่านวันที่ได้ก่อน */
+.rq-focus-to {
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+.rq-focus-sub {
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+.rq-focus-assign {
+  margin-top: 10px;
+}
+
+/* ปุ่มท้ายคอลัมน์ขวา - ชิดขวา ตาไล่จบที่นี่ */
+.rq-focus-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.rq-focus-actions .rq-modal-btn {
+  padding: 10px 18px;
+}
+
+/* โหมดแก้ไขคำขอ - ใช้ความกว้างเต็มแผง ไม่แบ่งคอลัมน์ */
+.rq-focus-edit {
+  padding: 18px 20px 20px;
+  overflow-y: auto;
+}
+
+/* จอแคบ: ซ้อนเป็นคอลัมน์เดียว ปุ่มยังอยู่ท้ายสุด */
+@media (max-width: 900px) {
+  .rq-focus-backdrop {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .rq-focus-panel {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .rq-focus-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .rq-focus-col--decide {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
 /* พื้นที่เนื้อหา drawer - เลื่อนแนวตั้งได้ */
 .dj-drawer-body {
   flex: 1;
