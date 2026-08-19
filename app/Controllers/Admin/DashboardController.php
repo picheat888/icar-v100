@@ -13,6 +13,9 @@ use App\Models\UserProfileModel;
  */
 class DashboardController extends BaseController
 {
+    // สถานะที่ยังกันเวลารถอยู่ - ใช้ตัดสินว่ารถคันนั้น "กำลังใช้งาน" ตอนนี้
+    private const HOLDING = ['pending', 'approved', 'cancel_requested'];
+
     // เรนเดอร์หน้า placeholder ภายใต้ layout admin
     private function page(string $active, string $title, string $subtitle = '')
     {
@@ -44,12 +47,32 @@ class DashboardController extends BaseController
         $bookings = new BookingModel();
         $bookings->sweepExpired();   // ปิดงานหมดเวลาก่อนนับ ให้ตัวเลขตรงเวลาจริง
 
+        // รถที่ถูกจองคาบเกี่ยว "เวลาปัจจุบัน" - นิยาม "ไม่ว่าง" ชุดเดียวกับหน้าจองรถ
+        $now        = date('Y-m-d H:i:s');
+        $busyCarIds = array_map('intval', array_column(
+            db_connect()->table('bookings')
+                ->distinct()->select('car_id')
+                ->whereIn('status', self::HOLDING)
+                ->where('start_at <=', $now)
+                ->where('end_at >', $now)
+                ->where('car_id IS NOT NULL', null, false)
+                ->where('deleted_at', null)
+                ->get()->getResultArray(),
+            'car_id'
+        ));
+
+        // พร้อมใช้งาน = ไม่ได้ตั้งเป็นซ่อมบำรุง และไม่ได้ถูกจองอยู่ตอนนี้
+        $available = (new CarModel())->where('status', 'available');
+        if ($busyCarIds !== []) {
+            $available->whereNotIn('id', $busyCarIds);
+        }
+
         // การ์ดตัวเลข 4 ใบ
         $counts = [
             'pendingBookings' => (new BookingModel())->whereIn('status', ['pending', 'cancel_requested'])->where('deleted_at', null)->countAllResults(),
             'pendingMembers'  => (new UserProfileModel())->where('status', 'pending')->countAllResults(),
-            'availableCars'   => (new CarModel())->where('status', 'available')->where('deleted_at', null)->countAllResults(),
-            'totalBookings'   => (new BookingModel())->where('deleted_at', null)->countAllResults(),
+            'availableCars'   => $available->countAllResults(),
+            'carsInUse'       => $busyCarIds === [] ? 0 : (new CarModel())->whereIn('id', $busyCarIds)->countAllResults(),
         ];
 
         // คำขอล่าสุด - เอา "N วันล่าสุด" แบบครบทั้งวัน ไม่ตัดกลางวัน

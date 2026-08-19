@@ -45,6 +45,11 @@ function StatCard({ label, value, sub, icon, iconClass }) {
   );
 }
 
+// ลูกศรท้ายปุ่มที่พาไปหน้าอื่น (ไม่ใช่ทำงานในหน้านี้)
+const goArrow = (
+  <svg className="dash-go-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+);
+
 const icons = {
   clock: <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 14" /></svg>,
   person: <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>,
@@ -69,14 +74,18 @@ export default function Dashboard({ endpoints, links }) {
   const load = useCallback(() => {
     setLoadErr(false);
     return fetch(endpoints.data, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
-      .then((r) => r.json())
+      .then((r) => {
+        if (! r.ok) throw new Error(`HTTP ${r.status}`);
+
+        return r.json();
+      })
       .then((d) => {
         setCounts(d.counts || {});
         setBookings(d.recentBookings || []);
         setMembers(d.pendingMembers || []);
       })
-      .finally(() => setLoading(false))
-      .catch(() => setLoadErr(true));
+      .catch(() => setLoadErr(true))
+      .finally(() => setLoading(false));
   }, [endpoints.data]);
 
   useEffect(() => { load(); }, [load]);
@@ -105,7 +114,7 @@ export default function Dashboard({ endpoints, links }) {
     { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconClass: 'dash-icon--amber' },
     { key: 'pendingMembers', label: t('dash.card_members'), sub: t('dash.card_members_sub'), icon: icons.person, iconClass: 'icon-box--teal' },
     { key: 'availableCars', label: t('dash.card_cars'), sub: t('dash.card_cars_sub'), icon: icons.car, iconClass: 'icon-box--teal' },
-    { key: 'totalBookings', label: t('dash.card_total'), sub: t('dash.card_total_sub'), icon: icons.doc, iconClass: 'icon-box--teal' },
+    { key: 'carsInUse', label: t('dash.card_inuse'), sub: t('dash.card_inuse_sub'), icon: icons.car, iconClass: 'dash-icon--amber' },
   ];
 
   // จัดกลุ่มคำขอตามวันเริ่ม (ใหม่สุดก่อน - ตาม order ที่ backend ส่งมา)
@@ -121,15 +130,16 @@ export default function Dashboard({ endpoints, links }) {
     <div>
       <ToastView />
       {loadErr && (
-        <div className="alert-error alert-error--sm">
-          {t('dash.load_err')}
+        <div className="alert-error alert-error--sm dash-loaderr" role="alert">
+          <span>{t('dash.load_err')}</span>
+          <button type="button" onClick={() => { setLoading(true); load(); }} className="dash-retry">{t('dash.retry')}</button>
         </div>
       )}
 
       {/* การ์ดสรุป 4 ใบ - wrapper คุม layout (4→2→1 คอลัมน์) */}
       <div className="dash-stats">
-        {cards.map((c) => (
-          <StatCard key={c.key} {...c} value={loading ? '-' : (counts[c.key] ?? 0)} />
+        {cards.map(({ key, ...c }) => (
+          <StatCard key={key} {...c} value={loadErr ? '—' : (loading ? '-' : (counts[key] ?? 0))} />
         ))}
       </div>
 
@@ -149,7 +159,7 @@ export default function Dashboard({ endpoints, links }) {
             <h3 className="title title--sm">{t('dash.panel_bookings')}</h3>
             <a href={links.requests} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
-          {loading ? <Empty text={t('dash.loading')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
+          {loading ? <Empty text={t('dash.loading')} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
             <div className="dash-brow-list">
               {groups.map((g) => (
                 <div key={g.date}>
@@ -169,22 +179,25 @@ export default function Dashboard({ endpoints, links }) {
                         </div>
                         <div className="dash-brow-veh">
                           <div className="dash-brow-veh-name">{veh}</div>
-                          <div className="dash-brow-veh-sub">{b.booking_type === 'other' ? (b.car_plate || '') : (b.car_plate || '')}</div>
+                          <div className="dash-brow-veh-sub">{b.car_plate || ''}</div>
                         </div>
                         <div className="dash-brow-time">{rangeShort(b.start_at, b.end_at)}</div>
                         {isPending ? (
                           b.booking_type === 'other' ? (
                             // รถอื่นๆ: ต้องมอบหมายคนขับก่อนอนุมัติ → ไปทำที่หน้าจัดการคำขอ
-                            <a href={links.requests} className="dash-brow-act dash-mini-btn dash-mini-btn--teal">{t('dash.assign_driver')}</a>
+                            <a href={links.requests} className="dash-brow-act dash-mini-btn dash-mini-btn--go">{t('dash.assign_driver')}{goArrow}</a>
                           ) : (
                             <div className="dash-brow-act dash-brow-btns">
                               <button onClick={() => post(endpoints.requestApprove, { id: b.id })} className="dash-mini-btn dash-mini-btn--green">{t('dash.approve')}</button>
                               {/* ปฏิเสธต้องกรอกเหตุผล → ไปทำที่หน้าจัดการคำขอ */}
-                              <a href={links.requests} className="dash-mini-btn dash-mini-btn--red">{t('dash.reject')}</a>
+                              <a href={links.requests} className="dash-mini-btn dash-mini-btn--go">{t('dash.reject')}{goArrow}</a>
                             </div>
                           )
                         ) : (
-                          <span className={`dash-brow-act pill pill--sm ${stCls}`}>{sl}</span>
+                          <div className="dash-brow-act dash-brow-btns">
+                            <span className={`pill pill--sm ${stCls}`}>{sl}</span>
+                            {needsAction && <a href={links.requests} className="dash-mini-btn dash-mini-btn--go">{t('dash.manage')}{goArrow}</a>}
+                          </div>
                         )}
                       </div>
                     );
@@ -201,7 +214,7 @@ export default function Dashboard({ endpoints, links }) {
             <h3 className="title title--sm">{t('dash.panel_members')}</h3>
             <a href={links.members} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
-          {loading ? <Empty text={t('dash.loading')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
+          {loading ? <Empty text={t('dash.loading')} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
             <div className="dash-member-list">
               {members.map((m, i) => (
                 <div key={m.user_id} className={`dash-member-row ${i === members.length - 1 ? 'dash-member-row--last' : ''}`}>

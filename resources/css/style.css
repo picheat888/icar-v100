@@ -2547,6 +2547,13 @@
   }
 }
 
+/* panel ขวาแคบจนหัวข้อ/ปุ่มตกบรรทัด - ซ้อนเป็นคอลัมน์เดียวก่อนถึงจุดนั้น */
+@media (max-width: 900px) {
+  .dash-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 720px) {
   .dash-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2568,15 +2575,28 @@
     font-size: 26px !important;
   }
 
-  /* แถวคำขอ: ตัดบรรทัด (เวลา + ปุ่มลงบรรทัดล่าง ชิดขวา) กันล้นจอ */
-  .dash-brow {
-    flex-wrap: wrap;
-    row-gap: 6px;
-  }
+}
 
-  .dash-brow-act {
-    margin-left: auto;
-  }
+/* แถบโหลดข้อมูลไม่สำเร็จ - ข้อความซ้ายและปุ่มลองใหม่ขวา */
+.dash-loaderr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dash-retry {
+  flex: none;
+  padding: 5px 14px;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--danger-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* ===== Dashboard: การ์ดสรุปตัวเลข (StatCard) ===== */
@@ -2747,6 +2767,28 @@
   white-space: nowrap;
 }
 
+/* พาไปหน้าอื่น (ไม่ได้ทำงานจบในหน้านี้) - โปร่ง มีขอบ + ลูกศร ต่างจากปุ่มทึบที่ทำทันที */
+.dash-mini-btn--go {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 9px 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+}
+
+.dash-mini-btn--go:hover {
+  background: var(--hover-bg);
+  border-color: var(--gray-soft);
+  color: var(--ink-strong);
+}
+
+.dash-go-arrow {
+  flex: none;
+  opacity: .65;
+}
+
 .dash-mini-btn--teal {
   background: var(--teal-soft);
   color: var(--teal-hover);
@@ -2760,6 +2802,37 @@
 .dash-mini-btn--red {
   background: var(--danger-soft);
   color: var(--danger);
+}
+
+/* แถวคำขอบนมือถือ - ต้องประกาศหลังนิยาม .dash-brow* ด้านบน ไม่งั้นถูกทับ
+   2 บรรทัด: บน [รหัส | ชื่อรถ] ล่าง [เวลา | ปุ่ม] */
+@media (max-width: 720px) {
+  .dash-brow {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .dash-brow-code {
+    flex: 0 0 auto;
+  }
+
+  /* ปุ่มอยู่บรรทัดบนคู่กับรหัส - ทุกแถวจึงสูง 2 บรรทัดเท่ากันไม่ว่ามีกี่ปุ่ม */
+  .dash-brow-act {
+    order: 1;
+    margin-left: auto;
+  }
+
+  /* basis พอให้เวลาต่อท้ายได้ในบรรทัดเดียวกัน */
+  .dash-brow-veh {
+    order: 2;
+    flex: 1 1 40%;
+    min-width: 0;
+  }
+
+  .dash-brow-time {
+    order: 3;
+    margin-left: auto;
+  }
 }
 
 /* ป้ายสถานะแถวคำขอ - ใช้คู่กับ .pill .pill--sm + .st-* (ชุดสีสถานะกลาง) */
