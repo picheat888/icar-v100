@@ -168,9 +168,8 @@ export default function Dashboard({ endpoints, links }) {
                     const sl = STATUS_LABEL[b.status] || STATUS_LABEL.pending;
                     const stCls = STATUS_CLASS[b.status] || STATUS_CLASS.pending;
                     const veh = b.booking_type === 'other' ? t('dash.veh_other') : (b.car_model || '-');
-                    const isPending = b.status === 'pending';
                     // ทั้ง pending และ ขอยกเลิก = งานที่ต้องจัดการ → ไฮไลต์แถบซ้าย+พื้นส้มเหมือนกัน
-                    const needsAction = isPending || b.status === 'cancel_requested';
+                    const needsAction = b.status === 'pending' || b.status === 'cancel_requested';
                     return (
                       <div key={b.id} className={`dash-brow ${needsAction ? 'dash-brow--action' : ''}`}>
                         <div className="dash-brow-code">
@@ -182,22 +181,15 @@ export default function Dashboard({ endpoints, links }) {
                           <div className="dash-brow-veh-sub">{b.car_plate || ''}</div>
                         </div>
                         <div className="dash-brow-time">{rangeShort(b.start_at, b.end_at)}</div>
-                        {isPending ? (
-                          b.booking_type === 'other' ? (
-                            // รถอื่นๆ: ต้องมอบหมายคนขับก่อนอนุมัติ → ไปทำที่หน้าจัดการคำขอ
-                            <a href={links.requests} className="dash-brow-act dash-mini-btn dash-mini-btn--go">{t('dash.assign_driver')}{goArrow}</a>
-                          ) : (
-                            <div className="dash-brow-act dash-brow-btns">
-                              <button onClick={() => post(endpoints.requestApprove, { id: b.id })} className="dash-mini-btn dash-mini-btn--green">{t('dash.approve')}</button>
-                              {/* ปฏิเสธต้องกรอกเหตุผล → ไปทำที่หน้าจัดการคำขอ */}
-                              <a href={links.requests} className="dash-mini-btn dash-mini-btn--go">{t('dash.reject')}{goArrow}</a>
-                            </div>
-                          )
-                        ) : (
+                        {/* dashboard เป็นหน้ารายงาน ไม่ตัดสินใจแทน - ทุกงานที่ต้องจัดการพาไปเปิดคำขอนั้น
+                            ที่หน้าจัดการคำขอ ซึ่งมีทั้งหมายเหตุ เลือกคนขับ และขั้นยืนยัน */}
+                        {needsAction ? (
                           <div className="dash-brow-act dash-brow-btns">
                             <span className={`pill pill--sm ${stCls}`}>{sl}</span>
-                            {needsAction && <a href={links.requests} className="dash-mini-btn dash-mini-btn--go">{t('dash.manage')}{goArrow}</a>}
+                            <a href={`${links.requests}?open=${encodeURIComponent(b.booking_code)}`} className="dash-mini-btn dash-mini-btn--go">{t('dash.review')}{goArrow}</a>
                           </div>
+                        ) : (
+                          <span className={`dash-brow-act pill pill--sm ${stCls}`}>{sl}</span>
                         )}
                       </div>
                     );

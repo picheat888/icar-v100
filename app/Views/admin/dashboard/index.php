@@ -3,13 +3,12 @@
 <?= $this->section('content') ?>
 <?php
 // props ให้ island: endpoint สรุป + endpoint อนุมัติ/ปฏิเสธสมาชิก (inline) + ลิงก์ไปหน้าจัดการ
+// คำขอจองรถไม่มี endpoint ที่นี่ - ทุกงานพาไปทำที่หน้าจัดการคำขอ
 $props = [
     'endpoints' => [
         'data'           => site_url('admin/dashboard/data'),
         'memberApprove'  => site_url('admin/members/approve'),
         'memberReject'   => site_url('admin/members/reject'),
-        'requestApprove' => site_url('admin/requests/approve'),
-        'requestReject'  => site_url('admin/requests/reject'),
     ],
     'links' => [
         'requests' => site_url('admin/requests'),

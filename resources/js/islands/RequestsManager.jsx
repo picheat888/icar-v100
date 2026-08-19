@@ -123,6 +123,7 @@ export default function RequestsManager({ endpoints }) {
   }, [endpoints.data]);
   useEffect(() => { load(); }, [load]);
 
+
   // ปิด drawer รายละเอียดด้วยปุ่ม Esc (เหมือน M365)
   useEffect(() => {
     if (!modal) return;
@@ -235,6 +236,23 @@ export default function RequestsManager({ endpoints }) {
     },
   }); };
   const setForm = (patch) => setModal((m) => ({ ...m, form: { ...m.form, ...patch } }));
+  // มาจากลิงก์ ?open=BK-xxxx (เช่นจาก dashboard) -> เปิดคำขอนั้นเลย ไม่ต้องไล่หาในรายการ
+  const openedRef = useRef(false);
+  useEffect(() => {
+    if (openedRef.current || loading || rows.length === 0) return;
+    const code = new URLSearchParams(window.location.search).get('open');
+    if (! code) return;
+    openedRef.current = true;
+    // ล้าง query ออกจาก URL กันรีเฟรชแล้วเด้งโมดัลซ้ำ
+    window.history.replaceState({}, '', window.location.pathname);
+    const found = rows.find((b) => b.booking_code === code);
+    if (found) {
+      openDetail(found);
+    } else {
+      showToast(t('req.open_not_found', { code }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, rows]);
 
   // เลือกคนขับ: ถ้าเป็นคนขับบริษัท เติมเบอร์โทร/รถประจำอัตโนมัติ · ถ้าอื่น ๆ ล้างค่า
   const pickDriver = (val) => {
