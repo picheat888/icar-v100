@@ -222,7 +222,6 @@
   "car.err_seats_range": "Seats must be between {min} and {max}",
   "car.err_image_type": "Only jpg, png and webp files are supported",
   "car.err_image_size": "File is larger than 2 MB",
-  "car.plate_hint": "Thai/English letters, digits, spaces and hyphens (-)",
   "car.seats_placeholder": "e.g. 5",
   "car.seats_hint": "{min}-{max} seats",
   "car.image_choose": "Choose file",

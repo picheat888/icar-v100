@@ -222,7 +222,6 @@
   "car.err_seats_range": "จำนวนที่นั่งต้องอยู่ระหว่าง {min}-{max} ที่นั่ง",
   "car.err_image_type": "รองรับเฉพาะไฟล์ jpg, png และ webp",
   "car.err_image_size": "ไฟล์ใหญ่เกิน 2 MB",
-  "car.plate_hint": "ตัวอักษรไทย/อังกฤษ ตัวเลข เว้นวรรค และขีด (-)",
   "car.seats_placeholder": "เช่น 5",
   "car.seats_hint": "{min}-{max} ที่นั่ง",
   "car.image_choose": "เลือกไฟล์",

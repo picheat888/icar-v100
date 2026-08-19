@@ -307,10 +307,8 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
           <div className="cm-grid2">
             <div>
               <label className="form-label" htmlFor="cm-plate">{t('car.plate_label')}{modal.form.car_type === 'self' && <span className="cm-required"> *</span>}</label>
-              <input id="cm-plate" value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} maxLength={MAX_PLATE} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} required={modal.form.car_type === 'self'} aria-invalid={!! errs.plate} aria-describedby={errs.plate ? 'cm-plate-err' : 'cm-plate-hint'} className={`form-input form-input--sm${errs.plate ? ' form-input--bad' : ''}`} />
-              {errs.plate
-                ? <div id="cm-plate-err" className="cm-err" role="alert">{errs.plate}</div>
-                : <div id="cm-plate-hint" className="cm-hint">{t('car.plate_hint')}</div>}
+              <input id="cm-plate" value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} maxLength={MAX_PLATE} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} required={modal.form.car_type === 'self'} aria-invalid={!! errs.plate} aria-describedby={errs.plate ? 'cm-plate-err' : undefined} className={`form-input form-input--sm${errs.plate ? ' form-input--bad' : ''}`} />
+              {errs.plate && <div id="cm-plate-err" className="cm-err" role="alert">{errs.plate}</div>}
             </div>
             <div>
               <label className="form-label" htmlFor="cm-seats">{t('car.seats_label')} <span className="cm-required">*</span></label>
