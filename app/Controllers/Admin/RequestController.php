@@ -105,10 +105,10 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if ($b['status'] !== 'pending') {
-            return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว', true);
+            return $this->fail(lang('Request.err_already_handled'), true);
         }
 
         $data = [
@@ -123,13 +123,13 @@ class RequestController extends BaseController
             // re-check ณ เวลาอนุมัติ: รถอาจเข้าซ่อม/ลดจำนวนที่นั่งหลังผู้ใช้จอง
             $car = (new CarModel())->find((int) $b['car_id']);
             if (! $car || $car['car_type'] !== 'self') {
-                return $this->fail('ไม่พบรถของคำขอนี้ อนุมัติไม่ได้', true);
+                return $this->fail(lang('Request.err_car_missing'), true);
             }
             if ($car['status'] !== 'available') {
-                return $this->fail('รถคันนี้ไม่พร้อมใช้งาน (ซ่อมบำรุง) อนุมัติไม่ได้');
+                return $this->fail(lang('Request.err_car_maint_approve'));
             }
             if ((int) $car['seats'] > 0 && (int) $b['people'] > (int) $car['seats']) {
-                return $this->fail('จำนวนผู้โดยสารเกินที่นั่งของรถ (สูงสุด ' . (int) $car['seats'] . ' คน) อนุมัติไม่ได้');
+                return $this->fail(lang('Request.err_seats_approve', [(int) $car['seats']]));
             }
             $data['driver_type'] = 'none';   // รถขับเอง ไม่ต้องมีคนขับ
         } else {
@@ -150,7 +150,7 @@ class RequestController extends BaseController
         $affected = db_connect()->affectedRows();
         $this->unlockDriver($lock);
         if ($affected < 1) {
-            return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว', true);
+            return $this->fail(lang('Request.err_already_handled'), true);
         }
 
         $this->notifyRequester($b, 'booking_approved', 'คำขอ ' . $b['booking_code'] . ' ได้รับการอนุมัติแล้ว');
@@ -160,7 +160,7 @@ class RequestController extends BaseController
 
         log_activity('อนุมัติคำขอ ' . $b['booking_code']);
 
-        return $this->ok('อนุมัติคำขอเรียบร้อย');
+        return $this->ok(lang('Request.approved'));
     }
 
     // POST: มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (เฉพาะรถอื่น ๆ)
@@ -170,10 +170,10 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if ($b['status'] !== 'approved' || $b['booking_type'] !== 'other') {
-            return $this->fail('คำขอนี้มอบหมายคนขับไม่ได้', true);
+            return $this->fail(lang('Request.err_assign_blocked'), true);
         }
 
         // กัน race: ล็อกการมอบหมายคนขับคนเดียวกันก่อนเช็คชนเวลา
@@ -192,7 +192,7 @@ class RequestController extends BaseController
             // 0 rows: อาจเพราะค่าคนขับไม่เปลี่ยน หรือสถานะเปลี่ยนไปแล้ว - เช็คสถานะปัจจุบันเพื่อแยกแยะ
             $cur = $bookings->find($id);
             if (! $cur || $cur['status'] !== 'approved' || $cur['booking_type'] !== 'other') {
-                return $this->fail('คำขอนี้มอบหมายคนขับไม่ได้ (สถานะเปลี่ยนไปแล้ว)', true);
+                return $this->fail(lang('Request.err_assign_changed'), true);
             }
         }
 
@@ -205,7 +205,7 @@ class RequestController extends BaseController
 
         log_activity('มอบหมายคนขับให้คำขอ ' . $b['booking_code']);
 
-        return $this->ok('มอบหมายคนขับเรียบร้อย');
+        return $this->ok(lang('Request.driver_assigned'));
     }
 
     // อ่านข้อมูลคนขับจาก POST → คืน array ฟิลด์สำหรับ update (หรือ ['__error'=>ข้อความ] ถ้าไม่ผ่าน)
@@ -223,11 +223,11 @@ class RequestController extends BaseController
         if ($driver === 'external') {
             $name = trim((string) $this->request->getPost('ext_name'));
             if ($name === '') {
-                return ['__error' => 'กรุณากรอกชื่อคนขับภายนอก'];
+                return ['__error' => lang('Request.err_ext_name_req')];
             }
             // เบอร์โทร: เว้นว่างได้ แต่ถ้ากรอกต้องเป็นตัวเลข 10 หลักพอดี
             if ($phone !== null && preg_match('/^[0-9]{10}$/', $phone) !== 1) {
-                return ['__error' => 'เบอร์โทรคนขับภายนอกต้องเป็นตัวเลข 10 หลัก'];
+                return ['__error' => lang('Request.err_ext_phone_format')];
             }
 
             return [
@@ -245,10 +245,10 @@ class RequestController extends BaseController
             $driverId = (int) $driver;
             // ต้องเป็นผู้ใช้กลุ่ม driver จริง
             if (! $this->isCompanyDriver($driverId)) {
-                return ['__error' => 'ผู้ใช้ที่เลือกไม่ใช่คนขับของบริษัท'];
+                return ['__error' => lang('Request.err_not_a_driver')];
             }
             if ((new BookingModel())->driverHasClash($driverId, $b['start_at'], $b['end_at'], (int) $b['id'])) {
-                return ['__error' => 'คนขับคนนี้มีงานในช่วงเวลาดังกล่าวแล้ว'];
+                return ['__error' => lang('Request.err_driver_busy')];
             }
 
             return [
@@ -263,7 +263,7 @@ class RequestController extends BaseController
 
         // ยังไม่มอบหมาย - รถอื่นๆ อนุมัติ/บันทึกไม่ได้จนกว่าจะมีคนขับ
         if ($requireDriver) {
-            return ['__error' => 'กรุณาเลือกคนขับ (คนขับบริษัทหรือคนขับภายนอก) ก่อน'];
+            return ['__error' => lang('Request.err_driver_req')];
         }
 
         return ['driver_type' => 'none', 'driver_id' => null];
@@ -285,16 +285,16 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if ($b['status'] !== 'pending') {
-            return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว', true);
+            return $this->fail(lang('Request.err_already_handled'), true);
         }
 
         // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง) - ผู้ขอจะเห็นเหตุผลนี้
         $note = trim((string) $this->request->getPost('admin_note'));
         if ($note === '') {
-            return $this->fail('กรุณากรอกเหตุผลการปฏิเสธ');
+            return $this->fail(lang('Request.err_reject_reason_req'));
         }
 
         // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race approve/reject ชนกันแล้วผ่าน guard ทั้งคู่
@@ -305,14 +305,14 @@ class RequestController extends BaseController
             'approved_at' => date('Y-m-d H:i:s'),
         ])->update();
         if (db_connect()->affectedRows() < 1) {
-            return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว', true);
+            return $this->fail(lang('Request.err_already_handled'), true);
         }
 
         $this->notifyRequester($b, 'booking_rejected', 'คำขอ ' . $b['booking_code'] . ' ถูกปฏิเสธ');
 
         log_activity('ปฏิเสธคำขอ ' . $b['booking_code']);
 
-        return $this->ok('ปฏิเสธคำขอแล้ว');
+        return $this->ok(lang('Request.rejected'));
     }
 
     // POST: ยืนยันการยกเลิก (คำขอที่ User ขอยกเลิก) -> cancelled + ปล่อยรถคืน
@@ -322,10 +322,10 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if ($b['status'] !== 'cancel_requested') {
-            return $this->fail('คำขอนี้ไม่ได้อยู่ระหว่างขอยกเลิก', true);
+            return $this->fail(lang('Request.err_not_cancel_req'), true);
         }
 
         // อัปเดตแบบมีเงื่อนไขสถานะ (atomic)
@@ -335,7 +335,7 @@ class RequestController extends BaseController
             'approved_at' => date('Y-m-d H:i:s'),
         ])->update();
         if (db_connect()->affectedRows() < 1) {
-            return $this->fail('คำขอนี้ไม่ได้อยู่ระหว่างขอยกเลิก', true);
+            return $this->fail(lang('Request.err_not_cancel_req'), true);
         }
 
         $this->notifyRequester($b, 'cancel_confirmed', 'ยืนยันการยกเลิกคำขอ ' . $b['booking_code'] . ' แล้ว');
@@ -345,7 +345,7 @@ class RequestController extends BaseController
 
         log_activity('ยืนยันยกเลิกคำขอ ' . $b['booking_code']);
 
-        return $this->ok('ยืนยันการยกเลิกแล้ว');
+        return $this->ok(lang('Request.cancel_confirmed'));
     }
 
     // POST: Admin ยกเลิกคำขอใดก็ได้ในระบบ (เฉพาะที่ยัง active) → cancelled + ปล่อยรถคืน
@@ -355,16 +355,16 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if (! in_array($b['status'], ['pending', 'approved', 'cancel_requested'], true)) {
-            return $this->fail('คำขอนี้ยกเลิกไม่ได้ (สถานะจบแล้ว)', true);
+            return $this->fail(lang('Request.err_cancel_blocked'), true);
         }
 
         // เหตุผลบังคับ - ผู้ขอจะเห็นว่าถูกยกเลิกเพราะอะไร (เหมือน reject)
         $note = trim((string) $this->request->getPost('admin_note'));
         if ($note === '') {
-            return $this->fail('กรุณากรอกเหตุผลที่ยกเลิกการจอง');
+            return $this->fail(lang('Request.err_cancel_reason_req'));
         }
 
         // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - เฉพาะที่ยัง active
@@ -375,7 +375,7 @@ class RequestController extends BaseController
             'approved_at' => date('Y-m-d H:i:s'),
         ])->update();
         if (db_connect()->affectedRows() < 1) {
-            return $this->fail('คำขอนี้ยกเลิกไม่ได้ (สถานะจบแล้ว)', true);
+            return $this->fail(lang('Request.err_cancel_blocked'), true);
         }
 
         $this->notifyRequester($b, 'booking_cancelled', 'คำขอ ' . $b['booking_code'] . ' ถูกยกเลิกโดย Admin');
@@ -385,7 +385,7 @@ class RequestController extends BaseController
 
         log_activity('ยกเลิกคำขอ ' . $b['booking_code'] . ' (โดย Admin)');
 
-        return $this->ok('ยกเลิกคำขอแล้ว');
+        return $this->ok(lang('Request.cancelled'));
     }
 
     // POST: Admin ปรับรถ (self) / คนขับ (other) ของคำขอที่ยัง active
@@ -396,10 +396,10 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail('ไม่พบคำขอ', true);
+            return $this->fail(lang('Request.err_not_found'), true);
         }
         if (! in_array($b['status'], ['pending', 'approved', 'cancel_requested'], true)) {
-            return $this->fail('คำขอนี้แก้ไขไม่ได้ (สถานะจบแล้ว)', true);
+            return $this->fail(lang('Request.err_edit_blocked'), true);
         }
 
         // Admin จัดสรรทรัพยากรเท่านั้น - รายละเอียดการเดินทางเป็นของผู้ขอ แก้เองที่ "คำขอของฉัน"
@@ -414,14 +414,14 @@ class RequestController extends BaseController
             $carId = (int) $this->request->getPost('car_id') ?: (int) $b['car_id'];
             $car   = (new CarModel())->find($carId);
             if (! $car || $car['car_type'] !== 'self') {
-                return $this->fail('กรุณาเลือกรถให้ถูกต้อง');
+                return $this->fail(lang('Request.err_car_invalid'));
             }
             // กันย้ายไปรถที่ซ่อมบำรุงเฉพาะเมื่อ "เปลี่ยนคัน" - คงรถเดิมที่เพิ่งเข้าซ่อมยังแก้ฟิลด์อื่นได้
             if ($car['status'] !== 'available' && $carId !== (int) $b['car_id']) {
-                return $this->fail('รถคันนี้ไม่พร้อมใช้งาน (ซ่อมบำรุง)');
+                return $this->fail(lang('Request.err_car_maint'));
             }
             if ((int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail('จำนวนผู้โดยสารเกินจำนวนที่นั่งของรถ (สูงสุด ' . (int) $car['seats'] . ' คน)');
+                return $this->fail(lang('Request.err_seats', [(int) $car['seats']]));
             }
             $clash = $bookings
                 ->where('car_id', $carId)
@@ -431,7 +431,7 @@ class RequestController extends BaseController
                 ->where('end_at >', $start)
                 ->countAllResults();
             if ($clash > 0) {
-                return $this->fail('รถคันนี้ถูกจองในช่วงเวลาดังกล่าวแล้ว');
+                return $this->fail(lang('Request.err_car_clash'));
             }
             $data['car_id'] = $carId;
         } else {
@@ -449,7 +449,7 @@ class RequestController extends BaseController
             $seatCap = $assign['ext_driver_seats'] ?? null;
             if ($seatCap !== null && (int) $seatCap > 0 && $people > (int) $seatCap) {
                 $this->unlockDriver($lock);
-                return $this->fail('จำนวนผู้โดยสารเกินที่นั่งของรถที่ระบุ (สูงสุด ' . (int) $seatCap . ' คน)');
+                return $this->fail(lang('Request.err_seats_given', [(int) $seatCap]));
             }
         }
 
@@ -461,7 +461,7 @@ class RequestController extends BaseController
             // 0 rows: อาจเพราะค่าไม่เปลี่ยน หรือสถานะจบไปแล้ว - เช็คสถานะปัจจุบันเพื่อแยกแยะ
             $cur = $bookings->find($id);
             if (! $cur || ! in_array($cur['status'], ['pending', 'approved', 'cancel_requested'], true)) {
-                return $this->fail('คำขอนี้แก้ไขไม่ได้ (สถานะเปลี่ยนไปแล้ว)', true);
+                return $this->fail(lang('Request.err_edit_changed'), true);
             }
         }
 
@@ -474,7 +474,7 @@ class RequestController extends BaseController
 
         log_activity('ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
 
-        return $this->ok('บันทึกรถ/คนขับแล้ว');
+        return $this->ok(lang('Request.saved'));
     }
 
     // แปลง 'YYYY-MM-DDTHH:MM' (จาก input) → 'YYYY-MM-DD HH:MM:SS'
