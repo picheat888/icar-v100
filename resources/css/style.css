@@ -6672,6 +6672,10 @@
 
 /* ปุ่มฐานในแถวปุ่มจัดการของโมดัล (ยกเลิก/บันทึก/อนุมัติ/ปฏิเสธ/ยืนยัน) */
 .rq-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -6741,12 +6745,21 @@
 
 /* ปุ่มในแถบเครื่องมือด้านบนโมดัล - เล็กกว่าปุ่มท้ายฟอร์ม */
 .rq-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 13.5px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+}
+
+/* ไอคอนหน้าข้อความในปุ่มลิ้นชัก - รับสีจากปุ่ม ไม่แย่งน้ำหนักกับตัวอักษร */
+.rq-btn-ico {
+  flex: none;
+  opacity: .85;
 }
 
 .rq-toolbar-btn--edit {

@@ -4,6 +4,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
 import { CloseIcon, CalIcon } from '../lib/icons';
+import Icon from '../lib/Icon';
 import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
@@ -38,6 +39,9 @@ const groupOf = (s) => GROUP_OF[s] || 'pending';
 const PER_PAGE = 20;
 // 'YYYY-MM-DD HH:MM:SS' → 'YYYY-MM-DDTHH:MM' (ค่าเริ่มต้นของ input datetime-local)
 const toLocalInput = (s) => (s ? String(s).slice(0, 16).replace(' ', 'T') : '');
+// ไอคอนปุ่มในลิ้นชัก: check = ทำจริง · cancel = ปฏิเสธ/ยกเลิก · arrow-left = ถอยกลับ · close = ปิด
+const bIcon = (name) => <Icon name={name} size={16} className="rq-btn-ico" strokeWidth={2.4} />;
+
 const typeLabel = (bt) => (bt === 'other' ? t('req.car_other') : t('req.car_self'));
 // ช่วงเวลาแบบ 2 บรรทัด: วันที่ด้านบน เวลาด้านล่าง → [บรรทัด1, บรรทัด2]
 const rangeLines = (s, e) => {
@@ -355,8 +359,8 @@ export default function RequestsManager({ endpoints }) {
           </>
         )}
         <div className="rq-modal-actions rq-modal-actions--mt18">
-          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('req.cancel_edit')}</button>
-          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('common.save')}</button>
+          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.cancel_edit')}</button>
+          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.save')}</button>
         </div>
       </div>
     );
@@ -600,8 +604,8 @@ export default function RequestsManager({ endpoints }) {
                 {/* แถบเครื่องมือ Admin: แก้ไข/ยกเลิก คำขอที่ยัง active */}
                 {isActive && !modal.editing && !modal.cancelling && !modal.rejecting && (
                   <div className="rq-toolbar-row">
-                    <button onClick={enterEdit} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--edit">{t('req.edit_request')}</button>
-                    {canAdminCancel && <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--cancel">{t('req.cancel_request')}</button>}
+                    <button onClick={enterEdit} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--edit">{bIcon('pencil')}{t('req.edit_request')}</button>
+                    {canAdminCancel && <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-toolbar-btn rq-toolbar-btn--cancel">{bIcon('cancel')}{t('req.cancel_request')}</button>}
                   </div>
                 )}
 
@@ -611,8 +615,8 @@ export default function RequestsManager({ endpoints }) {
                     <label className="form-label">{t('req.note_optional_label')}</label>
                     <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} rows={2} className="form-input form-input--sm rq-textarea" />
                     <div className="rq-modal-actions rq-modal-actions--mt14">
-                      <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('req.no_cancel')}</button>
-                      <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_cancel_request')}</button>
+                      <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
+                      <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
                     </div>
                   </div>
                 ) : modal.rejecting ? (
@@ -622,8 +626,8 @@ export default function RequestsManager({ endpoints }) {
                     <label className="form-label">{t('req.reject_reason_label')} <span className="rq-required">*</span></label>
                     <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.reject_reason_placeholder')} rows={3} className="form-input form-input--sm rq-textarea" autoFocus />
                     <div className="rq-modal-actions rq-modal-actions--mt14">
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.back')}</button>
-                      <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_reject')}</button>
+                      <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
+                      <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_reject')}</button>
                     </div>
                   </div>
                 ) : pending ? (
@@ -632,8 +636,8 @@ export default function RequestsManager({ endpoints }) {
                     <label className="form-label">{t('req.reply_note_label')}</label>
                     <textarea value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })} placeholder={t('req.note_to_requester_placeholder')} rows={2} className="form-input form-input--sm rq-textarea" />
                     <div className="rq-modal-actions rq-modal-actions--mt20">
-                      <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{t('common.reject')}</button>
-                      <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('common.approve')}</button>
+                      <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
+                      <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.approve')}</button>
                     </div>
                   </div>
                 ) : isCancelReq ? (
@@ -643,8 +647,8 @@ export default function RequestsManager({ endpoints }) {
                     </div>
                     {driverAssigned(b) && <div className="rq-assigned-note rq-assigned-note--gap">{t('req.assigned_driver_label')}<b>{driverAssigned(b)}</b></div>}
                     <div className="rq-modal-actions">
-                      <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.close')}</button>
-                      <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{t('req.confirm_cancel')}</button>
+                      <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
+                      <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
                     </div>
                   </div>
                 ) : (
@@ -659,8 +663,8 @@ export default function RequestsManager({ endpoints }) {
                       <div className="rq-modal-section rq-modal-section--assign">
                         {driverPicker()}
                         <div className="rq-modal-actions rq-modal-actions--mt6">
-                          <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{t('common.cancel')}</button>
-                          <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{t('req.save_driver')}</button>
+                          <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
+                          <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('req.save_driver')}</button>
                         </div>
                       </div>
                     ) : (
