@@ -361,7 +361,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
           {modal.tab === 'info' ? (
             <Edit form={modal.form} set={(form) => setModal({ ...modal, form })} departments={departments} positions={positions} pending={modal.member.status === 'pending'} username={modal.member.username} />
           ) : (
-            <EditPass form={modal.form} set={(form) => setModal({ ...modal, form })} />
+            <EditPass form={modal.form} set={(form) => setModal({ ...modal, form })} onCopied={() => showToast(t('mem.copied'))} />
           )}
           <Foot onClose={() => setModal(null)} onOk={doSaveEdit} okText={t('common.save')} okKind="teal" busy={busy} />
         </Modal>
@@ -418,12 +418,12 @@ function Edit({ form, set, departments, positions, pending, username }) {
 }
 
 // ===== ฟอร์มแก้ไข (แท็บรหัสผ่าน) =====
-function EditPass({ form, set }) {
+function EditPass({ form, set, onCopied }) {
   const u = (k, v) => set({ ...form, [k]: v });
   return (
     <>
       <label className="form-label">{t('mem.new_pass_label')}</label>
-      <input type="password" value={form.newPass} onChange={(e) => u('newPass', e.target.value)} placeholder={t('mem.pass_placeholder')} className="form-input form-input--sm mm-field-mb" />
+      <PassRow value={form.newPass} onChange={(v) => u('newPass', v)} onCopied={onCopied} placeholder={t('mem.pass_placeholder')} />
       <label className="mm-checkbox-row">
         <input type="checkbox" checked={form.forceReset} onChange={(e) => u('forceReset', e.target.checked)} className="mm-checkbox" />
         <span className="mm-checkbox-label">{t('mem.force_reset_label')}<br /><span className="mm-checkbox-hint">{t('mem.force_reset_hint')}</span></span>
@@ -434,16 +434,37 @@ function EditPass({ form, set }) {
 }
 
 // ปุ่มท้ายโมดัล - okKind: success(อนุมัติ) / danger(ปฏิเสธ) / teal(บันทึก)
-// ฟอร์มเพิ่มสมาชิก - เรียงฟิลด์ตามลำดับเดียวกับหน้าสมัคร
-function AddForm({ form, set, departments, positions, onCopied }) {
-  const u = (k, v) => set({ ...form, [k]: v });
-
-  const copyPass = async () => {
+/**
+ * ช่องรหัสผ่านของ Admin - ไม่ซ่อนตัวอักษร เพราะ Admin ต้องอ่านบอกพนักงาน
+ * ใช้ร่วมกันทั้งฟอร์มเพิ่มสมาชิกและแท็บรหัสผ่านของฟอร์มแก้ไข
+ */
+function PassRow({ value, onChange, onCopied, placeholder }) {
+  const copy = async () => {
+    if (! value) return;
     try {
-      await navigator.clipboard.writeText(form.password);
+      await navigator.clipboard.writeText(value);
       onCopied();
     } catch { /* คลิปบอร์ดถูกปฏิเสธ - ผู้ใช้เลือกคัดลอกเองจากช่องได้ */ }
   };
+
+  return (
+    <div className="mm-pass-row">
+      <div className="field mm-pass-field">
+        <input value={value} onChange={(e) => onChange(e.target.value)} autoComplete="off" placeholder={placeholder} className="form-input form-input--sm mm-pass-input" />
+        <button type="button" onClick={copy} disabled={! value} className="field-eye" title={t('mem.copy_pass')}>
+          <Icon name="copy" size={15} />
+        </button>
+      </div>
+      <button type="button" onClick={() => onChange(genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
+        <Icon name="return" size={15} />{t('mem.gen_pass')}
+      </button>
+    </div>
+  );
+}
+
+// ฟอร์มเพิ่มสมาชิก - เรียงฟิลด์ตามลำดับเดียวกับหน้าสมัคร
+function AddForm({ form, set, departments, positions, onCopied }) {
+  const u = (k, v) => set({ ...form, [k]: v });
 
   return (
     <>
@@ -479,17 +500,7 @@ function AddForm({ form, set, departments, positions, onCopied }) {
 
           {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
           <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
-          <div className="mm-pass-row">
-            <div className="field mm-pass-field">
-              <input value={form.password} onChange={(e) => u('password', e.target.value)} autoComplete="off" placeholder={t('mem.pass_ph')} className="form-input form-input--sm mm-pass-input" />
-              <button type="button" onClick={copyPass} className="field-eye" title={t('mem.copy_pass')}>
-                <Icon name="copy" size={15} />
-              </button>
-            </div>
-            <button type="button" onClick={() => u('password', genPassword())} className="mm-pass-btn" title={t('mem.gen_pass')}>
-              <Icon name="return" size={15} />{t('mem.gen_pass')}
-            </button>
-          </div>
+          <PassRow value={form.password} onChange={(v) => u('password', v)} onCopied={onCopied} placeholder={t('mem.pass_ph')} />
 
           <label className="mm-checkbox-row mm-force-add">
             <input type="checkbox" checked={form.force_reset} onChange={(e) => u('force_reset', e.target.checked)} className="mm-checkbox" />
