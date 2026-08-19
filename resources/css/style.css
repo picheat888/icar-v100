@@ -5565,6 +5565,16 @@
   }
 }
 
+/* แถว/การ์ดที่มาจากลิงก์ ?open= - พื้นเหลืองอ่อนค้างไว้จนกดล้างตัวกรอง */
+.mm-hl > td {
+  background: var(--amber-tint);
+}
+
+.mm-card.mm-hl {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-tint);
+}
+
 /* สถานะ "ปฏิเสธ" - สีเฉพาะหน้านี้ ไม่อยู่ในชุดกลาง §1.15 */
 .mr-st-rejected {
   --st-bg: var(--danger-soft);

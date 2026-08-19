@@ -48,6 +48,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
   const { showToast, ToastView } = useToast();
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
+  const [hlUser, setHlUser] = useState(null);   // user_id ที่มาจากลิงก์ - ไฮไลต์ให้เห็นว่าคนไหน
 
   // โหลดรายชื่อสมาชิก
   const load = useCallback(() => {
@@ -103,6 +104,26 @@ export default function MembersManager({ endpoints, departments = [], positions 
       return true;
     } finally { setBusy(false); busyRef.current = false; }
   };
+
+  // มาจากลิงก์ ?open=EMPID (เช่นจาก dashboard) -> กรองเหลือคนนั้น + ไฮไลต์แถว
+  const openedRef = useRef(false);
+  useEffect(() => {
+    if (openedRef.current || loading || rows.length === 0) return;
+    const empId = new URLSearchParams(window.location.search).get('open');
+    if (! empId) return;
+    openedRef.current = true;
+    // ล้าง query ออกจาก URL กันรีเฟรชแล้วกรองซ้ำ
+    window.history.replaceState({}, '', window.location.pathname);
+    const found = rows.find((m) => String(m.emp_id) === empId);
+    if (! found) {
+      showToast(t('mem.open_not_found', { id: empId }));
+
+      return;
+    }
+    setSearch(empId);
+    setHlUser(found.user_id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, rows]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -233,7 +254,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
             const stLabel = STATUS_LABEL[m.status] || STATUS_LABEL.pending;
             const stPill = STATUS_PILL[m.status] || STATUS_PILL.pending;
             return (
-              <div key={m.user_id} className="mm-card">
+              <div key={m.user_id} className={`mm-card${String(m.user_id) === String(hlUser) ? ' mm-hl' : ''}`}>
                 <div className="mm-card-head">
                   <div className="mm-card-name">
                     <div className="mm-card-fullname">{m.full_name}</div>
@@ -280,7 +301,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
                 const stLabel = STATUS_LABEL[m.status] || STATUS_LABEL.pending;
                 const stPill = STATUS_PILL[m.status] || STATUS_PILL.pending;
                 return (
-                  <tr key={m.user_id}>
+                  <tr key={m.user_id} className={String(m.user_id) === String(hlUser) ? 'mm-hl' : ''}>
                     <td className="mm-td-empid">{m.emp_id}</td>
                     <td>{m.full_name}</td>
                     <td>{m.dept || '-'}</td>

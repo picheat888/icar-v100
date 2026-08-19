@@ -166,6 +166,7 @@
   "mem.all_status": "ทุกสถานะ",
   "mem.all_roles": "ทุกสิทธิ์",
   "mem.all_depts": "ทุกแผนก",
+  "mem.open_not_found": "ไม่พบสมาชิกรหัส {id} ในรายการ - อาจถูกดำเนินการไปแล้ว",
   "mem.not_found": "ไม่พบสมาชิก",
   "mem.dept_label": "แผนก",
   "mem.position_label": "ตำแหน่ง",

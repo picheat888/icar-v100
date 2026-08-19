@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { getCsrf, setCsrf } from '../lib/csrf';
+import { useState, useEffect, useCallback } from 'react';
 import { t } from '../lib/i18n';
 import { MONTHS, SHORT_MONTHS } from '../lib/date';
 import { STATUS_LABEL, ST_CLASS } from '../lib/status';
-import { useToast } from '../lib/Toast';
 
 // class สีของป้ายสถานะ - 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
 // ส่วนที่เหลือ (rejected/cancelled) สีตรงกับ .pill--red ของกลางพอดี
@@ -59,7 +57,7 @@ const icons = {
 
 /**
  * Dashboard (Admin) - การ์ดสรุป 4 ใบ + panel คำขอล่าสุด + panel สมาชิกรออนุมัติ
- * props: endpoints {data, memberApprove, memberReject}, links {requests, members}
+ * props: endpoints {data}, links {requests, members}
  */
 export default function Dashboard({ endpoints, links }) {
   const [counts, setCounts] = useState({ pendingBookings: 0, pendingMembers: 0, availableCars: 0, totalBookings: 0 });
@@ -67,8 +65,6 @@ export default function Dashboard({ endpoints, links }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
-  const { showToast, ToastView } = useToast(3000);
-  const busyRef = useRef(false);
 
   // โหลดข้อมูลสรุป
   const load = useCallback(() => {
@@ -90,25 +86,6 @@ export default function Dashboard({ endpoints, links }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // ยิง POST (อนุมัติ/ปฏิเสธ สมาชิก+คำขอ) inline เรียก endpoint เดิม แล้วโหลดสรุปใหม่
-  const post = async (url, body) => {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    try {
-      const res = await fetch(url, {
-        method: 'POST', credentials: 'same-origin',
-        headers: { 'X-CSRF-TOKEN': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        body: new URLSearchParams(body).toString(),
-      });
-      const d = await res.json().catch(() => ({}));
-      if (!res.ok && !d.csrf) { window.location.reload(); return; }
-      if (d.csrf) setCsrf(d.csrf);
-      // แสดง error (เช่น 422 กฎธุรกิจ: รถไม่พร้อม/สถานะเปลี่ยน) ไม่กลืนเงียบ
-      if (!res.ok || !d.ok) { showToast(d.message || t('dash.err')); return; }
-      showToast(d.message || t('dash.success'));
-      await load();
-    } finally { busyRef.current = false; }
-  };
 
   const cards = [
     { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconClass: 'dash-icon--amber' },
@@ -128,7 +105,6 @@ export default function Dashboard({ endpoints, links }) {
 
   return (
     <div>
-      <ToastView />
       {loadErr && (
         <div className="alert-error alert-error--sm dash-loaderr" role="alert">
           <span>{t('dash.load_err')}</span>
@@ -215,8 +191,7 @@ export default function Dashboard({ endpoints, links }) {
                     <div className="dash-member-sub dash-member-sub--pos">{t('dash.pos_label')}{m.position || '-'}</div>
                     <div className="dash-member-sub dash-member-sub--dept">{t('dash.dept_label')}{m.dept || '-'}</div>
                   </div>
-                  <button onClick={() => post(endpoints.memberApprove, { user_id: m.user_id, level: m.role || 'user' })} className="dash-mini-btn dash-mini-btn--green">{t('dash.approve')}</button>
-                  <button onClick={() => post(endpoints.memberReject, { user_id: m.user_id })} className="dash-mini-btn dash-mini-btn--red">{t('dash.reject')}</button>
+                  <a href={`${links.members}?open=${encodeURIComponent(m.emp_id)}`} className="dash-mini-btn dash-mini-btn--go">{t('dash.review')}{goArrow}</a>
                 </div>
               ))}
             </div>

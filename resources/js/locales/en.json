@@ -166,6 +166,7 @@
   "mem.all_status": "All statuses",
   "mem.all_roles": "All roles",
   "mem.all_depts": "All departments",
+  "mem.open_not_found": "Employee {id} is no longer in the list - they may have been handled already",
   "mem.not_found": "No members found",
   "mem.dept_label": "Department",
   "mem.position_label": "Position",
