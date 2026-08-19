@@ -67,30 +67,30 @@ class CarController extends BaseController
         $seats = (int) $this->request->getPost('seats');
 
         if ($model === '') {
-            return $this->fail('กรุณากรอกรุ่นรถ');
+            return $this->fail(lang('Car.err_model_req'));
         }
         if (mb_strlen($model) > self::MAX_MODEL) {
-            return $this->fail('รุ่นรถยาวไม่เกิน ' . self::MAX_MODEL . ' ตัวอักษร');
+            return $this->fail(lang('Car.err_model_max', [self::MAX_MODEL]));
         }
         // ทะเบียนบังคับเฉพาะรถบริษัท (self) - รถจัดหาโดย Admin (other) เว้นว่างได้
         if ($type === 'self' && $plate === '') {
-            return $this->fail('กรุณากรอกทะเบียนรถ');
+            return $this->fail(lang('Car.err_plate_req'));
         }
         if ($plate !== '') {
             if (mb_strlen($plate) < 2 || mb_strlen($plate) > self::MAX_PLATE) {
-                return $this->fail('ทะเบียนต้องยาว 2-' . self::MAX_PLATE . ' ตัวอักษร');
+                return $this->fail(lang('Car.err_plate_len', [self::MAX_PLATE]));
             }
             // อนุญาต: พยัญชนะ/สระไทย, A-Z, 0-9, เว้นวรรค, ขีด - ครอบทุกแบบที่ใช้จริง
             // (กข 1234 · 1กก 1234 · 70-1234 · ทะเบียนที่มีชื่อจังหวัด)
             if (preg_match('/^[\p{Thai}A-Z0-9 \-]+$/u', $plate) !== 1) {
-                return $this->fail('ทะเบียนใช้ได้เฉพาะตัวอักษรไทย/อังกฤษ ตัวเลข เว้นวรรค และขีด (-)');
+                return $this->fail(lang('Car.err_plate_chars'));
             }
         }
         if ($note !== '' && mb_strlen($note) > self::MAX_NOTE) {
-            return $this->fail('หมายเหตุยาวไม่เกิน ' . self::MAX_NOTE . ' ตัวอักษร');
+            return $this->fail(lang('Car.err_note_max', [self::MAX_NOTE]));
         }
         if ($seats < self::MIN_SEATS || $seats > self::MAX_SEATS) {
-            return $this->fail('จำนวนที่นั่งต้องอยู่ระหว่าง ' . self::MIN_SEATS . '-' . self::MAX_SEATS . ' ที่นั่ง');
+            return $this->fail(lang('Car.err_seats_range', [self::MIN_SEATS, self::MAX_SEATS]));
         }
         // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ข้ามคันที่กำลังแก้ไข · รถที่ถูกลบแล้วปล่อยทะเบียนคืน
         // · รถจัดหาโดย Admin ที่เว้นทะเบียนว่างไม่ต้องตรวจ) - ตรวจก่อนอัปโหลดรูป กันไฟล์กำพร้า
@@ -102,7 +102,7 @@ class CarController extends BaseController
                 ->where('id !=', $id ?: 0)
                 ->get()->getRowArray();
             if ($dupe) {
-                return $this->fail('ทะเบียน "' . $plate . '" ถูกใช้กับรถ "' . $dupe['model'] . '" อยู่แล้ว');
+                return $this->fail(lang('Car.err_plate_dupe', [$plate, $dupe['model']]));
             }
         }
 
@@ -126,7 +126,7 @@ class CarController extends BaseController
                     ->where('id !=', $id ?: 0)
                     ->get()->getRowArray();
                 if ($clash) {
-                    return $this->fail('คนขับคนนี้เป็นคนขับประจำของรถ "' . $clash['model'] . ($clash['plate'] ? ' (' . $clash['plate'] . ')' : '') . '" อยู่แล้ว (1 คนขับผูกได้ 1 คัน)');
+                    return $this->fail(lang('Car.err_driver_taken', [$clash['model'] . ($clash['plate'] ? ' (' . $clash['plate'] . ')' : '')]));
                 }
                 // ดึงชื่อคนขับจากโปรไฟล์ไว้แสดงคู่กับ id
                 $prof                        = db_connect()->table('user_profiles')->select('full_name')->where('user_id', $driverId)->get()->getRowArray();
@@ -149,7 +149,7 @@ class CarController extends BaseController
 
         // กันแก้ไข id ที่ไม่มีจริง/ถูกลบไปแล้ว (client ค้าง) - เช็คก่อนอัปโหลดไฟล์ กันไฟล์กำพร้า
         if ($id && ! $cars->find($id)) {
-            return $this->fail('ไม่พบรถที่ต้องการแก้ไข (อาจถูกลบไปแล้ว)', true);
+            return $this->fail(lang('Car.err_not_found_edit'), true);
         }
 
         // อัปโหลดรูป - เฉพาะไฟล์รูปภาพ ขนาดไม่เกิน 2 MB
@@ -161,8 +161,7 @@ class CarController extends BaseController
                     . '|ext_in[image,jpg,jpeg,png,webp]'
                     . '|max_size[image,2048]',
             ])) {
-                return $this->fail('อัปโหลดได้เฉพาะไฟล์ jpg, png, webp ขนาดไม่เกิน 2 MB'
-                    . ' · ไฟล์ HEIC จาก iPhone ยังไม่รองรับ ตั้งค่า > กล้อง > รูปแบบ เป็น "เข้ากันได้มากที่สุด" หรือแปลงเป็น jpg ก่อน');
+                return $this->fail(lang('Car.err_upload_type'));
             }
             // เก็บ path รูปเก่าไว้ลบหลังบันทึกรูปใหม่ (กรณีแก้ไข)
             if ($id) {
@@ -177,7 +176,7 @@ class CarController extends BaseController
             if (! is_dir($dir) || ! is_writable($dir)) {
                 log_message('error', 'อัปโหลดรูปรถไม่ได้: เขียนลง ' . $dir . ' ไม่ได้ (เช็คเจ้าของ/สิทธิ์โฟลเดอร์)');
 
-                return $this->fail('เซิร์ฟเวอร์เขียนไฟล์ลงโฟลเดอร์อัปโหลดไม่ได้ - แจ้งผู้ดูแลระบบให้ตรวจสิทธิ์ writable/uploads/cars');
+                return $this->fail(lang('Car.err_upload_dir'));
             }
 
             try {
@@ -185,7 +184,7 @@ class CarController extends BaseController
             } catch (\Throwable $e) {
                 log_message('error', 'ย้ายไฟล์อัปโหลดไม่สำเร็จ: ' . $e->getMessage());
 
-                return $this->fail('บันทึกไฟล์รูปไม่สำเร็จ - แจ้งผู้ดูแลระบบ');
+                return $this->fail(lang('Car.err_upload_save'));
             }
             $this->shrinkImage($dir . '/' . $newName);
             $data['image'] = $newName;
@@ -193,11 +192,11 @@ class CarController extends BaseController
 
         if ($id) {
             $cars->update($id, $data);   // ไม่ส่ง image ถ้าไม่ได้อัปใหม่ -> รูปเดิมคงอยู่
-            $msg = 'บันทึกข้อมูลรถแล้ว';
+            $msg = lang('Car.saved');
             log_activity('แก้ไขข้อมูลรถ ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
         } else {
             $cars->insert($data);
-            $msg = 'เพิ่มรถเรียบร้อย';
+            $msg = lang('Car.added');
             log_activity('เพิ่มรถ ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
         }
 
@@ -216,7 +215,7 @@ class CarController extends BaseController
         $cars = new CarModel();
         $car  = $cars->find($id);
         if (! $car) {
-            return $this->fail('ไม่พบรถ', true);
+            return $this->fail(lang('Car.err_not_found'), true);
         }
 
         // กันลบรถที่ยังมีการจอง active (pending/approved/cancel_requested)
@@ -226,7 +225,7 @@ class CarController extends BaseController
             ->where('deleted_at', null)
             ->countAllResults();
         if ($active > 0) {
-            return $this->fail('ลบไม่ได้ รถคันนี้มีการจองที่ยังไม่สิ้นสุด ' . $active . ' รายการ - ยกเลิก/จบงานก่อนจึงจะลบได้');
+            return $this->fail(lang('Car.err_delete_active', [$active]));
         }
 
         $cars->delete($id);
@@ -236,7 +235,7 @@ class CarController extends BaseController
 
         log_activity('ลบรถ ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
 
-        return $this->ok('ลบรถแล้ว');
+        return $this->ok(lang('Car.deleted'));
     }
 
     // ย่อรูปให้ด้านยาวสุดไม่เกิน IMG_MAX แล้วบันทึกทับ
