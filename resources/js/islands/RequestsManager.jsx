@@ -704,7 +704,7 @@ export default function RequestsManager({ endpoints }) {
                         <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.approve')}</button>
                       </>) : isCancelReq ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
+                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
                       </>) : canAdminCancel ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
                         <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>

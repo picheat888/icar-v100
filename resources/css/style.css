@@ -2888,7 +2888,7 @@
 }
 
 .dash-alert-title--amber {
-  color: #8a5a12;
+  color: var(--warn);
 }
 
 .dash-alert-title--teal {
@@ -6834,9 +6834,9 @@
   color: var(--danger);
 }
 
-/* ปุ่มยืนยันการยกเลิก (การ์ดมือถือ) - โทนอำพัน ไม่ใช่ชุดสีสถานะกลาง */
+/* ปุ่มยืนยันการยกเลิก (การ์ดมือถือ) - โทนอำพัน คู่กับ .rq-btn-solid--confirm-cancel ในตาราง */
 .rq-mini-btn--warn {
-  background: #fff3e0;
+  background: var(--warn-soft);
   color: var(--amber-text);
 }
 
@@ -6974,9 +6974,9 @@
   background: var(--danger);
 }
 
-/* ปุ่มยืนยันยกเลิก (แถวตาราง) - โทนส้มเข้ม ไม่ใช่ชุดสีสถานะกลาง */
+/* ปุ่มยืนยันยกเลิก (แถวตาราง) - โทนอำพันทึบ แยกจากปฏิเสธ/ยกเลิกโดย Admin ที่เป็นสีแดง */
 .rq-btn-solid--confirm-cancel {
-  background: #d98324;
+  background: var(--amber);
 }
 
 /* สถานะรวม "ยกเลิก/ปฏิเสธ" (rejected + cancelled + cancel_requested) - ไม่มีในชุดสีกลาง .st-* (นั่นแยกสถานะจริงทีละตัว)
@@ -7113,6 +7113,13 @@
   padding: 11px 26px;
 }
 
+/* ยืนยันการยกเลิกที่ผู้ขอร้องขอ - โทนอำพันเท่ากับปุ่มในตาราง/การ์ด */
+.rq-modal-btn--warn-solid {
+  background: var(--amber);
+  color: #fff;
+  padding: 11px 26px;
+}
+
 /* ปุ่มบันทึกแก้ไข (teal ทึบ) */
 .rq-modal-btn--save {
   background: var(--teal-hover);
@@ -7201,9 +7208,9 @@
 }
 
 .rq-notice--warn {
-  background: #fff3e0;
-  border: 1px solid #f0d9b5;
-  color: #8a5a12;
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  color: var(--warn);
   padding: 13px 15px;
   margin-bottom: 18px;
 }
