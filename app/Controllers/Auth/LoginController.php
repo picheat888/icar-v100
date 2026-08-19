@@ -45,8 +45,8 @@ class LoginController extends ShieldLoginController
         $profile = (new UserProfileModel())->findByUserId((int) $authenticator->getUser()->id);
         if (! $profile || $profile['status'] !== 'approved') {
             $message = ($profile && $profile['status'] === 'rejected')
-                ? 'บัญชีนี้ถูกปฏิเสธ กรุณาติดต่อผู้ดูแลระบบ'
-                : 'บัญชีของคุณอยู่ระหว่างรอ Admin อนุมัติ';
+                ? lang('Account.status_rejected')
+                : lang('Account.status_pending');
 
             auth()->logout();
 

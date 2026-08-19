@@ -43,6 +43,11 @@ return [
     'terms_text'      => 'I agree to the collection and use of my information for company vehicle booking.',
     'submit_reg'      => 'Create account',
 
+    // Account-status gate at sign-in and during a session
+    'status_pending'   => 'Your account is waiting for admin approval.',
+    'status_rejected'  => 'This account was rejected. Please contact your administrator.',
+    'status_suspended' => 'This account has been suspended. Please contact your administrator.',
+
     'err_required'    => 'Please fill in this field',
     'err_uniq_emp'    => 'This employee ID is already taken',
     'err_throttle'    => 'Too many attempts. Wait {0} seconds and try again',

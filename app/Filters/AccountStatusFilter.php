@@ -27,7 +27,7 @@ class AccountStatusFilter implements FilterInterface
         if (! $profile || $profile['status'] !== 'approved') {
             auth()->logout();
 
-            $message = 'บัญชีนี้ถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ';
+            $message = lang('Account.status_suspended');
 
             // island (AJAX) → ตอบ JSON 401 ให้ front จัดการ (ไม่ให้ตาม redirect ไปได้ HTML)
             if ($request->isAJAX()) {
