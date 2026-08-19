@@ -43,7 +43,7 @@ class MasterDataSeeder extends Seeder
                         'Staff/officer',
                         'Operator'];
 
-        // เพิ่มเฉพาะที่ยังไม่มี (กันซ้ำเมื่อ seed หลายครั้ง)
+        // เพิ่มเฉพาะที่ยังไม่มี กันซ้ำเมื่อ seed หลายครั้ง
         foreach ($departments as $name) {
             if (! $this->db->table('departments')->where('name', $name)->get()->getRow()) {
                 $this->db->table('departments')->insert(['name' => $name, 'created_at' => $now, 'updated_at' => $now]);
