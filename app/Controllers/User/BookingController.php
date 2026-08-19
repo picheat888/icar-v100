@@ -243,6 +243,104 @@ class BookingController extends BaseController
         ]);
     }
 
+    /**
+     * POST: แก้ไขคำขอของตัวเอง - เฉพาะที่ยัง "รออนุมัติ" เท่านั้น
+     * แก้ได้เฉพาะข้อมูลที่ผู้ขอกรอกมาเอง · รถ/คนขับเป็นของ Admin จัดสรร ไม่แตะที่นี่
+     */
+    public function update()
+    {
+        $id       = (int) $this->request->getPost('id');
+        $bookings = new BookingModel();
+        $b        = $bookings->find($id);
+
+        // ต้องเป็นคำขอของตัวเอง (ตอบข้อความเดียวกับกรณีไม่พบ - ไม่บอกว่ามี id นี้อยู่จริง)
+        if (! $b || (int) $b['requester_id'] !== (int) auth()->id()) {
+            return $this->fail('ไม่พบคำขอ');
+        }
+        if ($b['status'] !== 'pending') {
+            return $this->fail('แก้ไขได้เฉพาะคำขอที่ยังรออนุมัติ');
+        }
+
+        $location = trim((string) $this->request->getPost('location'));
+        $start    = $this->toDateTime($this->request->getPost('start_at'));
+        $end      = $this->toDateTime($this->request->getPost('end_at'));
+        $people   = (int) $this->request->getPost('people');
+        $purpose  = trim((string) $this->request->getPost('purpose'));
+        $mapLink  = trim((string) $this->request->getPost('map_link'));
+
+        if ($location === '') {
+            return $this->fail('กรุณากรอกสถานที่ปลายทาง');
+        }
+        if ($b['booking_type'] === 'other' && $purpose === '') {
+            return $this->fail('กรุณาระบุวัตถุประสงค์ในการใช้รถ');
+        }
+        if (! $start || ! $end) {
+            return $this->fail('กรุณาเลือกวันเวลาเริ่มและสิ้นสุด');
+        }
+        if ($end <= $start) {
+            return $this->fail('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
+        }
+        // เปลี่ยนเวลาเริ่มเป็นอดีตไม่ได้ (คงเวลาเดิมไว้ยังแก้ฟิลด์อื่นได้)
+        if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
+            return $this->fail('ไม่สามารถจองวันเวลาที่ผ่านมาแล้วได้ กรุณาเลือกวันเวลาในอนาคต');
+        }
+        if ($people < 1) {
+            return $this->fail('จำนวนผู้โดยสารต้องอย่างน้อย 1 คน');
+        }
+        if ($people > 999) {
+            return $this->fail('จำนวนผู้โดยสารมากเกินไป (สูงสุด 999 คน)');
+        }
+        if ($mapLink !== '' && ! is_safe_url($mapLink)) {
+            return $this->fail('ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น');
+        }
+        if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
+            return $this->fail('ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)');
+        }
+
+        // รถขับเอง: รถยังเป็นคันเดิม แต่เวลาเปลี่ยนได้ ต้องเช็คที่นั่ง + ชนเวลาใหม่
+        if ($b['booking_type'] === 'self' && $b['car_id']) {
+            $car = (new CarModel())->find((int) $b['car_id']);
+            if ($car && (int) $car['seats'] > 0 && $people > (int) $car['seats']) {
+                return $this->fail('จำนวนผู้โดยสารเกินจำนวนที่นั่งของรถ (สูงสุด ' . (int) $car['seats'] . ' คน)');
+            }
+            $clash = $bookings
+                ->where('car_id', (int) $b['car_id'])
+                ->whereIn('status', self::ACTIVE)
+                ->where('id !=', $id)
+                ->where('start_at <', $end)
+                ->where('end_at >', $start)
+                ->countAllResults();
+            if ($clash > 0) {
+                return $this->fail('รถคันนี้ถูกจองในช่วงเวลาดังกล่าวแล้ว');
+            }
+        }
+
+        // อัปเดตแบบมีเงื่อนไขสถานะ - กัน race กับ Admin ที่กำลังอนุมัติอยู่พอดี
+        $bookings->where('id', $id)->where('status', 'pending')->set([
+            'location' => $location,
+            'start_at' => $start,
+            'end_at'   => $end,
+            'people'   => $people,
+            'purpose'  => $purpose ?: null,
+            'map_link' => $mapLink ?: null,
+        ])->update();
+        if (db_connect()->affectedRows() < 1) {
+            $cur = $bookings->find($id);
+            if (! $cur || $cur['status'] !== 'pending') {
+                return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว แก้ไขไม่ได้');
+            }
+        }
+
+        // แจ้ง Admin ว่าข้อมูลที่กำลังจะอนุมัติเปลี่ยนไปแล้ว
+        $me   = (int) auth()->id();
+        $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
+        (new \App\Models\NotificationModel())->pushToAdmins('booking_edited', $name . ' แก้ไขคำขอ ' . $b['booking_code'], site_url('admin/requests'), $me);
+
+        log_activity('แก้ไขคำขอ ' . $b['booking_code']);
+
+        return $this->ok('บันทึกการแก้ไขแล้ว');
+    }
+
     // POST: ยกเลิกคำขอของตัวเอง - pending ยกเลิกทันที · approved(ก่อนเวลาเริ่ม) ขอยกเลิกรอ Admin ยืนยัน
     public function cancel()
     {

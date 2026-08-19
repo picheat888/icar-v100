@@ -92,6 +92,7 @@ $routes->group('', ['filter' => 'group:admin,user'], static function ($routes) {
     // คำขอของฉัน - ดู/ยกเลิก/คืนรถ ของตัวเอง (controller กรองด้วย requester_id ตัวเอง)
     $routes->get('my-requests',         'User\BookingController::myRequests');
     $routes->get('my-requests/data',    'User\BookingController::myData');
+    $routes->post('my-requests/update', 'User\BookingController::update');
     $routes->post('my-requests/cancel', 'User\BookingController::cancel');
     $routes->post('my-requests/return', 'User\BookingController::returnCar');
 });

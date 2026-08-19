@@ -5383,6 +5383,66 @@
   color: #fff;
 }
 
+/* ===== ฟอร์มแก้ไขคำขอ (โมดัล) ===== */
+.mr-edit-body {
+  padding: 18px 22px 22px;
+}
+
+/* แถบบอกขอบเขตการแก้ไข */
+.mr-edit-hint {
+  margin-bottom: 14px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--text-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mr-edit-err {
+  margin-bottom: 14px;
+}
+
+.mr-edit-field {
+  margin-bottom: 14px;
+}
+
+.mr-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mr-edit-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.mr-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.mr-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  padding: 10px 20px;
+}
+
+@media (max-width: 640px) {
+  .mr-edit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* สถานะ "ปฏิเสธ" - สีเฉพาะหน้านี้ ไม่อยู่ในชุดกลาง §1.15 */
 .mr-st-rejected {
   --st-bg: var(--danger-soft);
@@ -6997,6 +7057,15 @@
   color: var(--danger);
   padding: 12px 15px;
   margin-bottom: 14px;
+}
+
+/* กล่องบอกขอบเขตการแก้ไข - โทนเทาเป็นกลาง ไม่ใช่คำเตือน */
+.rq-notice--info {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  color: var(--text-mute);
+  padding: 11px 14px;
+  margin-bottom: 16px;
 }
 
 .rq-notice--warn {

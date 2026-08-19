@@ -314,6 +314,8 @@
   "myreq.col_manage": "Actions",
   "myreq.model_label": "Model: ",
   "myreq.unit_people": "people",
+  "myreq.edit_title": "Edit request {code}",
+  "myreq.edit_scope": "Editable while the request is still pending. Admin assigns the vehicle and driver.",
   "myreq.detail_title": "Request details · {code}",
   "myreq.passenger_count_label": "Number of passengers",
   "myreq.purpose_label": "Purpose",
@@ -427,5 +429,7 @@
   "req.cancel_booking": "Cancel booking",
   "req.cancel_reason_label": "Reason for cancelling",
   "req.sec_note": "Note",
-  "req.to_word": "to"
+  "req.to_word": "to",
+  "req.change_car": "Change vehicle",
+  "req.admin_edit_scope": "You can change the vehicle/driver only - the requester edits trip details in \"My Requests\""
 }

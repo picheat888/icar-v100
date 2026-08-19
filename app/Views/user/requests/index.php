@@ -7,6 +7,7 @@ $props = [
         'data'   => site_url('my-requests/data'),
         'cancel' => site_url('my-requests/cancel'),
         'return' => site_url('my-requests/return'),
+        'update' => site_url('my-requests/update'),
     ],
     'csrf' => csrf_hash(),
 ];

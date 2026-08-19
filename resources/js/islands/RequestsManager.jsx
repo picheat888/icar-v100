@@ -335,22 +335,12 @@ export default function RequestsManager({ endpoints }) {
   };
 
   // ฟอร์มแก้ไขคำขอ - รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
+  // ฟอร์มของ Admin - จัดสรรรถ/คนขับเท่านั้น · รายละเอียดการเดินทางผู้ขอแก้เองที่ "คำขอของฉัน"
   const editForm = () => {
     const isOther = modal.booking.booking_type === 'other';
     return (
       <div className="rq-modal-section">
-        <label className="form-label">{t('req.location_label')}</label>
-        <input value={modal.form.location} onChange={(e) => setForm({ location: e.target.value })} className="form-input form-input--sm rq-field-gap" />
-        <div className="rq-form-grid">
-          <div><label className="form-label">{t('req.start_label')}</label><input type="datetime-local" value={modal.form.start_at} onChange={(e) => setForm({ start_at: e.target.value })} className="form-input form-input--sm" /></div>
-          <div><label className="form-label">{t('req.end_label')}</label><input type="datetime-local" value={modal.form.end_at} onChange={(e) => setForm({ end_at: e.target.value })} className="form-input form-input--sm" /></div>
-        </div>
-        <div className="rq-form-grid">
-          <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={modal.form.people} onChange={(e) => setForm({ people: e.target.value })} className="form-input form-input--sm" /></div>
-          <div><label className="form-label">{t('req.map_label')}</label><input value={modal.form.map_link} maxLength={500} onChange={(e) => setForm({ map_link: e.target.value })} placeholder={t('req.map_placeholder')} className="form-input form-input--sm" /></div>
-        </div>
-        <label className="form-label">{t('req.purpose_label')}</label>
-        <textarea value={modal.form.purpose} onChange={(e) => setForm({ purpose: e.target.value })} rows={2} className="form-input form-input--sm rq-textarea rq-field-gap" />
+        <div className="rq-notice rq-notice--info">{t('req.admin_edit_scope')}</div>
         {isOther ? driverPicker() : (
           <>
             <label className="form-label">{t('req.car_self_label')}</label>
@@ -360,7 +350,7 @@ export default function RequestsManager({ endpoints }) {
           </>
         )}
         <div className="rq-modal-actions rq-modal-actions--mt18">
-          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.cancel_edit')}</button>
+          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
           <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.save')}</button>
         </div>
       </div>
@@ -608,9 +598,6 @@ export default function RequestsManager({ endpoints }) {
                   <div className="rq-focus-col rq-focus-col--request">
                     <div className="rq-focus-colhead">
                       <span className="rq-focus-coltitle">{t('req.sec_request')}</span>
-                      {isActive && ! inMode && (
-                        <button onClick={enterEdit} disabled={busy} className="rq-focus-edit-btn">{bIcon('pencil')}{t('common.edit')}</button>
-                      )}
                     </div>
 
                     <div className="rq-focus-sec">
@@ -643,6 +630,9 @@ export default function RequestsManager({ endpoints }) {
                   <div className="rq-focus-col rq-focus-col--decide">
                     <div className="rq-focus-colhead">
                       <span className="rq-focus-coltitle">{t('req.sec_manage')}</span>
+                      {isActive && ! inMode && (
+                        <button onClick={enterEdit} disabled={busy} className="rq-focus-edit-btn">{bIcon('pencil')}{isOther ? t('req.change_driver') : t('req.change_car')}</button>
+                      )}
                     </div>
 
                     {/* รถ & คนขับ */}

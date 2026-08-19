@@ -388,7 +388,8 @@ class RequestController extends BaseController
         return $this->ok('ยกเลิกคำขอแล้ว');
     }
 
-    // POST: Admin แก้ไขคำขอ (เฉพาะที่ยัง active) - รายละเอียดเดินทาง + รถ(self) / คนขับ(other)
+    // POST: Admin ปรับรถ (self) / คนขับ (other) ของคำขอที่ยัง active
+    // รายละเอียดการเดินทางเป็นของผู้ขอ - แก้ที่ User\BookingController::update
     public function update()
     {
         $id       = (int) $this->request->getPost('id');
@@ -401,48 +402,11 @@ class RequestController extends BaseController
             return $this->fail('คำขอนี้แก้ไขไม่ได้ (สถานะจบแล้ว)', true);
         }
 
-        // อ่าน + ตรวจรายละเอียดการเดินทาง
-        $location = trim((string) $this->request->getPost('location'));
-        $start    = $this->toDateTime($this->request->getPost('start_at'));
-        $end      = $this->toDateTime($this->request->getPost('end_at'));
-        $people   = (int) $this->request->getPost('people');
-        $mapLink  = trim((string) $this->request->getPost('map_link'));
-
-        if ($location === '') {
-            return $this->fail('กรุณากรอกสถานที่ปลายทาง');
-        }
-        if (! $start || ! $end) {
-            return $this->fail('กรุณาเลือกวันเวลาเริ่มและสิ้นสุด');
-        }
-        if ($end <= $start) {
-            return $this->fail('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
-        }
-        if ($people < 1) {
-            return $this->fail('จำนวนผู้โดยสารต้องอย่างน้อย 1 คน');
-        }
-        // เพดานกันตัวเลขเวอร์ (กัน SMALLINT overflow)
-        if ($people > 999) {
-            return $this->fail('จำนวนผู้โดยสารมากเกินไป (สูงสุด 999 คน)');
-        }
-        // กันตั้งเวลาเริ่มเป็นอดีตเฉพาะเมื่อ "เปลี่ยน" ค่า - งานที่เริ่มไปแล้วยังแก้ฟิลด์อื่นได้ (คงเวลาเดิม)
-        if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
-            return $this->fail('เวลาเริ่มต้องไม่เป็นอดีต');
-        }
-        if ($mapLink !== '' && ! is_safe_url($mapLink)) {
-            return $this->fail('ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น');
-        }
-        if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
-            return $this->fail('ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)');
-        }
-
-        $data = [
-            'location' => $location,
-            'start_at' => $start,
-            'end_at'   => $end,
-            'people'   => $people,
-            'purpose'  => trim((string) $this->request->getPost('purpose')) ?: null,
-            'map_link' => $mapLink ?: null,
-        ];
+        // Admin จัดสรรทรัพยากรเท่านั้น - รายละเอียดการเดินทางเป็นของผู้ขอ แก้เองที่ "คำขอของฉัน"
+        $start  = $b['start_at'];
+        $end    = $b['end_at'];
+        $people = (int) $b['people'];
+        $data   = [];
 
         $lock = null;
         if ($b['booking_type'] === 'self') {
@@ -501,16 +465,16 @@ class RequestController extends BaseController
             }
         }
 
-        $this->notifyRequester($b, 'booking_edited', 'Admin แก้ไขรายละเอียดคำขอ ' . $b['booking_code']);
+        $this->notifyRequester($b, 'booking_edited', 'Admin ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
         // แจ้งคนขับเฉพาะเมื่อ "มอบคนขับใหม่" (ต่างจากคนขับเดิมของคำขอนี้) - กันแจ้งซ้ำตอนแก้ข้อมูลอื่น
         $driverChanged = ($b['driver_type'] ?? '') !== 'company' || (int) ($b['driver_id'] ?? 0) !== (int) ($data['driver_id'] ?? 0);
         if (($data['driver_type'] ?? '') === 'company' && ! empty($data['driver_id']) && $driverChanged) {
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
         }
 
-        log_activity('แก้ไขคำขอ ' . $b['booking_code']);
+        log_activity('ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
 
-        return $this->ok('บันทึกการแก้ไขคำขอแล้ว');
+        return $this->ok('บันทึกรถ/คนขับแล้ว');
     }
 
     // แปลง 'YYYY-MM-DDTHH:MM' (จาก input) → 'YYYY-MM-DD HH:MM:SS'

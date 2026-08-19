@@ -5,6 +5,7 @@ import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { useToast } from '../lib/Toast';
 import ConfirmDialog from '../lib/ConfirmDialog';
+import Modal from '../lib/Modal';
 import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
@@ -46,6 +47,8 @@ export default function MyRequests({ endpoints }) {
   const [busy, setBusy] = useState(false);
   const [confirmB, setConfirmB] = useState(null);   // คำขอที่รอยืนยัน (ยกเลิก/คืนรถ)
   const [detail, setDetail] = useState(null);        // คำขอที่เปิดดูรายละเอียด
+  const [edit, setEdit] = useState(null);            // คำขอที่กำลังแก้ไข { b, form }
+  const [editErr, setEditErr] = useState('');
   const [narrow, setNarrow] = useState(false);
   const [page, setPage] = useState(1);   // หน้าปัจจุบันของ pagination
 
@@ -94,6 +97,49 @@ export default function MyRequests({ endpoints }) {
     } finally { setBusy(false); }
   };
 
+  // เปิดฟอร์มแก้ไข - แปลงค่าจาก DB เป็นรูปแบบของ input datetime-local ('YYYY-MM-DDTHH:MM')
+  const openEdit = (b) => {
+    setEditErr('');
+    setEdit({
+      b,
+      form: {
+        location: b.location || '',
+        start_at: String(b.start_at || '').slice(0, 16).replace(' ', 'T'),
+        end_at:   String(b.end_at || '').slice(0, 16).replace(' ', 'T'),
+        people:   String(b.people || 1),
+        purpose:  b.purpose || '',
+        map_link: b.map_link || '',
+      },
+    });
+  };
+
+  const setEditForm = (patch) => setEdit((m) => ({ ...m, form: { ...m.form, ...patch } }));
+
+  // บันทึกการแก้ไขคำขอของตัวเอง (เฉพาะที่ยังรออนุมัติ)
+  const doUpdate = async () => {
+    const f = edit.form;
+    if (! f.location.trim()) { setEditErr(t('book.err_location')); return; }
+    if (! f.start_at || ! f.end_at) { setEditErr(t('book.err_datetime')); return; }
+    if (f.end_at <= f.start_at) { setEditErr(t('book.err_end_after_start')); return; }
+    if (edit.b.booking_type === 'other' && ! f.purpose.trim()) { setEditErr(t('book.err_purpose')); return; }
+    if (Number(f.people) < 1) { setEditErr(t('book.err_people_min')); return; }
+
+    setBusy(true);
+    setEditErr('');
+    try {
+      const res = await fetch(endpoints.update, {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'X-CSRF-TOKEN': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: new URLSearchParams({ id: edit.b.id, ...f, start_at: f.start_at.replace('T', ' '), end_at: f.end_at.replace('T', ' ') }).toString(),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok && !d.csrf) { window.location.reload(); return; }
+      if (d.csrf) setCsrf(d.csrf);
+      if (d.ok) { setEdit(null); setDetail(null); showToast(d.message || t('common.success')); load(); }
+      else setEditErr(d.message || t('common.err'));
+    } finally { setBusy(false); }
+  };
+
   // คำนวณสถานะ/สิทธิ์การจัดการของคำขอหนึ่ง
   const vm = (b) => {
     const now = new Date();
@@ -104,12 +150,15 @@ export default function MyRequests({ endpoints }) {
     const stClass = finishedAuto ? 'mr-st-done' : (STATUS_CLASS[b.status] || STATUS_CLASS.pending);
     const showCancel = b.status === 'pending' || (b.status === 'approved' && !started);
     const showReturn = b.status === 'approved' && started && !ended && b.booking_type === 'self';
-    return { started, ended, finishedAuto, sl, stClass, showCancel, showReturn, waitingCancel: b.status === 'cancel_requested' };
+    return { started, ended, finishedAuto, sl, stClass, showCancel, showReturn, showEdit: b.status === 'pending', waitingCancel: b.status === 'cancel_requested' };
   };
 
-  // ปุ่มจัดการ (ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/โมดัล
+  // ปุ่มจัดการ (แก้ไข/ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/โมดัล
   const actionButtons = (b, v) => (
     <>
+      {v.showEdit && (
+        <button onClick={(e) => { e.stopPropagation(); openEdit(b); }} disabled={busy} className="mr-mini-btn"><Icon name="pencil" size={14} />{t('common.edit')}</button>
+      )}
       {v.showCancel && (
         <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'cancel' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--danger"><Icon name="cancel" size={14} />{t('common.cancel')}</button>
       )}
@@ -185,7 +234,7 @@ export default function MyRequests({ endpoints }) {
                       <div className="mr-card-loc">{b.location}</div>
                       {carModelLabel(b) && <div className="mr-card-meta">{t('myreq.model_label')}{carModelLabel(b)}</div>}
                       <div className="mr-card-meta">{thDate(b.start_at)} {thTime(b.start_at)} → {thTime(b.end_at)} · {b.people} {t('myreq.unit_people')}</div>
-                      {(v.showCancel || v.showReturn) && (
+                      {(v.showEdit || v.showCancel || v.showReturn) && (
                         <div className="mr-card-actions">{actionButtons(b, v)}</div>
                       )}
                     </div>
@@ -231,7 +280,7 @@ export default function MyRequests({ endpoints }) {
                       <td><span className={`pill pill--sm mr-badge ${v.stClass}`}>{v.sl}</span></td>
                       <td>
                         <div className="mr-td-actions">
-                          {(v.showCancel || v.showReturn) ? actionButtons(b, v) : null}
+                          {(v.showEdit || v.showCancel || v.showReturn) ? actionButtons(b, v) : null}
                         </div>
                       </td>
                     </tr>
@@ -292,7 +341,7 @@ export default function MyRequests({ endpoints }) {
                 )}
 
                 {/* ปุ่มจัดการ */}
-                {(v.showCancel || v.showReturn) && (
+                {(v.showEdit || v.showCancel || v.showReturn) && (
                   <div className="mr-detail-actions">
                     {actionButtons(b, v)}
                   </div>
@@ -302,6 +351,47 @@ export default function MyRequests({ endpoints }) {
           </div>
         );
       })()}
+
+      {/* โมดัลแก้ไขคำขอ - เฉพาะคำขอที่ยังรออนุมัติ */}
+      {edit && (
+        <Modal title={t('myreq.edit_title', { code: edit.b.booking_code })} onClose={() => setEdit(null)} bodyClass="mr-edit-body" lockBackdrop>
+          <div className="mr-edit-hint">{t('myreq.edit_scope')}</div>
+          {editErr && <div className="alert-error mr-edit-err">{editErr}</div>}
+
+          <label className="form-label" htmlFor="mr-ed-loc">{t('book.location_label')}</label>
+          <input id="mr-ed-loc" value={edit.form.location} maxLength={255} onChange={(e) => setEditForm({ location: e.target.value })} placeholder={t('book.location_placeholder')} className="form-input form-input--sm mr-edit-field" />
+
+          <div className="mr-edit-grid">
+            <div>
+              <label className="form-label" htmlFor="mr-ed-start">{t('req.start_label')}</label>
+              <input id="mr-ed-start" type="datetime-local" value={edit.form.start_at} onChange={(e) => setEditForm({ start_at: e.target.value })} className="form-input form-input--sm" />
+            </div>
+            <div>
+              <label className="form-label" htmlFor="mr-ed-end">{t('req.end_label')}</label>
+              <input id="mr-ed-end" type="datetime-local" value={edit.form.end_at} onChange={(e) => setEditForm({ end_at: e.target.value })} className="form-input form-input--sm" />
+            </div>
+          </div>
+
+          <div className="mr-edit-grid">
+            <div>
+              <label className="form-label" htmlFor="mr-ed-people">{t('myreq.passenger_count_label')}</label>
+              <input id="mr-ed-people" type="number" min="1" max="999" value={edit.form.people} onChange={(e) => setEditForm({ people: e.target.value })} className="form-input form-input--sm" />
+            </div>
+            <div>
+              <label className="form-label" htmlFor="mr-ed-map">{t('book.map_link_label')}</label>
+              <input id="mr-ed-map" value={edit.form.map_link} maxLength={500} onChange={(e) => setEditForm({ map_link: e.target.value })} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" />
+            </div>
+          </div>
+
+          <label className="form-label" htmlFor="mr-ed-purpose">{t('myreq.purpose_label')}</label>
+          <textarea id="mr-ed-purpose" value={edit.form.purpose} rows={3} onChange={(e) => setEditForm({ purpose: e.target.value })} placeholder={t('book.purpose_placeholder')} className="form-input form-input--sm mr-edit-textarea" />
+
+          <div className="mr-edit-actions">
+            <button onClick={() => setEdit(null)} disabled={busy} className="btn-ghost mr-edit-btn"><Icon name="close" size={16} />{t('common.cancel')}</button>
+            <button onClick={doUpdate} disabled={busy} className="btn-primary mr-edit-btn"><Icon name="check" size={16} />{t('common.save')}</button>
+          </div>
+        </Modal>
+      )}
 
       {/* ป็อปอัปยืนยัน - ยกเลิก / คืนรถ */}
       {confirmB && (() => {

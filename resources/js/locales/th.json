@@ -314,6 +314,8 @@
   "myreq.col_manage": "จัดการ",
   "myreq.model_label": "รุ่นรถ: ",
   "myreq.unit_people": "คน",
+  "myreq.edit_title": "แก้ไขคำขอ {code}",
+  "myreq.edit_scope": "แก้ได้เฉพาะคำขอที่ยังรออนุมัติ · รถและคนขับ Admin เป็นผู้จัดสรร",
   "myreq.detail_title": "รายละเอียดคำขอ · {code}",
   "myreq.passenger_count_label": "จำนวนผู้โดยสาร",
   "myreq.purpose_label": "วัตถุประสงค์",
@@ -427,5 +429,7 @@
   "req.cancel_booking": "ยกเลิกการจอง",
   "req.cancel_reason_label": "เหตุผลที่ยกเลิก",
   "req.sec_note": "หมายเหตุ",
-  "req.to_word": "ถึง"
+  "req.to_word": "ถึง",
+  "req.change_car": "เปลี่ยนรถ",
+  "req.admin_edit_scope": "แก้ได้เฉพาะรถ/คนขับ - รายละเอียดการเดินทางผู้ขอเป็นคนแก้เองที่หน้า \"คำขอของฉัน\""
 }
