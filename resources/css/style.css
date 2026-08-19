@@ -779,6 +779,10 @@
 
 /* หัวโมดัล/drawer: ชื่อเรื่อง + ปุ่มปิด */
 .modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
   flex: none;
   display: flex;
   align-items: center;
@@ -5037,12 +5041,113 @@
 }
 
 /* ช่องเลือกไฟล์รูป - padding แคบกว่าฟอร์มทั่วไป */
-.cm-file-input {
-  padding: 8px;
-  margin-bottom: 6px;
+/* ช่องเลือกไฟล์ - ซ่อน input เนทีฟไว้ (ยังโฟกัสด้วยคีย์บอร์ดได้) แล้วใช้ปุ่ม+ชื่อไฟล์แทน */
+.cm-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-file-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.cm-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 9px 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-soft);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cm-file-btn:hover {
+  background: var(--hover-bg);
+}
+
+.cm-file-native:focus-visible + .cm-file-btn {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.cm-file-name {
+  color: var(--text-mute);
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 /* รูปตัวอย่างรถที่อัปโหลดไว้แล้ว (ตอนแก้ไข) */
+/* ช่องที่กรอกผิด - ขอบแดงคู่กับข้อความ .cm-err */
+.form-input--bad {
+  border-color: var(--danger);
+}
+
+.cm-err {
+  margin: 5px 0 0;
+  color: var(--danger);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* ข้อความผิดพลาดที่ตามช่องซึ่งมีระยะห่างล่างอยู่แล้ว - ดึงขึ้นมาชิดช่อง */
+.cm-field-mb + .cm-err {
+  margin: -9px 0 12px;
+}
+
+.cm-hint {
+  margin: 5px 0 0;
+  color: var(--text-mute);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* แถบรูป: ภาพย่อ + ป้ายบอกว่ารูปใหม่/รูปปัจจุบัน + ปุ่มลบ/เลิกลบ */
+.cm-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cm-preview-label {
+  flex: 1;
+  color: var(--text-mute);
+  font-size: 12.5px;
+}
+
+.cm-img-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text-soft);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cm-img-btn:hover {
+  background: var(--hover-bg);
+}
+
+.cm-img-btn--danger {
+  border-color: var(--danger-soft);
+  color: var(--danger);
+}
+
 .cm-preview-img {
   width: 90px;
   height: 60px;
@@ -5052,7 +5157,18 @@
 }
 
 /* แถบปุ่มยกเลิก/บันทึกท้ายโมดัล */
+@media (max-width: 480px) {
+  .cm-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .cm-modal-footer {
+  position: sticky;
+  bottom: 0;
+  margin-bottom: -24px;
+  padding-bottom: 24px;
+  background: #fff;
   display: flex;
   justify-content: flex-end;
   gap: 10px;

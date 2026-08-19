@@ -70,13 +70,13 @@ export default function MyRequests({ endpoints }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // ปิด drawer รายละเอียดด้วยปุ่ม Esc (เหมือนหน้าจัดการคำขอ)
+  // ปิด drawer รายละเอียดด้วยปุ่ม Esc (โมดัลแก้ไขที่ซ้อนอยู่ปิดตัวเองก่อน)
   useEffect(() => {
-    if (!detail) return;
+    if (!detail || edit) return;
     const onKey = (e) => { if (e.key === 'Escape') setDetail(null); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [detail]);
+  }, [detail, edit]);
 
   // ยืนยันการทำรายการ (ยกเลิก / คืนรถ)
   const doAction = async () => {

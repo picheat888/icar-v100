@@ -188,6 +188,10 @@ class CarController extends BaseController
             }
             $this->shrinkImage($dir . '/' . $newName);
             $data['image'] = $newName;
+        } elseif ($id && $this->request->getPost('remove_image') === '1') {
+            // สั่งลบรูปเดิมโดยไม่อัปรูปใหม่
+            $oldImage      = $cars->find($id)['image'] ?? null;
+            $data['image'] = null;
         }
 
         if ($id) {
@@ -200,8 +204,8 @@ class CarController extends BaseController
             log_activity('เพิ่มรถ ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
         }
 
-        // เปลี่ยนรูปสำเร็จ -> ลบไฟล์รูปเก่าทิ้ง
-        if ($oldImage && isset($data['image']) && $oldImage !== $data['image']) {
+        // เปลี่ยน/ลบรูปสำเร็จ -> ลบไฟล์รูปเก่าทิ้ง
+        if ($oldImage && array_key_exists('image', $data) && $oldImage !== $data['image']) {
             $this->deleteImage($oldImage);
         }
 
