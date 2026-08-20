@@ -7,6 +7,7 @@ import MonthGrid from './MonthGrid';
 import DayGrid from './DayGrid';
 import DriverDayList from './DriverDayList';
 import DetailModal from './DetailModal';
+import { SkelBox } from '../../lib/Skeleton';
 
 // container หน้าตารางการใช้รถ - จัดการ view/เดือน/วัน/fetch/modal
 // props: role ('admin'|'user'|'driver'), endpoint (URL JSON), book (URL หน้าจองรถ - user+admin; driver ไม่ส่ง)
@@ -112,7 +113,7 @@ export default function Timeline({ role, endpoint, book }) {
       </div>
 
       {loading ? (
-        <div className="tl-loading">{t('common.loading')}</div>
+        <SkelBox />
       ) : view === 'month' ? (
         <>
           <MonthGrid

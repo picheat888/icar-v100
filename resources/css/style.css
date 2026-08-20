@@ -24,6 +24,8 @@
       1.17 แถบสลับ     .seg .seg-btn (+ --active)
       1.18 ป็อปอัปยืนยัน .confirm-backdrop .confirm-box .confirm-icon .confirm-btn (+ --teal --danger)
       1.19 ป็อปอัปสำเร็จ .done-box .done-icon .done-title .done-sub
+      1.20 โครงร่างตอนโหลด .sk-bar (+ --title --w20..w100) .sk-card .sk-list .sk-row .sk-box .sk-panel .sk-grid
+      1.21 วงกลมหมุน   .spinner
    2. Shell        โครง app shell (templates/)
       2.1 โครงหน้า    .app-root .app-main .app-body .app-content .app-footer
       2.2 Sidebar     .app-sidebar .nav-*
@@ -946,6 +948,10 @@
 /* ปุ่มในป็อปอัป */
 .confirm-btn {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   border: none;
   border-radius: 8px;
   padding: 11px 0;
@@ -1041,6 +1047,150 @@
 @media (prefers-reduced-motion: reduce) {
   .done-box {
     animation: none;
+  }
+}
+
+
+/* ----- 1.20 โครงร่างระหว่างโหลดข้อมูล (lib/Skeleton.jsx) -----
+   แถบ/การ์ด shimmer แทนเนื้อหาจริงชั่วคราว
+   ใช้เป็น HTML ล้วนใน view ได้ด้วย (templates/skeleton.php) */
+.sk-bar,
+.sk-box {
+  background-color: var(--surface);
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .85) 50%, transparent 100%);
+  background-repeat: no-repeat;
+  background-size: 60% 100%;
+  background-position: -60% 0;
+  animation: sk-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes sk-shimmer {
+  from {
+    background-position: -60% 0;
+  }
+
+  to {
+    background-position: 160% 0;
+  }
+}
+
+.sk-bar {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+}
+
+/* บรรทัดแรกของการ์ด/แถว - หนากว่าบรรทัดเนื้อหา */
+.sk-bar--title {
+  height: 15px;
+}
+
+.sk-bar--w20 {
+  width: 20%;
+}
+
+.sk-bar--w40 {
+  width: 40%;
+}
+
+.sk-bar--w60 {
+  width: 60%;
+}
+
+.sk-bar--w80 {
+  width: 80%;
+}
+
+.sk-bar--w100 {
+  width: 100%;
+}
+
+/* การ์ดโครงร่าง - กรอบเดียวกับ .card เนื้อในเป็นแถบ shimmer */
+.sk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--card-shadow-flat);
+}
+
+/* ลิสต์โครงร่าง - แถวเรียงลง (panel ที่ไม่ใช่ตาราง) */
+.sk-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sk-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sk-row:last-child {
+  border-bottom: 0;
+}
+
+/* กล่องขาวครอบโครงร่างก่อน React mount (templates/skeleton.php) */
+.sk-panel {
+  padding: 6px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--card-shadow);
+}
+
+/* grid การ์ดโครงร่างก่อน React mount */
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* กล่องโครงร่างผืนเดียว - ปฏิทิน / กริดเวลา */
+.sk-box {
+  min-height: 260px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* ผู้ใช้ตั้งค่าลดการเคลื่อนไหว -> ไม่ต้องมีอนิเมชัน */
+@media (prefers-reduced-motion: reduce) {
+
+  .sk-bar,
+  .sk-box {
+    animation: none;
+  }
+}
+
+
+/* ----- 1.21 วงกลมหมุนตอนรอผล (lib/Spinner.jsx) -----
+   ขนาด 1em ตามข้อความที่อยู่ข้าง ๆ สีตาม currentColor ของปุ่ม */
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: sk-spin .65s linear infinite;
+}
+
+@keyframes sk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ลดการเคลื่อนไหว -> หมุนช้าลง (ยังต้องหมุน เพราะเป็นตัวบอกว่าระบบกำลังทำงาน) */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
   }
 }
 
@@ -2636,6 +2786,12 @@
   margin-top: auto;
 }
 
+/* แถบโครงร่างแทนตัวเลข - สูงเท่าบรรทัดตัวเลขจริง การ์ดจึงไม่ยุบตอนโหลด */
+.dash-sk-val {
+  height: 26px;
+  margin: 6px 0;
+}
+
 /* ไอคอนกล่องโทนอำพัน - ใช้คู่กับ .icon-box (การ์ด "คำขอรออนุมัติ") */
 .dash-icon--amber {
   background: var(--warn-soft);
@@ -3088,13 +3244,6 @@
   margin-left: auto;
 }
 
-/* สถานะกำลังโหลด */
-.al-loading {
-  padding: 40px;
-  text-align: center;
-  color: var(--text-faint);
-}
-
 /* การ์ดว่างเมื่อไม่มีข้อมูลในช่วงวันที่ที่เลือก */
 .al-empty-card {
   background: #fff;
@@ -3541,12 +3690,6 @@
   font-weight: 600;
   text-decoration: none;
   font-family: inherit;
-}
-
-.tl-loading {
-  padding: 40px;
-  text-align: center;
-  color: var(--text-faint);
 }
 
 /* legend สีสถานะใต้ปฏิทินเดือน */
@@ -5200,12 +5343,6 @@
 }
 
 /* ===== MyRequests: คำขอของฉัน - ตาราง/การ์ด + drawer รายละเอียด + ป็อปอัปยืนยัน ===== */
-/* ข้อความระหว่างโหลดข้อมูล */
-.mr-loading {
-  color: var(--text-faint);
-  padding: 20px;
-}
-
 /* กล่อง error โหลดข้อมูลไม่สำเร็จ - ทับ .alert-error กลาง (ไม่มีไอคอน จึงไม่ใช้ <Alert>) */
 .mr-alert {
   margin-bottom: 12px;
@@ -5617,12 +5754,6 @@
   cursor: pointer;
 }
 
-/* ข้อความระหว่างโหลดข้อมูล */
-.mm-loading {
-  color: var(--text-faint);
-  padding: 20px;
-}
-
 /* สีข้อความกล่องว่าง (ไม่พบสมาชิก) - ทับ .empty-card กลาง */
 .mm-empty {
   color: var(--text-faint);
@@ -6006,6 +6137,10 @@
 
 /* ปุ่มท้ายโมดัล - ฐานร่วม */
 .mm-foot-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   border: none;
   border-radius: 8px;
   font-size: 14.5px;
@@ -6654,11 +6789,6 @@
   background: var(--surface);
   color: var(--text-soft);
   font-weight: 600;
-}
-
-.rq-loading {
-  color: var(--text-faint);
-  padding: 20px;
 }
 
 /* สีข้อความกล่องว่าง (ไม่พบคำขอ) - ทับ .empty-card กลาง */

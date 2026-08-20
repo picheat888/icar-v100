@@ -1,4 +1,5 @@
 import { t } from './i18n';
+import Spinner from './Spinner';
 
 /**
  * ป็อปอัปยืนยันการทำรายการ (ใช้แทน window.confirm ของเบราว์เซอร์)
@@ -31,6 +32,7 @@ export default function ConfirmDialog({
             {cancelText || t('common.back')}
           </button>
           <button onClick={onOk} disabled={busy} className={`confirm-btn confirm-btn--ok confirm-btn--${tone}`}>
+            {busy && <Spinner />}
             {okText}
           </button>
         </div>

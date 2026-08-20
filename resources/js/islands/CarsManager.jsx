@@ -7,6 +7,8 @@ import ConfirmDialog from '../lib/ConfirmDialog';
 import DonePopup from '../lib/DonePopup';
 import { TrashIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
+import { SkelCardItems } from '../lib/Skeleton';
+import Spinner from '../lib/Spinner';
 
 // key ข้อความสถานะ + สี pill - ต้องเรียก t() ตอน render ไม่ใช่ตอน module โหลด
 const CAR_STATUS = {
@@ -63,6 +65,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
   const [drivers, setDrivers] = useState([]);
   const [tab, setTab] = useState('self');
   const [loadErr, setLoadErr] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [confirmCar, setConfirmCar] = useState(null);   // รถที่รอยืนยันการลบ
   const [done, setDone] = useState(false);              // ลบสำเร็จ -> โชว์ป็อปอัป "ลบเสร็จสิ้น"
@@ -78,7 +81,8 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     fetch(endpoints.data, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => r.json())
       .then((d) => { setSelf(d.self || []); setOther(d.other || []); setDrivers(d.drivers || []); })
-      .catch(() => setLoadErr(true));
+      .catch(() => setLoadErr(true))
+      .finally(() => setLoading(false));
   }, [endpoints.data]);
 
   useEffect(() => { load(); }, [load]);
@@ -254,9 +258,10 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
       </div>
 
       {/* การ์ด - ใช้ layout เดียวกันทั้งรถขับเอง (self) และรถอื่นๆ (other) */}
-      <div className="car-grid">
-        {list.length === 0 && <Empty text={tab === 'self' ? t('car.empty_self') : t('car.empty_other')} />}
-        {list.map((c) => {
+      <div className="car-grid" aria-busy={loading}>
+        {loading && <SkelCardItems count={6} lines={3} />}
+        {!loading && list.length === 0 && <Empty text={tab === 'self' ? t('car.empty_self') : t('car.empty_other')} />}
+        {!loading && list.map((c) => {
           const [sl, sc] = CAR_STATUS[c.status] || CAR_STATUS.available;
           return (
             <div key={c.id} className="car-card">
@@ -383,7 +388,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
 
           <div className="cm-modal-footer">
             <button type="button" onClick={() => setModal(null)} className="cm-btn-cancel"><Icon name="close" size={16} />{t('common.cancel')}</button>
-            <button type="button" onClick={save} disabled={busy} className={`btn-primary${busy ? ' cm-btn-busy' : ''}`}><Icon name="check" size={17} />{busy ? t('car.saving_busy') : t('common.save')}</button>
+            <button type="button" onClick={save} disabled={busy} className={`btn-primary${busy ? ' cm-btn-busy' : ''}`}>{busy ? <Spinner /> : <Icon name="check" size={17} />}{busy ? t('car.saving_busy') : t('common.save')}</button>
           </div>
         </Modal>
       )}

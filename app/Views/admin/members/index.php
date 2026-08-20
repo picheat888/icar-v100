@@ -17,6 +17,8 @@ $props = [
     'positions'     => array_map(static fn ($p) => ['id' => $p['id'], 'name' => $p['name']], $positions),
 ];
 ?>
-<div id="members-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="members-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'table', 'rows' => 6]) ?>
+</div>
 <?= vite_asset('resources/js/entries/members-manager.jsx') ?>
 <?= $this->endSection() ?>

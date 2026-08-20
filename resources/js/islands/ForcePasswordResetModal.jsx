@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import Spinner from '../lib/Spinner';
 
 const lockIcon = (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
@@ -78,6 +79,7 @@ export default function ForcePasswordResetModal({ endpoint, logoutUrl = '/logout
         </div>
 
         <button onClick={submit} disabled={busy} className="btn-primary btn-block fr-submit">
+          {busy && <Spinner />}
           {busy ? t('pwreset.saving_busy') : t('pwreset.submit_btn')}
         </button>
 

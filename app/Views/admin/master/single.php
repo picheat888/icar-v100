@@ -14,6 +14,8 @@ $props = [
     'only' => $only,
 ];
 ?>
-<div id="master-data" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="master-data" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'table', 'rows' => 5]) ?>
+</div>
 <?= vite_asset('resources/js/entries/master-data.jsx') ?>
 <?= $this->endSection() ?>

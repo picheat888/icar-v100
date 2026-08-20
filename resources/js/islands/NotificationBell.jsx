@@ -3,6 +3,7 @@ import { thTime } from '../lib/date';
 import { t } from '../lib/i18n';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import Icon from '../lib/Icon';
+import Spinner from '../lib/Spinner';
 
 // ไอคอน + โทนสีตามประเภทแจ้งเตือน (ชื่อไอคอนดูที่ resources/icons.json)
 const TYPE_ICON = {
@@ -225,7 +226,7 @@ export default function NotificationBell({ endpoints }) {
             {hasMore && (
               <button type="button" onClick={() => fetchPage(items.length, true)} disabled={loading}
                 className="nb-more">
-                {loading ? t('common.loading') : t('notif.load_more')}
+                {loading ? <Spinner /> : t('notif.load_more')}
               </button>
             )}
             {failed && items.length > 0 && (

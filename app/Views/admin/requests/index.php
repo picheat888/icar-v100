@@ -15,6 +15,8 @@ $props = [
     'csrf' => csrf_hash(),
 ];
 ?>
-<div id="requests-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="requests-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'table', 'rows' => 6]) ?>
+</div>
 <?= vite_asset('resources/js/entries/requests-manager.jsx') ?>
 <?= $this->endSection() ?>

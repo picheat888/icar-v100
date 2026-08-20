@@ -17,6 +17,8 @@ $props   = [
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
   <?= lang('Common.back') ?>
 </a>
-<div id="booking-form" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="booking-form" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'cards', 'rows' => 6]) ?>
+</div>
 <?= vite_asset('resources/js/entries/booking-form.jsx') ?>
 <?= $this->endSection() ?>

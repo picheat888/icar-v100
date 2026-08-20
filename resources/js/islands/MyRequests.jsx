@@ -3,6 +3,7 @@ import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
+import { SkelRows, SkelCards } from '../lib/Skeleton';
 import { useToast } from '../lib/Toast';
 import ConfirmDialog from '../lib/ConfirmDialog';
 import Modal from '../lib/Modal';
@@ -10,6 +11,7 @@ import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
+import Spinner from '../lib/Spinner';
 
 // ป้ายชื่อสถานะ - ใช้ชุดกลาง แล้วเขียนทับ 3 คำที่หน้านี้เรียกต่างออกไป
 // (สีมาจาก class .st-*/.mr-st-* แยกต่างหาก - ดู STATUS_CLASS ด้านล่าง)
@@ -192,7 +194,28 @@ export default function MyRequests({ endpoints }) {
     return map;
   }, [pageRows]);
 
-  if (loading) return <div className="mr-loading">{t('common.loading')}</div>;
+  // หัวตารางเดสก์ท็อป - ใช้ทั้งตอนโหลด (โครงร่าง) และตอนมีข้อมูลจริง
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{t('myreq.col_code')}</th>
+        <th>{t('myreq.col_type')}</th>
+        <th>{t('myreq.col_model')}</th>
+        <th>{t('myreq.col_destination')}</th>
+        <th>{t('myreq.col_time')}</th>
+        <th>{t('myreq.col_people')}</th>
+        <th>{t('myreq.col_status')}</th>
+        <th>{t('myreq.col_manage')}</th>
+      </tr>
+    </thead>
+  );
+
+  // ระหว่างโหลด: โครงร่างรูปทรงเดียวกับของจริง (การ์ดบนจอแคบ / ตารางบนเดสก์ท็อป)
+  if (loading) {
+    return narrow
+      ? <SkelCards className="mr-cards" count={4} lines={3} />
+      : <div className="mr-table-wrap"><Table center>{tableHead}<SkelRows cols={8} /></Table></div>;
+  }
 
   const errBox = loadErr && (
     <div className="alert-error mr-alert">
@@ -250,18 +273,7 @@ export default function MyRequests({ endpoints }) {
         /* เดสก์ท็อป: ตาราง */
         <div className="mr-table-wrap">
           <Table center footer={<Pager page={curPage} totalPages={totalPages} total={sorted.length} perPage={PER_PAGE} onPage={onPage} inCard />}>
-            <thead>
-              <tr>
-                <th>{t('myreq.col_code')}</th>
-                <th>{t('myreq.col_type')}</th>
-                <th>{t('myreq.col_model')}</th>
-                <th>{t('myreq.col_destination')}</th>
-                <th>{t('myreq.col_time')}</th>
-                <th>{t('myreq.col_people')}</th>
-                <th>{t('myreq.col_status')}</th>
-                <th>{t('myreq.col_manage')}</th>
-              </tr>
-            </thead>
+            {tableHead}
             <tbody>
               {groups.map((g) => (
                 <Fragment key={g.key}>
@@ -388,7 +400,7 @@ export default function MyRequests({ endpoints }) {
 
           <div className="mr-edit-actions">
             <button onClick={() => setEdit(null)} disabled={busy} className="btn-ghost mr-edit-btn"><Icon name="close" size={16} />{t('common.cancel')}</button>
-            <button onClick={doUpdate} disabled={busy} className="btn-primary mr-edit-btn"><Icon name="check" size={16} />{t('common.save')}</button>
+            <button onClick={doUpdate} disabled={busy} className="btn-primary mr-edit-btn">{busy ? <Spinner /> : <Icon name="check" size={16} />}{t('common.save')}</button>
           </div>
         </Modal>
       )}

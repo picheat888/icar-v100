@@ -5,9 +5,11 @@ import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
 import { CloseIcon, CalIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
+import Spinner from '../lib/Spinner';
 import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
+import { SkelRows, SkelCards } from '../lib/Skeleton';
 import { useToast } from '../lib/Toast';
 import DonePopup from '../lib/DonePopup';
 import { setNavBadge } from '../lib/navBadge';
@@ -351,7 +353,7 @@ export default function RequestsManager({ endpoints }) {
         )}
         <div className="rq-modal-actions rq-modal-actions--mt18">
           <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
-          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.save')}</button>
+          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.save')}</button>
         </div>
       </div>
     );
@@ -426,6 +428,20 @@ export default function RequestsManager({ endpoints }) {
   // ป้ายสถานะ = 1 ใน 3 กลุ่มที่แสดง (label + ชื่อคลาสสี)
   const rowStat = (b) => { const g = groupOf(b.status); return { label: STATUS_LABEL[g], cls: STATUS_CLASS[g] }; };
 
+  // หัวตารางเดสก์ท็อป - ใช้ทั้งตอนโหลด (โครงร่าง) และตอนมีข้อมูลจริง
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{t('req.col_code_requester')}</th>
+        <th>{t('req.col_car_plate')}</th>
+        <th>{t('req.col_location_people')}</th>
+        <th>{t('req.col_time_range')}</th>
+        <th>{t('req.col_status')}</th>
+        <th>{t('req.col_manage')}</th>
+      </tr>
+    </thead>
+  );
+
   return (
     <div>
       {loadErr && (
@@ -449,7 +465,10 @@ export default function RequestsManager({ endpoints }) {
         )}
       </div>
 
-      {loading && <div className="rq-loading">{t('common.loading')}</div>}
+      {/* ระหว่างโหลด: โครงร่างรูปทรงเดียวกับของจริง (การ์ดบนจอแคบ / ตารางบนเดสก์ท็อป) */}
+      {loading && (narrow
+        ? <SkelCards className="rq-cards" count={4} lines={3} />
+        : <div className="rq-table-wrap"><Table center>{tableHead}<SkelRows cols={6} /></Table></div>)}
       {!loading && filtered.length === 0 && <div className="empty-card rq-empty">{t('req.not_found')}</div>}
 
       {/* จัดกลุ่มตามวัน */}
@@ -502,16 +521,7 @@ export default function RequestsManager({ endpoints }) {
         /* เดสก์ท็อป: ตารางจริง + แถวคั่นวันที่ (colSpan เต็มความกว้าง) */
         <div className="rq-table-wrap">
           <Table center>
-            <thead>
-              <tr>
-                <th>{t('req.col_code_requester')}</th>
-                <th>{t('req.col_car_plate')}</th>
-                <th>{t('req.col_location_people')}</th>
-                <th>{t('req.col_time_range')}</th>
-                <th>{t('req.col_status')}</th>
-                <th>{t('req.col_manage')}</th>
-              </tr>
-            </thead>
+            {tableHead}
             <tbody>
               {groups.map((g) => (
                 <Fragment key={g.key}>
@@ -651,7 +661,7 @@ export default function RequestsManager({ endpoints }) {
                           {driverPicker()}
                           <div className="rq-modal-actions rq-modal-actions--mt6">
                             <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
-                            <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('req.save_driver')}</button>
+                            <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('req.save_driver')}</button>
                           </div>
                         </div>
                       ) : (
@@ -695,16 +705,16 @@ export default function RequestsManager({ endpoints }) {
                     <div className="rq-focus-actions">
                       {modal.rejecting ? (<>
                         <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
-                        <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_reject')}</button>
+                        <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_reject')}</button>
                       </>) : modal.cancelling ? (<>
                         <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
-                        <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
+                        <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
                       </>) : pending ? (<>
                         <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
-                        <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{bIcon('check')}{t('common.approve')}</button>
+                        <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.approve')}</button>
                       </>) : isCancelReq ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{bIcon('cancel')}{t('req.confirm_cancel')}</button>
+                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel')}</button>
                       </>) : canAdminCancel ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
                         <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>

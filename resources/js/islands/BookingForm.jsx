@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import Spinner from '../lib/Spinner';
 import { MONTHS, DOW, pad } from '../lib/date';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
@@ -273,7 +274,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
             <div>{formFields(true)}</div>
           </div>
           <div className="bk-other-foot">
-            <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{t('book.submit_btn')}</button>
+            <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{busy && <Spinner />}{t('book.submit_btn')}</button>
           </div>
         </div>
       )}
@@ -309,7 +310,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
 
             <div className={`bk-modal-foot${narrow ? ' bk-modal-foot--narrow' : ''}`}>
               <button onClick={() => setModal(null)} className="bk-modal-cancel">{t('common.cancel')}</button>
-              <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{t('book.submit_btn')}</button>
+              <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{busy && <Spinner />}{t('book.submit_btn')}</button>
             </div>
           </div>
         </div>

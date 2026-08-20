@@ -25,7 +25,6 @@
   "dash.panel_bookings": "คำขอจองรถ",
   "dash.panel_members": "สมาชิกที่รอการอนุมัติ",
   "dash.see_all": "ดูทั้งหมด",
-  "dash.loading": "กำลังโหลด...",
   "dash.empty_bookings": "ยังไม่มีคำขอในระบบ",
   "dash.empty_members": "ไม่มีสมาชิกรออนุมัติ",
   "dash.veh_other": "รถจัดหาโดย Admin",

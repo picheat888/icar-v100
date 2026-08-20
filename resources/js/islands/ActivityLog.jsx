@@ -4,6 +4,7 @@ import { t } from '../lib/i18n';
 import { SHORT_MONTHS, pad } from '../lib/date';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
+import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Pager from '../lib/Pager';
 
 // 'YYYY-MM-DD HH:MM:SS' -> '21 ก.ค. 2026 · 14:30'
@@ -80,6 +81,15 @@ export default function ActivityLog({ endpoints }) {
   const mobile = device === 'mobile';
   const totalPages = Math.max(1, Math.ceil(total / perPage));
 
+  // หัวตารางเดสก์ท็อป - ใช้ทั้งตอนโหลด (โครงร่าง) และตอนมีข้อมูลจริง
+  const tableHead = (
+    <thead><tr>
+      {[t('log.col_time'), t('log.col_user'), t('log.col_role'), t('log.col_action')].map((h) => (
+        <th key={h}>{h}</th>
+      ))}
+    </tr></thead>
+  );
+
   return (
     <div>
       {/* แถบฟิลเตอร์ */}
@@ -99,8 +109,11 @@ export default function ActivityLog({ endpoints }) {
       </div>
 
       {loadErr && <div className="alert-error alert-error--sm">{t('common.load_err')}</div>}
+      {/* ระหว่างโหลด: โครงร่างรูปทรงเดียวกับของจริง (การ์ดบนมือถือ / ตารางบนเดสก์ท็อป) */}
       {loading ? (
-        <div className="al-loading">{t('common.loading')}</div>
+        mobile
+          ? <SkelCards className="al-mobile-list" count={5} lines={2} />
+          : <div className="al-table-wrap"><Table>{tableHead}<SkelRows cols={4} /></Table></div>
       ) : logs.length === 0 ? (
         <div className="al-empty-card">{t('log.no_data_range')}</div>
       ) : mobile ? (
@@ -121,11 +134,7 @@ export default function ActivityLog({ endpoints }) {
         // เดสก์ท็อป: ตาราง
         <div className="al-table-wrap">
           <Table>
-            <thead><tr>
-              {[t('log.col_time'), t('log.col_user'), t('log.col_role'), t('log.col_action')].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
-            </tr></thead>
+            {tableHead}
             <tbody>
               {logs.map((l) => (
                 <tr key={l.id}>

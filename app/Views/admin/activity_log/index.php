@@ -10,6 +10,8 @@ $props = [
     ],
 ];
 ?>
-<div id="activity-log" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="activity-log" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'table', 'rows' => 6]) ?>
+</div>
 <?= vite_asset('resources/js/entries/activity-log.jsx') ?>
 <?= $this->endSection() ?>

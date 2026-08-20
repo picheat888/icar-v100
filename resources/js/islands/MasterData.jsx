@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import Spinner from '../lib/Spinner';
 import { useToast } from '../lib/Toast';
 import ConfirmDialog from '../lib/ConfirmDialog';
 import DonePopup from '../lib/DonePopup';
@@ -146,7 +147,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
             placeholder={t('master.add_placeholder', { label })} maxLength={150} className="form-input form-input--sm md-input--add" />
           <button onClick={add} disabled={busy}
             className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t('master.add_btn')}
+            {busy ? <Spinner /> : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>}{t('master.add_btn')}
           </button>
         </div>
       </div>
@@ -178,7 +179,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
               <td className="md-td-manage ta-r">
                 {editingId === it.id ? (
                   <div className="md-actions">
-                    <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{okIcon}</button>
+                    <button onClick={() => saveEdit(it)} disabled={busy} title={t('common.save')} className="icon-btn icon-btn--green">{busy ? <Spinner /> : okIcon}</button>
                     <button onClick={cancelEdit} title={t('common.cancel')} className="icon-btn icon-btn--gray">{xIcon}</button>
                   </div>
                 ) : (

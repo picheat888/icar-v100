@@ -25,7 +25,6 @@
   "dash.panel_bookings": "Booking Requests",
   "dash.panel_members": "Members Awaiting Approval",
   "dash.see_all": "See all",
-  "dash.loading": "Loading...",
   "dash.empty_bookings": "No requests in the system yet",
   "dash.empty_members": "No members awaiting approval",
   "dash.veh_other": "Admin-provided vehicle",

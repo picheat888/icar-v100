@@ -13,6 +13,8 @@ $props = [
     'baseUrl' => rtrim(base_url(), '/') . '/',
 ];
 ?>
-<div id="cars-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="cars-manager" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'cards', 'rows' => 6]) ?>
+</div>
 <?= vite_asset('resources/js/entries/cars-manager.jsx') ?>
 <?= $this->endSection() ?>

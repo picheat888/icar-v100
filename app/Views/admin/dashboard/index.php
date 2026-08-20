@@ -15,6 +15,8 @@ $props = [
     'csrf' => csrf_hash(),
 ];
 ?>
-<div id="dashboard" data-props='<?= esc(json_encode($props), 'attr') ?>'></div>
+<div id="dashboard" data-props='<?= esc(json_encode($props), 'attr') ?>'>
+  <?= view('templates/skeleton', ['variant' => 'cards', 'rows' => 4]) ?>
+</div>
 <?= vite_asset('resources/js/entries/dashboard.jsx') ?>
 <?= $this->endSection() ?>

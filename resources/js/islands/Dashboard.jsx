@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { t } from '../lib/i18n';
 import { MONTHS, SHORT_MONTHS } from '../lib/date';
 import { STATUS_LABEL, ST_CLASS } from '../lib/status';
+import { SkelBar, SkelList } from '../lib/Skeleton';
 
 // class สีของป้ายสถานะ - 4 สถานะที่มีชุดสีกลาง (.st-*) ใช้คู่กับ .dash-status-badge
 // ส่วนที่เหลือ (rejected/cancelled) สีตรงกับ .pill--red ของกลางพอดี
@@ -115,7 +116,7 @@ export default function Dashboard({ endpoints, links }) {
       {/* การ์ดสรุป 4 ใบ - wrapper คุม layout (4→2→1 คอลัมน์) */}
       <div className="dash-stats">
         {cards.map(({ key, ...c }) => (
-          <StatCard key={key} {...c} value={loadErr ? '—' : (loading ? '-' : (counts[key] ?? 0))} />
+          <StatCard key={key} {...c} value={loadErr ? '—' : (loading ? <SkelBar w={40} className="dash-sk-val" /> : (counts[key] ?? 0))} />
         ))}
       </div>
 
@@ -135,7 +136,7 @@ export default function Dashboard({ endpoints, links }) {
             <h3 className="title title--sm">{t('dash.panel_bookings')}</h3>
             <a href={links.requests} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
-          {loading ? <Empty text={t('dash.loading')} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
+          {loading ? <SkelList rows={4} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
             <div className="dash-brow-list">
               {groups.map((g) => (
                 <div key={g.date}>
@@ -182,7 +183,7 @@ export default function Dashboard({ endpoints, links }) {
             <h3 className="title title--sm">{t('dash.panel_members')}</h3>
             <a href={links.members} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
-          {loading ? <Empty text={t('dash.loading')} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
+          {loading ? <SkelList rows={3} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
             <div className="dash-member-list">
               {members.map((m, i) => (
                 <div key={m.user_id} className={`dash-member-row ${i === members.length - 1 ? 'dash-member-row--last' : ''}`}>

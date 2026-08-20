@@ -4,8 +4,10 @@ import { t } from '../lib/i18n';
 import { useToast } from '../lib/Toast';
 import { setNavBadge } from '../lib/navBadge';
 import Table from '../lib/Table';
+import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Modal from '../lib/Modal';
 import Icon from '../lib/Icon';
+import Spinner from '../lib/Spinner';
 
 // ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง
 const STATUS_LABEL = {
@@ -210,6 +212,17 @@ export default function MembersManager({ endpoints, departments = [], positions 
     );
   };
 
+  // หัวตารางเดสก์ท็อป - ใช้ทั้งตอนโหลด (โครงร่าง) และตอนมีข้อมูลจริง
+  const tableHead = (
+    <thead><tr>
+      {[t('mem.col_emp_id'), t('mem.col_full_name'), t('mem.dept_label'), t('mem.position_label'), t('mem.phone_label'), t('mem.col_status'), t('mem.col_role')].map((h) => (
+        <th key={h}>{h}</th>
+      ))}
+      <th>{t('mem.col_active')}</th>
+      <th>{t('mem.col_manage')}</th>
+    </tr></thead>
+  );
+
   return (
     <div>
       {loadErr && (
@@ -242,7 +255,10 @@ export default function MembersManager({ endpoints, departments = [], positions 
         </button>
       </div>
 
-      {loading && <div className="mm-loading">{t('common.loading')}</div>}
+      {/* ระหว่างโหลด: โครงร่างรูปทรงเดียวกับของจริง (การ์ดบนจอแคบ / ตารางบนเดสก์ท็อป) */}
+      {loading && (narrow
+        ? <SkelCards className="mm-cards-grid" count={4} lines={3} />
+        : <div className="mm-table-wrap"><Table center>{tableHead}<SkelRows cols={9} /></Table></div>)}
       {!loading && filtered.length === 0 && (
         <div className="empty-card mm-empty">{t('mem.not_found')}</div>
       )}
@@ -289,13 +305,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
       {!loading && filtered.length > 0 && !narrow && (
         <div className="mm-table-wrap">
           <Table center>
-            <thead><tr>
-              {[t('mem.col_emp_id'), t('mem.col_full_name'), t('mem.dept_label'), t('mem.position_label'), t('mem.phone_label'), t('mem.col_status'), t('mem.col_role')].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
-              <th>{t('mem.col_active')}</th>
-              <th>{t('mem.col_manage')}</th>
-            </tr></thead>
+            {tableHead}
             <tbody>
               {filtered.map((m) => {
                 const stLabel = STATUS_LABEL[m.status] || STATUS_LABEL.pending;
@@ -537,7 +547,7 @@ function Foot({ onClose, onOk, okText, okKind, busy }) {
   return (
     <div className="mm-modal-foot">
       <button onClick={onClose} className="mm-foot-btn mm-foot-btn--cancel">{t('common.cancel')}</button>
-      <button onClick={onOk} disabled={busy} className={`mm-foot-btn mm-foot-btn--ok mm-foot-btn--${okKind}`}>{okText}</button>
+      <button onClick={onOk} disabled={busy} className={`mm-foot-btn mm-foot-btn--ok mm-foot-btn--${okKind}`}>{busy && <Spinner />}{okText}</button>
     </div>
   );
 }
