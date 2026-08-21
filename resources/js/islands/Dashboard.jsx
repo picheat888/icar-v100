@@ -95,7 +95,7 @@ export default function Dashboard({ endpoints, links }) {
     { key: 'carsInUse', label: t('dash.card_inuse'), sub: t('dash.card_inuse_sub'), icon: icons.car, iconClass: 'dash-icon--amber' },
   ];
 
-  // จัดกลุ่มคำขอตามวันเริ่ม (ใหม่สุดก่อน - ตาม order ที่ backend ส่งมา)
+  // จัดกลุ่มคำขอตามวันเริ่ม (ใกล้ถึงก่อน - ตาม order ที่ backend ส่งมา)
   const groups = [];
   let cur = null;
   for (const b of bookings) {

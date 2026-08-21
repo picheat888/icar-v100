@@ -25,6 +25,12 @@ export const DOW = LOCALE === 'en' ? EN_DOW : TH_DOW;
 // เติม 0 หน้าเลข 1 หลัก (5 -> '05')
 export const pad = (n) => (n < 10 ? '0' + n : '' + n);
 
+// วันนี้ตามเวลาเครื่อง -> 'YYYY-MM-DD'
+export const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 // "2026-06-22 ..." -> "22-06-2026"
 export const thDate = (s) => {
   const p = (s || '').slice(0, 10).split('-');

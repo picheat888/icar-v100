@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'react';
-import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
+import { thDate, thTime, thDateTime, thWeekday, todayStr } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
@@ -199,12 +199,19 @@ export default function RequestsManager({ endpoints }) {
     });
   }, [rows, search, fType, fStatus, fDate]);
 
-  // เรียงคำขอทั้งหมด: วันเดินทางล่าสุดก่อน → ในวันเดียวกันเรียงคำขอล่าสุด (created_at) ก่อน
+  // เรียงคำขอทั้งหมด: วันเดินทางที่ยังไม่ผ่านขึ้นก่อน (ใกล้ถึง → ไกล) แล้วต่อด้วยวันที่ผ่านมาแล้ว
+  // (ล่าสุด → เก่า) → ในวันเดียวกันเรียงคำขอล่าสุด (created_at) ก่อน
   const sorted = useMemo(() => {
+    const today = todayStr();
     return [...filtered].sort((a, b) => {
       const da = (a.start_at || '').slice(0, 10);
       const db = (b.start_at || '').slice(0, 10);
-      if (da !== db) return db.localeCompare(da);
+      if (da !== db) {
+        const pa = da < today;
+        const pb = db < today;
+        if (pa !== pb) return pa ? 1 : -1;
+        return pa ? db.localeCompare(da) : da.localeCompare(db);
+      }
       return (b.created_at || '').localeCompare(a.created_at || '') || (+b.id - +a.id);
     });
   }, [filtered]);
@@ -218,12 +225,14 @@ export default function RequestsManager({ endpoints }) {
   useEffect(() => { setPage(1); }, [search, fType, fStatus, fDate]);
 
   // จัดกลุ่มตามวัน (start_at) + นับสถานะ - เฉพาะรายการในหน้าปัจจุบัน
+  // past = วันเดินทางผ่านมาแล้ว (ติดป้ายกำกับบนแถบวันที่)
   const groups = useMemo(() => {
+    const today = todayStr();
     const map = [];
     pageRows.forEach((b) => {
       const key = (b.start_at || '').slice(0, 10);
       let g = map.find((x) => x.key === key);
-      if (!g) { g = { key, rows: [], pend: 0, appr: 0, canc: 0 }; map.push(g); }
+      if (!g) { g = { key, rows: [], pend: 0, appr: 0, canc: 0, past: key !== '' && key < today }; map.push(g); }
       g.rows.push(b);
       const grp = groupOf(b.status);
       if (grp === 'pending') g.pend++;
@@ -478,7 +487,9 @@ export default function RequestsManager({ endpoints }) {
           {groups.map((g) => (
             <div key={g.key}>
               <div className="rq-day-badge">
-                <span className="rq-day-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</span>
+                <span className="rq-day-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}
+                  {g.past && <span className="rq-day-past">{t('req.past')}</span>}
+                </span>
                 <div className="rq-day-counts">
                   <span>{t('req.total', { n: g.rows.length })}</span>
                   <Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>
@@ -529,7 +540,9 @@ export default function RequestsManager({ endpoints }) {
                   <tr>
                     <td colSpan={6} className="rq-group-cell">
                       <div className="rq-group-inner">
-                        <div className="rq-group-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</div>
+                        <div className="rq-group-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}
+                          {g.past && <span className="rq-day-past">{t('req.past')}</span>}
+                        </div>
                         <div className="rq-group-counts">
                           <span>{t('req.total', { n: g.rows.length })}</span>
                           <span className="rq-dot-sep">·</span><Dot variant="pending">{t('req.count_pending', { n: g.pend })}</Dot>

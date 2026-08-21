@@ -155,18 +155,35 @@ class BookingModel extends Model
             ->findAll();
     }
 
-    // คำขอทั้งหมด (สำหรับ Admin) พร้อมชื่อผู้ขอ/แผนก/รถ/ชื่อคนขับบริษัท
-    public function listAll(): array
+    // query ตั้งต้นของลิสต์ฝั่ง Admin - join ชื่อผู้ขอ/แผนก/รถ/ชื่อคนขับบริษัท
+    private function adminListQuery(): self
     {
-        $this->sweepExpired();
-
         return $this->select('bookings.*, p.full_name AS requester_name, d.name AS dept_name,
                 c.model AS car_model, c.plate AS car_plate, dp.full_name AS driver_name')
             ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
             ->join('departments d', 'd.id = p.department_id', 'left')
             ->join('cars c', 'c.id = bookings.car_id', 'left')
-            ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left')
+            ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left');
+    }
+
+    // คำขอทั้งหมด (สำหรับ Admin) พร้อมชื่อผู้ขอ/แผนก/รถ/ชื่อคนขับบริษัท
+    public function listAll(): array
+    {
+        $this->sweepExpired();
+
+        return $this->adminListQuery()
             ->orderBy('bookings.start_at', 'DESC')
+            ->findAll();
+    }
+
+    // คำขอที่วันเดินทางยังไม่ผ่าน (ตั้งแต่ต้นวัน $fromDate) เรียงใกล้ถึงก่อน · $fromDate = 'YYYY-MM-DD'
+    public function listUpcoming(string $fromDate): array
+    {
+        $this->sweepExpired();
+
+        return $this->adminListQuery()
+            ->where('bookings.start_at >=', $fromDate . ' 00:00:00')
+            ->orderBy('bookings.start_at', 'ASC')
             ->findAll();
     }
 

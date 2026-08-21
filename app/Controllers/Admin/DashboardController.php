@@ -75,12 +75,12 @@ class DashboardController extends BaseController
             'carsInUse'       => $busyCarIds === [] ? 0 : (new CarModel())->whereIn('id', $busyCarIds)->countAllResults(),
         ];
 
-        // คำขอล่าสุด - เอา "N วันล่าสุด" แบบครบทั้งวัน ไม่ตัดกลางวัน
-        // อาศัยว่า listAll เรียง start_at DESC มาแล้ว
+        // คำขอที่ใกล้ถึงวันเดินทาง - เอา "N วันข้างหน้านับจากวันนี้" แบบครบทั้งวัน ไม่ตัดกลางวัน
+        // อาศัยว่า listUpcoming เรียง start_at ASC มาแล้ว
         $maxDays = 3;
         $recent  = [];
         $seenDates = [];
-        foreach ((new BookingModel())->listAll() as $b) {
+        foreach ((new BookingModel())->listUpcoming(date('Y-m-d')) as $b) {
             $d = substr((string) $b['start_at'], 0, 10);   // 'YYYY-MM-DD'
             if (! isset($seenDates[$d])) {
                 if (count($seenDates) >= $maxDays) {

@@ -7006,6 +7006,18 @@
   color: var(--teal-dark);
 }
 
+/* ป้ายกำกับวันเดินทางที่ผ่านมาแล้ว - ใช้ทั้งแถบวันที่ในตารางและในการ์ด */
+.rq-day-past {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  white-space: nowrap;
+}
+
 .rq-group-counts {
   display: flex;
   align-items: center;
