@@ -36,14 +36,26 @@ const genPassword = (len = 12) =>
 
 const EMPTY_NEW = { empId: '', name: '', dept: '', position: '', phone: '', username: '', password: '', level: 'user', force_reset: true };
 
+// ความยาว username ต้องตรงกับ usernameValidationRules ใน app/Config/Auth.php
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 30;
+const PASSWORD_MIN = 8;
+
 // ตรวจฟอร์มเพิ่มสมาชิก - คืน { ช่อง: ข้อความ } ว่าง = ผ่าน
 const addFormErrors = (f) => {
   const e = {};
   const req = (k) => { if (! String(f[k] || '').trim()) e[k] = t('common.err_required'); };
   ['empId', 'name', 'dept', 'position', 'phone', 'username', 'password'].forEach(req);
-  if (! e.phone && ! /^[0-9]{10}$/.test(String(f.phone).trim())) e.phone = t('req.warn_ext_phone');
-  if (! e.username && ! /^[a-zA-Z0-9._]+$/.test(String(f.username).trim())) e.username = t('mem.err_username_format');
-  if (! e.password && String(f.password).length < 8) e.password = t('pwreset.err_min_length');
+  if (! e.phone && ! /^[0-9]{10}$/.test(String(f.phone).trim())) e.phone = t('mem.err_phone_format');
+  if (! e.username) {
+    const uname = String(f.username).trim();
+    if (uname.length < USERNAME_MIN || uname.length > USERNAME_MAX) {
+      e.username = t('mem.err_username_length', { min: USERNAME_MIN, max: USERNAME_MAX });
+    } else if (! /^[a-zA-Z0-9._]+$/.test(uname)) {
+      e.username = t('mem.err_username_format');
+    }
+  }
+  if (! e.password && String(f.password).length < PASSWORD_MIN) e.password = t('mem.err_password_min', { n: PASSWORD_MIN });
 
   return e;
 };
@@ -565,7 +577,7 @@ function AddForm({ form, set, departments, positions, onCopied, errs, clearErr }
         <div>
           <div className="mm-add-section">{t('mem.login_section')}</div>
           <label className="form-label" htmlFor="mm-username">{t('mem.username_label')} <span className="form-req">*</span></label>
-          <input {...fieldAttrs('mm-username', errs.username)} value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" placeholder={t('mem.username_ph')} className={`form-input form-input--sm mm-field-mb${errs.username ? ' is-invalid' : ''}`} />
+          <input {...fieldAttrs('mm-username', errs.username)} value={form.username} onChange={(e) => u('username', e.target.value)} maxLength={USERNAME_MAX} autoComplete="off" placeholder={t('mem.username_ph')} className={`form-input form-input--sm mm-field-mb${errs.username ? ' is-invalid' : ''}`} />
           <FieldError id="mm-username" msg={errs.username} />
           <label className="form-label">{t('mem.role_level_label')} <span className="form-req">*</span></label>
           <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
