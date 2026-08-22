@@ -12,7 +12,8 @@ final class LangResolveTest extends CIUnitTestCase
     public function testThaiIsDefault(): void
     {
         service('language')->setLocale('th');
-        $this->assertSame('แดชบอร์ด', lang('Nav.dashboard'));
+        $this->assertSame('Dashboard', lang('Nav.dashboard'));
+        $this->assertSame('จัดการรถ', lang('Nav.cars'));
     }
 
     public function testEnglishResolves(): void
@@ -28,6 +29,6 @@ final class LangResolveTest extends CIUnitTestCase
         service('language')->setLocale('th');
         $this->assertSame('เข้าสู่ระบบ', lang('Account.login_title'));
         service('language')->setLocale('en');
-        $this->assertSame('Log in', lang('Account.login_title'));
+        $this->assertSame('Sign in', lang('Account.login_title'));
     }
 }
