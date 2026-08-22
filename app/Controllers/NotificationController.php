@@ -26,7 +26,7 @@ class NotificationController extends BaseController
         $items = array_map(static fn ($n) => [
             'id'         => (int) $n['id'],
             'type'       => $n['type'],
-            'message'    => $n['message'],
+            'message'    => NotificationModel::renderMessage($n),
             'link'       => $n['link'],
             'isRead'     => $n['read_at'] !== null,
             'created_at' => $n['created_at'],

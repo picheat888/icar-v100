@@ -13,21 +13,22 @@ class NotificationModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
-    protected $allowedFields = ['user_id', 'type', 'message', 'link', 'read_at'];
+    protected $allowedFields = ['user_id', 'type', 'msg_key', 'params', 'link', 'read_at'];
 
-    // สร้างแจ้งเตือน 1 แถวให้ผู้ใช้คนหนึ่ง
-    public function push(int $userId, string $type, string $message, ?string $link = null): void
+    // สร้างแจ้งเตือน 1 แถวให้ผู้ใช้คนหนึ่ง - เก็บ key + params ไว้ประกอบข้อความตอนอ่าน
+    public function push(int $userId, string $type, string $msgKey, array $params = [], ?string $link = null): void
     {
         $this->insert([
             'user_id' => $userId,
             'type'    => $type,
-            'message' => $message,
+            'msg_key' => $msgKey,
+            'params'  => $params === [] ? null : json_encode($params, JSON_UNESCAPED_UNICODE),
             'link'    => $link,
         ]);
     }
 
     // สร้างแจ้งเตือนให้ admin ทุกคน (ข้าม excludeUserId ถ้ากำหนด - กันแจ้งตัวเอง)
-    public function pushToAdmins(string $type, string $message, ?string $link = null, ?int $excludeUserId = null): void
+    public function pushToAdmins(string $type, string $msgKey, array $params = [], ?string $link = null, ?int $excludeUserId = null): void
     {
         $rows = $this->db->table('auth_groups_users')
             ->select('user_id')
@@ -39,8 +40,26 @@ class NotificationModel extends Model
             if ($excludeUserId !== null && $uid === $excludeUserId) {
                 continue;
             }
-            $this->push($uid, $type, $message, $link);
+            $this->push($uid, $type, $msgKey, $params, $link);
         }
+    }
+
+    // ข้อความของแถวหนึ่งตามภาษาผู้อ่าน - static เพราะเป็นฟังก์ชันบริสุทธิ์ ไม่แตะฐานข้อมูล
+    public static function renderMessage(array $row): string
+    {
+        helper('format');
+        $key = (string) ($row['msg_key'] ?? '');
+        if ($key === '') {
+            return '';
+        }
+
+        $params = json_decode((string) ($row['params'] ?? ''), true) ?: [];
+        // params 'role' เก็บเป็นคีย์บทบาท (admin/user/driver) แปลตอนอ่าน
+        if (isset($params['role'])) {
+            $params['role'] = role_labels()[$params['role']] ?? $params['role'];
+        }
+
+        return lang("Notification.{$key}", $params);
     }
 
     // รายการแจ้งเตือนของผู้ใช้ (ใหม่ก่อน) แบ่งหน้า - island จัดกลุ่มตามวันโดยอาศัยลำดับนี้

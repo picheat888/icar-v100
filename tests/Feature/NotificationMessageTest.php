@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\NotificationModel;
 use CodeIgniter\Test\CIUnitTestCase;
 
 /**
@@ -27,5 +28,31 @@ final class NotificationMessageTest extends CIUnitTestCase
             'params ต้องเป็น TEXT ที่ null ได้'
         );
         $this->assertStringNotContainsString("'message'", $src, 'คอลัมน์ message ต้องถูกตัดออกจาก migration');
+    }
+
+    public function testRenderMessageUsesReaderLocale(): void
+    {
+        $row = ['msg_key' => 'booking_approved', 'params' => json_encode(['code' => 'BK-0001'])];
+
+        service('language')->setLocale('th');
+        $this->assertSame('คำขอ BK-0001 ได้รับการอนุมัติแล้ว', NotificationModel::renderMessage($row));
+
+        service('language')->setLocale('en');
+        $this->assertSame('Request BK-0001 has been approved', NotificationModel::renderMessage($row));
+    }
+
+    public function testRenderMessageWithoutParams(): void
+    {
+        $row = ['msg_key' => 'member_rejected', 'params' => null];
+        service('language')->setLocale('en');
+        $this->assertSame('Your account has been disabled - please contact an administrator', NotificationModel::renderMessage($row));
+    }
+
+    public function testEveryMessageKeyExistsInBothLocales(): void
+    {
+        $th = include APPPATH . 'Language/th/Notification.php';
+        $en = include APPPATH . 'Language/en/Notification.php';
+        $this->assertSame(array_keys($th), array_keys($en));
+        $this->assertNotEmpty($th);
     }
 }
