@@ -25,6 +25,20 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         'Models/BookingModel.php',
     ];
 
+    // บรรทัดนี้มี string ไทยที่ผู้ใช้จะเห็นไหม (ข้ามคอมเมนต์ และข้าม log)
+    private function isThaiStringLine(string $line): bool
+    {
+        if (preg_match('/^\s*(\/\/|\*|\/\*)/', $line)) {
+            return false;
+        }
+        if (preg_match('/log_activity|log_message/', $line)) {
+            return false;
+        }
+        $code = preg_replace('/\s\/\/.*$/', '', $line);
+
+        return (bool) preg_match('/[\'"][^\'"]*[\x{0E00}-\x{0E7F}]/u', (string) $code);
+    }
+
     // คืนบรรทัดที่มี string literal ภาษาไทย (ข้ามคอมเมนต์ และข้าม log ที่ไม่ใช่ข้อความถึงผู้ใช้)
     private function thaiStringLines(string $relPath): array
     {
@@ -33,15 +47,7 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         $hits = [];
 
         foreach (file($path) as $i => $line) {
-            if (preg_match('/^\s*(\/\/|\*|\/\*)/', $line)) {
-                continue;
-            }
-            if (preg_match('/log_activity|log_message/', $line)) {
-                continue;
-            }
-            // ตัดคอมเมนต์ท้ายบรรทัดออกก่อนตรวจ
-            $code = preg_replace('/\s\/\/.*$/', '', $line);
-            if (preg_match('/[\'"][^\'"]*[\x{0E00}-\x{0E7F}]/u', (string) $code)) {
+            if ($this->isThaiStringLine($line)) {
                 $hits[] = ($i + 1) . ': ' . trim($line);
             }
         }
@@ -55,5 +61,18 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
             $hits = $this->thaiStringLines($relPath);
             $this->assertSame([], $hits, "{$relPath} ยังมีข้อความไทยฮาร์ดโค้ด:\n" . implode("\n", $hits));
         }
+    }
+
+    // ยาม: ตัวตรวจต้องจับ string ไทยได้จริง และต้องไม่จับสิ่งที่ยกเว้นไว้
+    public function testDetectorMatchesThaiStringLiteralsOnly(): void
+    {
+        $this->assertTrue($this->isThaiStringLine("        return \$this->fail('ไม่พบสมาชิก');"));
+        $this->assertTrue($this->isThaiStringLine('        $label = "แผนก";'));
+
+        $this->assertFalse($this->isThaiStringLine('        // คอมเมนต์ไทยไม่นับ'));
+        $this->assertFalse($this->isThaiStringLine('         * คอมเมนต์บล็อกไทยไม่นับ'));
+        $this->assertFalse($this->isThaiStringLine("        log_activity('ลบรถ');"));
+        $this->assertFalse($this->isThaiStringLine("        return \$this->fail(lang('Member.err_not_found'));"));
+        $this->assertFalse($this->isThaiStringLine("        \$x = 'plain english';"));
     }
 }

@@ -44,7 +44,7 @@ class NotificationModel extends Model
         }
     }
 
-    // ข้อความของแถวหนึ่งตามภาษาผู้อ่าน - static เพราะเป็นฟังก์ชันบริสุทธิ์ ไม่แตะฐานข้อมูล
+    // ข้อความของแถวหนึ่งตามภาษาผู้อ่าน
     public static function renderMessage(array $row): string
     {
         helper('format');

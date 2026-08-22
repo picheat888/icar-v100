@@ -489,7 +489,7 @@ class RequestController extends BaseController
         return strlen($v) === 16 ? $v . ':00' : $v;
     }
 
-    // แจ้งเตือนผู้ขอ - เก็บ key + params ให้ประกอบข้อความตอนอ่าน
+    // แจ้งผู้ขอ (ข้ามถ้าผู้ขอ = admin คนที่กำลังทำรายการ - กันแจ้งตัวเอง)
     private function notifyRequester(array $b, string $type, string $msgKey, array $params = []): void
     {
         if ((int) $b['requester_id'] === (int) auth()->id()) {
@@ -498,7 +498,7 @@ class RequestController extends BaseController
         (new NotificationModel())->push((int) $b['requester_id'], $type, $msgKey, $params, site_url('my-requests'));
     }
 
-    // แจ้งเตือนคนขับที่ได้รับมอบหมาย
+    // แจ้งคนขับบริษัท (ถ้ามี driver_id)
     private function notifyDriver(?int $driverId, string $type, string $msgKey, array $params = []): void
     {
         if (! $driverId) {
