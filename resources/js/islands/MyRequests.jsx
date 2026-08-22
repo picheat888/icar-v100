@@ -163,7 +163,7 @@ export default function MyRequests({ endpoints }) {
   const actionButtons = (b, v) => (
     <>
       {v.showEdit && (
-        <button onClick={(e) => { e.stopPropagation(); openEdit(b); }} disabled={busy} className="mr-mini-btn"><Icon name="pencil" size={14} />{t('common.edit')}</button>
+        <button onClick={(e) => { e.stopPropagation(); openEdit(b); }} disabled={busy} className="mr-mini-btn mr-mini-btn--edit"><Icon name="pencil" size={14} />{t('common.edit')}</button>
       )}
       {v.showCancel && (
         <button onClick={(e) => { e.stopPropagation(); setConfirmB({ b, action: 'cancel' }); }} disabled={busy} className="mr-mini-btn mr-mini-btn--danger"><Icon name="cancel" size={14} />{t('common.cancel')}</button>

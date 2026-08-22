@@ -5609,12 +5609,14 @@
   gap: 10px;
 }
 
-/* ปุ่มจัดการเล็ก (ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/drawer */
+/* ปุ่มจัดการเล็ก (แก้ไข/ยกเลิก/คืนรถ) - ใช้ในตาราง/การ์ด/drawer
+   3 ระดับความหนัก: แก้ไข = ขอบเปล่า · ยกเลิก = แดงอ่อน · คืนรถ = teal ทึบ
+   hover: สองระดับที่พื้นอ่อนให้ขอบขึ้นมา + ตัวอักษรเข้ม, ระดับทึบให้พื้นเข้มขึ้น */
 .mr-mini-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 7px;
   padding: 6px 12px;
   font-size: 12.5px;
@@ -5622,18 +5624,71 @@
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
 
-/* ปุ่มยกเลิก - แดงอ่อน */
+.mr-mini-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.mr-mini-btn:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+/* ปุ่มแก้ไข - พื้นโปร่งให้กลืนสีแถว มีแต่ขอบบอกว่าเป็นปุ่ม */
+.mr-mini-btn--edit {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-soft);
+}
+
+.mr-mini-btn--edit:hover:not(:disabled) {
+  background: var(--teal-soft);
+  border-color: var(--teal-line);
+  color: var(--teal-dark);
+}
+
+/* ดินสอเอียงขึ้นตอน hover - ท่าหยิบปากกาขึ้นมาเขียน */
+.mr-mini-btn--edit svg {
+  transition: transform .18s ease;
+}
+
+.mr-mini-btn--edit:hover:not(:disabled) svg {
+  transform: rotate(-12deg) translateY(-1px);
+}
+
+/* ปุ่มยกเลิก - แดงอ่อน ตอน hover ขอบขึ้นมาและตัวอักษรเข้มขึ้น (อยู่ในโทนเดิม) */
 .mr-mini-btn--danger {
   background: var(--danger-soft);
   color: var(--danger);
+}
+
+.mr-mini-btn--danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger-text);
 }
 
 /* ปุ่มคืนรถ - teal ทึบ */
 .mr-mini-btn--teal {
   background: var(--teal-hover);
   color: #fff;
+}
+
+.mr-mini-btn--teal:hover:not(:disabled) {
+  background: var(--teal-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mr-mini-btn,
+  .mr-mini-btn--edit svg {
+    transition: none;
+  }
+
+  .mr-mini-btn--edit:hover:not(:disabled) svg {
+    transform: none;
+  }
 }
 
 /* ===== ฟอร์มแก้ไขคำขอ (โมดัล) ===== */
