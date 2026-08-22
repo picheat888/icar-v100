@@ -9,6 +9,8 @@ import { TrashIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
 import { SkelCardItems } from '../lib/Skeleton';
 import Spinner from '../lib/Spinner';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 
 // key ข้อความสถานะ + สี pill - ต้องเรียก t() ตอน render ไม่ใช่ตอน module โหลด
 const CAR_STATUS = {
@@ -306,21 +308,20 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
           lockBackdrop
         >
           <label className="form-label" htmlFor="cm-model">{t('car.model_label')} <span className="cm-required">*</span></label>
-          <input id="cm-model" value={modal.form.model} onChange={(e) => setForm({ model: e.target.value })} maxLength={MAX_MODEL} placeholder={t('car.model_placeholder')} required aria-invalid={!! errs.model} aria-describedby={errs.model ? 'cm-model-err' : undefined} className={`form-input form-input--sm${errs.model ? ' form-input--bad' : ''} cm-field-mb`} />
-          {errs.model && <div id="cm-model-err" className="cm-err" role="alert">{errs.model}</div>}
+          <input {...fieldAttrs('cm-model', errs.model)} value={modal.form.model} onChange={(e) => setForm({ model: e.target.value })} maxLength={MAX_MODEL} placeholder={t('car.model_placeholder')} required className={`form-input form-input--sm${errs.model ? ' is-invalid' : ''} cm-field-mb`} />
+          <FieldError id="cm-model" msg={errs.model} />
 
           <div className="cm-grid2">
             <div>
               <label className="form-label" htmlFor="cm-plate">{t('car.plate_label')}{modal.form.car_type === 'self' && <span className="cm-required"> *</span>}</label>
-              <input id="cm-plate" value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} maxLength={MAX_PLATE} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} required={modal.form.car_type === 'self'} aria-invalid={!! errs.plate} aria-describedby={errs.plate ? 'cm-plate-err' : undefined} className={`form-input form-input--sm${errs.plate ? ' form-input--bad' : ''}`} />
-              {errs.plate && <div id="cm-plate-err" className="cm-err" role="alert">{errs.plate}</div>}
+              <input {...fieldAttrs('cm-plate', errs.plate)} value={modal.form.plate} onChange={(e) => setForm({ plate: e.target.value })} maxLength={MAX_PLATE} placeholder={modal.form.car_type === 'other' ? t('car.optional_placeholder') : t('car.plate_example_placeholder')} required={modal.form.car_type === 'self'} className={`form-input form-input--sm${errs.plate ? ' is-invalid' : ''}`} />
+              <FieldError id="cm-plate" msg={errs.plate} />
             </div>
             <div>
               <label className="form-label" htmlFor="cm-seats">{t('car.seats_label')} <span className="cm-required">*</span></label>
-              <input id="cm-seats" type="number" min={MIN_SEATS} max={MAX_SEATS} value={modal.form.seats} onChange={(e) => setForm({ seats: e.target.value })} placeholder={t('car.seats_placeholder')} required aria-invalid={!! errs.seats} aria-describedby={errs.seats ? 'cm-seats-err' : 'cm-seats-hint'} className={`form-input form-input--sm${errs.seats ? ' form-input--bad' : ''}`} />
-              {errs.seats
-                ? <div id="cm-seats-err" className="cm-err" role="alert">{errs.seats}</div>
-                : <div id="cm-seats-hint" className="cm-hint">{t('car.seats_hint', { min: MIN_SEATS, max: MAX_SEATS })}</div>}
+              <input {...fieldAttrs('cm-seats', errs.seats)} type="number" min={MIN_SEATS} max={MAX_SEATS} value={modal.form.seats} onChange={(e) => setForm({ seats: e.target.value })} placeholder={t('car.seats_placeholder')} required aria-describedby="cm-seats-err cm-seats-hint" className={`form-input form-input--sm${errs.seats ? ' is-invalid' : ''}`} />
+              <FieldError id="cm-seats" msg={errs.seats} />
+              <div id="cm-seats-hint" className="cm-hint">{t('car.seats_hint', { min: MIN_SEATS, max: MAX_SEATS })}</div>
             </div>
           </div>
 
@@ -356,13 +357,12 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
 
           <label className="form-label" htmlFor="cm-image">{t('car.image_label')}</label>
           <div className="cm-file-row">
-            <input id="cm-image" ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" onChange={(e) => pickImage(e.target.files[0] || null)} aria-invalid={!! errs.image} aria-describedby={errs.image ? 'cm-image-err' : 'cm-image-hint'} className="cm-file-native" />
+            <input {...fieldAttrs('cm-image', errs.image)} ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" onChange={(e) => pickImage(e.target.files[0] || null)} aria-describedby="cm-image-err cm-image-hint" className="cm-file-native" />
             <label htmlFor="cm-image" className="cm-file-btn"><Icon name="image" size={15} />{t('car.image_choose')}</label>
             <span className="cm-file-name">{modal.form.imageFile ? modal.form.imageFile.name : t('car.image_none')}</span>
           </div>
-          {errs.image
-            ? <div id="cm-image-err" className="cm-err" role="alert">{errs.image}</div>
-            : <div id="cm-image-hint" className="cm-hint">{t('car.image_hint')}</div>}
+          <FieldError id="cm-image" msg={errs.image} />
+          <div id="cm-image-hint" className="cm-hint">{t('car.image_hint')}</div>
 
           {/* รูปที่เพิ่งเลือก · รูปเดิมที่บันทึกไว้ · หรือรูปเดิมที่สั่งลบไว้รอบันทึก */}
           {(preview || modal.form.image) && (

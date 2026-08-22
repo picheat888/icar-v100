@@ -5275,23 +5275,6 @@
 }
 
 /* รูปตัวอย่างรถที่อัปโหลดไว้แล้ว (ตอนแก้ไข) */
-/* ช่องที่กรอกผิด - ขอบแดงคู่กับข้อความ .cm-err */
-.form-input--bad {
-  border-color: var(--danger);
-}
-
-.cm-err {
-  margin: 5px 0 0;
-  color: var(--danger);
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-/* ข้อความผิดพลาดที่ตามช่องซึ่งมีระยะห่างล่างอยู่แล้ว - ดึงขึ้นมาชิดช่อง */
-.cm-field-mb + .cm-err {
-  margin: -9px 0 12px;
-}
-
 .cm-hint {
   margin: 5px 0 0;
   color: var(--text-mute);
