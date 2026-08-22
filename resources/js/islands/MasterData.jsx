@@ -83,10 +83,10 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       if (d.conflict) {
         setConfirmItem(null);
         load();
-        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
       }
-      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
+      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')), d.ok ? 'success' : 'error');
       if (d.ok) { load(); return true; }
       return false;
     } finally { setBusy(false); busyRef.current = false; }

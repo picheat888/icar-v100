@@ -97,11 +97,11 @@ export default function MembersManager({ endpoints, departments = [], positions 
       if (d.conflict) {
         setModal(null);
         load();
-        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
       }
-      if (!res.ok || !d.ok) { showToast(d.message || t('common.err')); return false; }
-      showToast(d.message || t('common.success'));
+      if (!res.ok || !d.ok) { showToast(d.message || t('common.err'), 'error'); return false; }
+      showToast(d.message || t('common.success'), 'success');
       load();
       return true;
     } finally { setBusy(false); busyRef.current = false; }
@@ -118,7 +118,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
     window.history.replaceState({}, '', window.location.pathname);
     const found = rows.find((m) => String(m.emp_id) === empId);
     if (! found) {
-      showToast(t('mem.open_not_found', { id: empId }));
+      showToast(t('mem.open_not_found', { id: empId }), 'warn');
 
       return;
     }
@@ -351,7 +351,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
             set={(form) => setModal({ ...modal, form })}
             departments={departments}
             positions={positions}
-            onCopied={() => showToast(t('mem.copied'))}
+            onCopied={() => showToast(t('mem.copied'), 'success')}
           />
           <Foot onClose={() => setModal(null)} onOk={doCreate} okText={t('mem.confirm_add')} okKind="success" busy={busy} />
         </Modal>
@@ -392,7 +392,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
           {modal.tab === 'info' ? (
             <Edit form={modal.form} set={(form) => setModal({ ...modal, form })} departments={departments} positions={positions} pending={modal.member.status === 'pending'} username={modal.member.username} />
           ) : (
-            <EditPass form={modal.form} set={(form) => setModal({ ...modal, form })} onCopied={() => showToast(t('mem.copied'))} />
+            <EditPass form={modal.form} set={(form) => setModal({ ...modal, form })} onCopied={() => showToast(t('mem.copied'), 'success')} />
           )}
           <Foot onClose={() => setModal(null)} onOk={doSaveEdit} okText={t('common.save')} okKind="teal" busy={busy} />
         </Modal>

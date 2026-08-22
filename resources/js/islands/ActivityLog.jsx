@@ -63,7 +63,7 @@ export default function ActivityLog({ endpoints }) {
 
   // Export CSV - ไม่มีข้อมูล = toast (ตามสเปก) มิฉะนั้นเปิดลิงก์ดาวน์โหลด
   const exportCsv = () => {
-    if (logs.length === 0) { showToast(t('log.no_data_range')); return; }
+    if (logs.length === 0) { showToast(t('log.no_data_range'), 'warn'); return; }
     window.location.href = `${endpoints.export}?from=${from}&to=${to}`;
   };
 

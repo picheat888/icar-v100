@@ -129,10 +129,10 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
         setModal(null);
         setConfirmCar(null);
         load();
-        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
       }
-      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
+      if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')), d.ok ? 'success' : 'error');
       if (d.ok) { load(); return true; }
       return false;
     } finally { setBusy(false); busyRef.current = false; }
@@ -151,13 +151,13 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     // คนขับประจำ 1:1 - กันเลือกคนขับที่ผูกกับรถคันอื่นอยู่แล้ว (ยกเว้นคันที่กำลังแก้)
     if (f.car_type === 'other' && f.driver_id) {
       const clash = other.find((c) => String(c.default_driver_id) === String(f.driver_id) && String(c.id) !== String(f.id));
-      if (clash) return showToast(`${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`);
+      if (clash) return showToast(`${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`, 'warn');
     }
     // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ยกเว้นคันที่กำลังแก้) - รถจัดหาที่เว้นทะเบียนว่างไม่ต้องตรวจ
     const plate = String(f.plate || '').trim().toLowerCase();
     if (plate) {
       const taken = [...self, ...other].find((c) => String(c.plate || '').trim().toLowerCase() === plate && String(c.id) !== String(f.id));
-      if (taken) return showToast(`${t('car.plate_taken_pre')}${taken.model}${t('car.plate_taken_post')}`);
+      if (taken) return showToast(`${t('car.plate_taken_pre')}${taken.model}${t('car.plate_taken_post')}`, 'warn');
     }
     const fd = new FormData();
     fd.append('id', f.id || '');

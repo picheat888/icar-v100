@@ -172,7 +172,7 @@ export default function RequestsManager({ endpoints }) {
           setDone(doneMsg);
           setTimeout(() => setDone(null), 1500);
         } else {
-          showToast(d.message || t('common.success'));
+          showToast(d.message || t('common.success'), 'success');
         }
         return true;
       }
@@ -181,7 +181,7 @@ export default function RequestsManager({ endpoints }) {
       if (d.conflict) {
         setModal(null);
         load();
-        showToast(`${d.message} - ${t('common.conflict_refreshed')}`);
+        showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
       }
       // ข้อผิดพลาดจากการกรอกข้อมูล → กล่องแดงค้างในโมดัล ให้ผู้ใช้แก้ต่อได้ (ไม่ปิดโมดัล)
@@ -268,7 +268,7 @@ export default function RequestsManager({ endpoints }) {
     if (found) {
       openDetail(found);
     } else {
-      showToast(t('req.open_not_found', { code }));
+      showToast(t('req.open_not_found', { code }), 'warn');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, rows]);
@@ -292,8 +292,8 @@ export default function RequestsManager({ endpoints }) {
     const b = modal.booking; const f = modal.form;
     // รถอื่นๆ ต้องมอบหมายคนขับก่อนอนุมัติ (ไม่มีคนขับ = เตือน ไม่ส่ง) + กันคนขับซ้อนเวลา
     if (b.booking_type === 'other') {
-      const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w);
-      if (driverClash()) return showToast(t('req.driver_clash'));
+      const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w, 'warn');
+      if (driverClash()) return showToast(t('req.driver_clash'), 'warn');
     }
     const body = { id: b.id, admin_note: f.admin_note };
     if (b.booking_type === 'other') { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
@@ -302,7 +302,7 @@ export default function RequestsManager({ endpoints }) {
   const doReject = async () => {
     // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง)
     const note = String(modal.form.admin_note || '').trim();
-    if (!note) return showToast(t('req.warn_reject_reason'));
+    if (!note) return showToast(t('req.warn_reject_reason'), 'warn');
     if (await post(endpoints.reject, { id: modal.booking.id, admin_note: note }, { title: t('req.done_rejected'), sub: modal.booking.booking_code })) setModal(null);
   };
   // ยืนยันการยกเลิก (คำขอที่ User ขอยกเลิก)
@@ -313,8 +313,8 @@ export default function RequestsManager({ endpoints }) {
   const doAssign = async () => {
     const f = modal.form;
     // เปลี่ยน/มอบหมายคนขับ ต้องเลือกคนขับเสมอ (ถอดคนขับออกไม่ได้) + กันคนขับซ้อนเวลา
-    const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w);
-    if (driverClash()) return showToast(t('req.driver_clash'));
+    const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w, 'warn');
+    if (driverClash()) return showToast(t('req.driver_clash'), 'warn');
     const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle };
     if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) setModal(null);
   };
@@ -327,10 +327,10 @@ export default function RequestsManager({ endpoints }) {
   const doUpdate = async () => {
     const b = modal.booking; const f = modal.form;
     // รถอื่นๆ ที่อนุมัติแล้ว ห้ามถอดคนขับ - ต้องเลือกคนขับ (คำขอ pending ยังเว้นได้ ค่อยมอบตอนอนุมัติ)
-    if (b.booking_type === 'other' && b.status !== 'pending') { const w = driverWarn(f); if (w) return showToast(w); }
-    if (b.booking_type === 'other') { const w = seatsWarn(f); if (w) return showToast(w); }
+    if (b.booking_type === 'other' && b.status !== 'pending') { const w = driverWarn(f); if (w) return showToast(w, 'warn'); }
+    if (b.booking_type === 'other') { const w = seatsWarn(f); if (w) return showToast(w, 'warn'); }
     // กันคนขับซ้อนเวลา (รถอื่นๆ ที่เลือกคนขับบริษัท)
-    if (b.booking_type === 'other' && driverClash()) return showToast(t('req.driver_clash'));
+    if (b.booking_type === 'other' && driverClash()) return showToast(t('req.driver_clash'), 'warn');
     const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link };
     if (b.booking_type === 'self') body.car_id = f.car_id;
     else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }

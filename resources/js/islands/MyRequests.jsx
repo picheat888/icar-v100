@@ -96,7 +96,7 @@ export default function MyRequests({ endpoints }) {
       const d = await res.json().catch(() => ({}));
       if (!res.ok && !d.csrf) { window.location.reload(); return; }
       if (d.csrf) setCsrf(d.csrf);
-      showToast(d.message || (d.ok ? t('common.success') : t('common.err')));
+      showToast(d.message || (d.ok ? t('common.success') : t('common.err')), d.ok ? 'success' : 'error');
       if (d.ok) { setConfirmB(null); setDetail(null); load(); }
     } finally { setBusy(false); }
   };
@@ -141,7 +141,7 @@ export default function MyRequests({ endpoints }) {
       const d = await res.json().catch(() => ({}));
       if (!res.ok && !d.csrf) { window.location.reload(); return; }
       if (d.csrf) setCsrf(d.csrf);
-      if (d.ok) { setEdit(null); setDetail(null); showToast(d.message || t('common.success')); load(); }
+      if (d.ok) { setEdit(null); setDetail(null); showToast(d.message || t('common.success'), 'success'); load(); }
       else setEditErr(d.message || t('common.err'));
     } finally { setBusy(false); }
   };
