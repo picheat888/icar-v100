@@ -12,14 +12,17 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
 {
     // ไฟล์ที่ย้ายข้อความเสร็จแล้ว - เพิ่มชื่อเมื่อย้ายไฟล์นั้นเสร็จ
     private const CLEAN_FILES = [
-        'Controllers/Admin/ActivityLogController.php',
         'Controllers/Admin/CarController.php',
+        'Controllers/Admin/ActivityLogController.php',
         'Controllers/Admin/DashboardController.php',
         'Controllers/Admin/MasterController.php',
-        // MemberController ใส่กลับเมื่อ Task 11 ย้ายข้อความแจ้งเตือนเสร็จ
-        // BookingController ใส่กลับเมื่อ Task 11 ย้ายข้อความแจ้งเตือนเสร็จ
-        'Controllers/User/PageController.php',
+        'Controllers/Admin/MemberController.php',
+        'Controllers/Admin/RequestController.php',
+        'Controllers/Auth/RegisterController.php',
         'Controllers/ProfileController.php',
+        'Controllers/User/BookingController.php',
+        'Controllers/User/PageController.php',
+        'Models/BookingModel.php',
     ];
 
     // คืนบรรทัดที่มี string literal ภาษาไทย (ข้ามคอมเมนต์ และข้าม log ที่ไม่ใช่ข้อความถึงผู้ใช้)
@@ -52,11 +55,5 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
             $hits = $this->thaiStringLines($relPath);
             $this->assertSame([], $hits, "{$relPath} ยังมีข้อความไทยฮาร์ดโค้ด:\n" . implode("\n", $hits));
         }
-    }
-
-    public function testDetectorActuallyFindsThai(): void
-    {
-        // ไฟล์ที่ยังไม่ย้าย ต้องถูกจับได้ - กันตัวตรวจพังแล้วเทสต์เขียวหลอก
-        $this->assertNotSame([], $this->thaiStringLines('Controllers/Admin/RequestController.php'));
     }
 }

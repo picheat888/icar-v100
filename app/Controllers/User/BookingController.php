@@ -212,7 +212,7 @@ class BookingController extends BaseController
         // แจ้ง Admin ทุกคน (ข้ามผู้ก่อถ้าเป็น admin จองเอง)
         $me   = (int) auth()->id();
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
-        (new \App\Models\NotificationModel())->pushToAdmins('booking_new', 'มีคำขอจองรถใหม่จาก ' . $name, site_url('admin/requests'), $me);
+        (new \App\Models\NotificationModel())->pushToAdmins('booking_new', 'booking_new', ['name' => $name], site_url('admin/requests'), $me);
 
         log_activity('ส่งคำขอจองรถ ' . $bookings->makeCode($id) . ' (' . ($type === 'other' ? 'รถจัดหาโดย Admin' : 'รถขับเอง') . ')');
 
@@ -334,7 +334,7 @@ class BookingController extends BaseController
         // แจ้ง Admin ว่าข้อมูลที่กำลังจะอนุมัติเปลี่ยนไปแล้ว
         $me   = (int) auth()->id();
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
-        (new \App\Models\NotificationModel())->pushToAdmins('booking_edited', $name . ' แก้ไขคำขอ ' . $b['booking_code'], site_url('admin/requests'), $me);
+        (new \App\Models\NotificationModel())->pushToAdmins('booking_edited', 'booking_edited_user', ['name' => $name, 'code' => $b['booking_code']], site_url('admin/requests'), $me);
 
         log_activity('แก้ไขคำขอ ' . $b['booking_code']);
 
@@ -370,7 +370,7 @@ class BookingController extends BaseController
             // แจ้ง Admin ว่ามีคำขอยกเลิก
             $me   = (int) auth()->id();
             $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
-            (new \App\Models\NotificationModel())->pushToAdmins('cancel_requested', $name . ' ขอยกเลิกคำขอ ' . $booking['booking_code'], site_url('admin/requests'), $me);
+            (new \App\Models\NotificationModel())->pushToAdmins('cancel_requested', 'cancel_requested', ['name' => $name, 'code' => $booking['booking_code']], site_url('admin/requests'), $me);
             log_activity('ขอยกเลิกคำขอ ' . $booking['booking_code']);
 
             return $this->ok(lang('Booking.cancel_sent'));
@@ -406,7 +406,7 @@ class BookingController extends BaseController
         // แจ้ง Admin ว่ามีคนคืนรถ
         $me   = (int) auth()->id();
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
-        (new \App\Models\NotificationModel())->pushToAdmins('car_returned', $name . ' คืนรถแล้ว (' . $booking['booking_code'] . ')', site_url('admin/requests'), $me);
+        (new \App\Models\NotificationModel())->pushToAdmins('car_returned', 'car_returned', ['name' => $name, 'code' => $booking['booking_code']], site_url('admin/requests'), $me);
         log_activity('คืนรถ ' . $booking['booking_code']);
 
         return $this->ok(lang('Booking.returned'));

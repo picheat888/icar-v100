@@ -152,7 +152,8 @@ class MemberController extends BaseController
         (new NotificationModel())->push(
             $userId,
             'member_approved',
-            'บัญชีของคุณได้รับการอนุมัติแล้ว (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')',
+            'member_approved',
+            ['role' => $level],
             site_url('profile'),
         );
 
@@ -194,7 +195,7 @@ class MemberController extends BaseController
         $profiles->where('user_id', $userId)->set(['status' => 'rejected'])->update();
         db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
 
-        (new NotificationModel())->push($userId, 'member_rejected', 'บัญชีของคุณถูกปิดการใช้งาน - ติดต่อผู้ดูแลระบบ');
+        (new NotificationModel())->push($userId, 'member_rejected', 'member_rejected');
 
         log_activity('ปฏิเสธ/ปิดการใช้งานสมาชิก ' . ($target->username ?? ('id ' . $userId)));
 

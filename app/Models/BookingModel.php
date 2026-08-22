@@ -102,9 +102,9 @@ class BookingModel extends Model
         helper('url');
         $notif = new NotificationModel();
         foreach ($expiring as $r) {
-            $notif->push((int) $r['requester_id'], 'booking_expired', 'คำขอ ' . $r['booking_code'] . ' หมดเวลาและถูกยกเลิกอัตโนมัติ', site_url('my-requests'));
+            $notif->push((int) $r['requester_id'], 'booking_expired', 'booking_expired', ['code' => $r['booking_code']], site_url('my-requests'));
             if ($r['driver_type'] === 'company' && ! empty($r['driver_id'])) {
-                $notif->push((int) $r['driver_id'], 'job_cancelled', 'งานที่ได้รับมอบหมาย (' . $r['booking_code'] . ') ถูกยกเลิก', site_url('driver'));
+                $notif->push((int) $r['driver_id'], 'job_cancelled', 'job_cancelled', ['code' => $r['booking_code']], site_url('driver'));
             }
         }
     }

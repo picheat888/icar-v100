@@ -96,7 +96,8 @@ class RegisterController extends BaseController
         // แจ้ง Admin ทุกคนว่ามีสมาชิกลงทะเบียนใหม่
         (new \App\Models\NotificationModel())->pushToAdmins(
             'member_new',
-            'มีสมาชิกลงทะเบียนใหม่: ' . $req->getPost('name'),
+            'member_new',
+            ['name' => $req->getPost('name')],
             site_url('admin/members')
         );
 

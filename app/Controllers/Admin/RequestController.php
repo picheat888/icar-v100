@@ -153,9 +153,9 @@ class RequestController extends BaseController
             return $this->fail(lang('Request.err_already_handled'), true);
         }
 
-        $this->notifyRequester($b, 'booking_approved', 'คำขอ ' . $b['booking_code'] . ' ได้รับการอนุมัติแล้ว');
+        $this->notifyRequester($b, 'booking_approved', 'booking_approved', ['code' => $b['booking_code']]);
         if (($data['driver_type'] ?? '') === 'company' && ! empty($data['driver_id'])) {
-            $this->notifyDriver((int) $data['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
+            $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
         log_activity('อนุมัติคำขอ ' . $b['booking_code']);
@@ -196,11 +196,11 @@ class RequestController extends BaseController
             }
         }
 
-        $this->notifyRequester($b, 'driver_assigned', 'คำขอ ' . $b['booking_code'] . ' ได้รับมอบหมายคนขับแล้ว');
+        $this->notifyRequester($b, 'driver_assigned', 'driver_assigned', ['code' => $b['booking_code']]);
         // แจ้งคนขับเฉพาะเมื่อเป็นคนขับใหม่ (ต่างจากเดิม) - กันแจ้งซ้ำ
         $driverChanged = ($b['driver_type'] ?? '') !== 'company' || (int) ($b['driver_id'] ?? 0) !== (int) ($assign['driver_id'] ?? 0);
         if (($assign['driver_type'] ?? '') === 'company' && ! empty($assign['driver_id']) && $driverChanged) {
-            $this->notifyDriver((int) $assign['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
+            $this->notifyDriver((int) $assign['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
         log_activity('มอบหมายคนขับให้คำขอ ' . $b['booking_code']);
@@ -308,7 +308,7 @@ class RequestController extends BaseController
             return $this->fail(lang('Request.err_already_handled'), true);
         }
 
-        $this->notifyRequester($b, 'booking_rejected', 'คำขอ ' . $b['booking_code'] . ' ถูกปฏิเสธ');
+        $this->notifyRequester($b, 'booking_rejected', 'booking_rejected', ['code' => $b['booking_code']]);
 
         log_activity('ปฏิเสธคำขอ ' . $b['booking_code']);
 
@@ -338,9 +338,9 @@ class RequestController extends BaseController
             return $this->fail(lang('Request.err_not_cancel_req'), true);
         }
 
-        $this->notifyRequester($b, 'cancel_confirmed', 'ยืนยันการยกเลิกคำขอ ' . $b['booking_code'] . ' แล้ว');
+        $this->notifyRequester($b, 'cancel_confirmed', 'cancel_confirmed', ['code' => $b['booking_code']]);
         if ($b['driver_type'] === 'company') {
-            $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'งานที่ได้รับมอบหมาย (' . $b['booking_code'] . ') ถูกยกเลิก');
+            $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
         log_activity('ยืนยันยกเลิกคำขอ ' . $b['booking_code']);
@@ -378,9 +378,9 @@ class RequestController extends BaseController
             return $this->fail(lang('Request.err_cancel_blocked'), true);
         }
 
-        $this->notifyRequester($b, 'booking_cancelled', 'คำขอ ' . $b['booking_code'] . ' ถูกยกเลิกโดย Admin');
+        $this->notifyRequester($b, 'booking_cancelled', 'booking_cancelled', ['code' => $b['booking_code']]);
         if ($b['driver_type'] === 'company') {
-            $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'งานที่ได้รับมอบหมาย (' . $b['booking_code'] . ') ถูกยกเลิก');
+            $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
         log_activity('ยกเลิกคำขอ ' . $b['booking_code'] . ' (โดย Admin)');
@@ -465,11 +465,11 @@ class RequestController extends BaseController
             }
         }
 
-        $this->notifyRequester($b, 'booking_edited', 'Admin ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
+        $this->notifyRequester($b, 'booking_edited', 'booking_edited_admin', ['code' => $b['booking_code']]);
         // แจ้งคนขับเฉพาะเมื่อ "มอบคนขับใหม่" (ต่างจากคนขับเดิมของคำขอนี้) - กันแจ้งซ้ำตอนแก้ข้อมูลอื่น
         $driverChanged = ($b['driver_type'] ?? '') !== 'company' || (int) ($b['driver_id'] ?? 0) !== (int) ($data['driver_id'] ?? 0);
         if (($data['driver_type'] ?? '') === 'company' && ! empty($data['driver_id']) && $driverChanged) {
-            $this->notifyDriver((int) $data['driver_id'], 'job_new', 'คุณได้รับมอบหมายงานใหม่ (' . $b['booking_code'] . ')');
+            $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
         log_activity('ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
@@ -489,22 +489,22 @@ class RequestController extends BaseController
         return strlen($v) === 16 ? $v . ':00' : $v;
     }
 
-    // แจ้งผู้ขอ (ข้ามถ้าผู้ขอ = admin คนที่กำลังทำรายการ - กันแจ้งตัวเอง)
-    private function notifyRequester(array $b, string $type, string $message): void
+    // แจ้งเตือนผู้ขอ - เก็บ key + params ให้ประกอบข้อความตอนอ่าน
+    private function notifyRequester(array $b, string $type, string $msgKey, array $params = []): void
     {
         if ((int) $b['requester_id'] === (int) auth()->id()) {
             return;
         }
-        (new NotificationModel())->push((int) $b['requester_id'], $type, $message, site_url('my-requests'));
+        (new NotificationModel())->push((int) $b['requester_id'], $type, $msgKey, $params, site_url('my-requests'));
     }
 
-    // แจ้งคนขับบริษัท (ถ้ามี driver_id)
-    private function notifyDriver(?int $driverId, string $type, string $message): void
+    // แจ้งเตือนคนขับที่ได้รับมอบหมาย
+    private function notifyDriver(?int $driverId, string $type, string $msgKey, array $params = []): void
     {
         if (! $driverId) {
             return;
         }
-        (new NotificationModel())->push($driverId, $type, $message, site_url('driver'));
+        (new NotificationModel())->push($driverId, $type, $msgKey, $params, site_url('driver'));
     }
 
     // ล็อกกันมอบหมายคนขับคนเดียวกันซ้อน (MySQL named lock ต่อ driver) - คืนชื่อ lock หรือ null
