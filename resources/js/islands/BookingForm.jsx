@@ -88,12 +88,17 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       setError(t('book.err_end_after_start'));
       return;
     }
-    // จำนวนผู้โดยสารต้องอยู่ในช่วง 1-999 คน
-    if (Number(f.people) < 1) {
+    // จำนวนผู้โดยสาร: จำนวนเต็มบวก ในช่วง 1-999 คน
+    const people = String(f.people).trim();
+    if (! /^\d+$/.test(people)) {
+      setError(t('book.err_people_int'));
+      return;
+    }
+    if (Number(people) < 1) {
       setError(t('book.err_people_min'));
       return;
     }
-    if (Number(f.people) > 999) {
+    if (Number(people) > 999) {
       setError(t('book.err_people_max'));
       return;
     }
@@ -210,7 +215,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         <div><label className="form-label">{t('req.end_label')} <span className="form-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
       </div>
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
+        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max="999" step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value.replace(/\D/g, ''))} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
         <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
       <label className="form-label">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>

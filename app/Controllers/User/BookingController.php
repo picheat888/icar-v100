@@ -113,7 +113,8 @@ class BookingController extends BaseController
         $location = trim((string) $this->request->getPost('location'));
         $start    = $this->toDateTime($this->request->getPost('start_at'));
         $end      = $this->toDateTime($this->request->getPost('end_at'));
-        $people   = (int) $this->request->getPost('people');
+        $peopleRaw = trim((string) $this->request->getPost('people'));
+        $people   = (int) $peopleRaw;
         $carId    = $type === 'self' ? (int) $this->request->getPost('car_id') : null;
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
@@ -141,6 +142,10 @@ class BookingController extends BaseController
         // กันจองย้อนหลัง - เวลาเริ่มต้องไม่เป็นอดีต
         if ($start < date('Y-m-d H:i:s')) {
             return $this->fail(lang('Booking.err_time_past'));
+        }
+        // รับเฉพาะจำนวนเต็มบวก - '3.7' หรือ '3abc' จะถูก cast เป็น 3 เงียบ ๆ ถ้าไม่ดักที่ค่าดิบ
+        if (preg_match('/^\d+$/', $peopleRaw) !== 1) {
+            return $this->fail(lang('Booking.err_people_int'));
         }
         if ($people < 1) {
             return $this->fail(lang('Booking.err_people_min'));
@@ -264,7 +269,8 @@ class BookingController extends BaseController
         $location = trim((string) $this->request->getPost('location'));
         $start    = $this->toDateTime($this->request->getPost('start_at'));
         $end      = $this->toDateTime($this->request->getPost('end_at'));
-        $people   = (int) $this->request->getPost('people');
+        $peopleRaw = trim((string) $this->request->getPost('people'));
+        $people   = (int) $peopleRaw;
         $purpose  = trim((string) $this->request->getPost('purpose'));
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
@@ -283,6 +289,10 @@ class BookingController extends BaseController
         // เปลี่ยนเวลาเริ่มเป็นอดีตไม่ได้ (คงเวลาเดิมไว้ยังแก้ฟิลด์อื่นได้)
         if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
             return $this->fail(lang('Booking.err_time_past'));
+        }
+        // รับเฉพาะจำนวนเต็มบวก - '3.7' หรือ '3abc' จะถูก cast เป็น 3 เงียบ ๆ ถ้าไม่ดักที่ค่าดิบ
+        if (preg_match('/^\d+$/', $peopleRaw) !== 1) {
+            return $this->fail(lang('Booking.err_people_int'));
         }
         if ($people < 1) {
             return $this->fail(lang('Booking.err_people_min'));

@@ -13,6 +13,7 @@ return [
     'err_time_past'  => 'You cannot book a date-time in the past - please choose a future one',
 
     // Passengers · {0} = number of seats in the vehicle
+    'err_people_int'  => 'The number of passengers must be a whole number',
     'err_people_min'  => 'There must be at least 1 passenger',
     'err_people_max'  => 'Too many passengers (999 maximum)',
 
