@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\NotificationModel;
 use CodeIgniter\Test\CIUnitTestCase;
 
 /**
@@ -16,8 +15,17 @@ final class NotificationMessageTest extends CIUnitTestCase
     {
         $src = file_get_contents(APPPATH . 'Database/Migrations/2026-07-14-000001_CreateNotifications.php');
 
-        $this->assertStringContainsString("'msg_key'", $src, 'ยังไม่มีคอลัมน์ msg_key ใน migration');
-        $this->assertStringContainsString("'params'", $src, 'ยังไม่มีคอลัมน์ params ใน migration');
+        // ตรวจนิยามคอลัมน์จริง ไม่ใช่แค่ชื่อโผล่ที่ไหนก็ได้ในไฟล์
+        $this->assertMatchesRegularExpression(
+            "/'msg_key'\s*=>\s*\['type'\s*=>\s*'VARCHAR',\s*'constraint'\s*=>\s*60\]/",
+            $src,
+            'msg_key ต้องเป็น VARCHAR(60) และห้ามยอมให้เป็น null'
+        );
+        $this->assertMatchesRegularExpression(
+            "/'params'\s*=>\s*\['type'\s*=>\s*'TEXT',\s*'null'\s*=>\s*true\]/",
+            $src,
+            'params ต้องเป็น TEXT ที่ null ได้'
+        );
         $this->assertStringNotContainsString("'message'", $src, 'คอลัมน์ message ต้องถูกตัดออกจาก migration');
     }
 }
