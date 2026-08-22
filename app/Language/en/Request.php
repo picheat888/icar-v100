@@ -14,8 +14,8 @@ return [
     'err_car_missing'        => 'The vehicle for this request no longer exists, so it cannot be approved',
     'err_car_maint_approve'  => 'This vehicle is under maintenance, so it cannot be approved',
     'err_car_maint'          => 'This vehicle is under maintenance',
-    'err_seats_approve'      => 'Passengers exceed the vehicle capacity ({0} seats), so it cannot be approved',
-    'err_seats_given'        => 'Passengers exceed the seats entered for this vehicle ({0} seats)',
+    'err_seats_approve'      => 'More passengers than the vehicle has seats ({0} maximum), so it cannot be approved',
+    'err_seats_given'        => 'More passengers than the seats entered for this vehicle ({0} maximum)',
 
     // Driver
     'err_driver_req'         => 'Select a driver first - a company driver or an external one',

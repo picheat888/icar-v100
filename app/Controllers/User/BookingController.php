@@ -150,11 +150,6 @@ class BookingController extends BaseController
         if ($people < 1) {
             return $this->fail(lang('Booking.err_people_min'));
         }
-        // เพดานกันตัวเลขเวอร์ (กัน SMALLINT overflow ในคอลัมน์ people)
-        if ($people > 999) {
-            return $this->fail(lang('Booking.err_people_max'));
-        }
-
         $cars = new CarModel();
         if ($type === 'self') {
             $car = $carId ? $cars->find($carId) : null;
@@ -168,6 +163,10 @@ class BookingController extends BaseController
             if ((int) $car['seats'] > 0 && $people > (int) $car['seats']) {
                 return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
+        }
+        // เพดานสุดท้ายเมื่อไม่รู้จำนวนที่นั่ง (รถอื่น ๆ / รถที่ไม่ได้กรอกที่นั่ง) - กัน SMALLINT overflow ในคอลัมน์ people
+        if ($people > 999) {
+            return $this->fail(lang('Booking.err_people_max'));
         }
 
         // สร้างคำขอในทรานแซกชัน - ล็อกแถวรถ (FOR UPDATE) กัน race: 2 คนจองรถขับเองคันเดียวกันช่วงเวลาเดียวพร้อมกัน
@@ -297,9 +296,6 @@ class BookingController extends BaseController
         if ($people < 1) {
             return $this->fail(lang('Booking.err_people_min'));
         }
-        if ($people > 999) {
-            return $this->fail(lang('Booking.err_people_max'));
-        }
         if ($mapLink !== '' && ! is_safe_url($mapLink)) {
             return $this->fail(lang('Booking.err_map_scheme'));
         }
@@ -308,11 +304,20 @@ class BookingController extends BaseController
         }
 
         // รถขับเอง: รถยังเป็นคันเดิม แต่เวลาเปลี่ยนได้ ต้องเช็คที่นั่ง + ชนเวลาใหม่
-        if ($b['booking_type'] === 'self' && $b['car_id']) {
+        $isSelfCar = $b['booking_type'] === 'self' && $b['car_id'];
+        if ($isSelfCar) {
             $car = (new CarModel())->find((int) $b['car_id']);
             if ($car && (int) $car['seats'] > 0 && $people > (int) $car['seats']) {
                 return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
+        }
+        // เพดานสุดท้ายเมื่อไม่รู้จำนวนที่นั่ง (รถอื่น ๆ / รถที่ไม่ได้กรอกที่นั่ง) - กัน SMALLINT overflow ในคอลัมน์ people
+        if ($people > 999) {
+            return $this->fail(lang('Booking.err_people_max'));
+        }
+
+        // ชนเวลา: รถขับเองคันเดิม ช่วงเวลาใหม่ต้องไม่ทับคำขออื่น
+        if ($isSelfCar) {
             $clash = $bookings
                 ->where('car_id', (int) $b['car_id'])
                 ->whereIn('status', self::ACTIVE)

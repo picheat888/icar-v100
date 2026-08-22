@@ -3,7 +3,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
 import { MONTHS, DOW, pad, ymd, ymdParts } from '../lib/date';
-import { isPositiveInt } from '../lib/validate';
+import { peopleError, MAX_PEOPLE } from '../lib/validate';
 import DateTimeField from '../lib/DateTimeField';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
@@ -88,18 +88,10 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       setError(t('book.err_end_after_start'));
       return;
     }
-    // จำนวนผู้โดยสาร: จำนวนเต็มบวก ในช่วง 1-999 คน
-    const people = String(f.people).trim();
-    if (! isPositiveInt(people)) {
-      setError(t('book.err_people_int'));
-      return;
-    }
-    if (Number(people) < 1) {
-      setError(t('book.err_people_min'));
-      return;
-    }
-    if (Number(people) > 999) {
-      setError(t('book.err_people_max'));
+    // จำนวนผู้โดยสาร: รถขับเองจำกัดตามที่นั่งของรถคันนั้น, รถอื่น ๆ ใช้เพดานกลาง
+    const peopleErr = peopleError(f.people, modal?.car?.seats);
+    if (peopleErr) {
+      setError(peopleErr);
       return;
     }
     // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น
@@ -215,7 +207,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         <div><label className="form-label">{t('req.end_label')} <span className="form-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
       </div>
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max="999" step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
+        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max={modal?.car?.seats > 0 ? modal.car.seats : MAX_PEOPLE} step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
         <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
       <label className="form-label">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>

@@ -132,7 +132,7 @@ class BookingModel extends Model
     {
         $this->sweepExpired();
 
-        return $this->select('bookings.*, c.model AS car_model, c.plate AS car_plate, dp.full_name AS driver_name')
+        return $this->select('bookings.*, c.model AS car_model, c.plate AS car_plate, c.seats AS car_seats, dp.full_name AS driver_name')
             ->join('cars c', 'c.id = bookings.car_id', 'left')
             ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left')
             ->where('bookings.requester_id', $userId)

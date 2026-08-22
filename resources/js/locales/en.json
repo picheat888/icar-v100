@@ -50,6 +50,7 @@
   "common.conflict_refreshed": "The list has been refreshed.",
   "common.all": "All",
   "common.to": "to",
+  "common.err_seats": "More passengers than the vehicle has seats ({n} maximum)",
   "req.car_other": "Other vehicle",
   "req.car_self": "Self-driven",
   "req.provided_by_admin": "Provided by Admin",

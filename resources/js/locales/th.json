@@ -50,6 +50,7 @@
   "common.conflict_refreshed": "อัปเดตรายการให้แล้ว",
   "common.all": "ทั้งหมด",
   "common.to": "ถึง",
+  "common.err_seats": "จำนวนผู้โดยสารเกินจำนวนที่นั่งของรถ (สูงสุด {n} คน)",
   "req.car_other": "รถอื่น ๆ",
   "req.car_self": "รถขับเอง",
   "req.provided_by_admin": "จัดหาโดย Admin",
