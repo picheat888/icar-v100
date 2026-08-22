@@ -15,6 +15,7 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         'Controllers/Admin/ActivityLogController.php',
         'Controllers/Admin/CarController.php',
         'Controllers/Admin/DashboardController.php',
+        'Controllers/Admin/MasterController.php',
         // MemberController ใส่กลับเมื่อ Task 11 ย้ายข้อความแจ้งเตือนเสร็จ
         'Controllers/User/PageController.php',
         'Controllers/ProfileController.php',

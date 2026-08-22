@@ -76,32 +76,32 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
 
         if ($name === '') {
-            return $this->fail("กรุณากรอกชื่อ{$label}");
+            return $this->fail(lang('Master.err_name_req', [$label]));
         }
         if (mb_strlen($name) > 150) {
-            return $this->fail("ชื่อ{$label}ยาวเกินไป (สูงสุด 150 ตัวอักษร)");
+            return $this->fail(lang('Master.err_name_max', [$label]));
         }
         // เช็คชื่อซ้ำก่อน (กันชน unique constraint ที่ DB จะ throw)
         if ($model->where('name', $name)->first()) {
-            return $this->fail("มี{$label}นี้อยู่แล้ว");
+            return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
         // ตรวจผลการบันทึกจริง - ไม่ผ่าน model validation/DB ห้ามรายงานว่าสำเร็จ
         // ห่อ try/catch กันชนชื่อซ้ำระดับ DB (unique constraint)
         try {
             if ($model->insert(['name' => $name]) === false) {
-                return $this->fail("มี{$label}นี้อยู่แล้ว");
+                return $this->fail(lang('Master.err_dupe', [$label]));
             }
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
-            return $this->fail("มี{$label}นี้อยู่แล้ว");
+            return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
         log_activity("เพิ่ม{$label} {$name}");
 
-        return $this->ok("เพิ่ม{$label}เรียบร้อย");
+        return $this->ok(lang('Master.added', [$label]));
     }
 
     // POST: แก้ไขชื่อแผนก/ตำแหน่ง
@@ -111,35 +111,35 @@ class MasterController extends BaseController
         $id    = (int) $this->request->getPost('id');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
 
         if (! $model->find($id)) {
-            return $this->fail("ไม่พบ{$label}", true);
+            return $this->fail(lang('Master.err_not_found', [$label]), true);
         }
         if ($name === '') {
-            return $this->fail("กรุณากรอกชื่อ{$label}");
+            return $this->fail(lang('Master.err_name_req', [$label]));
         }
         if (mb_strlen($name) > 150) {
-            return $this->fail("ชื่อ{$label}ยาวเกินไป (สูงสุด 150 ตัวอักษร)");
+            return $this->fail(lang('Master.err_name_max', [$label]));
         }
         // เช็คชื่อซ้ำ (ยกเว้นตัวเอง)
         if ($model->where('name', $name)->where('id !=', $id)->first()) {
-            return $this->fail("มี{$label}นี้อยู่แล้ว");
+            return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
         // ตรวจผลการบันทึกจริง - กันรายงานสำเร็จทั้งที่เขียนไม่ลง
         // ห่อ try/catch กันชนชื่อซ้ำระดับ DB (unique constraint)
         try {
             if ($model->update($id, ['name' => $name]) === false) {
-                return $this->fail("มี{$label}นี้อยู่แล้ว");
+                return $this->fail(lang('Master.err_dupe', [$label]));
             }
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
-            return $this->fail("มี{$label}นี้อยู่แล้ว");
+            return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
         log_activity("แก้ไข{$label} → {$name}");
 
-        return $this->ok("บันทึก{$label}แล้ว");
+        return $this->ok(lang('Master.saved', [$label]));
     }
 
     // POST: ลบแผนก/ตำแหน่ง (FK ตั้ง SET NULL - ผู้ใช้ที่อ้างถึงจะถูกล้างค่า)
@@ -148,25 +148,25 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? 'ตำแหน่ง' : 'แผนก';
+        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
 
         $item = $model->find($id);
         if (! $item) {
-            return $this->fail("ไม่พบ{$label}", true);
+            return $this->fail(lang('Master.err_not_found', [$label]), true);
         }
 
         // กันลบถ้ายังมีพนักงานอยู่ใน แผนก/ตำแหน่ง นี้ - ต้องย้ายพนักงานออกก่อน
         $column = $type === 'position' ? 'position_id' : 'department_id';
         $count  = (new UserProfileModel())->where($column, $id)->countAllResults();
         if ($count > 0) {
-            return $this->fail("ลบไม่ได้ - มีพนักงาน {$count} คนอยู่ใน{$label}นี้ กรุณาย้ายพนักงานออกให้หมดก่อน");
+            return $this->fail(lang('Master.err_in_use', [$label, $count]));
         }
 
         $model->delete($id);
 
         log_activity("ลบ{$label} " . ($item['name'] ?? ''));
 
-        return $this->ok("ลบ{$label}แล้ว");
+        return $this->ok(lang('Master.deleted', [$label]));
     }
 
     // ===== helper ตอบ JSON พร้อม csrf ใหม่ =====
