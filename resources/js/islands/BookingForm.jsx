@@ -213,12 +213,12 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
         <div>
           <label className="form-label" htmlFor="bk-start_at">{t('req.start_label')} <span className="form-req">*</span></label>
-          <DateTimeField id="bk-start_at" value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} />
+          <DateTimeField id="bk-start_at" value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} invalid={!!errs.start_at} />
           <FieldError id="bk-start_at" msg={errs.start_at} />
         </div>
         <div>
           <label className="form-label" htmlFor="bk-end_at">{t('req.end_label')} <span className="form-req">*</span></label>
-          <DateTimeField id="bk-end_at" value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} />
+          <DateTimeField id="bk-end_at" value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} invalid={!!errs.end_at} />
           <FieldError id="bk-end_at" msg={errs.end_at} />
         </div>
       </div>

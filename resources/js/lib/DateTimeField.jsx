@@ -9,7 +9,7 @@ const MINUTES = Array.from({ length: 60 }, (_, i) => pad(i)); // 00,01,...,59 (�
  * ช่องเลือกวัน-เวลา แบบ popup: ปฏิทินเลือกวัน + dropdown ชั่วโมง/นาที + ยืนยัน/ยกเลิก
  * value/onChange ใช้รูปแบบ 'YYYY-MM-DDTHH:MM' (เหมือน datetime-local)
  */
-export default function DateTimeField({ id, value, onChange, placeholder }) {
+export default function DateTimeField({ id, value, onChange, placeholder, invalid }) {
   const [open, setOpen] = useState(false);
   const [cal, setCal] = useState({ y: 2026, m: 0 });
   const [selDate, setSelDate] = useState('');
@@ -52,7 +52,7 @@ export default function DateTimeField({ id, value, onChange, placeholder }) {
   return (
     <>
       <button type="button" id={id} onClick={openPicker}
-        className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}`}>
+        className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}${invalid ? ' is-invalid' : ''}`}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0c8b87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bk-dt-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
         <span className="bk-dt-trigger-text">{value ? fmtDateTime(value) : placeholder}</span>
       </button>

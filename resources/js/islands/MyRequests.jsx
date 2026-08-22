@@ -416,12 +416,12 @@ export default function MyRequests({ endpoints }) {
           <div className="mr-edit-grid">
             <div>
               <label className="form-label" htmlFor="mr-ed-start">{t('req.start_label')}</label>
-              <DateTimeField id="mr-ed-start" value={edit.form.start_at} onChange={(v) => setEditForm({ start_at: v })} placeholder={t('book.start_placeholder')} />
+              <DateTimeField id="mr-ed-start" value={edit.form.start_at} onChange={(v) => setEditForm({ start_at: v })} placeholder={t('book.start_placeholder')} invalid={!!errs.start} />
               <FieldError id="mr-ed-start" msg={errs.start} />
             </div>
             <div>
               <label className="form-label" htmlFor="mr-ed-end">{t('req.end_label')}</label>
-              <DateTimeField id="mr-ed-end" value={edit.form.end_at} onChange={(v) => setEditForm({ end_at: v })} placeholder={t('book.end_placeholder')} />
+              <DateTimeField id="mr-ed-end" value={edit.form.end_at} onChange={(v) => setEditForm({ end_at: v })} placeholder={t('book.end_placeholder')} invalid={!!errs.end} />
               <FieldError id="mr-ed-end" msg={errs.end} />
             </div>
           </div>
