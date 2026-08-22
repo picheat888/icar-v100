@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'rea
 import { fmtDate, fmtDateTime, weekdayName, todayStr, rangeLines, dateTimeRange } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
+import { isPositiveInt } from '../lib/validate';
 import { isSafeUrl } from '../lib/url';
 import { CloseIcon, CalIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
@@ -68,6 +69,15 @@ const driverWarn = (f) => {
   if (f.driver !== 'external') return '';
   if (!String(f.ext_name || '').trim()) return t('req.warn_ext_name');
   if (extPhoneBad(f)) return t('req.warn_ext_phone');
+  return '';
+};
+
+// จำนวนที่นั่งของรถที่กรอกเอง - เว้นว่างได้ ถ้ากรอกต้องเป็นจำนวนเต็ม 0-MAX_EXT_SEATS (กฎเดียวกับฝั่ง server)
+const MAX_EXT_SEATS = 999;
+const seatsWarn = (f) => {
+  const v = String(f.ext_seats ?? '').trim();
+  if (v === '') return '';
+  if (! isPositiveInt(v) || Number(v) > MAX_EXT_SEATS) return t('req.warn_ext_seats', { min: 0, max: MAX_EXT_SEATS });
   return '';
 };
 
@@ -282,7 +292,7 @@ export default function RequestsManager({ endpoints }) {
     const b = modal.booking; const f = modal.form;
     // รถอื่นๆ ต้องมอบหมายคนขับก่อนอนุมัติ (ไม่มีคนขับ = เตือน ไม่ส่ง) + กันคนขับซ้อนเวลา
     if (b.booking_type === 'other') {
-      const w = driverWarn(f); if (w) return showToast(w);
+      const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w);
       if (driverClash()) return showToast(t('req.driver_clash'));
     }
     const body = { id: b.id, admin_note: f.admin_note };
@@ -303,7 +313,7 @@ export default function RequestsManager({ endpoints }) {
   const doAssign = async () => {
     const f = modal.form;
     // เปลี่ยน/มอบหมายคนขับ ต้องเลือกคนขับเสมอ (ถอดคนขับออกไม่ได้) + กันคนขับซ้อนเวลา
-    const w = driverWarn(f); if (w) return showToast(w);
+    const w = driverWarn(f) || seatsWarn(f); if (w) return showToast(w);
     if (driverClash()) return showToast(t('req.driver_clash'));
     const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle };
     if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) setModal(null);
@@ -318,6 +328,7 @@ export default function RequestsManager({ endpoints }) {
     const b = modal.booking; const f = modal.form;
     // รถอื่นๆ ที่อนุมัติแล้ว ห้ามถอดคนขับ - ต้องเลือกคนขับ (คำขอ pending ยังเว้นได้ ค่อยมอบตอนอนุมัติ)
     if (b.booking_type === 'other' && b.status !== 'pending') { const w = driverWarn(f); if (w) return showToast(w); }
+    if (b.booking_type === 'other') { const w = seatsWarn(f); if (w) return showToast(w); }
     // กันคนขับซ้อนเวลา (รถอื่นๆ ที่เลือกคนขับบริษัท)
     if (b.booking_type === 'other' && driverClash()) return showToast(t('req.driver_clash'));
     const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link };
@@ -401,7 +412,7 @@ export default function RequestsManager({ endpoints }) {
             </div>
             <div className="rq-driver-grid">
               <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: onlyDigits10(e.target.value) })} inputMode="numeric" maxLength={10} className="form-input form-input--sm" /></div>
-              <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+              <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" max={MAX_EXT_SEATS} step="1" inputMode="numeric" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
               <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
             </div>
             <div className="rq-driver-box-note">{t('req.edit_note_driver')}</div>
@@ -417,7 +428,7 @@ export default function RequestsManager({ endpoints }) {
               <div className="rq-driver-box-title">{t('req.driver_car_info')}</div>
               <div className="rq-driver-grid">
                 <div><label className="form-label">{t('req.phone_label')}</label><input value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: onlyDigits10(e.target.value) })} inputMode="numeric" maxLength={10} className="form-input form-input--sm" /></div>
-                <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
+                <div><label className="form-label">{t('req.seats_label')}</label><input type="number" min="0" max={MAX_EXT_SEATS} step="1" inputMode="numeric" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className="form-input form-input--sm" /></div>
                 <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
               </div>
             </div>

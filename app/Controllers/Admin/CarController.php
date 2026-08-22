@@ -174,7 +174,7 @@ class CarController extends BaseController
             }
             // เขียนไม่ได้ = โฟลเดอร์ผิดเจ้าของ/สิทธิ์ ตอบให้ชัดแทนปล่อยเป็น 500
             if (! is_dir($dir) || ! is_writable($dir)) {
-                log_message('error', 'อัปโหลดรูปรถไม่ได้: เขียนลง ' . $dir . ' ไม่ได้ (เช็คเจ้าของ/สิทธิ์โฟลเดอร์)');
+                log_message('error', 'Car image upload failed: cannot write to ' . $dir . ' (check folder owner/permissions)');
 
                 return $this->fail(lang('Car.err_upload_dir'));
             }
@@ -182,7 +182,7 @@ class CarController extends BaseController
             try {
                 $file->move($dir, $newName);
             } catch (\Throwable $e) {
-                log_message('error', 'ย้ายไฟล์อัปโหลดไม่สำเร็จ: ' . $e->getMessage());
+                log_message('error', 'Moving the uploaded file failed: ' . $e->getMessage());
 
                 return $this->fail(lang('Car.err_upload_save'));
             }
@@ -197,11 +197,11 @@ class CarController extends BaseController
         if ($id) {
             $cars->update($id, $data);   // ไม่ส่ง image ถ้าไม่ได้อัปใหม่ -> รูปเดิมคงอยู่
             $msg = lang('Car.saved');
-            log_activity('แก้ไขข้อมูลรถ ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
+            log_activity('Updated car ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
         } else {
             $cars->insert($data);
             $msg = lang('Car.added');
-            log_activity('เพิ่มรถ ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
+            log_activity('Added car ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
         }
 
         // เปลี่ยน/ลบรูปสำเร็จ -> ลบไฟล์รูปเก่าทิ้ง
@@ -237,7 +237,7 @@ class CarController extends BaseController
         // ลบไฟล์รูปในโฟลเดอร์ทิ้งทันที (ไม่เก็บไฟล์กำพร้าไว้)
         $this->deleteImage($car['image'] ?? null);
 
-        log_activity('ลบรถ ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
+        log_activity('Deleted car ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
 
         return $this->ok(lang('Car.deleted'));
     }
@@ -261,7 +261,7 @@ class CarController extends BaseController
                 ->save($path, self::IMG_QUALITY);
         } catch (\Throwable $e) {
             // ย่อไม่ได้ก็ใช้ไฟล์เดิม (ผ่าน validate ขนาด <= 2 MB มาแล้ว)
-            log_message('warning', 'ย่อรูปรถไม่สำเร็จ: ' . $e->getMessage());
+            log_message('warning', 'Resizing the car image failed: ' . $e->getMessage());
         }
     }
 

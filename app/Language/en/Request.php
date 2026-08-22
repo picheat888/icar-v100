@@ -16,6 +16,7 @@ return [
     'err_car_maint'          => 'This vehicle is under maintenance',
     'err_seats_approve'      => 'More passengers than the vehicle has seats ({0} maximum), so it cannot be approved',
     'err_seats_given'        => 'More passengers than the seats entered for this vehicle ({0} maximum)',
+    'err_ext_seats'          => 'The number of seats must be a whole number from {0} to {1}',
 
     // Driver
     'err_driver_req'         => 'Select a driver first - a company driver or an external one',

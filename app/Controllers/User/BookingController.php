@@ -218,7 +218,7 @@ class BookingController extends BaseController
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
         (new \App\Models\NotificationModel())->pushToAdmins('booking_new', 'booking_new', ['name' => $name], site_url('admin/requests'), $me);
 
-        log_activity('ส่งคำขอจองรถ ' . $bookings->makeCode($id) . ' (' . ($type === 'other' ? 'รถจัดหาโดย Admin' : 'รถขับเอง') . ')');
+        log_activity('Submitted booking request ' . $bookings->makeCode($id) . ' (' . ($type === 'other' ? 'admin-arranged vehicle' : 'self-drive') . ')');
 
         return $this->ok(lang('Booking.sent'), $this->afterBookUrl());
     }
@@ -351,7 +351,7 @@ class BookingController extends BaseController
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
         (new \App\Models\NotificationModel())->pushToAdmins('booking_edited', 'booking_edited_user', ['name' => $name, 'code' => $b['booking_code']], site_url('admin/requests'), $me);
 
-        log_activity('แก้ไขคำขอ ' . $b['booking_code']);
+        log_activity('Updated request ' . $b['booking_code']);
 
         return $this->ok(lang('Booking.saved'));
     }
@@ -370,7 +370,7 @@ class BookingController extends BaseController
         // รออนุมัติ -> ยกเลิกได้ทันที (ยังไม่จัดรถ/คนขับ)
         if ($booking['status'] === 'pending') {
             $bookings->update($id, ['status' => 'cancelled']);
-            log_activity('ยกเลิกคำขอ ' . $booking['booking_code']);
+            log_activity('Cancelled request ' . $booking['booking_code']);
 
             return $this->ok(lang('Common.request_cancelled'));
         }
@@ -386,7 +386,7 @@ class BookingController extends BaseController
             $me   = (int) auth()->id();
             $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
             (new \App\Models\NotificationModel())->pushToAdmins('cancel_requested', 'cancel_requested', ['name' => $name, 'code' => $booking['booking_code']], site_url('admin/requests'), $me);
-            log_activity('ขอยกเลิกคำขอ ' . $booking['booking_code']);
+            log_activity('Requested cancellation of request ' . $booking['booking_code']);
 
             return $this->ok(lang('Booking.cancel_sent'));
         }
@@ -422,7 +422,7 @@ class BookingController extends BaseController
         $me   = (int) auth()->id();
         $name = (new \App\Models\UserProfileModel())->findByUserId($me)['full_name'] ?? auth()->user()->username;
         (new \App\Models\NotificationModel())->pushToAdmins('car_returned', 'car_returned', ['name' => $name, 'code' => $booking['booking_code']], site_url('admin/requests'), $me);
-        log_activity('คืนรถ ' . $booking['booking_code']);
+        log_activity('Returned vehicle for ' . $booking['booking_code']);
 
         return $this->ok(lang('Booking.returned'));
     }

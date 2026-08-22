@@ -7,7 +7,7 @@ if (! function_exists('log_activity')) {
     /**
      * บันทึกกิจกรรมลง activity_logs - เรียกบรรทัดเดียวจากที่ไหนก็ได้
      *
-     * @param string $action ข้อความอธิบายการกระทำ (ภาษาไทย)
+     * @param string $action ข้อความอธิบายการกระทำ - เขียนเป็นภาษาอังกฤษเสมอ (log ไม่แปลตามภาษาผู้อ่าน)
      * @param array  $actor  override: ['user_id'=>, 'actor_name'=>, 'role'=>] (ใช้ตอนไม่มี auth เช่น register)
      *
      * ปกติดึงผู้ใช้ปัจจุบันจาก auth ให้อัตโนมัติ (id/ชื่อ/บทบาท)

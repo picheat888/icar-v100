@@ -20,13 +20,10 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         );
     }
 
-    // บรรทัดนี้มี string ไทยที่ผู้ใช้จะเห็นไหม (ข้ามคอมเมนต์ และข้าม log)
+    // บรรทัดนี้มี string ไทยไหม (ข้ามคอมเมนต์) - รวมข้อความใน log ด้วย log ต้องเป็นอังกฤษ
     private function isThaiStringLine(string $line): bool
     {
         if (preg_match('/^\s*(\/\/|\*|\/\*)/', $line)) {
-            return false;
-        }
-        if (preg_match('/log_activity|log_message/', $line)) {
             return false;
         }
         $code = preg_replace('/\s\/\/.*$/', '', $line);
@@ -68,7 +65,9 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
 
         $this->assertFalse($this->isThaiStringLine('        // คอมเมนต์ไทยไม่นับ'));
         $this->assertFalse($this->isThaiStringLine('         * คอมเมนต์บล็อกไทยไม่นับ'));
-        $this->assertFalse($this->isThaiStringLine("        log_activity('ลบรถ');"));
+        $this->assertTrue($this->isThaiStringLine("        log_activity('ลบรถ');"));
+        $this->assertTrue($this->isThaiStringLine("        log_message('error', 'พัง');"));
+        $this->assertFalse($this->isThaiStringLine("        log_activity('Deleted car');"));
         $this->assertFalse($this->isThaiStringLine("        return \$this->fail(lang('Member.err_not_found'));"));
         $this->assertFalse($this->isThaiStringLine("        \$x = 'plain english';"));
     }

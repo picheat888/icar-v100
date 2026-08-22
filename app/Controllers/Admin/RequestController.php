@@ -158,7 +158,7 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('อนุมัติคำขอ ' . $b['booking_code']);
+        log_activity('Approved request ' . $b['booking_code']);
 
         return $this->ok(lang('Request.approved'));
     }
@@ -203,10 +203,13 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $assign['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('มอบหมายคนขับให้คำขอ ' . $b['booking_code']);
+        log_activity('Assigned driver to request ' . $b['booking_code']);
 
         return $this->ok(lang('Request.driver_assigned'));
     }
+
+    // เพดานจำนวนที่นั่งของรถที่ Admin กรอกเอง (คอลัมน์ ext_driver_seats เป็น SMALLINT)
+    private const MAX_EXT_SEATS = 999;
 
     // อ่านข้อมูลคนขับจาก POST → คืน array ฟิลด์สำหรับ update (หรือ ['__error'=>ข้อความ] ถ้าไม่ผ่าน)
     // driver = '' (ยังไม่มอบหมาย) | user_id (คนขับบริษัท) | 'external' (กรอกเอง)
@@ -215,8 +218,15 @@ class RequestController extends BaseController
     {
         $driver = (string) $this->request->getPost('driver');
         $phone  = trim((string) $this->request->getPost('ext_phone')) ?: null;
-        $seats  = $this->request->getPost('ext_seats');
-        $seats  = ($seats === null || $seats === '') ? null : (int) $seats;
+        $seatsRaw = trim((string) $this->request->getPost('ext_seats'));
+        // เว้นว่าง = ไม่ระบุ · ที่กรอกต้องเป็นจำนวนเต็ม 0-MAX_EXT_SEATS ('4.5' หรือ '4คน' จะถูก cast เป็น 4 เงียบ ๆ ถ้าไม่ดักที่ค่าดิบ)
+        if ($seatsRaw !== '' && preg_match('/^\d+$/', $seatsRaw) !== 1) {
+            return ['__error' => lang('Request.err_ext_seats', [0, self::MAX_EXT_SEATS])];
+        }
+        $seats = $seatsRaw === '' ? null : (int) $seatsRaw;
+        if ($seats !== null && $seats > self::MAX_EXT_SEATS) {
+            return ['__error' => lang('Request.err_ext_seats', [0, self::MAX_EXT_SEATS])];
+        }
         $veh    = trim((string) $this->request->getPost('ext_vehicle')) ?: null;
 
         // คนขับภายนอก - กรอกชื่อเอง
@@ -310,7 +320,7 @@ class RequestController extends BaseController
 
         $this->notifyRequester($b, 'booking_rejected', 'booking_rejected', ['code' => $b['booking_code']]);
 
-        log_activity('ปฏิเสธคำขอ ' . $b['booking_code']);
+        log_activity('Rejected request ' . $b['booking_code']);
 
         return $this->ok(lang('Request.rejected'));
     }
@@ -343,7 +353,7 @@ class RequestController extends BaseController
             $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
-        log_activity('ยืนยันยกเลิกคำขอ ' . $b['booking_code']);
+        log_activity('Confirmed cancellation of request ' . $b['booking_code']);
 
         return $this->ok(lang('Request.cancel_confirmed'));
     }
@@ -383,7 +393,7 @@ class RequestController extends BaseController
             $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
-        log_activity('ยกเลิกคำขอ ' . $b['booking_code'] . ' (โดย Admin)');
+        log_activity('Cancelled request ' . $b['booking_code'] . ' (by admin)');
 
         return $this->ok(lang('Common.request_cancelled'));
     }
@@ -472,7 +482,7 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('ปรับรถ/คนขับของคำขอ ' . $b['booking_code']);
+        log_activity('Changed vehicle/driver for request ' . $b['booking_code']);
 
         return $this->ok(lang('Request.saved'));
     }

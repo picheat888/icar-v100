@@ -109,7 +109,7 @@ class MemberController extends BaseController
             'status'        => 'approved',
         ]);
 
-        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . (role_labels('th')[$level] ?? $level) . ')');
+        log_activity('Added member: ' . $req->getPost('name') . ' (role: ' . (role_labels('en')[$level] ?? $level) . ')');
 
         return $this->ok(lang('Member.added'));
     }
@@ -157,7 +157,7 @@ class MemberController extends BaseController
             site_url('profile'),
         );
 
-        log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . (role_labels('th')[$level] ?? $level) . ')');
+        log_activity('Approved member ' . $user->username . ' (role: ' . (role_labels('en')[$level] ?? $level) . ')');
 
         return $this->ok(lang('Member.approved'));
     }
@@ -197,7 +197,7 @@ class MemberController extends BaseController
 
         (new NotificationModel())->push($userId, 'member_rejected', 'member_rejected');
 
-        log_activity('ปฏิเสธ/ปิดการใช้งานสมาชิก ' . ($target->username ?? ('id ' . $userId)));
+        log_activity('Rejected/disabled member ' . ($target->username ?? ('id ' . $userId)));
 
         return $this->ok(lang('Member.rejected'));
     }
@@ -340,7 +340,7 @@ class MemberController extends BaseController
             }
         }
 
-        log_activity('แก้ไขข้อมูลสมาชิก ' . $user->username);
+        log_activity('Updated member ' . $user->username);
 
         return $this->ok(lang('Member.saved'));
     }

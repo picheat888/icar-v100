@@ -102,7 +102,7 @@ class RegisterController extends BaseController
         );
 
         // ยังไม่ login จึงระบุ actor เอง (ผู้สมัครใหม่)
-        log_activity('สมัครสมาชิก: ' . $req->getPost('name'), [
+        log_activity('Registered: ' . $req->getPost('name'), [
             'user_id'    => (int) $user->id,
             'actor_name' => $req->getPost('name'),
             'role'       => 'user',

@@ -59,6 +59,7 @@
   "req.warn_pick_driver": "Please select a driver first",
   "req.warn_ext_name": "Please enter the external driver's name",
   "req.warn_ext_phone": "External driver phone must be exactly 10 digits",
+  "req.warn_ext_seats": "The number of seats must be a whole number from {min} to {max}",
   "req.driver_clash": "This driver already has a job during this time - please choose another driver",
   "req.done_approved": "Approved",
   "req.done_rejected": "Rejected",

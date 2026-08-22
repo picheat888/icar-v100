@@ -55,7 +55,7 @@ class LoginController extends ShieldLoginController
 
         // บันทึกกิจกรรม "เข้าสู่ระบบ" (LoginController ไม่ได้ extend BaseController จึงต้องโหลด helper เอง)
         helper('activity');
-        log_activity('เข้าสู่ระบบ');
+        log_activity('Signed in');
 
         // มี action ต่อ (เช่น 2FA) ของ Shield
         if ($authenticator->hasAction()) {
