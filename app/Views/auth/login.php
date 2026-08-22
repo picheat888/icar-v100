@@ -130,6 +130,7 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
 
     var form   = document.getElementById('login-form');
     var submit = document.getElementById('login-submit');
+    var token  = form.querySelector('input[name="csrf_test_name"]');
     var user   = document.getElementById('login');
     var MSG    = <?= json_encode(['user' => lang('Account.err_username_req'), 'pass' => lang('Account.err_password_req')], JSON_UNESCAPED_UNICODE) ?>;
 
@@ -169,6 +170,23 @@ $error  = session('error') ?? (is_array($errors) ? implode(' ', $errors) : '');
       }
       submit.disabled    = true;
       submit.textContent = <?= json_encode(lang('Account.login_btn_loading')) ?>;
+
+      // หน้าที่เปิดค้างไว้นานกว่าอายุเซสชัน (2 ชม.) จะถือ CSRF token ที่ไม่มีเซสชันรองรับแล้ว
+      // ขอ token ใหม่หนึ่งครั้งก่อนส่ง เพื่อไม่ให้ผู้ใช้ต้องกรอกรหัสซ้ำ · ขอไม่ได้ก็ส่งของเดิมไป (ได้ข้อความให้ลองใหม่)
+      if (token && ! form.dataset.tokenRefreshed) {
+        e.preventDefault();
+        fetch(form.action, { credentials: 'same-origin', cache: 'no-store' })
+          .then(function (r) { return r.text(); })
+          .then(function (html) {
+            var m = html.match(/name="csrf_test_name"[^>]*value="([^"]+)"/);
+            if (m) token.value = m[1];
+          })
+          .catch(function () {})
+          .then(function () {
+            form.dataset.tokenRefreshed = '1';
+            form.submit();   // form.submit() ไม่ยิง event submit จึงไม่วนซ้ำ
+          });
+      }
     });
   })();
   </script>

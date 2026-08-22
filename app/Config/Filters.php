@@ -89,9 +89,9 @@ class Filters extends BaseFilters
             // ตีกลับ request ที่มีไบต์ไม่ใช่ UTF-8 หรืออักขระควบคุม (ยกเว้น \r \n \t)
             'invalidchars',
             // CSRF (session-based) - ฟอร์มใช้ csrf_field() · island แนบ X-CSRF-TOKEN header + อัปเดต token จาก response
-            'csrf',
-            // คำขอที่รอ JSON แต่ยังไม่ล็อกอิน -> 401 (กัน fetch ตาม 302 ไปสร้าง session ใหม่ที่หน้า login)
+            // คำขอที่รอ JSON แต่ยังไม่ล็อกอิน -> 401 · ต้องมาก่อน csrf เพราะ csrf เปิด session ทุก request
             'ajaxauth',
+            'csrf',
             // เช็คสถานะบัญชีทุก request ยกเว้นหน้า auth (กันคนถูกปิดใช้งานระหว่างล็อกอินอยู่)
             'accountstatus' => ['except' => ['login', 'login/*', 'register', 'register/*', 'logout', 'auth/*']],
             // บังคับเปลี่ยนรหัส (force_reset=1): บล็อกการเปลี่ยนข้อมูลจนกว่าจะตั้งรหัสใหม่ผ่าน popup
