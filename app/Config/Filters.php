@@ -12,6 +12,8 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AjaxAuthFilter;
+use App\Filters\CsrfKeepInput;
 use App\Filters\AccountStatusFilter;
 use App\Filters\ForcePasswordResetGuard;
 use App\Filters\LocaleFilter;
@@ -29,7 +31,7 @@ class Filters extends BaseFilters
      * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
-        'csrf'          => CSRF::class,
+        'csrf'          => CsrfKeepInput::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
@@ -42,6 +44,7 @@ class Filters extends BaseFilters
         'forcepwreset'  => ForcePasswordResetGuard::class,
         'locale'        => LocaleFilter::class,
         'throttle'      => ThrottleFilter::class,
+        'ajaxauth'      => AjaxAuthFilter::class,
     ];
 
     /**
@@ -87,6 +90,8 @@ class Filters extends BaseFilters
             'invalidchars',
             // CSRF (session-based) - ฟอร์มใช้ csrf_field() · island แนบ X-CSRF-TOKEN header + อัปเดต token จาก response
             'csrf',
+            // คำขอที่รอ JSON แต่ยังไม่ล็อกอิน -> 401 (กัน fetch ตาม 302 ไปสร้าง session ใหม่ที่หน้า login)
+            'ajaxauth',
             // เช็คสถานะบัญชีทุก request ยกเว้นหน้า auth (กันคนถูกปิดใช้งานระหว่างล็อกอินอยู่)
             'accountstatus' => ['except' => ['login', 'login/*', 'register', 'register/*', 'logout', 'auth/*']],
             // บังคับเปลี่ยนรหัส (force_reset=1): บล็อกการเปลี่ยนข้อมูลจนกว่าจะตั้งรหัสใหม่ผ่าน popup

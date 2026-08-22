@@ -85,4 +85,5 @@ return [
     'feat_2_sub'        => 'Get notified when your request is approved.',
     'feat_3_title'      => 'View your past vehicle usage.',
     'feat_3_sub'        => 'Check your travel history and trip reports anytime.',
+    'err_username_format'  => 'Usernames can only contain letters, numbers, dots and underscores',
 ];

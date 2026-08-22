@@ -54,7 +54,8 @@ class Validation extends BaseConfig
     public array $login = [
         'username' => [
             'label' => 'Auth.username',
-            'rules' => 'required|max_length[30]',
+            'rules' => 'required|max_length[30]|regex_match[/\A[a-zA-Z0-9._]+\z/]',
+            'errors' => ['regex_match' => 'Account.err_username_format'],
         ],
         'password' => [
             'label' => 'Auth.password',
