@@ -38,6 +38,7 @@
   "common.cancel": "Cancel",
   "common.save": "Save",
   "common.close": "Close",
+  "common.err_required": "Fill in the required fields",
   "common.back": "Back",
   "common.confirm": "Confirm",
   "common.edit": "Edit",

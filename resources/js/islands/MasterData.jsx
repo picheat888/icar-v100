@@ -8,6 +8,8 @@ import DonePopup from '../lib/DonePopup';
 import { TrashIcon } from '../lib/icons';
 import Table from '../lib/Table';
 import Pager from '../lib/Pager';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 
 const PAGE_SIZE = 10;
 
@@ -45,6 +47,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   const [done, setDone] = useState(false);                // ลบสำเร็จ -> โชว์ป็อปอัป "ลบเสร็จสิ้น"
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
+  const [errs, setErrs] = useState({}); // ข้อความผิดพลาดรายช่อง: name = ช่องเพิ่ม, editName = ช่องแก้ไขในแถว
 
   const load = useCallback(() => {
     setLoadErr(false);
@@ -92,9 +95,25 @@ export default function MasterData({ endpoints, only = 'dept' }) {
     } finally { setBusy(false); busyRef.current = false; }
   };
 
+  // ล้างข้อความผิดพลาดของช่องที่ระบุ
+  const clearErr = (key) => setErrs((e) => {
+    if (!(key in e)) return e;
+    const next = { ...e };
+    delete next[key];
+
+    return next;
+  });
+
   const add = () => {
     const v = newValue.trim();
-    if (!v || busy) return;
+    if (!v) {
+      setErrs((e) => ({ ...e, name: t('common.err_required') }));
+      document.getElementById('md-name')?.focus();
+
+      return;
+    }
+    if (busy) return;
+    clearErr('name');
     post(endpoints.add, { type, name: v }).then((ok) => { if (ok) setNewValue(''); });
   };
   // กดปุ่มลบ -> เปิดป็อปอัปยืนยัน (ยังไม่ลบ) · กดยืนยันแล้วจึงลบจริง
@@ -107,11 +126,18 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       setTimeout(() => setDone(false), 1500);
     }
   };
-  const startEdit = (it) => { setEditingId(it.id); setEditValue(it.name); };
-  const cancelEdit = () => { setEditingId(null); setEditValue(''); };
+  const startEdit = (it) => { clearErr('editName'); setEditingId(it.id); setEditValue(it.name); };
+  const cancelEdit = () => { clearErr('editName'); setEditingId(null); setEditValue(''); };
   const saveEdit = (it) => {
     const v = editValue.trim();
-    if (!v || busy) return;
+    if (!v) {
+      setErrs((e) => ({ ...e, editName: t('common.err_required') }));
+      document.getElementById('md-name-edit')?.focus();
+
+      return;
+    }
+    if (busy) return;
+    clearErr('editName');
     post(endpoints.update, { type, id: it.id, name: v }).then((ok) => { if (ok) cancelEdit(); });
   };
 
@@ -143,8 +169,12 @@ export default function MasterData({ endpoints, only = 'dept' }) {
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('master.search_placeholder', { label })}
           className="form-input form-input--sm md-input--search" />
         <div className="md-add-group">
-          <input value={newValue} onChange={(e) => setNewValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add()}
-            placeholder={t('master.add_placeholder', { label })} maxLength={150} className="form-input form-input--sm md-input--add" />
+          <div className="md-input--add">
+            <input {...fieldAttrs('md-name', errs.name)} value={newValue}
+              onChange={(e) => { setNewValue(e.target.value); clearErr('name'); }} onKeyDown={(e) => e.key === 'Enter' && add()}
+              placeholder={t('master.add_placeholder', { label })} maxLength={150} className={`form-input form-input--sm${errs.name ? ' is-invalid' : ''}`} />
+            <FieldError id="md-name" msg={errs.name} />
+          </div>
           <button onClick={add} disabled={busy}
             className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
             {busy ? <Spinner /> : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>}{t('master.add_btn')}
@@ -170,10 +200,14 @@ export default function MasterData({ endpoints, only = 'dept' }) {
               <td className="md-td-no">{start + i + 1}</td>
               <td className="md-td-name">
                 {editingId === it.id ? (
-                  <input value={editValue} autoFocus onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
-                    maxLength={150}
-                    className="form-input form-input--sm md-edit-input" />
+                  <>
+                    <input {...fieldAttrs('md-name-edit', errs.editName)} value={editValue} autoFocus
+                      onChange={(e) => { setEditValue(e.target.value); clearErr('editName'); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(it); if (e.key === 'Escape') cancelEdit(); }}
+                      maxLength={150}
+                      className={`form-input form-input--sm md-edit-input${errs.editName ? ' is-invalid' : ''}`} />
+                    <FieldError id="md-name-edit" msg={errs.editName} />
+                  </>
                 ) : it.name}
               </td>
               <td className="md-td-manage ta-r">

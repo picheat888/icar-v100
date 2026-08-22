@@ -38,6 +38,7 @@
   "common.cancel": "ยกเลิก",
   "common.save": "บันทึก",
   "common.close": "ปิด",
+  "common.err_required": "กรุณากรอกข้อมูลให้ครบ",
   "common.back": "ย้อนกลับ",
   "common.confirm": "ยืนยัน",
   "common.edit": "แก้ไข",
