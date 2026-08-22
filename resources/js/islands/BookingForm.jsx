@@ -7,6 +7,9 @@ import { peopleError, MAX_PEOPLE } from '../lib/validate';
 import DateTimeField from '../lib/DateTimeField';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
+import Alert from '../lib/Alert';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 
 // สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง)
 const CAR_STATUS = {
@@ -27,7 +30,8 @@ const carIcon = (
 export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUrl = '' }) {
   const [tab, setTab] = useState('self');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState('');    // error ข้ามช่อง (เวลาสิ้นสุดก่อนเวลาเริ่ม) + error จาก server
+  const [errs, setErrs] = useState({});      // ข้อความผิดพลาดรายช่อง
   const [modal, setModal] = useState(null); // {type:'self', car} - เฉพาะแท็บรถขับเอง
   const [done, setDone] = useState(false);  // ส่งคำขอสำเร็จ -> โชว์ popup ก่อนเด้งไปหน้าถัดไป
   const [f, setF] = useState({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
@@ -46,11 +50,22 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   }, []);
 
   const resetForm = () => setF({ location: '', start_at: '', end_at: '', people: 1, purpose: '', map_link: '' });
-  const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
+  // แก้ค่าฟอร์ม + ล้าง error ของช่องที่เพิ่งแก้ทิ้ง
+  const set = (k, v) => {
+    setF((s) => ({ ...s, [k]: v }));
+    setErrs((e) => {
+      if (!e[k]) return e;
+      const next = { ...e };
+      delete next[k];
+      return next;
+    });
+  };
+  // ปิดโมดัลจอง + ล้าง error ทั้งหมด กันข้อความค้างข้ามรอบเปิดใหม่
+  const closeModal = () => { setModal(null); setError(''); setErrs({}); };
 
   const availReq = useRef(0);   // ลำดับคำขอ availability ล่าสุด - กัน response เก่ามาทับ (race สลับรถเร็ว ๆ)
   const openSelf = (car) => {
-    resetForm(); setError(''); setModal({ type: 'self', car }); setLoadErr(false); setBooked(new Set());
+    resetForm(); setError(''); setErrs({}); setModal({ type: 'self', car }); setLoadErr(false); setBooked(new Set());
     const nowDt = new Date(); setCal({ y: nowDt.getFullYear(), m: nowDt.getMonth() });
     // โหลดตารางว่างของรถคันนี้
     const seq = ++availReq.current;
@@ -71,43 +86,35 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   };
 
   const submit = async () => {
-    setError('');
     // ชนิดการจอง: มี modal = รถขับเอง, ไม่มี = ตามแท็บที่เปิดอยู่
     const type = modal?.type ?? tab;
-    if (!f.location.trim()) {
-      setError(t('book.err_location'));
-      return;
-    }
+    const e = {};
+    if (!f.location.trim()) e.location = t('book.err_location');
     // ต้องเลือกทั้งวันเวลาเริ่มและสิ้นสุด
-    if (!f.start_at || !f.end_at) {
-      setError(t('book.err_datetime'));
+    if (!f.start_at) e.start_at = t('book.err_datetime');
+    if (!f.end_at) e.end_at = t('book.err_datetime');
+    // จำนวนผู้โดยสาร: รถขับเองจำกัดตามที่นั่งของรถคันนั้น, รถอื่น ๆ ใช้เพดานกลาง
+    const peopleErr = peopleError(f.people, modal?.car?.seats);
+    if (peopleErr) e.people = peopleErr;
+    // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น
+    const mapLink = (f.map_link || '').trim();
+    if (mapLink && !/^https?:\/\//i.test(mapLink)) e.map_link = t('book.err_map_link_scheme');
+    if (mapLink.length > 500) e.map_link = t('book.err_map_link_length');
+    if (type === 'other' && !f.purpose.trim()) e.purpose = t('book.err_purpose');
+    if (Object.keys(e).length) {
+      setErrs(e);
+      setError('');
+      document.getElementById(`bk-${Object.keys(e)[0]}`)?.focus();
       return;
     }
-    // เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม (เทียบ string 'YYYY-MM-DDTHH:MM' ได้ตรง ๆ)
+    // เวลาสิ้นสุดก่อนเวลาเริ่ม เป็นความสัมพันธ์ระหว่างช่อง ไม่ใช่ของช่องใดช่องเดียว
     if (f.end_at <= f.start_at) {
+      setErrs({});
       setError(t('book.err_end_after_start'));
       return;
     }
-    // จำนวนผู้โดยสาร: รถขับเองจำกัดตามที่นั่งของรถคันนั้น, รถอื่น ๆ ใช้เพดานกลาง
-    const peopleErr = peopleError(f.people, modal?.car?.seats);
-    if (peopleErr) {
-      setError(peopleErr);
-      return;
-    }
-    // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น
-    const mapLink = (f.map_link || '').trim();
-    if (mapLink && !/^https?:\/\//i.test(mapLink)) {
-      setError(t('book.err_map_link_scheme'));
-      return;
-    }
-    if (mapLink.length > 500) {
-      setError(t('book.err_map_link_length'));
-      return;
-    }
-    if (type === 'other' && !f.purpose.trim()) {
-      setError(t('book.err_purpose'));
-      return;
-    }
+    setErrs({});
+    setError('');
     const body = { booking_type: type, ...f };
     if (type === 'self') body.car_id = modal.car.id;
     setBusy(true);
@@ -199,27 +206,45 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   // isOther = รถอื่น ๆ - วัตถุประสงค์เป็นช่องบังคับ
   const formFields = (isOther = false) => (
     <>
-      {error && <div className="alert-error">{error}</div>}
-      <label className="form-label">{t('book.location_label')} <span className="form-req">*</span></label>
-      <input value={f.location} onChange={(e) => set('location', e.target.value)} placeholder={t('book.location_placeholder')} className="form-input form-input--sm bk-field-mb" />
+      {error && <div className="bk-alert-gap"><Alert>{error}</Alert></div>}
+      <label className="form-label" htmlFor="bk-location">{t('book.location_label')} <span className="form-req">*</span></label>
+      <input {...fieldAttrs('bk-location', errs.location)} value={f.location} onChange={(e) => set('location', e.target.value)} placeholder={t('book.location_placeholder')} className={`form-input form-input--sm${errs.location ? ' is-invalid' : ''} bk-field-mb`} />
+      <FieldError id="bk-location" msg={errs.location} />
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.start_label')} <span className="form-req">*</span></label><DateTimeField value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} /></div>
-        <div><label className="form-label">{t('req.end_label')} <span className="form-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
+        <div>
+          <label className="form-label" htmlFor="bk-start_at">{t('req.start_label')} <span className="form-req">*</span></label>
+          <DateTimeField id="bk-start_at" value={f.start_at} onChange={(v) => set('start_at', v)} placeholder={t('book.start_placeholder')} />
+          <FieldError id="bk-start_at" msg={errs.start_at} />
+        </div>
+        <div>
+          <label className="form-label" htmlFor="bk-end_at">{t('req.end_label')} <span className="form-req">*</span></label>
+          <DateTimeField id="bk-end_at" value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} />
+          <FieldError id="bk-end_at" msg={errs.end_at} />
+        </div>
       </div>
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max={modal?.car?.seats > 0 ? modal.car.seats : MAX_PEOPLE} step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
-        <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
+        <div>
+          <label className="form-label" htmlFor="bk-people">{t('req.people_label')}</label>
+          <input {...fieldAttrs('bk-people', errs.people)} type="number" min="1" max={modal?.car?.seats > 0 ? modal.car.seats : MAX_PEOPLE} step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className={`form-input form-input--sm${errs.people ? ' is-invalid' : ''}`} />
+          <FieldError id="bk-people" msg={errs.people} />
+        </div>
+        <div>
+          <label className="form-label" htmlFor="bk-map_link">{t('book.map_link_label')}</label>
+          <input {...fieldAttrs('bk-map_link', errs.map_link)} value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className={`form-input form-input--sm${errs.map_link ? ' is-invalid' : ''}`} />
+          <FieldError id="bk-map_link" msg={errs.map_link} />
+        </div>
       </div>
-      <label className="form-label">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>
-      <textarea value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} className="form-input form-input--sm bk-textarea" />
+      <label className="form-label" htmlFor="bk-purpose">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>
+      <textarea {...fieldAttrs('bk-purpose', errs.purpose)} value={f.purpose} onChange={(e) => set('purpose', e.target.value)} placeholder={t('book.purpose_placeholder')} rows={3} className={`form-input form-input--sm${errs.purpose ? ' is-invalid' : ''} bk-textarea`} />
+      <FieldError id="bk-purpose" msg={errs.purpose} />
     </>
   );
 
   return (
     <div>
       <div className="seg bk-seg">
-        <button onClick={() => setTab('self')} className={`seg-btn bk-seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
-        <button onClick={() => { setTab('other'); resetForm(); setError(''); const n = new Date(); setCal({ y: n.getFullYear(), m: n.getMonth() }); }} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
+        <button onClick={() => { setTab('self'); setError(''); setErrs({}); }} className={`seg-btn bk-seg-btn${tab === 'self' ? ' seg-btn--active' : ''}`}>{t('car.tab_self')}</button>
+        <button onClick={() => { setTab('other'); resetForm(); setError(''); setErrs({}); const n = new Date(); setCal({ y: n.getFullYear(), m: n.getMonth() }); }} className={`seg-btn bk-seg-btn${tab === 'other' ? ' seg-btn--active' : ''}`}>{t('book.tab_other')}</button>
       </div>
 
       {tab === 'self' && (
@@ -279,11 +304,11 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
 
       {/* โมดัลจอง */}
       {modal && (
-        <div onClick={() => setModal(null)} className={`modal-backdrop${narrow ? ' modal-backdrop--narrow' : ''}`}>
+        <div onClick={closeModal} className={`modal-backdrop${narrow ? ' modal-backdrop--narrow' : ''}`}>
           <div onClick={(e) => e.stopPropagation()} className="modal-box modal-box--wide">
             <div className={`modal-head${narrow ? ' modal-head--narrow' : ''}`}>
               <h3 className="modal-title">{t('book.modal_title_self')}</h3>
-              <button onClick={() => setModal(null)} className="modal-close">{CloseIcon}</button>
+              <button onClick={closeModal} className="modal-close">{CloseIcon}</button>
             </div>
 
             {/* 2 คอลัมน์: ซ้าย = รถที่เลือก + ปฏิทินวันที่รถคันนั้นไม่ว่าง, ขวา = ฟอร์ม */}
@@ -307,7 +332,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
             </div>
 
             <div className={`bk-modal-foot${narrow ? ' bk-modal-foot--narrow' : ''}`}>
-              <button onClick={() => setModal(null)} className="bk-modal-cancel">{t('common.cancel')}</button>
+              <button onClick={closeModal} className="bk-modal-cancel">{t('common.cancel')}</button>
               <button onClick={submit} disabled={busy} className="btn-primary bk-submit-btn">{busy && <Spinner />}{t('book.submit_btn')}</button>
             </div>
           </div>

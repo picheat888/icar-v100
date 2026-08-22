@@ -9,6 +9,9 @@ import { SkelRows, SkelCards } from '../lib/Skeleton';
 import { useToast } from '../lib/Toast';
 import ConfirmDialog from '../lib/ConfirmDialog';
 import Modal from '../lib/Modal';
+import Alert from '../lib/Alert';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
 import { CloseIcon, CalIcon } from '../lib/icons';
@@ -38,6 +41,8 @@ const typeLabel = (bt) => (bt === 'other' ? t('myreq.type_other') : t('myreq.typ
 const PER_PAGE = 20;
 // รุ่นรถที่แสดง: รถขับเอง -> car_model / รถอื่น ๆ -> รถที่ Admin จัดให้ (หลังอนุมัติ)
 const carModelLabel = (b) => (b.booking_type === 'other' ? (b.ext_driver_vehicle || '') : (b.car_model || ''));
+// จับคู่ชื่อฟิลด์ในฟอร์มแก้ไข -> คีย์ error (ต่อท้าย id ช่องกรอก mr-ed-*)
+const ERR_KEY = { location: 'location', start_at: 'start', end_at: 'end', people: 'people', map_link: 'map', purpose: 'purpose' };
 const driverName = (b) => (b.driver_type === 'external' ? b.ext_driver_name : (b.driver_type === 'company' ? (b.driver_name || '') : ''));
 /**
  * คำขอของฉัน - ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกดูรายละเอียด (modal) + ยกเลิก/คืนรถ
@@ -52,7 +57,8 @@ export default function MyRequests({ endpoints }) {
   const [confirmB, setConfirmB] = useState(null);   // คำขอที่รอยืนยัน (ยกเลิก/คืนรถ)
   const [detail, setDetail] = useState(null);        // คำขอที่เปิดดูรายละเอียด
   const [edit, setEdit] = useState(null);            // คำขอที่กำลังแก้ไข { b, form }
-  const [editErr, setEditErr] = useState('');
+  const [editErr, setEditErr] = useState('');   // error ข้ามช่อง (เวลาสิ้นสุดก่อนเวลาเริ่ม) + error จาก server
+  const [errs, setErrs] = useState({});         // ข้อความผิดพลาดรายช่องในฟอร์มแก้ไข
   const [narrow, setNarrow] = useState(false);
   const [page, setPage] = useState(1);   // หน้าปัจจุบันของ pagination
 
@@ -104,6 +110,7 @@ export default function MyRequests({ endpoints }) {
   // เปิดฟอร์มแก้ไข - แปลงค่าจาก DB เป็นรูปแบบที่ DateTimeField ใช้ ('YYYY-MM-DDTHH:MM')
   const openEdit = (b) => {
     setEditErr('');
+    setErrs({});
     setEdit({
       b,
       form: {
@@ -117,21 +124,49 @@ export default function MyRequests({ endpoints }) {
     });
   };
 
-  const setEditForm = (patch) => setEdit((m) => ({ ...m, form: { ...m.form, ...patch } }));
+  // ปิดโมดัลแก้ไข + ล้าง error ทั้งหมด กันข้อความค้างข้ามรอบเปิดใหม่
+  const closeEdit = () => { setEdit(null); setEditErr(''); setErrs({}); };
+
+  // แก้ค่าฟอร์ม + ล้าง error ของช่องที่เพิ่งแก้ทิ้ง
+  const setEditForm = (patch) => {
+    setEdit((m) => ({ ...m, form: { ...m.form, ...patch } }));
+    setErrs((e) => {
+      const next = { ...e };
+      Object.keys(patch).forEach((k) => delete next[ERR_KEY[k] || k]);
+      return next;
+    });
+  };
 
   // บันทึกการแก้ไขคำขอของตัวเอง (เฉพาะที่ยังรออนุมัติ)
   const doUpdate = async () => {
     const f = edit.form;
-    if (! f.location.trim()) { setEditErr(t('book.err_location')); return; }
-    if (! f.start_at || ! f.end_at) { setEditErr(t('book.err_datetime')); return; }
-    if (f.end_at <= f.start_at) { setEditErr(t('book.err_end_after_start')); return; }
-    if (edit.b.booking_type === 'other' && ! f.purpose.trim()) { setEditErr(t('book.err_purpose')); return; }
+    const e = {};
+    if (! f.location.trim()) e.location = t('book.err_location');
+    if (! f.start_at) e.start = t('book.err_datetime');
+    if (! f.end_at) e.end = t('book.err_datetime');
     // จำนวนผู้โดยสาร: จำกัดตามที่นั่งของรถที่จองไว้ (กฎเดียวกับหน้าจองรถและฝั่ง server)
     const peopleErr = peopleError(f.people, edit.b.car_seats);
-    if (peopleErr) { setEditErr(peopleErr); return; }
+    if (peopleErr) e.people = peopleErr;
+    const mapLink = (f.map_link || '').trim();
+    if (mapLink && ! /^https?:\/\//i.test(mapLink)) e.map = t('book.err_map_link_scheme');
+    if (mapLink.length > 500) e.map = t('book.err_map_link_length');
+    if (edit.b.booking_type === 'other' && ! f.purpose.trim()) e.purpose = t('book.err_purpose');
+    if (Object.keys(e).length) {
+      setErrs(e);
+      setEditErr('');
+      document.getElementById(`mr-ed-${Object.keys(e)[0]}`)?.focus();
+      return;
+    }
+    // เวลาสิ้นสุดก่อนเวลาเริ่ม เป็นความสัมพันธ์ระหว่างช่อง ไม่ใช่ของช่องใดช่องเดียว
+    if (f.end_at <= f.start_at) {
+      setErrs({});
+      setEditErr(t('book.err_end_after_start'));
+      return;
+    }
+    setErrs({});
+    setEditErr('');
 
     setBusy(true);
-    setEditErr('');
     try {
       const res = await fetch(endpoints.update, {
         method: 'POST', credentials: 'same-origin',
@@ -370,40 +405,46 @@ export default function MyRequests({ endpoints }) {
 
       {/* โมดัลแก้ไขคำขอ - เฉพาะคำขอที่ยังรออนุมัติ */}
       {edit && (
-        <Modal title={t('myreq.edit_title', { code: edit.b.booking_code })} onClose={() => setEdit(null)} bodyClass="mr-edit-body" lockBackdrop>
+        <Modal title={t('myreq.edit_title', { code: edit.b.booking_code })} onClose={closeEdit} bodyClass="mr-edit-body" lockBackdrop>
           <div className="mr-edit-hint">{t('myreq.edit_scope')}</div>
-          {editErr && <div className="alert-error mr-edit-err">{editErr}</div>}
+          {editErr && <div className="mr-edit-err"><Alert>{editErr}</Alert></div>}
 
-          <label className="form-label" htmlFor="mr-ed-loc">{t('book.location_label')}</label>
-          <input id="mr-ed-loc" value={edit.form.location} maxLength={255} onChange={(e) => setEditForm({ location: e.target.value })} placeholder={t('book.location_placeholder')} className="form-input form-input--sm mr-edit-field" />
+          <label className="form-label" htmlFor="mr-ed-location">{t('book.location_label')}</label>
+          <input {...fieldAttrs('mr-ed-location', errs.location)} value={edit.form.location} maxLength={255} onChange={(e) => setEditForm({ location: e.target.value })} placeholder={t('book.location_placeholder')} className={`form-input form-input--sm mr-edit-field${errs.location ? ' is-invalid' : ''}`} />
+          <FieldError id="mr-ed-location" msg={errs.location} />
 
           <div className="mr-edit-grid">
             <div>
-              <label className="form-label">{t('req.start_label')}</label>
-              <DateTimeField value={edit.form.start_at} onChange={(v) => setEditForm({ start_at: v })} placeholder={t('book.start_placeholder')} />
+              <label className="form-label" htmlFor="mr-ed-start">{t('req.start_label')}</label>
+              <DateTimeField id="mr-ed-start" value={edit.form.start_at} onChange={(v) => setEditForm({ start_at: v })} placeholder={t('book.start_placeholder')} />
+              <FieldError id="mr-ed-start" msg={errs.start} />
             </div>
             <div>
-              <label className="form-label">{t('req.end_label')}</label>
-              <DateTimeField value={edit.form.end_at} onChange={(v) => setEditForm({ end_at: v })} placeholder={t('book.end_placeholder')} />
+              <label className="form-label" htmlFor="mr-ed-end">{t('req.end_label')}</label>
+              <DateTimeField id="mr-ed-end" value={edit.form.end_at} onChange={(v) => setEditForm({ end_at: v })} placeholder={t('book.end_placeholder')} />
+              <FieldError id="mr-ed-end" msg={errs.end} />
             </div>
           </div>
 
           <div className="mr-edit-grid">
             <div>
               <label className="form-label" htmlFor="mr-ed-people">{t('myreq.passenger_count_label')}</label>
-              <input id="mr-ed-people" type="number" min="1" max={edit.b.car_seats > 0 ? edit.b.car_seats : MAX_PEOPLE} step="1" inputMode="numeric" value={edit.form.people} onChange={(e) => setEditForm({ people: e.target.value })} className="form-input form-input--sm" />
+              <input {...fieldAttrs('mr-ed-people', errs.people)} type="number" min="1" max={edit.b.car_seats > 0 ? edit.b.car_seats : MAX_PEOPLE} step="1" inputMode="numeric" value={edit.form.people} onChange={(e) => setEditForm({ people: e.target.value })} className={`form-input form-input--sm${errs.people ? ' is-invalid' : ''}`} />
+              <FieldError id="mr-ed-people" msg={errs.people} />
             </div>
             <div>
               <label className="form-label" htmlFor="mr-ed-map">{t('book.map_link_label')}</label>
-              <input id="mr-ed-map" value={edit.form.map_link} maxLength={500} onChange={(e) => setEditForm({ map_link: e.target.value })} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" />
+              <input {...fieldAttrs('mr-ed-map', errs.map)} value={edit.form.map_link} maxLength={500} onChange={(e) => setEditForm({ map_link: e.target.value })} placeholder={t('book.map_link_placeholder')} className={`form-input form-input--sm${errs.map ? ' is-invalid' : ''}`} />
+              <FieldError id="mr-ed-map" msg={errs.map} />
             </div>
           </div>
 
           <label className="form-label" htmlFor="mr-ed-purpose">{t('myreq.purpose_label')}</label>
-          <textarea id="mr-ed-purpose" value={edit.form.purpose} rows={3} onChange={(e) => setEditForm({ purpose: e.target.value })} placeholder={t('book.purpose_placeholder')} className="form-input form-input--sm mr-edit-textarea" />
+          <textarea {...fieldAttrs('mr-ed-purpose', errs.purpose)} value={edit.form.purpose} rows={3} onChange={(e) => setEditForm({ purpose: e.target.value })} placeholder={t('book.purpose_placeholder')} className={`form-input form-input--sm mr-edit-textarea${errs.purpose ? ' is-invalid' : ''}`} />
+          <FieldError id="mr-ed-purpose" msg={errs.purpose} />
 
           <div className="mr-edit-actions">
-            <button onClick={() => setEdit(null)} disabled={busy} className="btn-ghost mr-edit-btn"><Icon name="close" size={16} />{t('common.cancel')}</button>
+            <button onClick={closeEdit} disabled={busy} className="btn-ghost mr-edit-btn"><Icon name="close" size={16} />{t('common.cancel')}</button>
             <button onClick={doUpdate} disabled={busy} className="btn-primary mr-edit-btn">{busy ? <Spinner /> : <Icon name="check" size={16} />}{t('common.save')}</button>
           </div>
         </Modal>
