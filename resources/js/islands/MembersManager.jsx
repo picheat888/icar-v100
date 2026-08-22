@@ -8,6 +8,8 @@ import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Modal from '../lib/Modal';
 import Icon from '../lib/Icon';
 import Spinner from '../lib/Spinner';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 
 // ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง
 const STATUS_LABEL = {
@@ -34,6 +36,18 @@ const genPassword = (len = 12) =>
 
 const EMPTY_NEW = { empId: '', name: '', dept: '', position: '', phone: '', username: '', password: '', level: 'user', force_reset: true };
 
+// ตรวจฟอร์มเพิ่มสมาชิก - คืน { ช่อง: ข้อความ } ว่าง = ผ่าน
+const addFormErrors = (f) => {
+  const e = {};
+  const req = (k) => { if (! String(f[k] || '').trim()) e[k] = t('common.err_required'); };
+  ['empId', 'name', 'dept', 'position', 'phone', 'username', 'password'].forEach(req);
+  if (! e.phone && ! /^[0-9]{10}$/.test(String(f.phone).trim())) e.phone = t('req.warn_ext_phone');
+  if (! e.username && ! /^[a-zA-Z0-9._]+$/.test(String(f.username).trim())) e.username = t('mem.err_username_format');
+  if (! e.password && String(f.password).length < 8) e.password = t('pwreset.err_min_length');
+
+  return e;
+};
+
 /**
  * จัดการสมาชิก - ตาราง + ฟิลเตอร์ + โมดัล เพิ่ม/อนุมัติ/แก้ไข
  * props: endpoints {data, create, approve, reject, update}, departments[], positions[]
@@ -51,6 +65,16 @@ export default function MembersManager({ endpoints, departments = [], positions 
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
   const [hlUser, setHlUser] = useState(null);   // user_id ที่มาจากลิงก์ - ไฮไลต์ให้เห็นว่าคนไหน
+  const [errs, setErrs] = useState({});         // ข้อความผิดพลาดรายช่องของฟอร์มเพิ่มสมาชิก
+
+  // ล้างข้อความผิดพลาดของช่องที่ระบุ
+  const clearErr = (key) => setErrs((e) => {
+    if (!(key in e)) return e;
+    const next = { ...e };
+    delete next[key];
+
+    return next;
+  });
 
   // โหลดรายชื่อสมาชิก
   const load = useCallback(() => {
@@ -148,10 +172,21 @@ export default function MembersManager({ endpoints, departments = [], positions 
     String(m.user_id) !== String(currentUserId) && !(m.role === 'admin' && activeAdmins <= 1);
 
   // ===== actions =====
-  const openAdd = () => setModal({ type: 'add', form: { ...EMPTY_NEW } });
+  const openAdd = () => { setErrs({}); setModal({ type: 'add', form: { ...EMPTY_NEW } }); };
+  // ปิดโมดัลเพิ่มสมาชิก (ปุ่มปิด/ยกเลิก/Esc) - เคลียร์ error ทิ้งไปด้วย
+  const closeAdd = () => { setErrs({}); setModal(null); };
 
   const doCreate = async () => {
     const f = modal.form;
+    // ผิดตรงไหนขึ้นข้อความใต้ช่องนั้น แล้วโฟกัสช่องแรกที่ผิด
+    const found = addFormErrors(f);
+    if (Object.keys(found).length > 0) {
+      setErrs(found);
+      document.getElementById(`mm-${Object.keys(found)[0]}`)?.focus();
+
+      return;
+    }
+    setErrs({});
     const sent = await post(endpoints.create, {
       empId: f.empId, name: f.name, dept: f.dept, position: f.position, phone: f.phone,
       username: f.username, password: f.password, level: f.level,
@@ -344,7 +379,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
 
       {/* โมดัล */}
       {modal?.type === 'add' && (
-        <Modal title={t('mem.add_title')} onClose={() => setModal(null)} bodyClass="mm-modal-body" wide lockBackdrop>
+        <Modal title={t('mem.add_title')} onClose={closeAdd} bodyClass="mm-modal-body" wide lockBackdrop>
           <div className="mm-add-hint">{t('mem.add_hint')}</div>
           <AddForm
             form={modal.form}
@@ -352,8 +387,10 @@ export default function MembersManager({ endpoints, departments = [], positions 
             departments={departments}
             positions={positions}
             onCopied={() => showToast(t('mem.copied'), 'success')}
+            errs={errs}
+            clearErr={clearErr}
           />
-          <Foot onClose={() => setModal(null)} onOk={doCreate} okText={t('mem.confirm_add')} okKind="success" busy={busy} />
+          <Foot onClose={closeAdd} onOk={doCreate} okText={t('mem.confirm_add')} okKind="success" busy={busy} />
         </Modal>
       )}
 
@@ -469,7 +506,7 @@ function EditPass({ form, set, onCopied }) {
  * ช่องรหัสผ่านของ Admin - ไม่ซ่อนตัวอักษร เพราะ Admin ต้องอ่านบอกพนักงาน
  * ใช้ร่วมกันทั้งฟอร์มเพิ่มสมาชิกและแท็บรหัสผ่านของฟอร์มแก้ไข
  */
-function PassRow({ value, onChange, onCopied, placeholder }) {
+function PassRow({ id, value, onChange, onCopied, placeholder, err }) {
   const copy = async () => {
     if (! value) return;
     try {
@@ -481,7 +518,7 @@ function PassRow({ value, onChange, onCopied, placeholder }) {
   return (
     <div className="mm-pass-row">
       <div className="field mm-pass-field">
-        <input value={value} onChange={(e) => onChange(e.target.value)} autoComplete="off" placeholder={placeholder} className="form-input form-input--sm mm-pass-input" />
+        <input {...(id ? fieldAttrs(id, err) : {})} value={value} onChange={(e) => onChange(e.target.value)} autoComplete="off" placeholder={placeholder} className={`form-input form-input--sm mm-pass-input${err ? ' is-invalid' : ''}`} />
         <button type="button" onClick={copy} disabled={! value} className="field-eye" title={t('mem.copy_pass')}>
           <Icon name="copy" size={15} />
         </button>
@@ -494,44 +531,51 @@ function PassRow({ value, onChange, onCopied, placeholder }) {
 }
 
 // ฟอร์มเพิ่มสมาชิก - เรียงฟิลด์ตามลำดับเดียวกับหน้าสมัคร
-function AddForm({ form, set, departments, positions, onCopied }) {
-  const u = (k, v) => set({ ...form, [k]: v });
+function AddForm({ form, set, departments, positions, onCopied, errs, clearErr }) {
+  const u = (k, v) => { set({ ...form, [k]: v }); clearErr(k); };
 
   return (
     <>
       <div className="mm-add-grid">
         <div>
           <div className="mm-add-section">{t('mem.emp_section')}</div>
-          <label className="form-label">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
-          <input value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} placeholder={t('mem.emp_id_ph')} className="form-input form-input--sm mm-field-mb" />
-          <label className="form-label">{t('mem.col_full_name')} <span className="form-req">*</span></label>
-          <input value={form.name} onChange={(e) => u('name', e.target.value)} maxLength={150} placeholder={t('mem.name_ph')} className="form-input form-input--sm mm-field-mb" />
-          <label className="form-label">{t('mem.dept_label')} <span className="form-req">*</span></label>
-          <select value={form.dept} onChange={(e) => u('dept', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
+          <label className="form-label" htmlFor="mm-empId">{t('mem.col_emp_id')} <span className="form-req">*</span></label>
+          <input {...fieldAttrs('mm-empId', errs.empId)} value={form.empId} onChange={(e) => u('empId', e.target.value)} maxLength={8} placeholder={t('mem.emp_id_ph')} className={`form-input form-input--sm mm-field-mb${errs.empId ? ' is-invalid' : ''}`} />
+          <FieldError id="mm-empId" msg={errs.empId} />
+          <label className="form-label" htmlFor="mm-name">{t('mem.col_full_name')} <span className="form-req">*</span></label>
+          <input {...fieldAttrs('mm-name', errs.name)} value={form.name} onChange={(e) => u('name', e.target.value)} maxLength={150} placeholder={t('mem.name_ph')} className={`form-input form-input--sm mm-field-mb${errs.name ? ' is-invalid' : ''}`} />
+          <FieldError id="mm-name" msg={errs.name} />
+          <label className="form-label" htmlFor="mm-dept">{t('mem.dept_label')} <span className="form-req">*</span></label>
+          <select {...fieldAttrs('mm-dept', errs.dept)} value={form.dept} onChange={(e) => u('dept', e.target.value)} className={`form-input form-input--sm form-select mm-select mm-field-mb${errs.dept ? ' is-invalid' : ''}`}>
             <option value="">{t('mem.choose_dept')}</option>
             {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
           </select>
-          <label className="form-label">{t('mem.position_label')} <span className="form-req">*</span></label>
-          <select value={form.position} onChange={(e) => u('position', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
+          <FieldError id="mm-dept" msg={errs.dept} />
+          <label className="form-label" htmlFor="mm-position">{t('mem.position_label')} <span className="form-req">*</span></label>
+          <select {...fieldAttrs('mm-position', errs.position)} value={form.position} onChange={(e) => u('position', e.target.value)} className={`form-input form-input--sm form-select mm-select mm-field-mb${errs.position ? ' is-invalid' : ''}`}>
             <option value="">{t('mem.choose_pos')}</option>
             {positions.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <label className="form-label">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
-          <input value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" placeholder={t('mem.phone_ph')} className="form-input form-input--sm" />
+          <FieldError id="mm-position" msg={errs.position} />
+          <label className="form-label" htmlFor="mm-phone">{t('mem.phone_full_label')} <span className="form-req">*</span></label>
+          <input {...fieldAttrs('mm-phone', errs.phone)} value={form.phone} onChange={(e) => u('phone', e.target.value)} maxLength={10} inputMode="numeric" placeholder={t('mem.phone_ph')} className={`form-input form-input--sm${errs.phone ? ' is-invalid' : ''}`} />
+          <FieldError id="mm-phone" msg={errs.phone} />
         </div>
 
         <div>
           <div className="mm-add-section">{t('mem.login_section')}</div>
-          <label className="form-label">{t('mem.username_label')} <span className="form-req">*</span></label>
-          <input value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" placeholder={t('mem.username_ph')} className="form-input form-input--sm mm-field-mb" />
+          <label className="form-label" htmlFor="mm-username">{t('mem.username_label')} <span className="form-req">*</span></label>
+          <input {...fieldAttrs('mm-username', errs.username)} value={form.username} onChange={(e) => u('username', e.target.value)} autoComplete="off" placeholder={t('mem.username_ph')} className={`form-input form-input--sm mm-field-mb${errs.username ? ' is-invalid' : ''}`} />
+          <FieldError id="mm-username" msg={errs.username} />
           <label className="form-label">{t('mem.role_level_label')} <span className="form-req">*</span></label>
           <select value={form.level} onChange={(e) => u('level', e.target.value)} className="form-input form-input--sm form-select mm-select mm-field-mb">
             {ROLES.map((r) => <option key={r.v} value={r.v}>{r.label}</option>)}
           </select>
 
           {/* รหัสไม่ซ่อน - Admin ต้องอ่านบอกพนักงาน */}
-          <label className="form-label">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
-          <PassRow value={form.password} onChange={(v) => u('password', v)} onCopied={onCopied} placeholder={t('mem.pass_ph')} />
+          <label className="form-label" htmlFor="mm-password">{t('mem.temp_pass_label')} <span className="form-req">*</span></label>
+          <PassRow id="mm-password" value={form.password} onChange={(v) => u('password', v)} onCopied={onCopied} placeholder={t('mem.pass_ph')} err={errs.password} />
+          <FieldError id="mm-password" msg={errs.password} />
 
           <label className="mm-checkbox-row mm-force-add">
             <input type="checkbox" checked={form.force_reset} onChange={(e) => u('force_reset', e.target.checked)} className="mm-checkbox" />

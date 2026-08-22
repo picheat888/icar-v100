@@ -148,6 +148,7 @@
   "mem.choose_dept": "-- Select department --",
   "mem.pass_ph": "Set a password (at least 8 characters)",
   "mem.username_ph": "Choose a username (A-Z, a-z, 0-9, . _)",
+  "mem.err_username_format": "Usernames can only contain letters, numbers, dots and underscores",
   "mem.phone_ph": "0812345678",
   "mem.name_ph": "Enter full name",
   "mem.emp_id_ph": "Enter employee ID",
