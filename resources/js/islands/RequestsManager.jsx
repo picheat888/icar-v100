@@ -377,6 +377,7 @@ export default function RequestsManager({ endpoints }) {
   // เข้าโหมดแก้ไข - เติมค่าปัจจุบันของคำขอลงฟอร์ม
   const enterEdit = () => {
     const b = modal.booking;
+    setErrs({});
     setModal((m) => ({
       ...m, editing: true,
       form: {
@@ -717,12 +718,12 @@ export default function RequestsManager({ endpoints }) {
                         <div className="rq-focus-assign">
                           {driverPicker()}
                           <div className="rq-modal-actions rq-modal-actions--mt6">
-                            <button onClick={() => setModal((m) => ({ ...m, assigning: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
+                            <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, assigning: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
                             <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('req.save_driver')}</button>
                           </div>
                         </div>
                       ) : (
-                        <button onClick={() => setModal((m) => ({ ...m, assigning: true }))} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
+                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, assigning: true })); }} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
                       ))}
                     </div>
 
@@ -764,20 +765,20 @@ export default function RequestsManager({ endpoints }) {
                     {/* ===== ปุ่ม - ชุดเดียวต่อสถานะ ===== */}
                     <div className="rq-focus-actions">
                       {modal.rejecting ? (<>
-                        <button onClick={() => setModal((m) => ({ ...m, rejecting: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
+                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
                         <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_reject')}</button>
                       </>) : modal.cancelling ? (<>
-                        <button onClick={() => setModal((m) => ({ ...m, cancelling: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
+                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
                         <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
                       </>) : pending ? (<>
-                        <button onClick={() => setModal((m) => ({ ...m, rejecting: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
+                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
                         <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.approve')}</button>
                       </>) : isCancelReq ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
                         <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel')}</button>
                       </>) : canAdminCancel ? (<>
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                        <button onClick={() => setModal((m) => ({ ...m, cancelling: true }))} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>
+                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>
                       </>) : (
                         <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
                       )}
