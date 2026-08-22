@@ -1,7 +1,6 @@
 <?php
 
-// ตัวช่วยจัดรูปแบบวันที่/เวลาฝั่ง server - ต้องให้ผลตรงกับ resources/js/lib/date.js
-// วันที่ DD-MM-YYYY (ค.ศ.) · เวลา 24 ชม. HH:MM · วันที่กับเวลาคั่นด้วยเว้นวรรค
+// ตัวช่วยฝั่ง server: จัดรูปแบบวันที่/เวลา, ชื่อบทบาท, ตรวจสอบ URL ปลอดภัย
 
 if (! function_exists('thai_date')) {
     // "2026-06-22 ..." -> "22-06-2026" (รูปแบบ DD-MM-YYYY)
@@ -27,13 +26,13 @@ if (! function_exists('thai_datetime')) {
 }
 
 if (! function_exists('role_labels')) {
-    // ชื่อบทบาทตามภาษาที่เลือก - เรียกตอนใช้ ไม่ใช่ตอน class โหลด
-    function role_labels(): array
+    // ชื่อบทบาทตามภาษาที่เลือก - ส่ง $locale เพื่อบังคับภาษา (ใช้กับข้อความที่เก็บลงฐานข้อมูล)
+    function role_labels(?string $locale = null): array
     {
         return [
-            'admin'  => lang('Nav.role_admin'),
-            'user'   => lang('Nav.role_user'),
-            'driver' => lang('Nav.role_driver'),
+            'admin'  => lang('Nav.role_admin', [], $locale),
+            'user'   => lang('Nav.role_user', [], $locale),
+            'driver' => lang('Nav.role_driver', [], $locale),
         ];
     }
 }

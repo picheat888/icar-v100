@@ -15,15 +15,11 @@ return [
     // Passengers · {0} = number of seats in the vehicle
     'err_people_min'  => 'There must be at least 1 passenger',
     'err_people_max'  => 'Too many passengers (999 maximum)',
-    'err_people_over' => 'More passengers than the vehicle has seats ({0} maximum)',
 
     // Vehicle
-    'err_car_req'    => 'Please select a valid vehicle',
     'err_car_unavail' => 'This vehicle is not available',
-    'err_car_clash'  => 'This vehicle is already booked for that time range',
 
     // Request state
-    'err_not_found'    => 'Request not found',
     'err_edit_pending' => 'Only requests still awaiting approval can be edited',
     'err_edit_done'    => 'This request has already been processed and cannot be edited',
     'err_cancel_late'  => 'The trip has already started - it can no longer be cancelled',
@@ -36,7 +32,6 @@ return [
     // Success
     'sent'          => 'Booking request sent - awaiting Admin approval',
     'saved'         => 'Changes saved',
-    'cancelled'     => 'Request cancelled',
     'cancel_sent'   => 'Cancellation request sent - awaiting Admin confirmation',
     'returned'      => 'Vehicle returned - it is available for booking again',
 ];

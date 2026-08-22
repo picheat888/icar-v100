@@ -91,7 +91,7 @@ export default function ActivityLog({ endpoints }) {
           <label className="form-label">{t('log.date_range_label')}</label>
           <div className="al-date-row">
             <input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
-            <span className="al-arrow">→</span>
+            <span className="al-arrow">{t('common.to')}</span>
             <input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
           </div>
         </div>

@@ -78,9 +78,9 @@ class ProfileController extends BaseController
     public function updatePassword()
     {
         $rules = [
-            'curPass'     => ['label' => lang('Profile.field_cur_pass'), 'rules' => 'required'],
-            'newPass'     => ['label' => lang('Profile.field_new_pass'), 'rules' => 'required|min_length[8]|max_length[72]|strong_password[]'],
-            'confirmPass' => ['label' => lang('Profile.field_confirm_pass'), 'rules' => 'required|matches[newPass]'],
+            'curPass'     => ['label' => 'Profile.cur_password_label', 'rules' => 'required'],
+            'newPass'     => ['label' => 'Profile.new_password_label', 'rules' => 'required|min_length[8]|max_length[72]|strong_password[]'],
+            'confirmPass' => ['label' => 'Profile.confirm_password_label', 'rules' => 'required|matches[newPass]'],
         ];
         $messages = [
             'newPass'     => ['min_length' => lang('Profile.pw_min'), 'max_length' => lang('Profile.pw_max')],

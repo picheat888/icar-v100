@@ -2,7 +2,6 @@
 
 return [
     // Not found / status blocks the action
-    'err_not_found'          => 'Request not found',
     'err_already_handled'    => 'This request has already been handled',
     'err_assign_blocked'     => 'A driver cannot be assigned to this request',
     'err_assign_changed'     => 'A driver cannot be assigned - the status has changed',
@@ -15,10 +14,7 @@ return [
     'err_car_missing'        => 'The vehicle for this request no longer exists, so it cannot be approved',
     'err_car_maint_approve'  => 'This vehicle is under maintenance, so it cannot be approved',
     'err_car_maint'          => 'This vehicle is under maintenance',
-    'err_car_invalid'        => 'Select a valid vehicle',
-    'err_car_clash'          => 'This vehicle is already booked for that time',
     'err_seats_approve'      => 'Passengers exceed the vehicle capacity ({0} seats), so it cannot be approved',
-    'err_seats'              => 'Passengers exceed the vehicle capacity ({0} seats)',
     'err_seats_given'        => 'Passengers exceed the seats entered for this vehicle ({0} seats)',
 
     // Driver
@@ -37,6 +33,5 @@ return [
     'driver_assigned'        => 'Driver assigned',
     'rejected'               => 'Request rejected',
     'cancel_confirmed'       => 'Cancellation confirmed',
-    'cancelled'              => 'Request cancelled',
     'saved'                  => 'Vehicle and driver saved',
 ];

@@ -6,20 +6,10 @@ use App\Controllers\BaseController;
 use App\Models\BookingModel;
 
 /**
- * หน้าคนขับ - placeholder เพื่อทดสอบ shell
+ * หน้างานของฉัน + ตารางการใช้รถของคนขับ + endpoint JSON ที่ island ใช้ดึงข้อมูล
  */
 class PageController extends BaseController
 {
-    // เรนเดอร์หน้า placeholder ภายใต้ layout driver
-    private function page(string $active, string $title, string $subtitle = '')
-    {
-        return view('driver/_page', [
-            'active'       => $active,
-            'pageTitle'    => $title,
-            'pageSubtitle' => $subtitle,
-        ]);
-    }
-
     // งานของฉัน - งานที่ได้รับมอบหมาย (คำขออนุมัติแล้ว + เป็นคนขับที่ถูกมอบหมาย)
     public function index()
     {

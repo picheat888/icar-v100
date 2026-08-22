@@ -10,20 +10,15 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class NoHardcodedThaiTest extends CIUnitTestCase
 {
-    // ไฟล์ที่ย้ายข้อความเสร็จแล้ว - เพิ่มชื่อเมื่อย้ายไฟล์นั้นเสร็จ
-    private const CLEAN_FILES = [
-        'Controllers/Admin/CarController.php',
-        'Controllers/Admin/ActivityLogController.php',
-        'Controllers/Admin/DashboardController.php',
-        'Controllers/Admin/MasterController.php',
-        'Controllers/Admin/MemberController.php',
-        'Controllers/Admin/RequestController.php',
-        'Controllers/Auth/RegisterController.php',
-        'Controllers/ProfileController.php',
-        'Controllers/User/BookingController.php',
-        'Controllers/User/PageController.php',
-        'Models/BookingModel.php',
-    ];
+    // ไล่ทุก controller และ model - ไม่ใช้รายชื่อ เพื่อให้ไฟล์ใหม่ถูกตรวจอัตโนมัติ
+    private function phpSources(): array
+    {
+        return array_merge(
+            glob(APPPATH . 'Controllers/*.php'),
+            glob(APPPATH . 'Controllers/*/*.php'),
+            glob(APPPATH . 'Models/*.php'),
+        );
+    }
 
     // บรรทัดนี้มี string ไทยที่ผู้ใช้จะเห็นไหม (ข้ามคอมเมนต์ และข้าม log)
     private function isThaiStringLine(string $line): bool
@@ -40,9 +35,8 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
     }
 
     // คืนบรรทัดที่มี string literal ภาษาไทย (ข้ามคอมเมนต์ และข้าม log ที่ไม่ใช่ข้อความถึงผู้ใช้)
-    private function thaiStringLines(string $relPath): array
+    private function thaiStringLines(string $path): array
     {
-        $path = APPPATH . $relPath;
         $this->assertFileExists($path);
         $hits = [];
 
@@ -55,11 +49,14 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         return $hits;
     }
 
-    public function testCleanFilesHaveNoThaiStrings(): void
+    public function testNoControllerOrModelHasThaiStrings(): void
     {
-        foreach (self::CLEAN_FILES as $relPath) {
-            $hits = $this->thaiStringLines($relPath);
-            $this->assertSame([], $hits, "{$relPath} ยังมีข้อความไทยฮาร์ดโค้ด:\n" . implode("\n", $hits));
+        $sources = $this->phpSources();
+        $this->assertNotEmpty($sources, 'glob หาไฟล์ไม่เจอเลย - เทสต์นี้อาจไม่ได้ตรวจอะไรจริง');
+
+        foreach ($sources as $path) {
+            $hits = $this->thaiStringLines($path);
+            $this->assertSame([], $hits, basename($path) . " ยังมีข้อความไทยฮาร์ดโค้ด:\n" . implode("\n", $hits));
         }
     }
 

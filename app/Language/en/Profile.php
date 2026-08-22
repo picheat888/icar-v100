@@ -44,8 +44,4 @@ return [
     'pw_changed'      => 'Your password has been changed',
     'pw_changed_json' => 'Password changed',
     'pw_no_permit'    => 'You are not allowed to perform this action',
-    // Field names substituted into {field} in validation rules
-    'field_cur_pass'     => 'Current password',
-    'field_new_pass'     => 'New password',
-    'field_confirm_pass' => 'New password confirmation',
 ];

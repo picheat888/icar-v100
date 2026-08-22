@@ -1,5 +1,5 @@
 import { t } from '../../lib/i18n';
-import { MONTHS, fmtTime, timeRange, dateTimeRange } from '../../lib/date';
+import { fmtTime, timeRange, dateTimeRange } from '../../lib/date';
 import { STATUS_LABEL } from '../../lib/status';
 
 // label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) - สีมาจาก class .st-* กลางใน CSS

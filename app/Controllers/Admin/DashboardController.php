@@ -8,8 +8,7 @@ use App\Models\CarModel;
 use App\Models\UserProfileModel;
 
 /**
- * หน้าหลังบ้าน (admin) - ตอนนี้เป็น placeholder เพื่อทดสอบ shell
- * แต่ละ method ส่งชื่อหน้า/คีย์เมนูที่ active ให้ layout
+ * หน้า Dashboard และ Timeline ของ admin + endpoint JSON ที่ island ทั้งสองใช้ดึงข้อมูล
  */
 class DashboardController extends BaseController
 {

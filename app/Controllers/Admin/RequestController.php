@@ -105,7 +105,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if ($b['status'] !== 'pending') {
             return $this->fail(lang('Request.err_already_handled'), true);
@@ -170,7 +170,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if ($b['status'] !== 'approved' || $b['booking_type'] !== 'other') {
             return $this->fail(lang('Request.err_assign_blocked'), true);
@@ -285,7 +285,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if ($b['status'] !== 'pending') {
             return $this->fail(lang('Request.err_already_handled'), true);
@@ -322,7 +322,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if ($b['status'] !== 'cancel_requested') {
             return $this->fail(lang('Request.err_not_cancel_req'), true);
@@ -355,7 +355,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if (! in_array($b['status'], ['pending', 'approved', 'cancel_requested'], true)) {
             return $this->fail(lang('Request.err_cancel_blocked'), true);
@@ -385,7 +385,7 @@ class RequestController extends BaseController
 
         log_activity('ยกเลิกคำขอ ' . $b['booking_code'] . ' (โดย Admin)');
 
-        return $this->ok(lang('Request.cancelled'));
+        return $this->ok(lang('Common.request_cancelled'));
     }
 
     // POST: Admin ปรับรถ (self) / คนขับ (other) ของคำขอที่ยัง active
@@ -396,7 +396,7 @@ class RequestController extends BaseController
         $bookings = new BookingModel();
         $b        = $bookings->find($id);
         if (! $b) {
-            return $this->fail(lang('Request.err_not_found'), true);
+            return $this->fail(lang('Common.err_request_not_found'), true);
         }
         if (! in_array($b['status'], ['pending', 'approved', 'cancel_requested'], true)) {
             return $this->fail(lang('Request.err_edit_blocked'), true);
@@ -414,14 +414,14 @@ class RequestController extends BaseController
             $carId = (int) $this->request->getPost('car_id') ?: (int) $b['car_id'];
             $car   = (new CarModel())->find($carId);
             if (! $car || $car['car_type'] !== 'self') {
-                return $this->fail(lang('Request.err_car_invalid'));
+                return $this->fail(lang('Common.err_car_invalid'));
             }
             // กันย้ายไปรถที่ซ่อมบำรุงเฉพาะเมื่อ "เปลี่ยนคัน" - คงรถเดิมที่เพิ่งเข้าซ่อมยังแก้ฟิลด์อื่นได้
             if ($car['status'] !== 'available' && $carId !== (int) $b['car_id']) {
                 return $this->fail(lang('Request.err_car_maint'));
             }
             if ((int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail(lang('Request.err_seats', [(int) $car['seats']]));
+                return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
             $clash = $bookings
                 ->where('car_id', $carId)
@@ -431,7 +431,7 @@ class RequestController extends BaseController
                 ->where('end_at >', $start)
                 ->countAllResults();
             if ($clash > 0) {
-                return $this->fail(lang('Request.err_car_clash'));
+                return $this->fail(lang('Common.err_car_clash'));
             }
             $data['car_id'] = $carId;
         } else {

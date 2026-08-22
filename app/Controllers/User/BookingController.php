@@ -154,14 +154,14 @@ class BookingController extends BaseController
         if ($type === 'self') {
             $car = $carId ? $cars->find($carId) : null;
             if (! $car || $car['car_type'] !== 'self') {
-                return $this->fail(lang('Booking.err_car_req'));
+                return $this->fail(lang('Common.err_car_invalid'));
             }
             if ($car['status'] !== 'available') {
                 return $this->fail(lang('Booking.err_car_unavail'));
             }
             // จำนวนผู้โดยสารต้องไม่เกินจำนวนที่นั่งของรถ
             if ((int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail(lang('Booking.err_people_over', [(int) $car['seats']]));
+                return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
         }
 
@@ -183,7 +183,7 @@ class BookingController extends BaseController
             if ($clash > 0) {
                 $db->transRollback();
 
-                return $this->fail(lang('Booking.err_car_clash'));
+                return $this->fail(lang('Common.err_car_clash'));
             }
         }
 
@@ -255,7 +255,7 @@ class BookingController extends BaseController
 
         // ต้องเป็นคำขอของตัวเอง (ตอบข้อความเดียวกับกรณีไม่พบ - ไม่บอกว่ามี id นี้อยู่จริง)
         if (! $b || (int) $b['requester_id'] !== (int) auth()->id()) {
-            return $this->fail(lang('Booking.err_not_found'));
+            return $this->fail(lang('Common.err_request_not_found'));
         }
         if ($b['status'] !== 'pending') {
             return $this->fail(lang('Booking.err_edit_pending'));
@@ -301,7 +301,7 @@ class BookingController extends BaseController
         if ($b['booking_type'] === 'self' && $b['car_id']) {
             $car = (new CarModel())->find((int) $b['car_id']);
             if ($car && (int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail(lang('Booking.err_people_over', [(int) $car['seats']]));
+                return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
             $clash = $bookings
                 ->where('car_id', (int) $b['car_id'])
@@ -311,7 +311,7 @@ class BookingController extends BaseController
                 ->where('end_at >', $start)
                 ->countAllResults();
             if ($clash > 0) {
-                return $this->fail(lang('Booking.err_car_clash'));
+                return $this->fail(lang('Common.err_car_clash'));
             }
         }
 
@@ -349,7 +349,7 @@ class BookingController extends BaseController
         $booking  = $bookings->find($id);
 
         if (! $booking || (int) $booking['requester_id'] !== (int) auth()->id()) {
-            return $this->fail(lang('Booking.err_not_found'));
+            return $this->fail(lang('Common.err_request_not_found'));
         }
 
         // รออนุมัติ -> ยกเลิกได้ทันที (ยังไม่จัดรถ/คนขับ)
@@ -357,7 +357,7 @@ class BookingController extends BaseController
             $bookings->update($id, ['status' => 'cancelled']);
             log_activity('ยกเลิกคำขอ ' . $booking['booking_code']);
 
-            return $this->ok(lang('Booking.cancelled'));
+            return $this->ok(lang('Common.request_cancelled'));
         }
 
         // อนุมัติแล้ว + ยังไม่ถึงเวลาเริ่ม -> ส่งคำขอยกเลิก รอ Admin ยืนยัน
@@ -387,7 +387,7 @@ class BookingController extends BaseController
         $booking  = $bookings->find($id);
 
         if (! $booking || (int) $booking['requester_id'] !== (int) auth()->id()) {
-            return $this->fail(lang('Booking.err_not_found'));
+            return $this->fail(lang('Common.err_request_not_found'));
         }
         if ($booking['booking_type'] !== 'self' || $booking['status'] !== 'approved') {
             return $this->fail(lang('Booking.err_return_no'));

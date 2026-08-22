@@ -7,7 +7,7 @@ use App\Models\BookingModel;
 use App\Models\CarModel;
 
 /**
- * หน้าผู้ใช้ทั่วไป - placeholder เพื่อทดสอบ shell
+ * หน้าตารางการใช้รถ (timeline) ของ user + endpoint JSON ที่ island ใช้ดึงข้อมูล
  */
 class PageController extends BaseController
 {

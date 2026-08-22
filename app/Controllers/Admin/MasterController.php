@@ -76,7 +76,8 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
 
         if ($name === '') {
             return $this->fail(lang('Master.err_name_req', [$label]));
@@ -99,7 +100,7 @@ class MasterController extends BaseController
             return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
-        log_activity("เพิ่ม{$label} {$name}");
+        log_activity("เพิ่ม{$logLabel} {$name}");
 
         return $this->ok(lang('Master.added', [$label]));
     }
@@ -111,7 +112,8 @@ class MasterController extends BaseController
         $id    = (int) $this->request->getPost('id');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
 
         if (! $model->find($id)) {
             return $this->fail(lang('Master.err_not_found', [$label]), true);
@@ -137,7 +139,7 @@ class MasterController extends BaseController
             return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
-        log_activity("แก้ไข{$label} → {$name}");
+        log_activity("แก้ไข{$logLabel} → {$name}");
 
         return $this->ok(lang('Master.saved', [$label]));
     }
@@ -148,7 +150,8 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
-        $label = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
+        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
 
         $item = $model->find($id);
         if (! $item) {
@@ -164,7 +167,7 @@ class MasterController extends BaseController
 
         $model->delete($id);
 
-        log_activity("ลบ{$label} " . ($item['name'] ?? ''));
+        log_activity("ลบ{$logLabel} " . ($item['name'] ?? ''));
 
         return $this->ok(lang('Master.deleted', [$label]));
     }

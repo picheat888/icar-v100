@@ -109,7 +109,7 @@ class MemberController extends BaseController
             'status'        => 'approved',
         ]);
 
-        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')');
+        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . (role_labels('th')[$level] ?? $level) . ')');
 
         return $this->ok(lang('Member.added'));
     }
@@ -157,7 +157,7 @@ class MemberController extends BaseController
             site_url('profile'),
         );
 
-        log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')');
+        log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . (role_labels('th')[$level] ?? $level) . ')');
 
         return $this->ok(lang('Member.approved'));
     }
