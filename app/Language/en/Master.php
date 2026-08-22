@@ -1,13 +1,17 @@
 <?php
 
 return [
-    // {0} = data type name (Departments / Positions) · {1} = number of employees
-    'err_name_req'  => 'Please enter a name ({0})',
-    'err_name_max'  => 'The name is too long, 150 characters maximum ({0})',
-    'err_dupe'      => 'This entry already exists in {0}',
-    'err_not_found' => 'Entry not found in {0}',
-    'err_in_use'    => 'Cannot delete - {1} employee(s) still belong to this entry ({0}). Move them out first',
-    'added'         => 'Entry added to {0}',
-    'saved'         => 'Entry in {0} saved',
-    'deleted'       => 'Entry in {0} deleted',
+    // Singular data-type names, substituted into {0} in the messages below
+    'type_dept'     => 'department',
+    'type_position' => 'position',
+
+    // {0} = data type name · {1} = number of employees
+    'err_name_req'  => 'Please enter the {0} name',
+    'err_name_max'  => 'The {0} name is too long (150 characters maximum)',
+    'err_dupe'      => 'This {0} already exists',
+    'err_not_found' => 'Could not find that {0}',
+    'err_in_use'    => 'Cannot delete - {1} employee(s) still belong to this {0}. Move them out first',
+    'added'         => 'The {0} was added',
+    'saved'         => 'The {0} was saved',
+    'deleted'       => 'The {0} was deleted',
 ];

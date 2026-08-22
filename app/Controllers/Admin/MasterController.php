@@ -76,8 +76,8 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
-        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
+        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'th') : lang('Master.type_dept', [], 'th');
 
         if ($name === '') {
             return $this->fail(lang('Master.err_name_req', [$label]));
@@ -112,8 +112,8 @@ class MasterController extends BaseController
         $id    = (int) $this->request->getPost('id');
         $name  = trim((string) $this->request->getPost('name'));
         $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
-        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
+        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'th') : lang('Master.type_dept', [], 'th');
 
         if (! $model->find($id)) {
             return $this->fail(lang('Master.err_not_found', [$label]), true);
@@ -150,8 +150,8 @@ class MasterController extends BaseController
         $type  = (string) $this->request->getPost('type');
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Page.position') : lang('Page.dept');
-        $logLabel = $type === 'position' ? lang('Page.position', [], 'th') : lang('Page.dept', [], 'th');
+        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'th') : lang('Master.type_dept', [], 'th');
 
         $item = $model->find($id);
         if (! $item) {
