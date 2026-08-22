@@ -27,6 +27,9 @@ export const pad = (n) => (n < 10 ? '0' + n : '' + n);
 // Date -> 'YYYY-MM-DD' (เวลาท้องถิ่น)
 export const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
+// ปี/เดือน(0-11)/วัน แยกกัน -> 'YYYY-MM-DD' (ช่องปฏิทินคืนค่ามาแบบนี้)
+export const ymdParts = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+
 // วันนี้ตามเวลาเครื่อง -> 'YYYY-MM-DD'
 export const todayStr = () => ymd(new Date());
 

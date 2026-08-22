@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { fmtDate, fmtDateTime, weekdayName, rangeLines, dateTimeRange } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { isPositiveInt } from '../lib/validate';
+import DateTimeField from '../lib/DateTimeField';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { SkelRows, SkelCards } from '../lib/Skeleton';
@@ -100,7 +101,7 @@ export default function MyRequests({ endpoints }) {
     } finally { setBusy(false); }
   };
 
-  // เปิดฟอร์มแก้ไข - แปลงค่าจาก DB เป็นรูปแบบของ input datetime-local ('YYYY-MM-DDTHH:MM')
+  // เปิดฟอร์มแก้ไข - แปลงค่าจาก DB เป็นรูปแบบที่ DateTimeField ใช้ ('YYYY-MM-DDTHH:MM')
   const openEdit = (b) => {
     setEditErr('');
     setEdit({
@@ -380,12 +381,12 @@ export default function MyRequests({ endpoints }) {
 
           <div className="mr-edit-grid">
             <div>
-              <label className="form-label" htmlFor="mr-ed-start">{t('req.start_label')}</label>
-              <input id="mr-ed-start" type="datetime-local" value={edit.form.start_at} onChange={(e) => setEditForm({ start_at: e.target.value })} className="form-input form-input--sm" />
+              <label className="form-label">{t('req.start_label')}</label>
+              <DateTimeField value={edit.form.start_at} onChange={(v) => setEditForm({ start_at: v })} placeholder={t('book.start_placeholder')} />
             </div>
             <div>
-              <label className="form-label" htmlFor="mr-ed-end">{t('req.end_label')}</label>
-              <input id="mr-ed-end" type="datetime-local" value={edit.form.end_at} onChange={(e) => setEditForm({ end_at: e.target.value })} className="form-input form-input--sm" />
+              <label className="form-label">{t('req.end_label')}</label>
+              <DateTimeField value={edit.form.end_at} onChange={(v) => setEditForm({ end_at: v })} placeholder={t('book.end_placeholder')} />
             </div>
           </div>
 
