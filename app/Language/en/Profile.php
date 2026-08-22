@@ -35,4 +35,17 @@ return [
     'reg_success_line2'          => 'You will be able to sign in once your account is approved.',
     'reg_success_status'         => 'Account status: Pending approval',
     'reg_success_back_login'     => 'Back to sign in',
+
+    // Change-password messages
+    'pw_min'          => 'The new password must be at least 8 characters long',
+    'pw_max'          => 'The password is too long (72 characters maximum)',
+    'pw_mismatch'     => 'The new password and its confirmation do not match',
+    'pw_cur_wrong'    => 'The current password is incorrect',
+    'pw_changed'      => 'Your password has been changed',
+    'pw_changed_json' => 'Password changed',
+    'pw_no_permit'    => 'You are not allowed to perform this action',
+    // Field names substituted into {field} in validation rules
+    'field_cur_pass'     => 'Current password',
+    'field_new_pass'     => 'New password',
+    'field_confirm_pass' => 'New password confirmation',
 ];

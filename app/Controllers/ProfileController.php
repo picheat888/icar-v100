@@ -78,13 +78,13 @@ class ProfileController extends BaseController
     public function updatePassword()
     {
         $rules = [
-            'curPass'     => 'required',
-            'newPass'     => 'required|min_length[8]|max_length[72]|strong_password[]',
-            'confirmPass' => 'required|matches[newPass]',
+            'curPass'     => ['label' => lang('Profile.field_cur_pass'), 'rules' => 'required'],
+            'newPass'     => ['label' => lang('Profile.field_new_pass'), 'rules' => 'required|min_length[8]|max_length[72]|strong_password[]'],
+            'confirmPass' => ['label' => lang('Profile.field_confirm_pass'), 'rules' => 'required|matches[newPass]'],
         ];
         $messages = [
-            'newPass'     => ['min_length' => 'รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร'],
-            'confirmPass' => ['matches' => 'รหัสผ่านใหม่และการยืนยันไม่ตรงกัน'],
+            'newPass'     => ['min_length' => lang('Profile.pw_min'), 'max_length' => lang('Profile.pw_max')],
+            'confirmPass' => ['matches' => lang('Profile.pw_mismatch')],
         ];
 
         if (! $this->validate($rules, $messages)) {
@@ -99,7 +99,7 @@ class ProfileController extends BaseController
             'password' => $this->request->getPost('curPass'),
         ]);
         if (! $check->isOK()) {
-            return redirect()->back()->with('error', 'รหัสผ่านเดิมไม่ถูกต้อง');
+            return redirect()->back()->with('error', lang('Profile.pw_cur_wrong'));
         }
 
         // บันทึกรหัสผ่านใหม่
@@ -109,7 +109,7 @@ class ProfileController extends BaseController
         // เคลียร์ flag บังคับเปลี่ยนรหัส (ถ้ามี) - ไม่งั้นจะถูกเด้งกลับมาหน้านี้วนไม่จบ
         $user->undoForcePasswordReset();
 
-        return redirect()->to('profile')->with('message', 'เปลี่ยนรหัสผ่านเรียบร้อยแล้ว');
+        return redirect()->to('profile')->with('message', lang('Profile.pw_changed'));
     }
 
     // POST (JSON): บันทึกรหัสใหม่จาก popup บังคับเปลี่ยนรหัส - 2 ช่อง (ใหม่+ยืนยัน) ไม่ถามรหัสเดิม
@@ -118,20 +118,20 @@ class ProfileController extends BaseController
         $user = auth()->user();
         // เฉพาะคนที่ถูกบังคับจริง - กันคนอื่นยิง endpoint ตั้งรหัสโดยไม่ต้องรู้รหัสเดิม
         if (! $user || ! $user->requiresPasswordReset()) {
-            return $this->failJson('ไม่มีสิทธิ์ดำเนินการ', 403);
+            return $this->failJson(lang('Profile.pw_no_permit'), 403);
         }
 
         $newPass = (string) $this->request->getPost('newPass');
         $confirm = (string) $this->request->getPost('confirmPass');
 
         if (mb_strlen($newPass) < 8) {
-            return $this->failJson('รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร');
+            return $this->failJson(lang('Profile.pw_min'));
         }
         if (mb_strlen($newPass) > 72) {
-            return $this->failJson('รหัสผ่านยาวเกินไป (สูงสุด 72 ตัวอักษร)');
+            return $this->failJson(lang('Profile.pw_max'));
         }
         if ($newPass !== $confirm) {
-            return $this->failJson('รหัสผ่านใหม่และการยืนยันไม่ตรงกัน');
+            return $this->failJson(lang('Profile.pw_mismatch'));
         }
         // ความแข็งแรงรหัสผ่าน (composition/dictionary/ไม่ใกล้เคียง username) - กฎเดียวกับหน้าเปลี่ยนรหัสผ่าน
         $strength = service('passwords')->check($newPass, $user);
@@ -144,7 +144,7 @@ class ProfileController extends BaseController
         (new UserModel())->save($user);
         $user->undoForcePasswordReset();
 
-        return $this->response->setJSON(['ok' => true, 'message' => 'เปลี่ยนรหัสผ่านเรียบร้อย', 'csrf' => csrf_hash()]);
+        return $this->response->setJSON(['ok' => true, 'message' => lang('Profile.pw_changed_json'), 'csrf' => csrf_hash()]);
     }
 
     // helper ตอบ error JSON พร้อม csrf ใหม่
