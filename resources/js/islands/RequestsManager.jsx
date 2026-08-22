@@ -404,7 +404,7 @@ export default function RequestsManager({ endpoints }) {
           </>
         )}
         <div className="rq-modal-actions rq-modal-actions--mt18">
-          <button onClick={() => setModal((m) => ({ ...m, editing: false }))} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
+          <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, editing: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
           <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.save')}</button>
         </div>
       </div>
