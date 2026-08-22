@@ -16,16 +16,6 @@ class DashboardController extends BaseController
     // สถานะที่ยังกันเวลารถอยู่ - ใช้ตัดสินว่ารถคันนั้น "กำลังใช้งาน" ตอนนี้
     private const HOLDING = ['pending', 'approved', 'cancel_requested'];
 
-    // เรนเดอร์หน้า placeholder ภายใต้ layout admin
-    private function page(string $active, string $title, string $subtitle = '')
-    {
-        return view('admin/_page', [
-            'active'       => $active,
-            'pageTitle'    => $title,
-            'pageSubtitle' => $subtitle,
-        ]);
-    }
-
     // ภาพรวมระบบ (island: การ์ดสรุป + คำขอล่าสุด + สมาชิกรออนุมัติ)
     public function index()
     {
@@ -130,29 +120,5 @@ class DashboardController extends BaseController
         $cars     = (new CarModel())->where('car_type', 'self')->orderBy('model')->findAll();
 
         return $this->response->setJSON(['bookings' => $bookings, 'cars' => $cars]);
-    }
-
-    // จัดการสมาชิก
-    public function members()
-    {
-        return $this->page('members', 'จัดการผู้ใช้งาน', 'อนุมัติ/แก้ไขสมาชิกและกำหนดสิทธิ์');
-    }
-
-    // จัดการคำขอจองรถ
-    public function requests()
-    {
-        return $this->page('requests', 'จัดการการจองรถ', 'อนุมัติ/ปฏิเสธและมอบหมายรถ');
-    }
-
-    // จัดการรถ
-    public function vehicles()
-    {
-        return $this->page('vehicles', 'จัดการรถ', 'รถของบริษัทและรถจัดหาโดย Admin');
-    }
-
-    // ข้อมูลหลัก (แผนก / ตำแหน่ง)
-    public function master()
-    {
-        return $this->page('master', 'ข้อมูลหลัก (แผนก / ตำแหน่ง)', 'จัดการข้อมูลตั้งต้นและประวัติการใช้งาน');
     }
 }
