@@ -13,7 +13,7 @@ final class LocaleParityTest extends CIUnitTestCase
 {
     // namespace ที่โปรเจกต์เป็นเจ้าของ - เพิ่มชื่อทุกครั้งที่สร้างไฟล์ภาษาใหม่
     private const PROJECT_NAMESPACES = [
-        'Account', 'Car', 'Common', 'Nav', 'Page', 'Profile', 'Request',
+        'Account', 'Car', 'Common', 'Log', 'Nav', 'Page', 'Profile', 'Request',
     ];
 
     // โหลด key ทั้งหมดของ namespace หนึ่งในภาษาหนึ่ง -> ['key' => 'value']

@@ -12,6 +12,7 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
 {
     // ไฟล์ที่ย้ายข้อความเสร็จแล้ว - เพิ่มชื่อเมื่อย้ายไฟล์นั้นเสร็จ
     private const CLEAN_FILES = [
+        'Controllers/Admin/ActivityLogController.php',
         'Controllers/Admin/CarController.php',
         'Controllers/Admin/DashboardController.php',
         'Controllers/User/PageController.php',

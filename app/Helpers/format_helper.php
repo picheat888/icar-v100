@@ -26,6 +26,18 @@ if (! function_exists('thai_datetime')) {
     }
 }
 
+if (! function_exists('role_labels')) {
+    // ชื่อบทบาทตามภาษาที่เลือก - เรียกตอนใช้ ไม่ใช่ตอน class โหลด
+    function role_labels(): array
+    {
+        return [
+            'admin'  => lang('Nav.role_admin'),
+            'user'   => lang('Nav.role_user'),
+            'driver' => lang('Nav.role_driver'),
+        ];
+    }
+}
+
 if (! function_exists('is_safe_url')) {
     // ตรวจว่าลิงก์ขึ้นต้นด้วย http:// หรือ https:// เท่านั้น (กัน javascript: และ protocol อันตรายอื่น)
     function is_safe_url(?string $url): bool

@@ -10,8 +10,6 @@ use App\Models\ActivityLogModel;
  */
 class ActivityLogController extends BaseController
 {
-    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User', 'driver' => 'คนขับรถ'];
-
     // หน้า "ประวัติการใช้งาน" (island)
     public function index()
     {
@@ -54,7 +52,7 @@ class ActivityLogController extends BaseController
 
         $rows = $model->inRange($from, $to, $perPage, ($page - 1) * $perPage);
         foreach ($rows as &$r) {
-            $r['role_label'] = $this->roleLabels[$r['role']] ?? '-';
+            $r['role_label'] = role_labels()[$r['role']] ?? '-';
         }
 
         return $this->response->setJSON([
@@ -82,13 +80,13 @@ class ActivityLogController extends BaseController
 
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");   // BOM นำหน้า ให้ Excel อ่านภาษาไทยได้
-        fputcsv($out, ['เวลา', 'ผู้ใช้', 'บทบาท', 'การกระทำ']);
+        fputcsv($out, [lang('Log.csv_time'), lang('Log.csv_user'), lang('Log.csv_role'), lang('Log.csv_action')]);
 
         (new ActivityLogModel())->chunkInRange($from, $to, self::EXPORT_CHUNK, function ($r) use ($out) {
             fputcsv($out, [
                 $r['created_at'],
                 $this->csvSafe($r['actor_name'] ?? '-'),
-                $this->roleLabels[$r['role']] ?? '-',
+                role_labels()[$r['role']] ?? '-',
                 $this->csvSafe($r['action']),
             ]);
         });
