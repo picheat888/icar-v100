@@ -118,50 +118,50 @@ class BookingController extends BaseController
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
         if ($location === '') {
-            return $this->fail('กรุณากรอกสถานที่ปลายทาง');
+            return $this->fail(lang('Booking.err_location_req'));
         }
         // รถอื่น ๆ ต้องระบุวัตถุประสงค์ (รถขับเองไม่บังคับ)
         if ($type === 'other' && trim((string) $this->request->getPost('purpose')) === '') {
-            return $this->fail('กรุณาระบุวัตถุประสงค์ในการใช้รถ');
+            return $this->fail(lang('Booking.err_purpose_req'));
         }
         // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น - กัน javascript: และ protocol อันตราย
         if ($mapLink !== '' && ! is_safe_url($mapLink)) {
-            return $this->fail('ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น');
+            return $this->fail(lang('Booking.err_map_scheme'));
         }
         // ลิงก์แผนที่ยาวได้สูงสุด 500 ตัวอักษร (ตามขนาดคอลัมน์ในฐานข้อมูล)
         if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
-            return $this->fail('ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)');
+            return $this->fail(lang('Booking.err_map_max'));
         }
         if (! $start || ! $end) {
-            return $this->fail('กรุณาเลือกวันเวลาเริ่มและสิ้นสุด');
+            return $this->fail(lang('Booking.err_time_req'));
         }
         if ($end <= $start) {
-            return $this->fail('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
+            return $this->fail(lang('Booking.err_time_order'));
         }
         // กันจองย้อนหลัง - เวลาเริ่มต้องไม่เป็นอดีต
         if ($start < date('Y-m-d H:i:s')) {
-            return $this->fail('ไม่สามารถจองวันเวลาที่ผ่านมาแล้วได้ กรุณาเลือกวันเวลาในอนาคต');
+            return $this->fail(lang('Booking.err_time_past'));
         }
         if ($people < 1) {
-            return $this->fail('จำนวนผู้โดยสารต้องอย่างน้อย 1 คน');
+            return $this->fail(lang('Booking.err_people_min'));
         }
         // เพดานกันตัวเลขเวอร์ (กัน SMALLINT overflow ในคอลัมน์ people)
         if ($people > 999) {
-            return $this->fail('จำนวนผู้โดยสารมากเกินไป (สูงสุด 999 คน)');
+            return $this->fail(lang('Booking.err_people_max'));
         }
 
         $cars = new CarModel();
         if ($type === 'self') {
             $car = $carId ? $cars->find($carId) : null;
             if (! $car || $car['car_type'] !== 'self') {
-                return $this->fail('กรุณาเลือกรถให้ถูกต้อง');
+                return $this->fail(lang('Booking.err_car_req'));
             }
             if ($car['status'] !== 'available') {
-                return $this->fail('รถคันนี้ไม่พร้อมใช้งาน');
+                return $this->fail(lang('Booking.err_car_unavail'));
             }
             // จำนวนผู้โดยสารต้องไม่เกินจำนวนที่นั่งของรถ
             if ((int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail('จำนวนผู้โดยสารเกินจำนวนที่นั่งของรถ (สูงสุด ' . (int) $car['seats'] . ' คน)');
+                return $this->fail(lang('Booking.err_people_over', [(int) $car['seats']]));
             }
         }
 
@@ -183,7 +183,7 @@ class BookingController extends BaseController
             if ($clash > 0) {
                 $db->transRollback();
 
-                return $this->fail('รถคันนี้ถูกจองในช่วงเวลาดังกล่าวแล้ว');
+                return $this->fail(lang('Booking.err_car_clash'));
             }
         }
 
@@ -206,7 +206,7 @@ class BookingController extends BaseController
 
         // ยืนยันทรานแซกชันสำเร็จจริงก่อนรายงานผล - กันแจ้งสำเร็จทั้งที่ DB error แล้ว rollback (ไม่มีแถวจริง)
         if (! $id || $db->transStatus() === false) {
-            return $this->fail('บันทึกคำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+            return $this->fail(lang('Booking.err_save'));
         }
 
         // แจ้ง Admin ทุกคน (ข้ามผู้ก่อถ้าเป็น admin จองเอง)
@@ -216,7 +216,7 @@ class BookingController extends BaseController
 
         log_activity('ส่งคำขอจองรถ ' . $bookings->makeCode($id) . ' (' . ($type === 'other' ? 'รถจัดหาโดย Admin' : 'รถขับเอง') . ')');
 
-        return $this->ok('ส่งคำขอจองรถเรียบร้อย รอ Admin อนุมัติ', $this->afterBookUrl());
+        return $this->ok(lang('Booking.sent'), $this->afterBookUrl());
     }
 
     // หน้า "คำขอของฉัน" (island) - ใช้ร่วม admin/user, เรนเดอร์ layout ตาม role
@@ -255,10 +255,10 @@ class BookingController extends BaseController
 
         // ต้องเป็นคำขอของตัวเอง (ตอบข้อความเดียวกับกรณีไม่พบ - ไม่บอกว่ามี id นี้อยู่จริง)
         if (! $b || (int) $b['requester_id'] !== (int) auth()->id()) {
-            return $this->fail('ไม่พบคำขอ');
+            return $this->fail(lang('Booking.err_not_found'));
         }
         if ($b['status'] !== 'pending') {
-            return $this->fail('แก้ไขได้เฉพาะคำขอที่ยังรออนุมัติ');
+            return $this->fail(lang('Booking.err_edit_pending'));
         }
 
         $location = trim((string) $this->request->getPost('location'));
@@ -269,39 +269,39 @@ class BookingController extends BaseController
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
         if ($location === '') {
-            return $this->fail('กรุณากรอกสถานที่ปลายทาง');
+            return $this->fail(lang('Booking.err_location_req'));
         }
         if ($b['booking_type'] === 'other' && $purpose === '') {
-            return $this->fail('กรุณาระบุวัตถุประสงค์ในการใช้รถ');
+            return $this->fail(lang('Booking.err_purpose_req'));
         }
         if (! $start || ! $end) {
-            return $this->fail('กรุณาเลือกวันเวลาเริ่มและสิ้นสุด');
+            return $this->fail(lang('Booking.err_time_req'));
         }
         if ($end <= $start) {
-            return $this->fail('เวลาสิ้นสุดต้องหลังเวลาเริ่ม');
+            return $this->fail(lang('Booking.err_time_order'));
         }
         // เปลี่ยนเวลาเริ่มเป็นอดีตไม่ได้ (คงเวลาเดิมไว้ยังแก้ฟิลด์อื่นได้)
         if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
-            return $this->fail('ไม่สามารถจองวันเวลาที่ผ่านมาแล้วได้ กรุณาเลือกวันเวลาในอนาคต');
+            return $this->fail(lang('Booking.err_time_past'));
         }
         if ($people < 1) {
-            return $this->fail('จำนวนผู้โดยสารต้องอย่างน้อย 1 คน');
+            return $this->fail(lang('Booking.err_people_min'));
         }
         if ($people > 999) {
-            return $this->fail('จำนวนผู้โดยสารมากเกินไป (สูงสุด 999 คน)');
+            return $this->fail(lang('Booking.err_people_max'));
         }
         if ($mapLink !== '' && ! is_safe_url($mapLink)) {
-            return $this->fail('ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น');
+            return $this->fail(lang('Booking.err_map_scheme'));
         }
         if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
-            return $this->fail('ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)');
+            return $this->fail(lang('Booking.err_map_max'));
         }
 
         // รถขับเอง: รถยังเป็นคันเดิม แต่เวลาเปลี่ยนได้ ต้องเช็คที่นั่ง + ชนเวลาใหม่
         if ($b['booking_type'] === 'self' && $b['car_id']) {
             $car = (new CarModel())->find((int) $b['car_id']);
             if ($car && (int) $car['seats'] > 0 && $people > (int) $car['seats']) {
-                return $this->fail('จำนวนผู้โดยสารเกินจำนวนที่นั่งของรถ (สูงสุด ' . (int) $car['seats'] . ' คน)');
+                return $this->fail(lang('Booking.err_people_over', [(int) $car['seats']]));
             }
             $clash = $bookings
                 ->where('car_id', (int) $b['car_id'])
@@ -311,7 +311,7 @@ class BookingController extends BaseController
                 ->where('end_at >', $start)
                 ->countAllResults();
             if ($clash > 0) {
-                return $this->fail('รถคันนี้ถูกจองในช่วงเวลาดังกล่าวแล้ว');
+                return $this->fail(lang('Booking.err_car_clash'));
             }
         }
 
@@ -327,7 +327,7 @@ class BookingController extends BaseController
         if (db_connect()->affectedRows() < 1) {
             $cur = $bookings->find($id);
             if (! $cur || $cur['status'] !== 'pending') {
-                return $this->fail('คำขอนี้ถูกดำเนินการไปแล้ว แก้ไขไม่ได้');
+                return $this->fail(lang('Booking.err_edit_done'));
             }
         }
 
@@ -338,7 +338,7 @@ class BookingController extends BaseController
 
         log_activity('แก้ไขคำขอ ' . $b['booking_code']);
 
-        return $this->ok('บันทึกการแก้ไขแล้ว');
+        return $this->ok(lang('Booking.saved'));
     }
 
     // POST: ยกเลิกคำขอของตัวเอง - pending ยกเลิกทันที · approved(ก่อนเวลาเริ่ม) ขอยกเลิกรอ Admin ยืนยัน
@@ -349,7 +349,7 @@ class BookingController extends BaseController
         $booking  = $bookings->find($id);
 
         if (! $booking || (int) $booking['requester_id'] !== (int) auth()->id()) {
-            return $this->fail('ไม่พบคำขอ');
+            return $this->fail(lang('Booking.err_not_found'));
         }
 
         // รออนุมัติ -> ยกเลิกได้ทันที (ยังไม่จัดรถ/คนขับ)
@@ -357,13 +357,13 @@ class BookingController extends BaseController
             $bookings->update($id, ['status' => 'cancelled']);
             log_activity('ยกเลิกคำขอ ' . $booking['booking_code']);
 
-            return $this->ok('ยกเลิกคำขอแล้ว');
+            return $this->ok(lang('Booking.cancelled'));
         }
 
         // อนุมัติแล้ว + ยังไม่ถึงเวลาเริ่ม -> ส่งคำขอยกเลิก รอ Admin ยืนยัน
         if ($booking['status'] === 'approved') {
             if ($booking['start_at'] <= date('Y-m-d H:i:s')) {
-                return $this->fail('ถึงเวลาเดินทางแล้ว ยกเลิกไม่ได้');
+                return $this->fail(lang('Booking.err_cancel_late'));
             }
             $bookings->update($id, ['status' => 'cancel_requested']);
 
@@ -373,10 +373,10 @@ class BookingController extends BaseController
             (new \App\Models\NotificationModel())->pushToAdmins('cancel_requested', $name . ' ขอยกเลิกคำขอ ' . $booking['booking_code'], site_url('admin/requests'), $me);
             log_activity('ขอยกเลิกคำขอ ' . $booking['booking_code']);
 
-            return $this->ok('ส่งคำขอยกเลิกแล้ว รอ Admin ยืนยัน');
+            return $this->ok(lang('Booking.cancel_sent'));
         }
 
-        return $this->fail('คำขอนี้ยกเลิกไม่ได้');
+        return $this->fail(lang('Booking.err_cancel_no'));
     }
 
     // POST: คืนรถ (เฉพาะรถขับเองที่อนุมัติแล้วและถึงเวลาเริ่มแล้ว) -> บันทึกเวลาคืน + ปล่อยรถคืน
@@ -387,17 +387,17 @@ class BookingController extends BaseController
         $booking  = $bookings->find($id);
 
         if (! $booking || (int) $booking['requester_id'] !== (int) auth()->id()) {
-            return $this->fail('ไม่พบคำขอ');
+            return $this->fail(lang('Booking.err_not_found'));
         }
         if ($booking['booking_type'] !== 'self' || $booking['status'] !== 'approved') {
-            return $this->fail('คำขอนี้คืนรถไม่ได้');
+            return $this->fail(lang('Booking.err_return_no'));
         }
         if ($booking['start_at'] > date('Y-m-d H:i:s')) {
-            return $this->fail('ยังไม่ถึงเวลาเริ่มเดินทาง');
+            return $this->fail(lang('Booking.err_return_early'));
         }
         // เลยเวลาสิ้นสุดแล้ว -> ถือว่าเดินทางเสร็จสิ้น คืนรถไม่ได้ (ระบบปิดงานให้อัตโนมัติ)
         if ($booking['end_at'] <= date('Y-m-d H:i:s')) {
-            return $this->fail('การเดินทางสิ้นสุดแล้ว');
+            return $this->fail(lang('Booking.err_return_ended'));
         }
 
         // บันทึกเวลาคืนจริง + ปิดงาน -> รถกลับมาจองได้ตามปกติ
@@ -409,7 +409,7 @@ class BookingController extends BaseController
         (new \App\Models\NotificationModel())->pushToAdmins('car_returned', $name . ' คืนรถแล้ว (' . $booking['booking_code'] . ')', site_url('admin/requests'), $me);
         log_activity('คืนรถ ' . $booking['booking_code']);
 
-        return $this->ok('คืนรถเรียบร้อย รถพร้อมให้จองอีกครั้ง');
+        return $this->ok(lang('Booking.returned'));
     }
 
     // ===== helper ตอบ JSON พร้อม csrf ใหม่ =====

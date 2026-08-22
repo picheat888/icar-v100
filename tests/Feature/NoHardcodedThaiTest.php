@@ -17,6 +17,7 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         'Controllers/Admin/DashboardController.php',
         'Controllers/Admin/MasterController.php',
         // MemberController ใส่กลับเมื่อ Task 11 ย้ายข้อความแจ้งเตือนเสร็จ
+        // BookingController ใส่กลับเมื่อ Task 11 ย้ายข้อความแจ้งเตือนเสร็จ
         'Controllers/User/PageController.php',
         'Controllers/ProfileController.php',
     ];
@@ -56,6 +57,6 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
     public function testDetectorActuallyFindsThai(): void
     {
         // ไฟล์ที่ยังไม่ย้าย ต้องถูกจับได้ - กันตัวตรวจพังแล้วเทสต์เขียวหลอก
-        $this->assertNotSame([], $this->thaiStringLines('Controllers/User/BookingController.php'));
+        $this->assertNotSame([], $this->thaiStringLines('Controllers/Admin/RequestController.php'));
     }
 }
