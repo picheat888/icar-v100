@@ -18,7 +18,6 @@ return [
     'err_name_req'  => 'Please enter the full name',
     'err_dept_bad'  => 'Invalid department',
     'err_pos_bad'   => 'Invalid position',
-    'err_pw_min'    => 'The new password must be at least 8 characters long',
 
     // Success
     'added'    => 'Member added',

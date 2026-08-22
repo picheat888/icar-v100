@@ -294,7 +294,7 @@ class MemberController extends BaseController
 
         // [validate] รหัสผ่านใหม่ (ถ้ากรอก) ต้องยาวอย่างน้อย 8 ตัว + ไม่คาดเดาง่าย (เทียบกับข้อมูลของเจ้าของบัญชี)
         if ($newPass !== '' && mb_strlen($newPass) < 8) {
-            return $this->fail(lang('Member.err_pw_min'));
+            return $this->fail(lang('Profile.pw_min'));
         }
         if ($newPass !== '') {
             $strength = service('passwords')->check($newPass, $user);
