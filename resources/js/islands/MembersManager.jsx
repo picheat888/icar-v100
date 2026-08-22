@@ -8,7 +8,7 @@ import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Modal from '../lib/Modal';
 import Icon from '../lib/Icon';
 import Spinner from '../lib/Spinner';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 
 // ป้ายสถานะสมาชิก (pending/approved/rejected) - คนละชุดกับสถานะการจอง
@@ -41,12 +41,18 @@ const USERNAME_MIN = 3;
 const USERNAME_MAX = 30;
 const PASSWORD_MIN = 8;
 
+// รหัสพนักงาน - a-z A-Z 0-9 เท่านั้น (กฎ alpha_numeric ของ server)
+const RE_EMP_ID = /^[a-zA-Z0-9]+$/;
+// เบอร์โทรไทย - มือถือ 10 หลัก (06/08/09) หรือเบอร์บ้าน 9 หลัก (02-07) ตัวเลขล้วน (App\Validation\PhoneRules::PATTERN)
+const RE_PHONE = /^0(?:[689]\d{8}|[2-7]\d{7})$/;
+
 // ตรวจฟอร์มเพิ่มสมาชิก - คืน { ช่อง: ข้อความ } ว่าง = ผ่าน
 const addFormErrors = (f) => {
   const e = {};
   const req = (k) => { if (! String(f[k] || '').trim()) e[k] = t('common.err_required'); };
   ['empId', 'name', 'dept', 'position', 'phone', 'username', 'password'].forEach(req);
-  if (! e.phone && ! /^[0-9]{10}$/.test(String(f.phone).trim())) e.phone = t('mem.err_phone_format');
+  if (! e.empId && ! RE_EMP_ID.test(String(f.empId).trim())) e.empId = t('mem.err_empid_alnum');
+  if (! e.phone && ! RE_PHONE.test(String(f.phone).trim())) e.phone = t('mem.err_phone_format');
   if (! e.username) {
     const uname = String(f.username).trim();
     if (uname.length < USERNAME_MIN || uname.length > USERNAME_MAX) {
@@ -80,13 +86,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
   const [errs, setErrs] = useState({});         // ข้อความผิดพลาดรายช่องของฟอร์มเพิ่มสมาชิก
 
   // ล้างข้อความผิดพลาดของช่องที่ระบุ
-  const clearErr = (key) => setErrs((e) => {
-    if (!(key in e)) return e;
-    const next = { ...e };
-    delete next[key];
-
-    return next;
-  });
+  const clearErr = (key) => setErrs((e) => omitErrs(e, key));
 
   // โหลดรายชื่อสมาชิก
   const load = useCallback(() => {

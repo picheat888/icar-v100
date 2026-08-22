@@ -10,7 +10,7 @@ import { useToast } from '../lib/Toast';
 import ConfirmDialog from '../lib/ConfirmDialog';
 import Modal from '../lib/Modal';
 import Alert from '../lib/Alert';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 import { t } from '../lib/i18n';
 import { STATUS_LABEL as BASE_LABEL, ST_CLASS } from '../lib/status';
@@ -130,11 +130,7 @@ export default function MyRequests({ endpoints }) {
   // แก้ค่าฟอร์ม + ล้าง error ของช่องที่เพิ่งแก้ทิ้ง
   const setEditForm = (patch) => {
     setEdit((m) => ({ ...m, form: { ...m.form, ...patch } }));
-    setErrs((e) => {
-      const next = { ...e };
-      Object.keys(patch).forEach((k) => delete next[ERR_KEY[k] || k]);
-      return next;
-    });
+    setErrs((e) => omitErrs(e, Object.keys(patch).map((k) => ERR_KEY[k] || k)));
   };
 
   // บันทึกการแก้ไขคำขอของตัวเอง (เฉพาะที่ยังรออนุมัติ)

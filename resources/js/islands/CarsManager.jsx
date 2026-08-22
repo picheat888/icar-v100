@@ -9,7 +9,7 @@ import { TrashIcon } from '../lib/icons';
 import Icon from '../lib/Icon';
 import { SkelCardItems } from '../lib/Skeleton';
 import Spinner from '../lib/Spinner';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 
 // key ข้อความสถานะ + สี pill - ต้องเรียก t() ตอน render ไม่ใช่ตอน module โหลด
@@ -144,22 +144,23 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
     const f = modal.form;
     // ผิดตรงไหนขึ้นข้อความใต้ช่องนั้น แล้วโฟกัสช่องแรกที่ผิด
     const found = validateForm(f);
-    if (Object.keys(found).length > 0) {
-      setErrs(found);
-      document.getElementById('cm-' + Object.keys(found)[0])?.focus();
-
-      return;
-    }
     // คนขับประจำ 1:1 - กันเลือกคนขับที่ผูกกับรถคันอื่นอยู่แล้ว (ยกเว้นคันที่กำลังแก้)
     if (f.car_type === 'other' && f.driver_id) {
       const clash = other.find((c) => String(c.default_driver_id) === String(f.driver_id) && String(c.id) !== String(f.id));
-      if (clash) return showToast(`${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`, 'warn');
+      if (clash) found.driver_id = `${t('car.driver_taken_pre')}${clash.model}${clash.plate ? ` (${clash.plate})` : ''}${t('car.driver_taken_post')}`;
     }
     // ทะเบียนห้ามซ้ำกับรถที่ยังใช้งานอยู่ (ยกเว้นคันที่กำลังแก้) - รถจัดหาที่เว้นทะเบียนว่างไม่ต้องตรวจ
     const plate = String(f.plate || '').trim().toLowerCase();
-    if (plate) {
+    if (! found.plate && plate) {
       const taken = [...self, ...other].find((c) => String(c.plate || '').trim().toLowerCase() === plate && String(c.id) !== String(f.id));
-      if (taken) return showToast(`${t('car.plate_taken_pre')}${taken.model}${t('car.plate_taken_post')}`, 'warn');
+      if (taken) found.plate = `${t('car.plate_taken_pre')}${taken.model}${t('car.plate_taken_post')}`;
+    }
+    if (Object.keys(found).length > 0) {
+      setErrs(found);
+      const first = Object.keys(found)[0];
+      document.getElementById(first === 'driver_id' ? 'cm-driver' : `cm-${first}`)?.focus();
+
+      return;
     }
     const fd = new FormData();
     fd.append('id', f.id || '');
@@ -201,12 +202,7 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
   };
   const setForm = (patch) => {
     setModal((m) => ({ ...m, form: { ...m.form, ...patch } }));
-    setErrs((e) => {
-      const next = { ...e };
-      Object.keys(patch).forEach((k) => delete next[k]);
-
-      return next;
-    });
+    setErrs((e) => omitErrs(e, Object.keys(patch)));
   };
 
   // เลือกไฟล์รูป - ตรวจชนิด/ขนาดตั้งแต่ในหน้าจอ ไม่ต้องรอ server ตอบ
@@ -342,13 +338,14 @@ export default function CarsManager({ endpoints, baseUrl = '' }) {
             return (
               <>
                 <label className="form-label" htmlFor="cm-driver">{t('car.regular_driver_label')}</label>
-                <select id="cm-driver" value={modal.form.driver_id} onChange={(e) => setForm({ driver_id: e.target.value })} className="form-input form-input--sm form-select cm-select cm-field-mb">
+                <select {...fieldAttrs('cm-driver', errs.driver_id)} value={modal.form.driver_id} onChange={(e) => setForm({ driver_id: e.target.value })} className={`form-input form-input--sm form-select cm-select cm-field-mb${errs.driver_id ? ' is-invalid' : ''}`}>
                   <option value="">{t('car.no_driver_option')}</option>
                   {drivers.map((d) => {
                     const taken = takenBy[String(d.id)];   // ถ้าผูกกับรถคันอื่นแล้ว = เลือกไม่ได้
                     return <option key={d.id} value={d.id} disabled={!! taken}>{(d.name || t('car.user_hash', { n: d.id })) + (taken ? `${t('car.bound_pre')}${taken}${t('car.bound_post')}` : '')}</option>;
                   })}
                 </select>
+                <FieldError id="cm-driver" msg={errs.driver_id} />
                 <label className="form-label" htmlFor="cm-note">{t('car.note_label')}</label>
                 <input id="cm-note" value={modal.form.note} onChange={(e) => setForm({ note: e.target.value })} maxLength={255} placeholder={t('car.note_placeholder')} className="form-input form-input--sm cm-field-mb" />
               </>

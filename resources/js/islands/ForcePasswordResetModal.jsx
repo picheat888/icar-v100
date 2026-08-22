@@ -3,7 +3,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
 import Alert from '../lib/Alert';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 
 const lockIcon = (
@@ -38,12 +38,12 @@ export default function ForcePasswordResetModal({ endpoint, logoutUrl = '/logout
   // แก้ค่าช่องรหัสใหม่ + ล้าง error ของช่องนั้นทิ้ง
   const handleNewPass = (v) => {
     setNewPass(v);
-    setErrs((e) => { const next = { ...e }; delete next.newPass; return next; });
+    setErrs((e) => omitErrs(e, 'newPass'));
   };
   // แก้ค่าช่องยืนยันรหัส + ล้าง error ของช่องนั้นทิ้ง
   const handleConfirm = (v) => {
     setConfirm(v);
-    setErrs((e) => { const next = { ...e }; delete next.confirm; return next; });
+    setErrs((e) => omitErrs(e, 'confirm'));
   };
 
   const submit = async () => {

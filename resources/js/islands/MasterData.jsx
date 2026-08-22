@@ -8,7 +8,7 @@ import DonePopup from '../lib/DonePopup';
 import { TrashIcon } from '../lib/icons';
 import Table from '../lib/Table';
 import Pager from '../lib/Pager';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 
 const PAGE_SIZE = 10;
@@ -96,13 +96,7 @@ export default function MasterData({ endpoints, only = 'dept' }) {
   };
 
   // ล้างข้อความผิดพลาดของช่องที่ระบุ
-  const clearErr = (key) => setErrs((e) => {
-    if (!(key in e)) return e;
-    const next = { ...e };
-    delete next[key];
-
-    return next;
-  });
+  const clearErr = (key) => setErrs((e) => omitErrs(e, key));
 
   const add = () => {
     const v = newValue.trim();

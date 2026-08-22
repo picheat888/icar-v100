@@ -8,7 +8,7 @@ import DateTimeField from '../lib/DateTimeField';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
 import Alert from '../lib/Alert';
-import { fieldAttrs } from '../lib/field';
+import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 
 // สถานะรถที่แสดงบนป้าย (คำแปล + modifier ของ .pill กลาง)
@@ -53,12 +53,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   // แก้ค่าฟอร์ม + ล้าง error ของช่องที่เพิ่งแก้ทิ้ง
   const set = (k, v) => {
     setF((s) => ({ ...s, [k]: v }));
-    setErrs((e) => {
-      if (!e[k]) return e;
-      const next = { ...e };
-      delete next[k];
-      return next;
-    });
+    setErrs((e) => omitErrs(e, k));
   };
   // ปิดโมดัลจอง + ล้าง error ทั้งหมด กันข้อความค้างข้ามรอบเปิดใหม่
   const closeModal = () => { setModal(null); setError(''); setErrs({}); };
