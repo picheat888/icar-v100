@@ -11,28 +11,6 @@ use App\Models\CarModel;
  */
 class PageController extends BaseController
 {
-    // เรนเดอร์หน้า placeholder ภายใต้ layout user
-    private function page(string $active, string $title, string $subtitle = '')
-    {
-        return view('user/_page', [
-            'active'       => $active,
-            'pageTitle'    => $title,
-            'pageSubtitle' => $subtitle,
-        ]);
-    }
-
-    // จองรถ
-    public function book()
-    {
-        return $this->page('book', lang('Page.book'), lang('Page.book_sub'));
-    }
-
-    // คำขอของฉัน
-    public function myRequests()
-    {
-        return $this->page('myRequests', lang('Page.myRequests'), lang('Page.myRequests_sub'));
-    }
-
     // ตารางการใช้รถ - หน้า island
     public function timeline()
     {

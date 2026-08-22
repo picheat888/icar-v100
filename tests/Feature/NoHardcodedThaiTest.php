@@ -14,6 +14,7 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
     private const CLEAN_FILES = [
         'Controllers/Admin/CarController.php',
         'Controllers/Admin/DashboardController.php',
+        'Controllers/User/PageController.php',
     ];
 
     // คืนบรรทัดที่มี string literal ภาษาไทย (ข้ามคอมเมนต์ และข้าม log ที่ไม่ใช่ข้อความถึงผู้ใช้)
