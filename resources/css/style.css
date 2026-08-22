@@ -640,20 +640,72 @@
   color: var(--text-mute);
 }
 
-/* ----- 1.13 Toast แจ้งผล (ลอยกลางล่าง) ----- */
+/* ----- 1.13 Toast แจ้งผลของ action (มุมขวาบน ใต้หัวเว็บ) ----- */
 .toast {
   position: fixed;
-  left: 50%;
-  bottom: 28px;
-  transform: translateX(-50%);
-  background: var(--ink-strong);
-  color: #fff;
-  padding: 11px 20px;
+  top: 76px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(380px, calc(100vw - 40px));
+  padding: 11px 12px 11px 15px;
+  border: 1px solid;
   border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, .2);
-  z-index: 200;
+  font-weight: 600;
+  line-height: 1.45;
+  box-shadow: 0 8px 30px rgba(17, 24, 39, .14);
+}
+
+.toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-close {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: .6;
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+.toast-close:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 1px;
+}
+
+.toast--success {
+  background: var(--success-soft);
+  border-color: var(--success-line);
+  color: var(--success-text);
+}
+
+.toast--error {
+  background: var(--danger-soft);
+  border-color: var(--danger-line);
+  color: var(--danger-text);
+}
+
+.toast--warn {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+  color: var(--warn);
+}
+
+.toast--info {
+  background: var(--teal-soft);
+  border-color: var(--teal-line);
+  color: var(--teal-dark);
 }
 
 /* ----- 1.14 แบ่งหน้า (ตาม D6 - ยึดแบบ lib/Pager.jsx) ----- */
