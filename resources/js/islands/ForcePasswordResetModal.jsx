@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
+import Alert from '../lib/Alert';
+import { fieldAttrs } from '../lib/field';
+import FieldError from '../lib/FieldError';
 
 const lockIcon = (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
@@ -20,7 +23,8 @@ export default function ForcePasswordResetModal({ endpoint, logoutUrl = '/logout
   const [confirm, setConfirm] = useState('');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState('');    // error จาก server/network เท่านั้น
+  const [errs, setErrs] = useState({});       // ข้อความผิดพลาดรายช่อง (รหัสใหม่/ยืนยัน)
 
   // ล็อกไม่ให้ scroll พื้นหลัง + กัน Esc ระหว่างเปิด popup
   useEffect(() => {
@@ -31,10 +35,28 @@ export default function ForcePasswordResetModal({ endpoint, logoutUrl = '/logout
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey, true); };
   }, []);
 
+  // แก้ค่าช่องรหัสใหม่ + ล้าง error ของช่องนั้นทิ้ง
+  const handleNewPass = (v) => {
+    setNewPass(v);
+    setErrs((e) => { const next = { ...e }; delete next.newPass; return next; });
+  };
+  // แก้ค่าช่องยืนยันรหัส + ล้าง error ของช่องนั้นทิ้ง
+  const handleConfirm = (v) => {
+    setConfirm(v);
+    setErrs((e) => { const next = { ...e }; delete next.confirm; return next; });
+  };
+
   const submit = async () => {
     setError('');
-    if (newPass.length < 8) { setError(t('pwreset.err_min_length')); return; }
-    if (newPass !== confirm) { setError(t('pwreset.err_mismatch')); return; }
+    const e = {};
+    if (newPass.length < 8) e.newPass = t('pwreset.err_min_length');
+    else if (newPass !== confirm) e.confirm = t('pwreset.err_mismatch');
+    if (Object.keys(e).length) {
+      setErrs(e);
+      document.getElementById(`pw-${Object.keys(e)[0]}`)?.focus();
+      return;
+    }
+    setErrs({});
     setBusy(true);
     try {
       const res = await fetch(endpoint, {
@@ -59,23 +81,25 @@ export default function ForcePasswordResetModal({ endpoint, logoutUrl = '/logout
         <h2 className="title">{t('pwreset.title')}</h2>
         <p className="subtext fr-subtitle">{t('pwreset.subtitle_line1')}<br />{t('pwreset.subtitle_line2')}</p>
 
-        {error && <div className="alert-error fr-err">{error}</div>}
+        {error && <div className="fr-err"><Alert>{error}</Alert></div>}
 
         <div className="fr-fields">
-          <label className="form-label">{t('pwreset.new_pass_label')}</label>
+          <label className="form-label" htmlFor="pw-newPass">{t('pwreset.new_pass_label')}</label>
           <div className="field">
-            <input type={show ? 'text' : 'password'} value={newPass} onChange={(e) => setNewPass(e.target.value)}
+            <input {...fieldAttrs('pw-newPass', errs.newPass)} type={show ? 'text' : 'password'} value={newPass} onChange={(e) => handleNewPass(e.target.value)}
               placeholder={t('pwreset.pass_placeholder')} autoComplete="new-password"
-              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} className="form-input" />
+              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} className={`form-input${errs.newPass ? ' is-invalid' : ''}`} />
             <button type="button" onClick={() => setShow((s) => !s)} className="field-eye fr-eye" tabIndex={-1}>{eye(show)}</button>
           </div>
+          <FieldError id="pw-newPass" msg={errs.newPass} />
 
-          <label className="form-label">{t('pwreset.confirm_pass_label')}</label>
+          <label className="form-label" htmlFor="pw-confirm">{t('pwreset.confirm_pass_label')}</label>
           <div className="field">
-            <input type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)}
+            <input {...fieldAttrs('pw-confirm', errs.confirm)} type={show ? 'text' : 'password'} value={confirm} onChange={(e) => handleConfirm(e.target.value)}
               placeholder={t('pwreset.confirm_pass_placeholder')} autoComplete="new-password"
-              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} className="form-input" />
+              onKeyDown={(e) => { if (e.key === 'Enter') submit(); }} className={`form-input${errs.confirm ? ' is-invalid' : ''}`} />
           </div>
+          <FieldError id="pw-confirm" msg={errs.confirm} />
         </div>
 
         <button onClick={submit} disabled={busy} className="btn-primary btn-block fr-submit">
