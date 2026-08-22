@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { fmtDate, fmtDateTime, weekdayName, rangeLines, dateTimeRange } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
+import { isPositiveInt } from '../lib/validate';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
 import { SkelRows, SkelCards } from '../lib/Skeleton';
@@ -124,7 +125,11 @@ export default function MyRequests({ endpoints }) {
     if (! f.start_at || ! f.end_at) { setEditErr(t('book.err_datetime')); return; }
     if (f.end_at <= f.start_at) { setEditErr(t('book.err_end_after_start')); return; }
     if (edit.b.booking_type === 'other' && ! f.purpose.trim()) { setEditErr(t('book.err_purpose')); return; }
-    if (Number(f.people) < 1) { setEditErr(t('book.err_people_min')); return; }
+    // จำนวนผู้โดยสาร: จำนวนเต็มบวก ในช่วง 1-999 คน (กฎเดียวกับหน้าจองรถและฝั่ง server)
+    const people = String(f.people).trim();
+    if (! isPositiveInt(people)) { setEditErr(t('book.err_people_int')); return; }
+    if (Number(people) < 1) { setEditErr(t('book.err_people_min')); return; }
+    if (Number(people) > 999) { setEditErr(t('book.err_people_max')); return; }
 
     setBusy(true);
     setEditErr('');
@@ -387,7 +392,7 @@ export default function MyRequests({ endpoints }) {
           <div className="mr-edit-grid">
             <div>
               <label className="form-label" htmlFor="mr-ed-people">{t('myreq.passenger_count_label')}</label>
-              <input id="mr-ed-people" type="number" min="1" max="999" value={edit.form.people} onChange={(e) => setEditForm({ people: e.target.value })} className="form-input form-input--sm" />
+              <input id="mr-ed-people" type="number" min="1" max="999" step="1" inputMode="numeric" value={edit.form.people} onChange={(e) => setEditForm({ people: e.target.value })} className="form-input form-input--sm" />
             </div>
             <div>
               <label className="form-label" htmlFor="mr-ed-map">{t('book.map_link_label')}</label>

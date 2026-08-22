@@ -3,6 +3,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
 import { MONTHS, DOW, pad, ymd, fmtDateTime } from '../lib/date';
+import { isPositiveInt } from '../lib/validate';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
 
@@ -90,7 +91,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     }
     // จำนวนผู้โดยสาร: จำนวนเต็มบวก ในช่วง 1-999 คน
     const people = String(f.people).trim();
-    if (! /^\d+$/.test(people)) {
+    if (! isPositiveInt(people)) {
       setError(t('book.err_people_int'));
       return;
     }
@@ -215,7 +216,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         <div><label className="form-label">{t('req.end_label')} <span className="form-req">*</span></label><DateTimeField value={f.end_at} onChange={(v) => set('end_at', v)} placeholder={t('book.end_placeholder')} /></div>
       </div>
       <div className={`bk-grid2${narrow ? ' bk-grid2--narrow' : ''}`}>
-        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max="999" step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value.replace(/\D/g, ''))} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
+        <div><label className="form-label">{t('req.people_label')}</label><input type="number" min="1" max="999" step="1" inputMode="numeric" value={f.people} onChange={(e) => set('people', e.target.value)} placeholder={t('book.people_placeholder')} className="form-input form-input--sm" /></div>
         <div><label className="form-label">{t('book.map_link_label')}</label><input value={f.map_link} onChange={(e) => set('map_link', e.target.value)} maxLength={500} placeholder={t('book.map_link_placeholder')} className="form-input form-input--sm" /></div>
       </div>
       <label className="form-label">{t('req.purpose_label')} {isOther && <span className="form-req">*</span>}</label>
