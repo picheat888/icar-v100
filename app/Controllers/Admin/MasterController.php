@@ -51,8 +51,8 @@ class MasterController extends BaseController
     {
         return view('admin/master/activity_log', [
             'active'       => 'log',
-            'pageTitle'    => 'ประวัติการใช้งาน',
-            'pageSubtitle' => 'บันทึกกิจกรรมการใช้งานระบบ',
+            'pageTitle'    => lang('Page.log'),
+            'pageSubtitle' => lang('Page.log_sub'),
         ]);
     }
 

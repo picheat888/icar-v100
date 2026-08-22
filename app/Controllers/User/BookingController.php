@@ -80,8 +80,8 @@ class BookingController extends BaseController
         return view('user/book/index', [
             'layout'       => 'layouts/' . $role,
             'active'       => 'timeline',   // เข้าหน้าจองรถจากหน้าตารางการใช้รถ -> ไฮไลต์เมนูนั้น
-            'pageTitle'    => 'จองรถ',
-            'pageSubtitle' => 'เลือกประเภทการจองและกรอกรายละเอียด',
+            'pageTitle'    => lang('Page.book'),
+            'pageSubtitle' => lang('Page.book_sub'),
             'cars'         => $list,
             // ปุ่มย้อนกลับ -> หน้าตารางการใช้รถ (เมนูก่อนหน้า) ตาม role
             'backUrl'      => $role === 'admin' ? site_url('admin/timeline') : site_url('timeline'),

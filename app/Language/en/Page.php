@@ -12,6 +12,8 @@ return [
     'bookings_sub'        => 'Review and approve booking requests',
     'cars'                => 'Vehicle Management',
     'cars_sub'            => 'Manage internal and external vehicles',
+    'book'                => 'Book a Vehicle',
+    'book_sub'            => 'Choose a booking type and fill in the details',
     'myRequests'          => 'My Requests',
     'myRequests_sub'      => 'Track your booking requests',
     'log'                 => 'Activity Log',

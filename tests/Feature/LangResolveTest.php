@@ -31,4 +31,14 @@ final class LangResolveTest extends CIUnitTestCase
         service('language')->setLocale('en');
         $this->assertSame('Sign in', lang('Account.login_title'));
     }
+
+    public function testBookPageTitleResolvesBothLocales(): void
+    {
+        service('language')->setLocale('th');
+        $this->assertSame('จองรถ', lang('Page.book'));
+        $this->assertSame('เลือกประเภทการจองและกรอกรายละเอียด', lang('Page.book_sub'));
+        service('language')->setLocale('en');
+        $this->assertSame('Book a Vehicle', lang('Page.book'));
+        $this->assertSame('Choose a booking type and fill in the details', lang('Page.book_sub'));
+    }
 }

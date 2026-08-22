@@ -24,13 +24,13 @@ class PageController extends BaseController
     // จองรถ
     public function book()
     {
-        return $this->page('book', 'จองรถ', 'เลือกประเภทการจองรถ');
+        return $this->page('book', lang('Page.book'), lang('Page.book_sub'));
     }
 
     // คำขอของฉัน
     public function myRequests()
     {
-        return $this->page('myRequests', 'คำขอของฉัน', 'ติดตามสถานะคำขอจองรถของคุณ');
+        return $this->page('myRequests', lang('Page.myRequests'), lang('Page.myRequests_sub'));
     }
 
     // ตารางการใช้รถ - หน้า island
