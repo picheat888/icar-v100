@@ -10,7 +10,7 @@ $statusMap  = [
 ];
 $st       = $statusMap[$profile['status'] ?? 'approved'] ?? $statusMap['approved'];
 $since    = $profile['created_at'] ?? null;
-$sinceTxt = $since ? date('d/m/Y', strtotime($since)) : '-';
+$sinceTxt = $since ? thai_date($since) : '-';
 
 // error/success ของฟอร์มเปลี่ยนรหัสผ่าน
 $errors = session('errors') ?? [];

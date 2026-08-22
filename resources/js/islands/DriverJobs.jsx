@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, Fragment } from 'react';
-import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
+import { fmtDate, weekdayName, rangeLines, dateTimeRange } from '../lib/date';
 import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
 import { CloseIcon, CalIcon } from '../lib/icons';
@@ -52,7 +52,7 @@ export default function DriverJobs({ jobs = [] }) {
         <div className="dj-groups">
           {groups.map((g) => (
             <div key={g.key}>
-              <div className="dj-day-badge">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</div>
+              <div className="dj-day-badge">{CalIcon}{fmtDate(g.key)} {weekdayName(g.key)}</div>
               <div className="dj-cards">
                 {g.rows.map((b) => (
                   <div key={b.id} onClick={() => setDetail(b)} className="dj-card">
@@ -62,7 +62,7 @@ export default function DriverJobs({ jobs = [] }) {
                     </div>
                     <div className="dj-card-loc">{b.location}</div>
                     <div className="dj-card-meta">{b.requester_name || '-'} · {t('driver.people_count', { n: b.people })}</div>
-                    <div className="dj-card-meta dj-card-meta--time">{thDate(b.start_at)} {thTime(b.start_at)} → {thTime(b.end_at)}</div>
+                    <div className="dj-card-meta dj-card-meta--time">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return `${l1} ${l2}`; })()}</div>
                   </div>
                 ))}
               </div>
@@ -86,7 +86,7 @@ export default function DriverJobs({ jobs = [] }) {
                 <Fragment key={g.key}>
                   <tr>
                     <td colSpan={6} className="dj-group-cell ta-l">
-                      <span className="dj-group-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}</span>
+                      <span className="dj-group-label">{CalIcon}{fmtDate(g.key)} {weekdayName(g.key)}</span>
                     </td>
                   </tr>
                   {g.rows.map((b) => (
@@ -95,7 +95,7 @@ export default function DriverJobs({ jobs = [] }) {
                       <td className="dj-td-loc">{b.location}</td>
                       <td>{b.requester_name || '-'}</td>
                       <td>{b.people}</td>
-                      <td className="dj-td-time">{thDate(b.start_at)}<br />{thTime(b.start_at)} → {thTime(b.end_at)}</td>
+                      <td className="dj-td-time">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return (<><div>{l1}</div><div>{l2}</div></>); })()}</td>
                       <td><span className="pill pill--sm pill--green">{t('driver.assigned')}</span></td>
                     </tr>
                   ))}
@@ -124,7 +124,7 @@ export default function DriverJobs({ jobs = [] }) {
                   <div><div className="detail-label">{t('driver.dept_label')}</div><div className="dj-detail-value">{b.dept_name || '-'}</div></div>
                   <div><div className="detail-label">{t('driver.passenger_count_label')}</div><div className="dj-detail-value">{t('driver.people_count', { n: b.people })}</div></div>
                   {b.ext_driver_vehicle && <div><div className="detail-label">{t('driver.vehicle_used_label')}</div><div className="dj-detail-value">{b.ext_driver_vehicle}</div></div>}
-                  <div className="dj-detail-full"><div className="detail-label">{t('driver.time_range')}</div><div className="dj-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
+                  <div className="dj-detail-full"><div className="detail-label">{t('driver.time_range')}</div><div className="dj-detail-value">{dateTimeRange(b.start_at, b.end_at)}</div></div>
                   {b.purpose && <div className="dj-detail-full"><div className="detail-label">{t('driver.purpose_label')}</div><div className="dj-detail-value">{b.purpose}</div></div>}
                 </div>
 

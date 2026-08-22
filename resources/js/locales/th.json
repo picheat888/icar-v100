@@ -49,6 +49,7 @@
   "common.success": "สำเร็จ",
   "common.conflict_refreshed": "อัปเดตรายการให้แล้ว",
   "common.all": "ทั้งหมด",
+  "common.to": "ถึง",
   "req.car_other": "รถอื่น ๆ",
   "req.car_self": "รถขับเอง",
   "req.provided_by_admin": "จัดหาโดย Admin",
@@ -300,6 +301,7 @@
   "tl.next_day": "วันถัดไป",
   "tl.book_car": "+ จองรถ",
   "tl.day_empty": "ยังไม่มีการจองในวันนี้ - รถทุกคันว่าง",
+  "tl.onward": "เป็นต้นไป",
   "tl.allday": "ทั้งวัน",
   "tl.scroll_hint": "← เลื่อนแนวนอนเพื่อดูช่วงเวลา →",
   "tl.no_self_cars": "ไม่มีรถขับเองในระบบ",
@@ -451,7 +453,6 @@
   "req.cancel_booking": "ยกเลิกการจอง",
   "req.cancel_reason_label": "เหตุผลที่ยกเลิก",
   "req.sec_note": "หมายเหตุ",
-  "req.to_word": "ถึง",
   "req.change_car": "เปลี่ยนรถ",
   "req.admin_edit_scope": "แก้ได้เฉพาะรถ/คนขับ - รายละเอียดการเดินทางผู้ขอเป็นคนแก้เองที่หน้า \"คำขอของฉัน\""
 }

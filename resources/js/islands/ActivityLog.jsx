@@ -1,21 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDevice } from './timeline/useDevice';
 import { t } from '../lib/i18n';
-import { SHORT_MONTHS, pad } from '../lib/date';
+import { fmtDateTime, ymd } from '../lib/date';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
 import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Pager from '../lib/Pager';
 
-// 'YYYY-MM-DD HH:MM:SS' -> '21 ก.ค. 2026 · 14:30'
-const fmtTime = (s) => {
-  if (!s) return '-';
-  const [d, tm] = s.split(' ');
-  const [y, m, dd] = d.split('-');
-  return `${+dd} ${SHORT_MONTHS[+m - 1]} ${y} · ${(tm || '').slice(0, 5)}`;
-};
-// วันนี้/ก่อนหน้า สำหรับ default range (YYYY-MM-DD)
-const ymd = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+// เวลาที่เกิดเหตุการณ์ - ว่างให้แสดงขีด
+const logTime = (s) => fmtDateTime(s) || '-';
 
 // จำนวนแถวต่อหน้าที่เลือกได้ - ต้องตรงกับ PER_PAGE_OPTIONS ใน Admin\ActivityLogController
 const PER_PAGE_OPTIONS = [10, 25, 50, 100];
@@ -126,7 +119,7 @@ export default function ActivityLog({ endpoints }) {
                 {roleBadge(l.role, l.role_label)}
               </div>
               <div className="al-card-action">{l.action}</div>
-              <div className="al-card-time">{fmtTime(l.created_at)}</div>
+              <div className="al-card-time">{logTime(l.created_at)}</div>
             </div>
           ))}
         </div>
@@ -138,7 +131,7 @@ export default function ActivityLog({ endpoints }) {
             <tbody>
               {logs.map((l) => (
                 <tr key={l.id}>
-                  <td className="al-td al-td-time">{fmtTime(l.created_at)}</td>
+                  <td className="al-td al-td-time">{logTime(l.created_at)}</td>
                   <td className="al-td al-td-actor">{l.actor_name || '-'}</td>
                   <td className="al-td">{roleBadge(l.role, l.role_label)}</td>
                   <td className="al-td">{l.action}</td>

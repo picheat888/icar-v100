@@ -1,5 +1,6 @@
 import { t } from '../../lib/i18n';
-import { STATUS_META, hhmm, dmy } from './helpers';
+import { STATUS_META } from './helpers';
+import { fmtDateTime, dateTimeRange } from '../../lib/date';
 
 // modal รายละเอียดการจอง (อ่านอย่างเดียว) - ไม่มีปุ่มจัดการ
 // props: booking, role, onClose
@@ -32,10 +33,10 @@ export default function DetailModal({ booking, role, onClose }) {
     rows.push([t('req.location_short'), booking.location || '-']);
   }
 
-  rows.push([t('req.col_time_range'), `${dmy(booking.start_at)} ${hhmm(booking.start_at)} - ${dmy(booking.end_at)} ${hhmm(booking.end_at)}`]);
+  rows.push([t('req.col_time_range'), dateTimeRange(booking.start_at, booking.end_at)]);
   // รถขับเองที่คืนแล้ว: โชว์เวลาคืนจริงเพิ่ม (ช่วงที่เหลือปล่อยว่างให้จองต่อ)
   if (booking.status === 'completed' && booking.returned_at && booking.booking_type === 'self') {
-    rows.push([t('tl.actual_return'), `${dmy(booking.returned_at)} ${hhmm(booking.returned_at)}`]);
+    rows.push([t('tl.actual_return'), fmtDateTime(booking.returned_at)]);
   }
   rows.push([t('req.people_label'), t('req.people', { n: booking.people })]);
   rows.push([t('req.car_label'), carText]);

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
-import { MONTHS, DOW, pad } from '../lib/date';
+import { MONTHS, DOW, pad, ymd, fmtDateTime } from '../lib/date';
 import { CloseIcon } from '../lib/icons';
 import DonePopup from '../lib/DonePopup';
 
@@ -11,6 +11,7 @@ const CAR_STATUS = {
   available:   ['car.status_available', 'pill--green'],
   maintenance: ['car.status_maintenance', 'pill--amber'],
 };
+// ช่องปฏิทินคืนปี/เดือน/วันแยกกัน -> 'YYYY-MM-DD' (มี Date อยู่แล้วให้ใช้ ymd() ของ lib)
 const dateStr = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
 const carIcon = (
@@ -62,7 +63,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
           let dt = new Date(b.start_at.slice(0, 10) + 'T00:00:00');
           const end = new Date(b.end_at.slice(0, 10) + 'T00:00:00');
           let guard = 0;
-          while (dt <= end && guard < 400) { set2.add(dateStr(dt.getFullYear(), dt.getMonth(), dt.getDate())); dt.setDate(dt.getDate() + 1); guard++; }
+          while (dt <= end && guard < 400) { set2.add(ymd(dt)); dt.setDate(dt.getDate() + 1); guard++; }
         });
         setBooked(set2);
       })
@@ -139,7 +140,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
   // คลิกวันในปฏิทิน -> ตั้งเวลาเริ่ม/สิ้นสุด default 08:00-17:00 (ถ้าเป็นวันนี้และเลย 08:00 แล้ว เริ่มที่ชั่วโมงถัดไป กันเวลาย้อนหลัง)
   const pickDay = (ds) => {
     const n = new Date();
-    const todayDs = dateStr(n.getFullYear(), n.getMonth(), n.getDate());
+    const todayDs = ymd(n);
     let sh = 8;
     if (ds === todayDs && n.getHours() >= 8) sh = n.getHours() + 1;   // เลย 08:00 แล้ว -> ชั่วโมงถัดไป
     if (sh > 22) { set('start_at', ''); set('end_at', ''); return; }  // ดึกเกินไป -> ให้ผู้ใช้เลือกเวลาเอง
@@ -160,7 +161,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     for (let d = 1; d <= days; d++) cells.push(d);
     const selDate = f.start_at ? f.start_at.slice(0, 10) : '';
     const now = new Date();
-    const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayDs = ymd(now);
     return (
       <div className="bk-cal-box">
         <div className="bk-cal-title">{t(isOther ? 'book.cal_title_other' : 'book.cal_title_self')}</div>
@@ -324,14 +325,6 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
 
 const HOURS = Array.from({ length: 24 }, (_, i) => pad(i));
 const MINUTES = Array.from({ length: 60 }, (_, i) => pad(i)); // 00,01,...,59 (ทุก 1 นาที)
-// แสดงค่าที่เลือกแล้วเป็น "DD-MM-YYYY · HH:MM"
-const fmtDisplay = (v) => {
-  if (!v) return '';
-  const [d, tm] = v.split('T');
-  const [y, m, dd] = d.split('-');
-  return `${dd}-${m}-${y} · ${tm}`;
-};
-
 /**
  * ช่องเลือกวัน-เวลา แบบ popup: ปฏิทินเลือกวัน + dropdown ชั่วโมง/นาที + ยืนยัน/ยกเลิก
  * value/onChange ใช้รูปแบบ 'YYYY-MM-DDTHH:MM' (เหมือน datetime-local)
@@ -373,7 +366,7 @@ function DateTimeField({ value, onChange, placeholder }) {
   for (let d = 1; d <= days; d++) cells.push(d);
 
   const now = new Date();
-  const todayDs = dateStr(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayDs = ymd(now);
   const selPast = selDate && new Date(`${selDate}T${hh}:${mm}:00`) < now;   // วันเวลาที่เลือกเป็นอดีต
 
   return (
@@ -381,7 +374,7 @@ function DateTimeField({ value, onChange, placeholder }) {
       <button type="button" onClick={openPicker}
         className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}`}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0c8b87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bk-dt-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-        <span className="bk-dt-trigger-text">{value ? fmtDisplay(value) : placeholder}</span>
+        <span className="bk-dt-trigger-text">{value ? fmtDateTime(value) : placeholder}</span>
       </button>
 
       {open && (

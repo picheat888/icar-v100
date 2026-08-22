@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
-import { thDate, thTime, thDateTime, thWeekday } from '../lib/date';
+import { fmtDate, fmtDateTime, weekdayName, rangeLines, dateTimeRange } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
@@ -243,7 +243,7 @@ export default function MyRequests({ endpoints }) {
             {groups.map((g) => (
               <div key={g.key}>
                 {/* แถบหัวข้อวัน (ไม่มีตัวนับ) */}
-                <div className="mr-day-badge">{CalIcon}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div>
+                <div className="mr-day-badge">{CalIcon}<span>{fmtDate(g.key)} {weekdayName(g.key)}</span></div>
                 <div className="mr-cards">
                   {g.rows.map((b) => { const v = vm(b); return (
                     <div key={b.id} onClick={() => setDetail(b)} className={`mr-card ${v.stClass}`}>
@@ -256,7 +256,7 @@ export default function MyRequests({ endpoints }) {
                       </div>
                       <div className="mr-card-loc">{b.location}</div>
                       {carModelLabel(b) && <div className="mr-card-meta">{t('myreq.model_label')}{carModelLabel(b)}</div>}
-                      <div className="mr-card-meta">{thDate(b.start_at)} {thTime(b.start_at)} → {thTime(b.end_at)} · {b.people} {t('myreq.unit_people')}</div>
+                      <div className="mr-card-meta">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return `${l1} ${l2}`; })()} · {b.people} {t('myreq.unit_people')}</div>
                       {(v.showEdit || v.showCancel || v.showReturn) && (
                         <div className="mr-card-actions">{actionButtons(b, v)}</div>
                       )}
@@ -279,7 +279,7 @@ export default function MyRequests({ endpoints }) {
                 <Fragment key={g.key}>
                   {/* แถบหัวข้อวัน (ไม่มีตัวนับ) */}
                   <tr>
-                    <td colSpan={8} className="mr-group-cell ta-l"><div className="mr-group-label">{CalIcon}<span>{thDate(g.key)} {thWeekday(g.key)}</span></div></td>
+                    <td colSpan={8} className="mr-group-cell ta-l"><div className="mr-group-label">{CalIcon}<span>{fmtDate(g.key)} {weekdayName(g.key)}</span></div></td>
                   </tr>
                   {g.rows.map((b) => { const v = vm(b); const highlight = b.status === 'pending' || b.status === 'cancel_requested'; return (
                     <tr key={b.id} onClick={() => setDetail(b)} className={highlight ? 'mr-row mr-row--highlight' : 'mr-row'}>
@@ -287,7 +287,7 @@ export default function MyRequests({ endpoints }) {
                       <td>{typeLabel(b.booking_type)}</td>
                       <td>{carModelLabel(b) || <span className="mr-dash">-</span>}</td>
                       <td className="mr-td-loc">{b.location}</td>
-                      <td className="mr-td-time">{thDate(b.start_at)}<br />{thTime(b.start_at)} → {thTime(b.end_at)}</td>
+                      <td className="mr-td-time">{(() => { const [l1, l2] = rangeLines(b.start_at, b.end_at); return (<><div>{l1}</div><div>{l2}</div></>); })()}</td>
                       <td>{b.people}</td>
                       <td><span className={`pill pill--sm mr-badge ${v.stClass}`}>{v.sl}</span></td>
                       <td>
@@ -321,14 +321,14 @@ export default function MyRequests({ endpoints }) {
                 </div>
                 <div className="mr-detail-grid">
                   <div className="mr-detail-full"><div className="detail-label">{t('myreq.col_destination')}</div><div className="mr-detail-value">{b.location}</div></div>
-                  <div><div className="detail-label">{t('myreq.col_time')}</div><div className="mr-detail-value">{thDateTime(b.start_at)} → {thDateTime(b.end_at)}</div></div>
+                  <div><div className="detail-label">{t('myreq.col_time')}</div><div className="mr-detail-value">{dateTimeRange(b.start_at, b.end_at)}</div></div>
                   <div><div className="detail-label">{t('myreq.passenger_count_label')}</div><div className="mr-detail-value">{b.people} {t('myreq.unit_people')}</div></div>
                   {b.purpose && <div className="mr-detail-full"><div className="detail-label">{t('myreq.purpose_label')}</div><div className="mr-detail-value">{b.purpose}</div></div>}
                   {b.booking_type === 'self' && b.car_model && <div className="mr-detail-full"><div className="detail-label">{t('myreq.car_label')}</div><div className="mr-detail-value">{b.car_model}{b.car_plate ? ` (${b.car_plate})` : ''}</div></div>}
                   {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_vehicle && <div><div className="detail-label">{t('myreq.received_car_label')}</div><div className="mr-detail-value">{b.ext_driver_vehicle}</div></div>}
                   {b.booking_type === 'other' && b.status === 'approved' && drv && <div><div className="detail-label">{t('myreq.driver_label')}</div><div className="mr-detail-value mr-detail-value--teal">{drv}</div></div>}
                   {b.booking_type === 'other' && b.status === 'approved' && b.ext_driver_phone && <div><div className="detail-label">{t('myreq.driver_phone_label')}</div><div className="mr-detail-value">{b.ext_driver_phone}</div></div>}
-                  {b.status === 'completed' && b.returned_at && <div><div className="detail-label">{t('myreq.returned_at_label')}</div><div className="mr-detail-value mr-detail-value--teal">{thDateTime(b.returned_at)}</div></div>}
+                  {b.status === 'completed' && b.returned_at && <div><div className="detail-label">{t('myreq.returned_at_label')}</div><div className="mr-detail-value mr-detail-value--teal">{fmtDateTime(b.returned_at)}</div></div>}
                 </div>
 
                 {/* เหตุผลถูกปฏิเสธ / หมายเหตุ Admin */}

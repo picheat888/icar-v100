@@ -49,6 +49,7 @@
   "common.success": "Success",
   "common.conflict_refreshed": "The list has been refreshed.",
   "common.all": "All",
+  "common.to": "to",
   "req.car_other": "Other vehicle",
   "req.car_self": "Self-driven",
   "req.provided_by_admin": "Provided by Admin",
@@ -300,6 +301,7 @@
   "tl.next_day": "Next day",
   "tl.book_car": "+ Booking",
   "tl.day_empty": "No bookings today - all vehicles are available",
+  "tl.onward": "onward",
   "tl.allday": "All day",
   "tl.scroll_hint": "← Scroll horizontally to see the time range →",
   "tl.no_self_cars": "No self-driven vehicles in the system",
@@ -451,7 +453,6 @@
   "req.cancel_booking": "Cancel booking",
   "req.cancel_reason_label": "Reason for cancelling",
   "req.sec_note": "Note",
-  "req.to_word": "to",
   "req.change_car": "Change vehicle",
   "req.admin_edit_scope": "You can change the vehicle/driver only - the requester edits trip details in \"My Requests\""
 }

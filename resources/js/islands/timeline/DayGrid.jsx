@@ -1,5 +1,6 @@
 import { t } from '../../lib/i18n';
-import { STATUS_META, ymd, parseDT, overlapsDay, bookingLabel, effectiveEnd, dayRange, fullRange } from './helpers';
+import { STATUS_META, parseDT, overlapsDay, bookingLabel, effectiveEnd, dayRange, fullRange } from './helpers';
+import { ymd, pad } from '../../lib/date';
 
 const DAY_START = 6;   // แกนเวลาเริ่ม 06:00
 const DAY_END = 20;    // แกนเวลาจบ 20:00
@@ -62,7 +63,7 @@ export default function DayGrid({ cars, bookings, dayStr, onOpenDetail, device, 
                   // left คำนวณจากตำแหน่งชั่วโมงบนแกนเวลาต่อเนื่อง - ค่า runtime
                   style={{ left: `${((t - DAY_START) / SPAN) * 100}%` }}
                 >
-                  {(t < 10 ? '0' + t : t) + ':00'}
+                  {pad(t) + ':00'}
                 </span>
               ))}
               {/* จุดแดง = เวลาตอนนี้ */}

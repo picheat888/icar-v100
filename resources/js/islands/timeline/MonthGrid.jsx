@@ -1,4 +1,5 @@
-import { STATUS_META, TH_DOW, ymd, monthGridRange, overlapsDay, bookingLabel, dayRange, fullRange } from './helpers';
+import { STATUS_META, monthGridRange, overlapsDay, bookingLabel, dayRange, fullRange } from './helpers';
+import { DOW, ymd } from '../../lib/date';
 
 // ปฏิทินรายเดือน - grid 7x6, แต่ละวันโชว์ป้ายการจองสูงสุด 3 + "+N"
 // props: year, month (0-based), bookings, today (Date), onSelectDay(dateStr), onOpenDetail(booking),
@@ -27,7 +28,7 @@ export default function MonthGrid({ year, month, bookings, today, onSelectDay, o
     <div>
       {/* หัวคอลัมน์วัน */}
       <div className="tl-mg-head">
-        {TH_DOW.map((h, i) => (
+        {DOW.map((h, i) => (
           <div
             key={h}
             className={`tl-mg-dow${compact ? ' tl-mg-dow--compact' : ''}${i === 0 ? ' tl-mg-dow--sun' : i === 6 ? ' tl-mg-dow--sat' : ''}`}

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { thWeekday } from '../../lib/date';
 import { t } from '../../lib/i18n';
 import { useDevice } from './useDevice';
-import { STATUS_META, TH_MONTHS, ymd, dmy, monthGridRange } from './helpers';
+import { STATUS_META, monthGridRange } from './helpers';
+import { MONTHS, ymd, fmtDate, weekdayName } from '../../lib/date';
 import MonthGrid from './MonthGrid';
 import DayGrid from './DayGrid';
 import DriverDayList from './DriverDayList';
@@ -95,7 +95,7 @@ export default function Timeline({ role, endpoint, book }) {
             <div className="tl-navwrap">
               <button onClick={() => shiftMonth(-1)} className="tl-nav-btn" aria-label={t('tl.prev_month')}>‹</button>
               <div className="tl-month-label">
-                {TH_MONTHS[month]} {year}
+                {MONTHS[month]} {year}
               </div>
               <button onClick={() => shiftMonth(1)} className="tl-nav-btn" aria-label={t('tl.next_month')}>›</button>
             </div>
@@ -103,7 +103,7 @@ export default function Timeline({ role, endpoint, book }) {
             <div className="tl-navwrap">
               <button onClick={() => shiftDay(-1)} className="tl-nav-btn" aria-label={t('tl.prev_day')}>‹</button>
               <div className="tl-day-label">
-                {thWeekday(selectedDay)} {dmy(selectedDay)}
+                {weekdayName(selectedDay)} {fmtDate(selectedDay)}
               </div>
               <button onClick={() => shiftDay(1)} className="tl-nav-btn" aria-label={t('tl.next_day')}>›</button>
             </div>

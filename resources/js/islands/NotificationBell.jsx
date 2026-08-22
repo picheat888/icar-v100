@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { thTime } from '../lib/date';
+import { fmtTime, fmtDate, ymd, todayStr } from '../lib/date';
 import { t } from '../lib/i18n';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import Icon from '../lib/Icon';
@@ -148,16 +148,12 @@ export default function NotificationBell({ endpoints }) {
 
   // ป้ายหัวข้อวัน: วันนี้ / เมื่อวาน / DD-MM-YYYY
   const dayLabel = (k) => {
-    const p2 = (x) => (x < 10 ? '0' + x : '' + x);
-    const asYmd = (d) => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
-    const today = new Date();
-    const yest = new Date(today);
-    yest.setDate(today.getDate() - 1);
-    if (k === asYmd(today)) return t('notif.today');
-    if (k === asYmd(yest)) return t('notif.yesterday');
-    const p = k.split('-');
+    const yest = new Date();
+    yest.setDate(yest.getDate() - 1);
+    if (k === todayStr()) return t('notif.today');
+    if (k === ymd(yest)) return t('notif.yesterday');
 
-    return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : k;
+    return fmtDate(k);
   };
 
   return (
@@ -216,7 +212,7 @@ export default function NotificationBell({ endpoints }) {
                       <span className={`nb-item-ic nb-item-ic--${tone}`}><Icon name={ic} size={15} /></span>
                       <span className="nb-item-body">
                         <span className="nb-item-msg">{n.message}</span>
-                        <span className="subtext subtext--faint nb-item-time">{thTime(n.created_at)}</span>
+                        <span className="subtext subtext--faint nb-item-time">{fmtTime(n.created_at)}</span>
                       </span>
                     </button>
                   );

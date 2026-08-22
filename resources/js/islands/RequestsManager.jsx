@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'react';
-import { thDate, thTime, thDateTime, thWeekday, todayStr } from '../lib/date';
+import { fmtDate, fmtDateTime, weekdayName, todayStr, rangeLines, dateTimeRange } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
@@ -46,13 +46,6 @@ const toLocalInput = (s) => (s ? String(s).slice(0, 16).replace(' ', 'T') : '');
 const bIcon = (name) => <Icon name={name} size={16} className="rq-btn-ico" strokeWidth={2.4} />;
 
 const typeLabel = (bt) => (bt === 'other' ? t('req.car_other') : t('req.car_self'));
-// ช่วงเวลาแบบ 2 บรรทัด: วันที่ด้านบน เวลาด้านล่าง → [บรรทัด1, บรรทัด2]
-const rangeLines = (s, e) => {
-  if (!s) return ['', ''];
-  return s.slice(0, 10) === (e || '').slice(0, 10)
-    ? [thDate(s), `${thTime(s)} → ${thTime(e)}`]
-    : [`${thDate(s)} ${thTime(s)}`, `→ ${thDate(e)} ${thTime(e)}`];
-};
 const carText = (b) => (b.car_model ? `${b.car_model}${b.car_plate ? ' · ' + b.car_plate : ''}` : (b.booking_type === 'other' ? t('req.provided_by_admin') : '-'));
 
 // ไอคอนบนปุ่ม
@@ -487,7 +480,7 @@ export default function RequestsManager({ endpoints }) {
           {groups.map((g) => (
             <div key={g.key}>
               <div className="rq-day-badge">
-                <span className="rq-day-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}
+                <span className="rq-day-label">{CalIcon}{fmtDate(g.key)} {weekdayName(g.key)}
                   {g.past && <span className="rq-day-past">{t('req.past')}</span>}
                 </span>
                 <div className="rq-day-counts">
@@ -540,7 +533,7 @@ export default function RequestsManager({ endpoints }) {
                   <tr>
                     <td colSpan={6} className="rq-group-cell">
                       <div className="rq-group-inner">
-                        <div className="rq-group-label">{CalIcon}{thDate(g.key)} {thWeekday(g.key)}
+                        <div className="rq-group-label">{CalIcon}{fmtDate(g.key)} {weekdayName(g.key)}
                           {g.past && <span className="rq-day-past">{t('req.past')}</span>}
                         </div>
                         <div className="rq-group-counts">
@@ -633,7 +626,7 @@ export default function RequestsManager({ endpoints }) {
                       <div className="rq-focus-sectitle">{t('req.sec_trip')}</div>
                       <div className="rq-focus-field">
                         <div className="detail-label">{t('req.col_time_range')}</div>
-                        <div className="rq-focus-value">{thDateTime(b.start_at)} <span className="rq-focus-to">{t('req.to_word')}</span> {thDateTime(b.end_at)}</div>
+                        <div className="rq-focus-value">{dateTimeRange(b.start_at, b.end_at)}</div>
                       </div>
                       <div className="rq-focus-field">
                         <div className="detail-label">{t('req.location_short')}</div>
@@ -686,7 +679,7 @@ export default function RequestsManager({ endpoints }) {
                     {b.status === 'completed' && b.returned_at && (
                       <div className="rq-focus-sec">
                         <div className="rq-focus-sectitle">{t('req.returned_at_label')}</div>
-                        <div className="rq-focus-value">{thDateTime(b.returned_at)}</div>
+                        <div className="rq-focus-value">{fmtDateTime(b.returned_at)}</div>
                       </div>
                     )}
 

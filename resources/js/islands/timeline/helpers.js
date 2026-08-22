@@ -1,5 +1,5 @@
 import { t } from '../../lib/i18n';
-import { MONTHS, DOW, pad as p2 } from '../../lib/date';
+import { MONTHS, fmtTime, timeRange, dateTimeRange } from '../../lib/date';
 import { STATUS_LABEL } from '../../lib/status';
 
 // label ของสถานะการจอง (ตัด rejected/cancelled ออกก่อนถึง client แล้ว) - สีมาจาก class .st-* กลางใน CSS
@@ -9,26 +9,6 @@ export const STATUS_META = {
   cancel_requested: { label: t('tl.status_cancel_requested') },
   completed:        { label: t('tl.status_completed') },
 };
-
-// ชื่อเดือนเต็ม / หัวคอลัมน์ปฏิทิน - ใช้ชุดกลาง (re-export ให้ component ในโฟลเดอร์นี้เรียกได้เหมือนเดิม)
-export const TH_MONTHS = MONTHS;
-export const TH_DOW = DOW;
-
-// Date -> 'YYYY-MM-DD' (เวลาท้องถิ่น)
-export function ymd(d) {
-  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
-}
-
-// 'YYYY-MM-DD HH:MM:SS' -> 'HH:MM'
-export function hhmm(dt) {
-  return String(dt).slice(11, 16);
-}
-
-// 'YYYY-MM-DD HH:MM:SS' -> 'DD-MM-YYYY'
-export function dmy(s) {
-  const p = String(s).slice(0, 10).split('-');
-  return (p.length === 3 && p[0]) ? `${p[2]}-${p[1]}-${p[0]}` : String(s).slice(0, 10);
-}
 
 // 'YYYY-MM-DD HH:MM:SS' -> Date (local)
 export function parseDT(dt) {
@@ -58,19 +38,19 @@ export function overlapsDay(b, dayStr) {
   return s <= dayStr && dayStr <= e;
 }
 
-// ช่วงเวลาบนป้ายของวัน dayStr - จองข้ามวันจะเห็น '08:00 →' / '→ 08:00' / 'ทั้งวัน'
+// ช่วงเวลาบนป้ายของวัน dayStr - จองข้ามวันเห็นแค่ขาที่ตกในวันนั้น
 export function dayRange(b, dayStr, end = effectiveEnd(b)) {
   const onStart = String(b.start_at).slice(0, 10) === dayStr;
   const onEnd   = String(end).slice(0, 10) === dayStr;
-  if (onStart && onEnd) return `${hhmm(b.start_at)}-${hhmm(end)}`;
-  if (onStart) return `${hhmm(b.start_at)} →`;
-  if (onEnd) return `→ ${hhmm(end)}`;
+  if (onStart && onEnd) return timeRange(b.start_at, end);
+  if (onStart) return `${fmtTime(b.start_at)} ${t('tl.onward')}`;
+  if (onEnd) return `${t('common.to')} ${fmtTime(end)}`;
   return t('tl.allday');
 }
 
 // ช่วงเต็มพร้อมวันที่ - ใช้ใน tooltip
 export function fullRange(b, end = effectiveEnd(b)) {
-  return `${dmy(b.start_at)} ${hhmm(b.start_at)} - ${dmy(end)} ${hhmm(end)}`;
+  return dateTimeRange(b.start_at, end);
 }
 
 // ข้อความสั้นบนป้าย: รถขับเอง = รุ่นรถ · รถอื่นๆ = รถที่กรอก/‘รถจัดหา’

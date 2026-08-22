@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { t } from '../lib/i18n';
-import { MONTHS, SHORT_MONTHS } from '../lib/date';
+import { fmtDate, rangeCompact } from '../lib/date';
 import { STATUS_LABEL, ST_CLASS } from '../lib/status';
 import { SkelBar, SkelList } from '../lib/Skeleton';
 
@@ -13,21 +13,6 @@ const STATUS_CLASS = {
   completed: `dash-status-badge ${ST_CLASS.completed}`,
   rejected: 'pill--red',
   cancelled: 'pill--red',
-};
-
-// 'YYYY-MM-DD HH:MM:SS' -> {date:'YYYY-MM-DD', hm:'HH:MM', th:'19 มิถุนายน 2026'}
-const parseDt = (s) => {
-  if (!s) return { date: '', hm: '', th: '' };
-  const [d, t] = s.split(' ');
-  const [y, m, dd] = d.split('-');
-  return { date: d, hm: (t || '').slice(0, 5), th: `${+dd} ${MONTHS[+m - 1]} ${y}` };
-};
-// ช่วงเวลาแบบสั้น: "20 มิ.ย. 13:00 - 18:00"
-const rangeShort = (start, end) => {
-  const s = parseDt(start);
-  const e = parseDt(end);
-  const [, sm, sd] = s.date.split('-');
-  return `${+sd} ${SHORT_MONTHS[+sm - 1]} ${s.hm} - ${e.hm}`;
 };
 
 // การ์ดสรุปตัวเลข - เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา
@@ -99,8 +84,8 @@ export default function Dashboard({ endpoints, links }) {
   const groups = [];
   let cur = null;
   for (const b of bookings) {
-    const { th, date } = parseDt(b.start_at);
-    if (!cur || cur.date !== date) { cur = { date, th, rows: [] }; groups.push(cur); }
+    const date = String(b.start_at || '').slice(0, 10);
+    if (!cur || cur.date !== date) { cur = { date, rows: [] }; groups.push(cur); }
     cur.rows.push(b);
   }
 
@@ -140,7 +125,7 @@ export default function Dashboard({ endpoints, links }) {
             <div className="dash-brow-list">
               {groups.map((g) => (
                 <div key={g.date}>
-                  <div className="dash-daylabel">{g.th}</div>
+                  <div className="dash-daylabel">{fmtDate(g.date)}</div>
                   {g.rows.map((b) => {
                     const sl = STATUS_LABEL[b.status] || STATUS_LABEL.pending;
                     const stCls = STATUS_CLASS[b.status] || STATUS_CLASS.pending;
@@ -157,7 +142,7 @@ export default function Dashboard({ endpoints, links }) {
                           <div className="dash-brow-veh-name">{veh}</div>
                           <div className="dash-brow-veh-sub">{b.car_plate || ''}</div>
                         </div>
-                        <div className="dash-brow-time">{rangeShort(b.start_at, b.end_at)}</div>
+                        <div className="dash-brow-time">{rangeCompact(b.start_at, b.end_at)}</div>
                         {/* dashboard เป็นหน้ารายงาน ไม่ตัดสินใจแทน - ทุกงานที่ต้องจัดการพาไปเปิดคำขอนั้น
                             ที่หน้าจัดการคำขอ ซึ่งมีทั้งหมายเหตุ เลือกคนขับ และขั้นยืนยัน */}
                         {needsAction ? (
