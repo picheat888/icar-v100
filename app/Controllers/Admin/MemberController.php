@@ -16,9 +16,6 @@ use CodeIgniter\Shield\Models\UserModel;
  */
 class MemberController extends BaseController
 {
-    // ป้ายบทบาทไทย
-    private array $roleLabels = ['admin' => 'Admin', 'user' => 'User', 'driver' => 'คนขับรถ'];
-
     // หน้า "จัดการสมาชิก" (เรนเดอร์ island)
     public function index()
     {
@@ -42,7 +39,7 @@ class MemberController extends BaseController
 
         $rows = (new UserProfileModel())->listMembers();
         foreach ($rows as &$r) {
-            $r['role_label']  = $this->roleLabels[$r['role']] ?? '-';
+            $r['role_label']  = role_labels()[$r['role']] ?? '-';
             $r['force_reset'] = (int) ($r['force_reset'] ?? 0);   // สถานะบังคับเปลี่ยนรหัส (0/1)
         }
 
@@ -74,7 +71,7 @@ class MemberController extends BaseController
 
         $level = (string) $this->request->getPost('level');
         if (! in_array($level, ['user', 'driver', 'admin'], true)) {
-            return $this->fail('สิทธิ์ไม่ถูกต้อง');
+            return $this->fail(lang('Member.err_bad_role'));
         }
 
         // กฎ strong_password ของ Shield อ่าน username + email ไปเทียบความใกล้เคียง
@@ -112,9 +109,9 @@ class MemberController extends BaseController
             'status'        => 'approved',
         ]);
 
-        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')');
+        log_activity('เพิ่มสมาชิก: ' . $req->getPost('name') . ' (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')');
 
-        return $this->ok('เพิ่มสมาชิกเรียบร้อย');
+        return $this->ok(lang('Member.added'));
     }
 
     // POST: อนุมัติสมาชิก + กำหนด role
@@ -123,18 +120,18 @@ class MemberController extends BaseController
         $userId = (int) $this->request->getPost('user_id');
         $level  = (string) $this->request->getPost('level');
         if (! in_array($level, ['user', 'driver', 'admin'], true)) {
-            return $this->fail('สิทธิ์ไม่ถูกต้อง');
+            return $this->fail(lang('Member.err_bad_role'));
         }
 
         $user = (new UserModel())->findById($userId);
         if (! $user) {
-            return $this->fail('ไม่พบสมาชิก', true);
+            return $this->fail(lang('Member.err_not_found'), true);
         }
         // ต้องมีโปรไฟล์ (1:1) ก่อน - กันเปลี่ยน role ทั้งที่ profile ไม่มี/อัปเดตไม่ลง
         $profiles = new UserProfileModel();
         $profile  = $profiles->findByUserId($userId);
         if (! $profile) {
-            return $this->fail('ไม่พบโปรไฟล์สมาชิก', true);
+            return $this->fail(lang('Member.err_profile_missing'), true);
         }
 
         // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ update) - บัญชีตัวเอง / คนขับมีงานค้าง
@@ -146,7 +143,7 @@ class MemberController extends BaseController
         db_connect()->query('SELECT GET_LOCK(?, 5)', ['member_admin_guard']);
         if ($this->isLastAdminDemotion($user, $level, $profile)) {
             db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
-            return $this->fail('ไม่สามารถถอดสิทธิ์ Admin คนสุดท้ายได้');
+            return $this->fail(lang('Member.err_last_admin_demote'));
         }
         $user->syncGroups($level);                                  // ตั้ง role เป็นกลุ่มเดียว
         $profiles->where('user_id', $userId)->set(['status' => 'approved'])->update();
@@ -155,13 +152,13 @@ class MemberController extends BaseController
         (new NotificationModel())->push(
             $userId,
             'member_approved',
-            'บัญชีของคุณได้รับการอนุมัติแล้ว (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')',
+            'บัญชีของคุณได้รับการอนุมัติแล้ว (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')',
             site_url('profile'),
         );
 
-        log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . ($this->roleLabels[$level] ?? $level) . ')');
+        log_activity('อนุมัติสมาชิก ' . $user->username . ' (สิทธิ์: ' . (role_labels()[$level] ?? $level) . ')');
 
-        return $this->ok('อนุมัติสมาชิกเรียบร้อย');
+        return $this->ok(lang('Member.approved'));
     }
 
     // POST: ปฏิเสธ / ปิดการใช้งานสมาชิก (ตั้ง status=rejected)
@@ -172,19 +169,19 @@ class MemberController extends BaseController
 
         $profile = $profiles->findByUserId($userId);
         if (! $profile) {
-            return $this->fail('ไม่พบสมาชิก', true);
+            return $this->fail(lang('Member.err_not_found'), true);
         }
 
         // กันปิดบัญชีตัวเอง
         if ($userId === (int) auth()->id()) {
-            return $this->fail('ไม่สามารถปิดการใช้งานบัญชีของตัวเองได้');
+            return $this->fail(lang('Member.err_self_off'));
         }
 
         $target = (new UserModel())->findById($userId);
 
         // กันปิด driver ที่ยังมีงานที่ได้รับมอบหมายค้างอยู่ (งานจะกำพร้า คนขับเข้าดูไม่ได้)
         if ($target && $target->inGroup('driver') && $this->driverActiveJobs($userId) > 0) {
-            return $this->fail('คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ - จัดการงานให้เสร็จก่อนจึงจะปิดบัญชีได้');
+            return $this->fail(lang('Member.err_driver_jobs_off'));
         }
 
         // กันถอด Admin คนสุดท้ายพร้อมกัน (TOCTOU) - ล็อกช่วงนับ+เขียน
@@ -192,7 +189,7 @@ class MemberController extends BaseController
         if ($target && $target->inGroup('admin') && $profile['status'] === 'approved'
             && $this->countActiveAdmins() <= 1) {
             db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
-            return $this->fail('ไม่สามารถปิดการใช้งาน Admin คนสุดท้ายได้');
+            return $this->fail(lang('Member.err_last_admin_off'));
         }
         $profiles->where('user_id', $userId)->set(['status' => 'rejected'])->update();
         db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
@@ -201,7 +198,7 @@ class MemberController extends BaseController
 
         log_activity('ปฏิเสธ/ปิดการใช้งานสมาชิก ' . ($target->username ?? ('id ' . $userId)));
 
-        return $this->ok('ปฏิเสธสมาชิกแล้ว');
+        return $this->ok(lang('Member.rejected'));
     }
 
     // นับ admin ที่ใช้งานอยู่ (group=admin + status=approved)
@@ -232,11 +229,11 @@ class MemberController extends BaseController
     {
         // เปลี่ยนสิทธิ์บัญชีตัวเองไม่ได้
         if ($userId === (int) auth()->id() && ! $user->inGroup($level)) {
-            return 'ไม่สามารถเปลี่ยนสิทธิ์ของบัญชีตัวเองได้';
+            return lang('Member.err_self_role');
         }
         // ถอด driver ที่มีงานค้าง -> งานจะกำพร้า
         if ($user->inGroup('driver') && $level !== 'driver' && $this->driverActiveJobs($userId) > 0) {
-            return 'คนขับคนนี้มีงานที่ได้รับมอบหมายอยู่ - จัดการงานให้เสร็จก่อนจึงจะเปลี่ยนสิทธิ์ได้';
+            return lang('Member.err_driver_jobs_role');
         }
 
         return null;
@@ -257,12 +254,12 @@ class MemberController extends BaseController
         $users  = new UserModel();
         $user   = $users->findById($userId);
         if (! $user) {
-            return $this->fail('ไม่พบสมาชิก', true);
+            return $this->fail(lang('Member.err_not_found'), true);
         }
 
         $level = (string) $this->request->getPost('level');
         if (! in_array($level, ['user', 'driver', 'admin'], true)) {
-            return $this->fail('สิทธิ์ไม่ถูกต้อง');
+            return $this->fail(lang('Member.err_bad_role'));
         }
 
         // guard เปลี่ยนสิทธิ์ (ชุดเดียวกับ approve) - บัญชีตัวเอง / คนขับมีงานค้าง
@@ -280,7 +277,7 @@ class MemberController extends BaseController
         $position = $this->request->getPost('position') ?: null;
         $phone    = trim((string) $this->request->getPost('phone'));
         if ($name === '') {
-            return $this->fail('กรุณากรอกชื่อ-นามสกุล');
+            return $this->fail(lang('Member.err_name_req'));
         }
         if (mb_strlen($name) > 150) {
             return $this->fail(lang('Account.srv_name_max'));
@@ -289,15 +286,15 @@ class MemberController extends BaseController
             return $this->fail(lang('Account.srv_phone_format'));
         }
         if ($dept !== null && ! (new DepartmentModel())->find((int) $dept)) {
-            return $this->fail('แผนกไม่ถูกต้อง');
+            return $this->fail(lang('Member.err_dept_bad'));
         }
         if ($position !== null && ! (new PositionModel())->find((int) $position)) {
-            return $this->fail('ตำแหน่งไม่ถูกต้อง');
+            return $this->fail(lang('Member.err_pos_bad'));
         }
 
         // [validate] รหัสผ่านใหม่ (ถ้ากรอก) ต้องยาวอย่างน้อย 8 ตัว + ไม่คาดเดาง่าย (เทียบกับข้อมูลของเจ้าของบัญชี)
         if ($newPass !== '' && mb_strlen($newPass) < 8) {
-            return $this->fail('รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร');
+            return $this->fail(lang('Member.err_pw_min'));
         }
         if ($newPass !== '') {
             $strength = service('passwords')->check($newPass, $user);
@@ -310,7 +307,7 @@ class MemberController extends BaseController
         db_connect()->query('SELECT GET_LOCK(?, 5)', ['member_admin_guard']);
         if ($this->isLastAdminDemotion($user, $level, $profile)) {
             db_connect()->query('SELECT RELEASE_LOCK(?)', ['member_admin_guard']);
-            return $this->fail('ไม่สามารถถอดสิทธิ์ Admin คนสุดท้ายได้');
+            return $this->fail(lang('Member.err_last_admin_demote'));
         }
 
         // อัปเดตโปรไฟล์
@@ -344,7 +341,7 @@ class MemberController extends BaseController
 
         log_activity('แก้ไขข้อมูลสมาชิก ' . $user->username);
 
-        return $this->ok('บันทึกข้อมูลสมาชิกแล้ว');
+        return $this->ok(lang('Member.saved'));
     }
 
     // ===== helper ตอบ JSON พร้อมแนบ csrf ใหม่ (regenerate=true) =====
