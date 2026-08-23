@@ -3189,23 +3189,11 @@
 
 /* ช่องค้นหา/เพิ่มในแถบเครื่องมือ - ขนาด/ระยะห่างภายในใช้ .form-input--sm */
 .md-input--search {
-  flex: 1 1 240px;
+  flex: 0 1 340px;
   min-width: 0;
 }
 
 /* กลุ่มช่องเพิ่ม + ปุ่มเพิ่ม วางเรียงกันในแถบเครื่องมือ */
-.md-add-group {
-  display: flex;
-  gap: 9px;
-  flex: 1 1 260px;
-  min-width: 0;
-}
-
-.md-input--add {
-  flex: 1;
-  min-width: 0;
-}
-
 /* ปุ่ม "เพิ่ม" - ใช้ฐานจาก .btn-primary กำหนด layout เฉพาะจุดของแถบเครื่องมือนี้ */
 .md-add-btn {
   flex: none;
@@ -3219,6 +3207,28 @@
 /* หัวคอลัมน์ลำดับ - กว้างคงที่ */
 .md-th-no {
   width: 56px;
+}
+
+/* แถวสร้างรายการใหม่ - พื้น teal อ่อนบอกว่าเป็นช่องทำงาน ไม่ใช่ข้อมูล */
+.md-row--new {
+  background: var(--teal-soft);
+}
+
+.md-row--new td {
+  border-bottom: 2px solid var(--teal-line);
+}
+
+/* เครื่องหมายบวกแทนเลขลำดับในแถวสร้าง (ต้องจำเพาะกว่า .tbl .md-td-no) */
+.tbl .md-row--new .md-td-no--new {
+  color: var(--teal-dark);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ช่องกรอกในแถวสร้าง - จำกัดความกว้างให้พออ่านชื่อ ไม่ยืดเต็มคอลัมน์ */
+.md-new-input {
+  max-width: 420px;
 }
 
 /* หัวคอลัมน์ชื่อ - กดเรียงลำดับได้ */

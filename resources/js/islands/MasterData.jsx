@@ -160,20 +160,9 @@ export default function MasterData({ endpoints, only = 'dept' }) {
       )}
       {/* toolbar: ค้นหา + เพิ่ม (การ์ดขาวลอยเด่น เข้าชุดกับกล่องตารางด้านล่าง) */}
       <div className="filter-card">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('master.search_placeholder', { label })}
+        <label className="sr-only" htmlFor="md-search">{t('master.search_placeholder', { label })}</label>
+        <input id="md-search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('master.search_placeholder', { label })}
           className="form-input form-input--sm md-input--search" />
-        <div className="md-add-group">
-          <div className="md-input--add">
-            <input {...fieldAttrs('md-name', errs.name)} value={newValue}
-              onChange={(e) => { setNewValue(e.target.value); clearErr('name'); }} onKeyDown={(e) => e.key === 'Enter' && add()}
-              placeholder={t('master.add_placeholder', { label })} maxLength={150} className={`form-input form-input--sm${errs.name ? ' is-invalid' : ''}`} />
-            <FieldError id="md-name" msg={errs.name} />
-          </div>
-          <button onClick={add} disabled={busy}
-            className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
-            {busy ? <Spinner /> : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>}{t('master.add_btn')}
-          </button>
-        </div>
       </div>
 
       {/* ตาราง */}
@@ -186,6 +175,23 @@ export default function MasterData({ endpoints, only = 'dept' }) {
           <th className="md-th-manage ta-r">{t('master.col_manage')}</th>
         </tr></thead>
         <tbody>
+          {/* แถวสร้างรายการใหม่ - อยู่บนสุดเสมอ ไม่ขึ้นกับการค้นหาหรือหน้าที่เปิดอยู่ */}
+          <tr className="md-row md-row--new">
+            <td className="md-td-no md-td-no--new" aria-hidden="true">+</td>
+            <td className="md-td-name">
+              <label className="sr-only" htmlFor="md-name">{t('master.add_placeholder', { label })}</label>
+              <input {...fieldAttrs('md-name', errs.name)} value={newValue}
+                onChange={(e) => { setNewValue(e.target.value); clearErr('name'); }} onKeyDown={(e) => e.key === 'Enter' && add()}
+                placeholder={t('master.add_placeholder', { label })} maxLength={150}
+                className={`form-input form-input--sm md-new-input${errs.name ? ' is-invalid' : ''}`} />
+              <FieldError id="md-name" msg={errs.name} />
+            </td>
+            <td className="md-td-manage ta-r">
+              <button onClick={add} disabled={busy} className={`btn-primary md-add-btn${busy ? ' is-busy' : ''}`}>
+                {busy ? <Spinner /> : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>}{t('master.add_btn')}
+              </button>
+            </td>
+          </tr>
           {pageItems.length === 0 && (
             <tr><td colSpan={3} className="tbl-empty">{search ? t('master.not_found_search') : t('master.empty')}</td></tr>
           )}

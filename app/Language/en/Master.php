@@ -10,6 +10,7 @@ return [
     'err_name_max'  => 'The {0} name is too long (150 characters maximum)',
     'err_dupe'      => 'This {0} already exists',
     'err_not_found' => 'Could not find that {0}',
+    'err_type_invalid' => 'Unknown data type',
     'err_in_use'    => 'Cannot delete - {1} employee(s) still belong to this {0}. Move them out first',
     'added'         => 'The {0} was added',
     'saved'         => 'The {0} was saved',

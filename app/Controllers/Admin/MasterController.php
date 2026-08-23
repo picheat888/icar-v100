@@ -18,6 +18,20 @@ class MasterController extends BaseController
         return $type === 'position' ? new PositionModel() : new DepartmentModel();
     }
 
+    // ชนิดที่รับได้ - นอกเหนือจากนี้ตีกลับ ไม่ตกไปที่แผนกเงียบ ๆ
+    private const TYPES = ['dept', 'position'];
+
+    /**
+     * จัดรูปชื่อก่อนตรวจ - ตัดอักขระที่มองไม่เห็น (zero-width, format char) แล้วยุบช่องว่าง
+     * ทุกชนิดรวมขึ้นบรรทัดใหม่และแท็บให้เหลือช่องเดียว ชื่อที่ตาอ่านว่าเหมือนกันจึงซ้ำกันจริง
+     */
+    private function normalizeName(?string $raw): string
+    {
+        $name = preg_replace('/[\p{Cf}\x{200B}-\x{200D}\x{FEFF}]/u', '', (string) $raw);
+
+        return trim((string) preg_replace('/\s+/u', ' ', $name));
+    }
+
     // เดิมเป็นหน้า "ข้อมูลหลัก" - แยกเป็นเมนูย่อย แผนก/ตำแหน่ง ใต้จัดการสมาชิก
     public function index()
     {
@@ -74,7 +88,10 @@ class MasterController extends BaseController
     public function add()
     {
         $type  = (string) $this->request->getPost('type');
-        $name  = trim((string) $this->request->getPost('name'));
+        if (! in_array($type, self::TYPES, true)) {
+            return $this->fail(lang('Master.err_type_invalid'));
+        }
+        $name  = $this->normalizeName($this->request->getPost('name'));
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
         $logLabel = $type === 'position' ? lang('Master.type_position', [], 'en') : lang('Master.type_dept', [], 'en');
@@ -109,8 +126,11 @@ class MasterController extends BaseController
     public function update()
     {
         $type  = (string) $this->request->getPost('type');
+        if (! in_array($type, self::TYPES, true)) {
+            return $this->fail(lang('Master.err_type_invalid'));
+        }
         $id    = (int) $this->request->getPost('id');
-        $name  = trim((string) $this->request->getPost('name'));
+        $name  = $this->normalizeName($this->request->getPost('name'));
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
         $logLabel = $type === 'position' ? lang('Master.type_position', [], 'en') : lang('Master.type_dept', [], 'en');
@@ -148,6 +168,9 @@ class MasterController extends BaseController
     public function delete()
     {
         $type  = (string) $this->request->getPost('type');
+        if (! in_array($type, self::TYPES, true)) {
+            return $this->fail(lang('Master.err_type_invalid'));
+        }
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
