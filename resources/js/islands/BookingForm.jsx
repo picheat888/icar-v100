@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import Spinner from '../lib/Spinner';
-import { MONTHS, DOW, pad, ymd, ymdParts } from '../lib/date';
+import { MONTHS, DOW, pad, ymd, ymdParts, dateOf } from '../lib/date';
 import { peopleError, MAX_PEOPLE } from '../lib/validate';
 import DateTimeField from '../lib/DateTimeField';
 import { CloseIcon } from '../lib/icons';
@@ -70,8 +70,8 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         if (seq !== availReq.current) return;   // มีคำขอใหม่กว่าแล้ว ทิ้งผลเก่า
         const set2 = new Set();
         (d.bookings || []).forEach((b) => {
-          let dt = new Date(b.start_at.slice(0, 10) + 'T00:00:00');
-          const end = new Date(b.end_at.slice(0, 10) + 'T00:00:00');
+          let dt = new Date(dateOf(b.start_at) + 'T00:00:00');
+          const end = new Date(dateOf(b.end_at) + 'T00:00:00');
           let guard = 0;
           while (dt <= end && guard < 400) { set2.add(ymd(dt)); dt.setDate(dt.getDate() + 1); guard++; }
         });
@@ -132,6 +132,11 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
         setDone(true);
         const next = d.redirect || backUrl || '/timeline';
         setTimeout(() => { window.location.href = next; }, 1500);
+      } else if (d.errors) {
+        // server ตีกลับรายช่อง - แสดงใต้ช่องนั้น ไม่ใช่กล่องรวมบนฟอร์ม
+        setErrs(d.errors);
+        setError('');
+        document.getElementById(`bk-${Object.keys(d.errors)[0]}`)?.focus();
       } else setError(d.message || t('common.err'));
     } finally { if (!sent) setBusy(false); }
   };
@@ -158,7 +163,7 @@ export default function BookingForm({ endpoints, cars = [], baseUrl = '', backUr
     const cells = [];
     for (let i = 0; i < first; i++) cells.push(null);
     for (let d = 1; d <= days; d++) cells.push(d);
-    const selDate = f.start_at ? f.start_at.slice(0, 10) : '';
+    const selDate = dateOf(f.start_at);
     const now = new Date();
     const todayDs = ymd(now);
     return (

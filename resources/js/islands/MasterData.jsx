@@ -89,6 +89,13 @@ export default function MasterData({ endpoints, only = 'dept' }) {
         showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
       }
+      // server ตีกลับรายช่อง - แสดงใต้ช่องนั้น ไม่ขึ้น toast (toast ไว้บอกผลลัพธ์อย่างเดียว)
+      if (! d.ok && d.errors) {
+        setErrs((e) => ({ ...e, ...d.errors }));
+        document.getElementById('md-name')?.focus();
+
+        return false;
+      }
       if (!d.ok || !silentOk) showToast(d.message || (d.ok ? t('common.success') : t('common.err')), d.ok ? 'success' : 'error');
       if (d.ok) { load(); return true; }
       return false;

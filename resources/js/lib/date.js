@@ -30,12 +30,15 @@ export const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.g
 // ปี/เดือน(0-11)/วัน แยกกัน -> 'YYYY-MM-DD' (ช่องปฏิทินคืนค่ามาแบบนี้)
 export const ymdParts = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+// ส่วนวันที่ของค่าเวลาที่ได้จาก DB/ฟอร์ม ('YYYY-MM-DD HH:MM:SS' หรือ 'YYYY-MM-DDTHH:MM') -> 'YYYY-MM-DD'
+export const dateOf = (s) => String(s || '').slice(0, 10);
+
 // วันนี้ตามเวลาเครื่อง -> 'YYYY-MM-DD'
 export const todayStr = () => ymd(new Date());
 
 // "2026-08-21 ..." -> "21-08-2026"
 export const fmtDate = (s) => {
-  const d = String(s || '').slice(0, 10);
+  const d = dateOf(s);
   const p = d.split('-');
   return (p.length === 3 && p[0]) ? `${p[2]}-${p[1]}-${p[0]}` : d;
 };

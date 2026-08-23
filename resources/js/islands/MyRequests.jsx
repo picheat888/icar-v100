@@ -173,7 +173,14 @@ export default function MyRequests({ endpoints }) {
       if (!res.ok && !d.csrf) { window.location.reload(); return; }
       if (d.csrf) setCsrf(d.csrf);
       if (d.ok) { setEdit(null); setDetail(null); showToast(d.message || t('common.success'), 'success'); load(); }
-      else setEditErr(d.message || t('common.err'));
+      else if (d.errors) {
+        // server ตีกลับรายช่อง - แสดงใต้ช่องนั้น ไม่ใช่กล่องรวมบนฟอร์ม
+        const mapped = {};
+        Object.entries(d.errors).forEach(([k, v]) => { mapped[ERR_KEY[k] || k] = v; });
+        setErrs(mapped);
+        setEditErr('');
+        document.getElementById(`mr-ed-${Object.keys(mapped)[0]}`)?.focus();
+      } else setEditErr(d.message || t('common.err'));
     } finally { setBusy(false); }
   };
 

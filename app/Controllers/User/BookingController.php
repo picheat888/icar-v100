@@ -118,20 +118,9 @@ class BookingController extends BaseController
         $carId    = $type === 'self' ? (int) $this->request->getPost('car_id') : null;
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
-        if ($location === '') {
-            return $this->fail(lang('Booking.err_location_req'));
-        }
-        // รถอื่น ๆ ต้องระบุวัตถุประสงค์ (รถขับเองไม่บังคับ)
-        if ($type === 'other' && trim((string) $this->request->getPost('purpose')) === '') {
-            return $this->fail(lang('Booking.err_purpose_req'));
-        }
-        // ลิงก์แผนที่ (ถ้ากรอก) ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น - กัน javascript: และ protocol อันตราย
-        if ($mapLink !== '' && ! is_safe_url($mapLink)) {
-            return $this->fail(lang('Booking.err_map_scheme'));
-        }
-        // ลิงก์แผนที่ยาวได้สูงสุด 500 ตัวอักษร (ตามขนาดคอลัมน์ในฐานข้อมูล)
-        if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
-            return $this->fail(lang('Booking.err_map_max'));
+        // วัตถุประสงค์บังคับเฉพาะรถอื่น ๆ
+        if ($r = $this->failInput($type === 'other')) {
+            return $r;
         }
         if (! $start || ! $end) {
             return $this->fail(lang('Booking.err_time_req'));
@@ -142,13 +131,6 @@ class BookingController extends BaseController
         // กันจองย้อนหลัง - เวลาเริ่มต้องไม่เป็นอดีต
         if ($start < date('Y-m-d H:i:s')) {
             return $this->fail(lang('Booking.err_time_past'));
-        }
-        // รับเฉพาะจำนวนเต็มบวก - '3.7' หรือ '3abc' จะถูก cast เป็น 3 เงียบ ๆ ถ้าไม่ดักที่ค่าดิบ
-        if (preg_match('/^\d+$/', $peopleRaw) !== 1) {
-            return $this->fail(lang('Booking.err_people_int'));
-        }
-        if ($people < 1) {
-            return $this->fail(lang('Booking.err_people_min'));
         }
         $cars = new CarModel();
         if ($type === 'self') {
@@ -164,11 +146,6 @@ class BookingController extends BaseController
                 return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
         }
-        // เพดานสุดท้ายเมื่อไม่รู้จำนวนที่นั่ง (รถอื่น ๆ / รถที่ไม่ได้กรอกที่นั่ง) - กัน SMALLINT overflow ในคอลัมน์ people
-        if ($people > 999) {
-            return $this->fail(lang('Booking.err_people_max'));
-        }
-
         // สร้างคำขอในทรานแซกชัน - ล็อกแถวรถ (FOR UPDATE) กัน race: 2 คนจองรถขับเองคันเดียวกันช่วงเวลาเดียวพร้อมกัน
         $db       = db_connect();
         $bookings = new BookingModel();
@@ -273,11 +250,8 @@ class BookingController extends BaseController
         $purpose  = trim((string) $this->request->getPost('purpose'));
         $mapLink  = trim((string) $this->request->getPost('map_link'));
 
-        if ($location === '') {
-            return $this->fail(lang('Booking.err_location_req'));
-        }
-        if ($b['booking_type'] === 'other' && $purpose === '') {
-            return $this->fail(lang('Booking.err_purpose_req'));
+        if ($r = $this->failInput($b['booking_type'] === 'other')) {
+            return $r;
         }
         if (! $start || ! $end) {
             return $this->fail(lang('Booking.err_time_req'));
@@ -289,20 +263,6 @@ class BookingController extends BaseController
         if ($start < date('Y-m-d H:i:s') && $start !== $b['start_at']) {
             return $this->fail(lang('Booking.err_time_past'));
         }
-        // รับเฉพาะจำนวนเต็มบวก - '3.7' หรือ '3abc' จะถูก cast เป็น 3 เงียบ ๆ ถ้าไม่ดักที่ค่าดิบ
-        if (preg_match('/^\d+$/', $peopleRaw) !== 1) {
-            return $this->fail(lang('Booking.err_people_int'));
-        }
-        if ($people < 1) {
-            return $this->fail(lang('Booking.err_people_min'));
-        }
-        if ($mapLink !== '' && ! is_safe_url($mapLink)) {
-            return $this->fail(lang('Booking.err_map_scheme'));
-        }
-        if ($mapLink !== '' && mb_strlen($mapLink) > 500) {
-            return $this->fail(lang('Booking.err_map_max'));
-        }
-
         // รถขับเอง: รถยังเป็นคันเดิม แต่เวลาเปลี่ยนได้ ต้องเช็คที่นั่ง + ชนเวลาใหม่
         $isSelfCar = $b['booking_type'] === 'self' && $b['car_id'];
         if ($isSelfCar) {
@@ -311,11 +271,6 @@ class BookingController extends BaseController
                 return $this->fail(lang('Common.err_seats', [(int) $car['seats']]));
             }
         }
-        // เพดานสุดท้ายเมื่อไม่รู้จำนวนที่นั่ง (รถอื่น ๆ / รถที่ไม่ได้กรอกที่นั่ง) - กัน SMALLINT overflow ในคอลัมน์ people
-        if ($people > 999) {
-            return $this->fail(lang('Booking.err_people_max'));
-        }
-
         // ชนเวลา: รถขับเองคันเดิม ช่วงเวลาใหม่ต้องไม่ทับคำขออื่น
         if ($isSelfCar) {
             $clash = $bookings
@@ -428,6 +383,55 @@ class BookingController extends BaseController
     }
 
     // ===== helper ตอบ JSON พร้อม csrf ใหม่ =====
+    /**
+     * ตรวจรูปร่างของ input ด้วย CI4 Validation - ผ่านคืน null ไม่ผ่านคืน response พร้อม error รายช่อง
+     * กฎที่ต้องอ่านฐานข้อมูลหรือดูหลายช่องพร้อมกัน (ลำดับเวลา, ที่นั่งของรถ, ชนเวลา) อยู่ในเมธอดที่เรียกใช้
+     * $requirePurpose = true เมื่อเป็นการจองรถอื่น ๆ (รถขับเองไม่บังคับกรอกวัตถุประสงค์)
+     */
+    private function failInput(bool $requirePurpose)
+    {
+        $rules = [
+            'location' => [
+                'rules'  => 'required|max_length[255]',
+                'errors' => [
+                    'required'   => lang('Booking.err_location_req'),
+                    'max_length' => lang('Booking.err_location_max'),
+                ],
+            ],
+            // ตรวจที่ค่าดิบ - '3.7' หรือ '3abc' จะถูก cast เป็น 3 เงียบ ๆ ถ้าปล่อยผ่าน
+            'people' => [
+                'rules'  => 'regex_match[/^\d+$/]|greater_than[0]|less_than_equal_to[999]',
+                'errors' => [
+                    'regex_match'        => lang('Booking.err_people_int'),
+                    'greater_than'       => lang('Booking.err_people_min'),
+                    'less_than_equal_to' => lang('Booking.err_people_max'),
+                ],
+            ],
+            // ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น - กัน javascript: และ protocol อันตราย
+            'map_link' => [
+                'rules'  => 'permit_empty|safe_url|max_length[500]',
+                'errors' => [
+                    'safe_url'   => lang('Booking.err_map_scheme'),
+                    'max_length' => lang('Booking.err_map_max'),
+                ],
+            ],
+        ];
+
+        if ($requirePurpose) {
+            $rules['purpose'] = [
+                'rules'  => 'required',
+                'errors' => ['required' => lang('Booking.err_purpose_req')],
+            ];
+        }
+
+        if ($this->validate($rules)) {
+            return null;
+        }
+        $errors = $this->validator->getErrors();
+
+        return $this->fail((string) reset($errors), $errors);
+    }
+
     private function ok(string $message, ?string $redirect = null)
     {
         $out = ['ok' => true, 'message' => $message, 'csrf' => csrf_hash()];
@@ -438,8 +442,14 @@ class BookingController extends BaseController
         return $this->response->setJSON($out);
     }
 
-    private function fail(string $message)
+    // $errors = ข้อความผิดพลาดรายช่อง (คีย์ = ชื่อ field) ให้ฝั่งหน้าจอไฮไลต์ช่องที่ผิดได้
+    private function fail(string $message, array $errors = [])
     {
-        return $this->response->setStatusCode(422)->setJSON(['ok' => false, 'message' => $message, 'csrf' => csrf_hash()]);
+        $body = ['ok' => false, 'message' => $message, 'csrf' => csrf_hash()];
+        if ($errors !== []) {
+            $body['errors'] = $errors;
+        }
+
+        return $this->response->setStatusCode(422)->setJSON($body);
     }
 }

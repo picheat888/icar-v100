@@ -30,6 +30,8 @@ class Validation extends BaseConfig
         PasswordRules::class,
         // กฎ thai_phone ของแอป (มือถือ 10 หลัก / เบอร์บ้าน 9 หลัก)
         \App\Validation\PhoneRules::class,
+        // กฎ safe_url ของแอป (ยอมเฉพาะ http:// และ https://)
+        \App\Validation\UrlRules::class,
     ];
 
     /**

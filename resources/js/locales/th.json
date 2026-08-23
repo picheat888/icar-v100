@@ -9,6 +9,7 @@
   "book.err_datetime": "กรุณาเลือกวันเวลาเริ่มและสิ้นสุด",
   "book.err_end_after_start": "เวลาสิ้นสุดต้องหลังเวลาเริ่ม",
   "book.err_location": "กรุณากรอกสถานที่ปลายทาง",
+  "book.err_location_length": "สถานที่ปลายทางยาวเกินไป (สูงสุด 255 ตัวอักษร)",
   "book.err_map_link_length": "ลิงก์แผนที่ยาวเกินไป (สูงสุด 500 ตัวอักษร)",
   "book.err_map_link_scheme": "ลิงก์แผนที่ต้องขึ้นต้นด้วย http:// หรือ https:// เท่านั้น",
   "book.err_people_int": "จำนวนผู้โดยสารต้องเป็นจำนวนเต็ม",

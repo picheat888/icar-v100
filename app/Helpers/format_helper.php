@@ -37,10 +37,3 @@ if (! function_exists('role_labels')) {
     }
 }
 
-if (! function_exists('is_safe_url')) {
-    // ตรวจว่าลิงก์ขึ้นต้นด้วย http:// หรือ https:// เท่านั้น (กัน javascript: และ protocol อันตรายอื่น)
-    function is_safe_url(?string $url): bool
-    {
-        return (bool) preg_match('#^https?://#i', trim((string) $url));
-    }
-}

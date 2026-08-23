@@ -3,6 +3,7 @@
 return [
     // Trip details
     'err_location_req' => 'Please enter the destination',
+    'err_location_max' => 'The destination is too long (255 characters maximum)',
     'err_purpose_req'  => 'Please state the purpose of the trip',
     'err_map_scheme'   => 'The map link must start with http:// or https://',
     'err_map_max'      => 'The map link is too long (500 characters maximum)',

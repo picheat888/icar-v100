@@ -25,6 +25,42 @@ class MasterController extends BaseController
      * จัดรูปชื่อก่อนตรวจ - ตัดอักขระที่มองไม่เห็น (zero-width, format char) แล้วยุบช่องว่าง
      * ทุกชนิดรวมขึ้นบรรทัดใหม่และแท็บให้เหลือช่องเดียว ชื่อที่ตาอ่านว่าเหมือนกันจึงซ้ำกันจริง
      */
+    /**
+     * ตรวจรูปร่างของ input ด้วย CI4 Validation - ผ่านคืน null ไม่ผ่านคืน response พร้อม error รายช่อง
+     * ตรวจ $name ที่ normalize แล้ว ไม่ใช่ค่าดิบ - ชื่อที่มีแต่อักขระล่องหนต้องถือว่าว่าง
+     * กฎชื่อซ้ำต้องถาม DB จึงอยู่ในเมธอดที่เรียกใช้
+     */
+    private function failInput(string $type, string $name)
+    {
+        $label = $this->labelFor($type);
+        $rules = [
+            'type' => [
+                'rules'  => 'in_list[' . implode(',', self::TYPES) . ']',
+                'errors' => ['in_list' => lang('Master.err_type_invalid')],
+            ],
+            'name' => [
+                'rules'  => 'required|max_length[150]',
+                'errors' => [
+                    'required'   => lang('Master.err_name_req', [$label]),
+                    'max_length' => lang('Master.err_name_max', [$label]),
+                ],
+            ],
+        ];
+
+        if ($this->validateData(['type' => $type, 'name' => $name], $rules)) {
+            return null;
+        }
+        $errors = $this->validator->getErrors();
+
+        return $this->fail((string) reset($errors), false, $errors);
+    }
+
+    // ชื่อชนิดข้อมูลตามภาษาผู้อ่าน - ค่าที่ไม่รู้จักถือเป็นแผนก (ตัว validate จะตีกลับอยู่แล้ว)
+    private function labelFor(string $type): string
+    {
+        return $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+    }
+
     // คีย์ข้อความบันทึกกิจกรรมของแผนก/ตำแหน่ง เช่น dept_added, position_renamed
     private function logKey(string $type, string $verb): string
     {
@@ -84,19 +120,13 @@ class MasterController extends BaseController
     public function add()
     {
         $type  = (string) $this->request->getPost('type');
-        if (! in_array($type, self::TYPES, true)) {
-            return $this->fail(lang('Master.err_type_invalid'));
-        }
         $name  = $this->normalizeName($this->request->getPost('name'));
-        $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+        $label = $this->labelFor($type);
 
-        if ($name === '') {
-            return $this->fail(lang('Master.err_name_req', [$label]));
+        if ($r = $this->failInput($type, $name)) {
+            return $r;
         }
-        if (mb_strlen($name) > 150) {
-            return $this->fail(lang('Master.err_name_max', [$label]));
-        }
+        $model = $this->modelFor($type);
         // เช็คชื่อซ้ำก่อน (กันชน unique constraint ที่ DB จะ throw)
         if ($model->where('name', $name)->first()) {
             return $this->fail(lang('Master.err_dupe', [$label]));
@@ -121,23 +151,18 @@ class MasterController extends BaseController
     public function update()
     {
         $type  = (string) $this->request->getPost('type');
-        if (! in_array($type, self::TYPES, true)) {
-            return $this->fail(lang('Master.err_type_invalid'));
-        }
         $id    = (int) $this->request->getPost('id');
         $name  = $this->normalizeName($this->request->getPost('name'));
+        $label = $this->labelFor($type);
+
+        if ($r = $this->failInput($type, $name)) {
+            return $r;
+        }
         $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
 
         $before = $model->find($id);
         if (! $before) {
             return $this->fail(lang('Master.err_not_found', [$label]), true);
-        }
-        if ($name === '') {
-            return $this->fail(lang('Master.err_name_req', [$label]));
-        }
-        if (mb_strlen($name) > 150) {
-            return $this->fail(lang('Master.err_name_max', [$label]));
         }
         // เช็คชื่อซ้ำ (ยกเว้นตัวเอง)
         if ($model->where('name', $name)->where('id !=', $id)->first()) {
@@ -164,11 +189,11 @@ class MasterController extends BaseController
     {
         $type  = (string) $this->request->getPost('type');
         if (! in_array($type, self::TYPES, true)) {
-            return $this->fail(lang('Master.err_type_invalid'));
+            return $this->fail(lang('Master.err_type_invalid'), false, ['type' => lang('Master.err_type_invalid')]);
         }
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
-        $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
+        $label = $this->labelFor($type);
 
         $item = $model->find($id);
         if (! $item) {
@@ -196,11 +221,15 @@ class MasterController extends BaseController
     }
 
     // $conflict = true -> ข้อมูลนี้เพิ่งถูกคนอื่นเปลี่ยนสถานะไปแล้ว (ให้ฝั่งหน้าจอดึงข้อมูลใหม่)
-    private function fail(string $message, bool $conflict = false)
+    // $errors = ข้อความผิดพลาดรายช่อง (คีย์ = ชื่อ field) ให้ฝั่งหน้าจอไฮไลต์ช่องที่ผิดได้
+    private function fail(string $message, bool $conflict = false, array $errors = [])
     {
         $out = ['ok' => false, 'message' => $message, 'csrf' => csrf_hash()];
         if ($conflict) {
             $out['conflict'] = true;
+        }
+        if ($errors !== []) {
+            $out['errors'] = $errors;
         }
 
         return $this->response->setStatusCode(422)->setJSON($out);

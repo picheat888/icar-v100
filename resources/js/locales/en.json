@@ -9,6 +9,7 @@
   "book.err_datetime": "Please select the start and end date/time",
   "book.err_end_after_start": "End time must be after the start time",
   "book.err_location": "Please enter the destination",
+  "book.err_location_length": "The destination is too long (255 characters maximum)",
   "book.err_map_link_length": "Map link is too long (maximum 500 characters)",
   "book.err_map_link_scheme": "Map link must start with http:// or https:// only",
   "book.err_people_int": "The number of passengers must be a whole number",
