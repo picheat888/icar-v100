@@ -3320,6 +3320,22 @@
   white-space: nowrap;
 }
 
+/* จอแคบ - ตัวกรองจับคู่กันแถวละ 2 ตัว ไม่ให้กลายเป็นกำแพงควบคุมก่อนถึงตาราง */
+@media (max-width: 640px) {
+  .al-q-input,
+  .al-filter-select {
+    flex: 1 1 45%;
+    width: auto;
+    min-width: 0;
+  }
+
+  .al-clear-btn,
+  .al-export-btn {
+    flex: 1 1 45%;
+    margin-left: 0;
+  }
+}
+
 /* ตัวคั่นข้อความระหว่างวันที่เริ่ม-สิ้นสุด */
 .al-arrow {
   color: var(--text-faint);
