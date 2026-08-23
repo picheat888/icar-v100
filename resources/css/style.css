@@ -3289,11 +3289,8 @@
   min-width: 0;
 }
 
-/* legend ปกติลอยอยู่บนเส้นขอบ - ทำให้เป็นสมาชิกปกติของแถวแทน */
+/* ป้ายชื่อกลุ่ม - อยู่ในแถวเดียวกับช่องวันที่ */
 .al-range-legend {
-  float: none;
-  width: auto;
-  padding: 0;
   margin: 0 4px 0 0;
   white-space: nowrap;
 }

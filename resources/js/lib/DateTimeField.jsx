@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MONTHS, DOW, pad, ymd, ymdParts, fmtDateTime } from './date';
+import { MONTHS, DOW, pad, ymd, ymdParts, fmtDate, fmtDateTime } from './date';
 import { t } from './i18n';
 import { fieldAttrs } from './field';
 
@@ -8,10 +8,12 @@ const HOURS = Array.from({ length: 24 }, (_, i) => pad(i));
 const MINUTES = Array.from({ length: 60 }, (_, i) => pad(i)); // 00,01,...,59 (ทุก 1 นาที)
 /**
  * ช่องเลือกวัน-เวลา แบบ popup: ปฏิทินเลือกวัน + dropdown ชั่วโมง/นาที + ยืนยัน/ยกเลิก
- * value/onChange ใช้รูปแบบ 'YYYY-MM-DDTHH:MM' (เหมือน datetime-local)
+ * mode 'datetime' (ค่าเริ่มต้น) value = 'YYYY-MM-DDTHH:MM' ห้ามเลือกอดีต · mode 'date' value = 'YYYY-MM-DD' เลือกอดีตได้
+ * minDate/maxDate = 'YYYY-MM-DD' ขอบเขตวันที่เลือกได้ (ใช้ผูกช่วงวันที่เริ่ม-สิ้นสุดเข้าหากัน)
  * ใส่ id + invalid = ปุ่มเปิดปฏิทินผูก aria-invalid/aria-describedby เข้ากับ <FieldError id={...} /> ตัวเดียวกัน
  */
-export default function DateTimeField({ id, value, onChange, placeholder, invalid }) {
+export default function DateTimeField({ id, value, onChange, placeholder, invalid, mode = 'datetime', minDate, maxDate, className = '' }) {
+  const dateOnly = mode === 'date';
   const [open, setOpen] = useState(false);
   const [cal, setCal] = useState({ y: 2026, m: 0 });
   const [selDate, setSelDate] = useState('');
@@ -23,7 +25,7 @@ export default function DateTimeField({ id, value, onChange, placeholder, invali
       const [d, tm] = value.split('T');
       const [y, m] = d.split('-');
       setSelDate(d); setCal({ y: +y, m: +m - 1 });
-      const [H, M] = tm.split(':'); setHh(H); setMm(MINUTES.includes(M) ? M : '00');
+      if (! dateOnly) { const [H, M] = tm.split(':'); setHh(H); setMm(MINUTES.includes(M) ? M : '00'); }
     } else {
       const n = new Date();
       setSelDate(''); setCal({ y: n.getFullYear(), m: n.getMonth() }); setHh('08'); setMm('00');
@@ -32,6 +34,7 @@ export default function DateTimeField({ id, value, onChange, placeholder, invali
   };
   const confirm = () => {
     if (!selDate) return;
+    if (dateOnly) { onChange(selDate); setOpen(false); return; }
     // กันเลือกเวลาที่ผ่านมาแล้ว
     if (new Date(`${selDate}T${hh}:${mm}:00`) < new Date()) return;
     onChange(`${selDate}T${hh}:${mm}`);
@@ -49,14 +52,16 @@ export default function DateTimeField({ id, value, onChange, placeholder, invali
 
   const now = new Date();
   const todayDs = ymd(now);
-  const selPast = selDate && new Date(`${selDate}T${hh}:${mm}:00`) < now;   // วันเวลาที่เลือกเป็นอดีต
+  // ขอบล่าง: โหมดวัน-เวลาห้ามอดีตเสมอ · โหมดวันอย่างเดียวจำกัดเฉพาะเมื่อส่ง minDate มา
+  const lo = minDate ?? (dateOnly ? null : todayDs);
+  const selPast = ! dateOnly && selDate && new Date(`${selDate}T${hh}:${mm}:00`) < now;   // วันเวลาที่เลือกเป็นอดีต
 
   return (
     <>
       <button type="button" {...(id ? fieldAttrs(id, invalid) : {})} onClick={openPicker}
-        className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}${invalid ? ' is-invalid' : ''}`}>
+        className={`form-input form-input--sm bk-dt-trigger${value ? ' bk-dt-trigger--filled' : ''}${invalid ? ' is-invalid' : ''}${className ? ' ' + className : ''}`}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0c8b87" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bk-dt-icon"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-        <span className="bk-dt-trigger-text">{value ? fmtDateTime(value) : placeholder}</span>
+        <span className="bk-dt-trigger-text">{value ? (dateOnly ? fmtDate(value) : fmtDateTime(value)) : placeholder}</span>
       </button>
 
       {open && (
@@ -78,21 +83,23 @@ export default function DateTimeField({ id, value, onChange, placeholder, invali
                   if (d === null) return <div key={'b' + i} className="bk-dtp-blank" />;
                   const ds = ymdParts(cal.y, cal.m, d);
                   const isSel = ds === selDate;
-                  const isPast = ds < todayDs;   // วันในอดีต - เลือกไม่ได้
+                  const isOut = (lo && ds < lo) || (maxDate && ds > maxDate);   // นอกช่วงที่เลือกได้
                   return (
-                    <button key={ds} type="button" onClick={() => !isPast && setSelDate(ds)} disabled={isPast}
-                      className={`bk-dtp-day${isPast ? ' bk-dtp-day--past' : ''}${isSel ? ' bk-dtp-day--sel' : ''}`}>{d}</button>
+                    <button key={ds} type="button" onClick={() => !isOut && setSelDate(ds)} disabled={isOut}
+                      className={`bk-dtp-day${isOut ? ' bk-dtp-day--past' : ''}${isSel ? ' bk-dtp-day--sel' : ''}`}>{d}</button>
                   );
                 })}
               </div>
             </div>
             {/* เวลา: ชั่วโมง : นาที */}
-            <div className="bk-dtp-time-row">
-              <span className="bk-dtp-time-label">{t('book.time_label')}</span>
-              <select value={hh} onChange={(e) => setHh(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
-              <span className="bk-dtp-colon">:</span>
-              <select value={mm} onChange={(e) => setMm(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
-            </div>
+            {! dateOnly && (
+              <div className="bk-dtp-time-row">
+                <span className="bk-dtp-time-label">{t('book.time_label')}</span>
+                <select value={hh} onChange={(e) => setHh(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{HOURS.map((h) => <option key={h} value={h}>{h}</option>)}</select>
+                <span className="bk-dtp-colon">:</span>
+                <select value={mm} onChange={(e) => setMm(e.target.value)} className="form-input form-input--sm form-select bk-dtp-select">{MINUTES.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+              </div>
+            )}
             {/* เตือนเมื่อเลือกเวลาที่ผ่านมาแล้ว */}
             {selPast && <div className="bk-dtp-warn">{t('book.past_datetime_err')}</div>}
             {/* ปุ่ม */}

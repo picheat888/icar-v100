@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDevice } from './timeline/useDevice';
 import { t } from '../lib/i18n';
-import { fmtDateTime, ymd } from '../lib/date';
+import { fmtDateTime, ymd, todayStr } from '../lib/date';
 import { useToast } from '../lib/Toast';
 import Table from '../lib/Table';
 import { SkelRows, SkelCards } from '../lib/Skeleton';
 import Pager from '../lib/Pager';
+import DateTimeField from '../lib/DateTimeField';
 
 // เวลาที่เกิดเหตุการณ์ - ว่างให้แสดงขีด
 const logTime = (s) => fmtDateTime(s) || '-';
@@ -87,14 +88,14 @@ export default function ActivityLog({ endpoints }) {
     <div>
       {/* แถบฟิลเตอร์ */}
       <div className="filter-card">
-        <fieldset className="al-range">
-          <legend className="form-label al-range-legend">{t('log.date_range_label')}</legend>
+        <div role="group" aria-labelledby="al-range-lbl" className="al-range">
+          <span id="al-range-lbl" className="form-label al-range-legend">{t('log.date_range_label')}</span>
           <label className="sr-only" htmlFor="al-from">{t('log.date_from_label')}</label>
-          <input id="al-from" type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
+          <DateTimeField id="al-from" mode="date" value={from} maxDate={to} onChange={(v) => { setFrom(v); setPage(1); }} placeholder={t('log.date_from_label')} className="al-date-input" />
           <span className="al-arrow" aria-hidden="true">{t('common.to')}</span>
           <label className="sr-only" htmlFor="al-to">{t('log.date_to_label')}</label>
-          <input id="al-to" type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
-        </fieldset>
+          <DateTimeField id="al-to" mode="date" value={to} minDate={from} maxDate={todayStr()} onChange={(v) => { setTo(v); setPage(1); }} placeholder={t('log.date_to_label')} className="al-date-input" />
+        </div>
         <button onClick={exportCsv} className="btn-primary al-export-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
           {t('log.export_btn')}
