@@ -94,7 +94,7 @@ $badgeHtml = static function (string $key) use ($badges): string {
               <?= $icons[$key] ?? '' ?><span class="nav-label"><?= esc($label) ?></span><?= $badgeHtml($key) ?>
             </a>
             <!-- ปุ่มลูกศร = กาง/พับเมนูย่อย -->
-            <button type="button" class="nav-caret-btn nav-label" aria-label="สลับเมนูย่อย">
+            <button type="button" class="nav-caret-btn nav-label" aria-label="<?= esc(lang('Nav.toggle_submenu'), 'attr') ?>">
               <?= icon('chevron-down', 15, 'nav-caret', 2.2) ?>
             </button>
           </div>

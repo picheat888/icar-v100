@@ -17,6 +17,9 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
             glob(APPPATH . 'Controllers/*.php'),
             glob(APPPATH . 'Controllers/*/*.php'),
             glob(APPPATH . 'Models/*.php'),
+            glob(APPPATH . 'Views/*.php'),
+            glob(APPPATH . 'Views/*/*.php'),
+            glob(APPPATH . 'Views/*/*/*.php'),
         );
     }
 
@@ -70,5 +73,98 @@ final class NoHardcodedThaiTest extends CIUnitTestCase
         $this->assertFalse($this->isThaiStringLine("        log_activity('Deleted car');"));
         $this->assertFalse($this->isThaiStringLine("        return \$this->fail(lang('Member.err_not_found'));"));
         $this->assertFalse($this->isThaiStringLine("        \$x = 'plain english';"));
+    }
+
+    // ไฟล์ React ทั้งหมดที่เรนเดอร์อะไรให้ผู้ใช้เห็น
+    private function jsxSources(): array
+    {
+        return array_merge(
+            glob(ROOTPATH . 'resources/js/islands/*.jsx'),
+            glob(ROOTPATH . 'resources/js/lib/*.jsx'),
+            glob(ROOTPATH . 'resources/js/entries/*.jsx'),
+        );
+    }
+
+    /**
+     * ข้อความที่ผู้ใช้เห็นแต่ไม่ผ่าน t() - จับ 2 รูปแบบ
+     * 1) <tag>ข้อความ</tag> ในบรรทัดเดียว  2) ทั้งบรรทัดเป็นข้อความล้วน (ลูกของแท็กที่ขึ้นบรรทัดใหม่)
+     */
+    private function bareJsxText(string $line): array
+    {
+        $trimmed = trim($line);
+
+        if ($trimmed === '' || preg_match('/^(\/\/|\*|\/\*)/', $trimmed) === 1) {
+            return [];
+        }
+
+        if (preg_match('/>([^<>{}]*[A-Za-z\x{0E00}-\x{0E7F}]{2,}[^<>{}]*)</u', $line, $m) === 1) {
+            $text = trim($m[1]);
+
+            if ($text !== '' && ! $this->hasCodePunctuation($text)) {
+                return [$text];
+            }
+        }
+
+        if (! $this->hasCodePunctuation($trimmed) && $this->looksLikeUiText($trimmed)) {
+            return [$trimmed];
+        }
+
+        return [];
+    }
+
+    // อักขระที่บอกว่าเป็นโค้ด JS ไม่ใช่ข้อความที่ผู้ใช้อ่าน
+    private function hasCodePunctuation(string $text): bool
+    {
+        return strpbrk($text, ",:;.[](){}<>=&|?'\"`\/") !== false;
+    }
+
+    // ข้อความ UI จริง: มีอักษรไทย หรือ มีเว้นวรรคและขึ้นต้นด้วยตัวพิมพ์ใหญ่ (ตัวแปร JS ไม่เป็นแบบนี้)
+    private function looksLikeUiText(string $text): bool
+    {
+        if (preg_match('/[\x{0E00}-\x{0E7F}]/u', $text) === 1) {
+            return true;
+        }
+
+        return preg_match('/^[A-Z]\S*\s+\S/u', $text) === 1;
+    }
+
+    public function testNoBareTextInJsx(): void
+    {
+        $sources = $this->jsxSources();
+        $this->assertNotEmpty($sources, 'glob หาไฟล์ jsx ไม่เจอเลย - เทสต์นี้อาจไม่ได้ตรวจอะไรจริง');
+
+        foreach ($sources as $path) {
+            $hits = [];
+
+            foreach (file($path) as $i => $line) {
+                foreach ($this->bareJsxText($line) as $text) {
+                    $hits[] = ($i + 1) . ': ' . $text;
+                }
+            }
+
+            $this->assertSame([], $hits, basename($path) . " มีข้อความที่ไม่ผ่าน t():\n" . implode("\n", $hits));
+        }
+    }
+
+    // ยาม: ตัวตรวจ JSX ต้องจับข้อความเปล่าได้ และต้องไม่จับนิพจน์ JS
+    public function testBareJsxDetectorItself(): void
+    {
+        $this->assertSame(['Admin'], $this->bareJsxText('        <option value="admin">Admin</option>'));
+        $this->assertSame(['ภาษาไทย'], $this->bareJsxText('        <span>ภาษาไทย</span>'));
+
+        $this->assertSame([], $this->bareJsxText("        <option>{t('mem.role_admin')}</option>"));
+        $this->assertSame([], $this->bareJsxText('          ) : loadErr ? ('));
+        $this->assertSame([], $this->bareJsxText('        {n > win && page < total ? a : b}'));
+        $this->assertSame([], $this->bareJsxText('        <span>▲</span>'));
+        $this->assertSame([], $this->bareJsxText('        // <div>คอมเมนต์</div>'));
+
+        // ข้อความที่อยู่บรรทัดของตัวเอง (แท็กเปิดอยู่บรรทัดบน แท็กปิดอยู่บรรทัดล่าง)
+        $this->assertSame(['Export CSV'], $this->bareJsxText('          Export CSV'));
+        $this->assertSame(['ส่งออก ไฟล์'], $this->bareJsxText('          ส่งออก ไฟล์'));
+
+        $this->assertSame([], $this->bareJsxText('          mobile'));
+        $this->assertSame([], $this->bareJsxText('          lockBackdrop'));
+        $this->assertSame([], $this->bareJsxText('        return narrow'));
+        $this->assertSame([], $this->bareJsxText('          empId: f.empId, name: f.name,'));
     }
 }

@@ -3277,21 +3277,31 @@
   gap: 6px;
 }
 
-/* ประวัติการใช้งาน (ActivityLog) - แถบฟิลเตอร์ชิดขอบล่างรับกับปุ่ม Export ข้าง ๆ */
-.al-filter {
-  align-items: flex-end;
-}
-
-/* แถวช่องวันที่เริ่ม-สิ้นสุด + ลูกศรคั่นกลาง */
-.al-date-row {
+/* ประวัติการใช้งาน (ActivityLog) - ช่วงวันที่ ป้ายกับช่องกรอกอยู่บรรทัดเดียวกัน · fieldset ล้าง style เริ่มต้นของเบราว์เซอร์ */
+.al-range {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+/* legend ปกติลอยอยู่บนเส้นขอบ - ทำให้เป็นสมาชิกปกติของแถวแทน */
+.al-range-legend {
+  float: none;
+  width: auto;
+  padding: 0;
+  margin: 0 4px 0 0;
+  white-space: nowrap;
 }
 
 /* ช่องวันที่ - กว้างคงที่ ไม่ยืดตามแถบฟิลเตอร์ */
 .al-date-input {
   width: 185px;
+  max-width: 100%;
 }
 
 /* ตัวคั่นข้อความระหว่างวันที่เริ่ม-สิ้นสุด */

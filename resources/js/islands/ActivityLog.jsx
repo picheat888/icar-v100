@@ -86,18 +86,18 @@ export default function ActivityLog({ endpoints }) {
   return (
     <div>
       {/* แถบฟิลเตอร์ */}
-      <div className="filter-card al-filter">
-        <div>
-          <label className="form-label">{t('log.date_range_label')}</label>
-          <div className="al-date-row">
-            <input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
-            <span className="al-arrow">{t('common.to')}</span>
-            <input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
-          </div>
-        </div>
+      <div className="filter-card">
+        <fieldset className="al-range">
+          <legend className="form-label al-range-legend">{t('log.date_range_label')}</legend>
+          <label className="sr-only" htmlFor="al-from">{t('log.date_from_label')}</label>
+          <input id="al-from" type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
+          <span className="al-arrow" aria-hidden="true">{t('common.to')}</span>
+          <label className="sr-only" htmlFor="al-to">{t('log.date_to_label')}</label>
+          <input id="al-to" type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="form-input form-input--sm al-date-input" />
+        </fieldset>
         <button onClick={exportCsv} className="btn-primary al-export-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-          Export CSV
+          {t('log.export_btn')}
         </button>
       </div>
 

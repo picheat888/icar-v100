@@ -11,6 +11,9 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class LocaleParityTest extends CIUnitTestCase
 {
+    // ชื่อภาษาในตัวสลับภาษา เขียนด้วยภาษาของตัวเองทั้งสองไฟล์ คนที่อ่าน UI ปัจจุบันไม่ออกจึงหาภาษาตัวเองเจอ
+    private const ENDONYM_KEYS = ['Nav.lang_th'];
+
     // namespace ที่ th-only เพราะ en มาจากไฟล์ core ของ CI4 + Shield
     private const SKIP_NAMESPACES = ['Auth', 'Validation'];
 
@@ -53,7 +56,7 @@ final class LocaleParityTest extends CIUnitTestCase
     {
         foreach ($this->projectNamespaces() as $ns) {
             foreach ($this->keysOf('en', $ns) as $key => $value) {
-                if (! is_string($value)) {
+                if (! is_string($value) || in_array("{$ns}.{$key}", self::ENDONYM_KEYS, true)) {
                     continue;
                 }
                 $this->assertDoesNotMatchRegularExpression(

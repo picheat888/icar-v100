@@ -291,7 +291,7 @@ export default function MembersManager({ endpoints, departments = [], positions 
           <option value="all">{t('mem.all_roles')}</option>
           <option value="user">{t('mem.role_user')}</option>
           <option value="driver">{t('mem.role_driver')}</option>
-          <option value="admin">Admin</option>
+          <option value="admin">{t('mem.role_admin')}</option>
         </select>
         <select value={fDept} onChange={(e) => setFDept(e.target.value)} className="form-input form-input--sm form-select mm-filter-select">
           <option value="all">{t('mem.all_depts')}</option>

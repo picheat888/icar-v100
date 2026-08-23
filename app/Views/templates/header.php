@@ -75,10 +75,10 @@ $roleLabel  = $roleLabels[$role] ?? $role;
       <!-- ตัวสลับภาษา (เฉพาะมือถือ - บนคอมอยู่แถบบน) - แถวเมนูเต็ม แตะง่าย -->
       <?php $curLoc = service('request')->getLocale(); ?>
       <a href="<?= esc(site_url('lang/th'), 'attr') ?>" class="hdr-menu-lang<?= $curLoc === 'th' ? ' active' : '' ?>">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>ภาษาไทย
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><?= lang('Nav.lang_th') ?>
       </a>
       <a href="<?= esc(site_url('lang/en'), 'attr') ?>" class="hdr-menu-lang<?= $curLoc === 'en' ? ' active' : '' ?>">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>English
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><?= lang('Nav.lang_en') ?>
       </a>
       <div class="hdr-menu-sep hdr-menu-sep--lang"></div>
       <a href="<?= site_url('profile') ?>" class="hdr-menu-item">

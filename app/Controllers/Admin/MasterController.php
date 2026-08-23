@@ -60,16 +60,6 @@ class MasterController extends BaseController
         ]);
     }
 
-    // หน้าประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) - เต็มรูปแบบในเฟส 6
-    public function activityLog()
-    {
-        return view('admin/master/activity_log', [
-            'active'       => 'log',
-            'pageTitle'    => lang('Page.log'),
-            'pageSubtitle' => lang('Page.log_sub'),
-        ]);
-    }
-
     // JSON: รายการแผนก + ตำแหน่ง
     public function data()
     {

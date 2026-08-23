@@ -16,5 +16,11 @@ return [
     'role_admin' => 'Admin',
     'role_user'  => 'User',
     'role_driver'=> 'Driver',
+
+    // ชื่อภาษาในตัวสลับภาษา - ค่าเดียวกันทั้งสองไฟล์ ชื่อภาษาไม่แปลตามภาษาผู้อ่าน
+    'lang_th'    => 'ภาษาไทย',
+    'lang_en'    => 'English',
+    // ปุ่มลูกศรกาง/พับเมนูย่อยใน sidebar
+    'toggle_submenu' => 'Toggle submenu',
     'guest_name' => 'Guest',
 ];
