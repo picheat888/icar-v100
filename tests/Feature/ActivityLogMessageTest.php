@@ -69,6 +69,18 @@ final class ActivityLogMessageTest extends CIUnitTestCase
         $this->assertSame([], array_values(array_diff(array_unique($used), array_keys($th))), 'คีย์ที่โค้ดเรียกแต่ไม่มีในไฟล์ภาษา');
     }
 
+    // ทุกประเภทที่กรองได้ต้องมีป้ายชื่อครบทั้งสองภาษา ไม่งั้น dropdown จะโชว์ 'Log.type_xxx'
+    public function testEveryActionTypeHasLabel(): void
+    {
+        foreach ([ 'th', 'en' ] as $locale) {
+            $lines = include APPPATH . "Language/{$locale}/Log.php";
+
+            foreach (ActivityLogModel::ACTION_TYPES as $type) {
+                $this->assertArrayHasKey("type_{$type}", $lines, "ขาดป้ายชื่อประเภท {$type} ในภาษา {$locale}");
+            }
+        }
+    }
+
     // ไฟล์ controller ทั้งหมด (log_activity ถูกเรียกจากที่นี่)
     private function controllerSources(): array
     {

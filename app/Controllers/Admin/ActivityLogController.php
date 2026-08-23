@@ -15,6 +15,8 @@ class ActivityLogController extends BaseController
     {
         return view('admin/activity_log/index', [
             'active'       => 'log',
+            'roleOptions'  => $this->roleOptions(),
+            'typeOptions'  => $this->typeOptions(),
             'pageTitle'    => lang('Page.log'),
             'pageSubtitle' => lang('Page.log_sub'),
         ]);
@@ -42,15 +44,16 @@ class ActivityLogController extends BaseController
             $perPage = self::PER_PAGE_OPTIONS[0];
         }
 
-        $model = new ActivityLogModel();
-        $total = $model->countInRange($from, $to);
+        $filters = $this->filters();
+        $model   = new ActivityLogModel();
+        $total   = $model->countInRange($from, $to, $filters);
 
         // หน้าต้องอยู่ในช่วงที่มีจริง
         $totalPages = max(1, (int) ceil($total / $perPage));
         $page       = max(1, (int) $this->request->getGet('page'));
         $page       = min($page, $totalPages);
 
-        $rows = $model->inRange($from, $to, $perPage, ($page - 1) * $perPage);
+        $rows = $model->inRange($from, $to, $perPage, ($page - 1) * $perPage, $filters);
         foreach ($rows as &$r) {
             $r['role_label'] = role_labels()[$r['role']] ?? '-';
             $r['message']    = ActivityLogModel::renderMessage($r);
@@ -63,6 +66,7 @@ class ActivityLogController extends BaseController
             'perPage' => $perPage,
             'from'    => $from,
             'to'      => $to,
+            'filters' => $filters,
         ]);
     }
 
@@ -90,7 +94,7 @@ class ActivityLogController extends BaseController
                 role_labels()[$r['role']] ?? '-',
                 $this->csvSafe(ActivityLogModel::renderMessage($r)),
             ]);
-        });
+        }, $this->filters());
 
         fclose($out);
         exit;   // จบ response ตรงนี้ ไม่ให้อะไรมาต่อท้ายไฟล์ CSV
@@ -102,6 +106,42 @@ class ActivityLogController extends BaseController
         $value = (string) $value;
 
         return preg_match('/^[=+\-@\t\r]/', $value) ? "'" . $value : $value;
+    }
+
+    /**
+     * อ่านตัวกรองจาก query แล้วตรวจให้อยู่ในค่าที่อนุญาต
+     * q = ชื่อผู้ใช้บางส่วน (ยาวสุด 150 เท่าคอลัมน์ actor_name) · role/type นอกลิสต์ถือว่าไม่กรอง
+     */
+    private function filters(): array
+    {
+        $role = (string) $this->request->getGet('role');
+        $type = (string) $this->request->getGet('type');
+
+        return [
+            'q'    => mb_substr(trim((string) $this->request->getGet('q')), 0, 150),
+            'role' => isset(role_labels()[$role]) ? $role : '',
+            'type' => in_array($type, ActivityLogModel::ACTION_TYPES, true) ? $type : '',
+        ];
+    }
+
+    // ตัวเลือกบทบาทของตัวกรอง - ป้ายชุดเดียวกับคอลัมน์บทบาทในตาราง
+    private function roleOptions(): array
+    {
+        $out = [];
+        foreach (role_labels() as $value => $label) {
+            $out[] = ['value' => $value, 'label' => $label];
+        }
+
+        return $out;
+    }
+
+    // ตัวเลือกประเภทการกระทำของตัวกรอง
+    private function typeOptions(): array
+    {
+        return array_map(
+            static fn (string $t) => ['value' => $t, 'label' => lang("Log.type_{$t}")],
+            ActivityLogModel::ACTION_TYPES
+        );
     }
 
     // อ่าน from/to จาก query (default 7 วันล่าสุด) + sanitize รูปแบบ YYYY-MM-DD

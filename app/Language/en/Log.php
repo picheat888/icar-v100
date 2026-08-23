@@ -7,6 +7,13 @@ return [
     'csv_role'   => 'Role',
     'csv_action' => 'Action',
 
+    // Action type filter
+    'type_auth'    => 'Sign in',
+    'type_member'  => 'Members',
+    'type_car'     => 'Cars',
+    'type_master'  => 'Departments & positions',
+    'type_booking' => 'Bookings',
+
     // {code} = booking code · {name} = person or item name · {role} = role name · {car} = model (plate)
     // Sign in / register
     'signed_in'  => 'Signed in',

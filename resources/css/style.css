@@ -3301,6 +3301,25 @@
   max-width: 100%;
 }
 
+/* ช่องค้นหาชื่อผู้ใช้ในแถบฟิลเตอร์ */
+.al-q-input {
+  width: 190px;
+  max-width: 100%;
+}
+
+/* ช่องเลือกบทบาท/ประเภทการกระทำ */
+.al-filter-select {
+  width: 170px;
+  max-width: 100%;
+}
+
+/* ปุ่มล้างตัวกรอง - โผล่เฉพาะตอนมีตัวกรองทำงานอยู่ */
+.al-clear-btn {
+  padding: 0 14px;
+  height: 38px;
+  white-space: nowrap;
+}
+
 /* ตัวคั่นข้อความระหว่างวันที่เริ่ม-สิ้นสุด */
 .al-arrow {
   color: var(--text-faint);

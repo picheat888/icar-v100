@@ -25,7 +25,7 @@ const ROLE_PILL = {
  * ประวัติการใช้งาน - ตาราง log + ฟิลเตอร์ช่วงวันที่ + Export CSV
  * props: endpoints {data, export}
  */
-export default function ActivityLog({ endpoints }) {
+export default function ActivityLog({ endpoints, roleOptions = [], typeOptions = [] }) {
   const today = new Date();
   const weekAgo = new Date();
   weekAgo.setDate(today.getDate() - 6);
@@ -36,18 +36,36 @@ export default function ActivityLog({ endpoints }) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_OPTIONS[0]);
+  const [qInput, setQInput] = useState('');
+  const [q, setQ] = useState('');
+  const [role, setRole] = useState('');
+  const [type, setType] = useState('');
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState(false);
   const { showToast, ToastView } = useToast();
   const device = useDevice();
   const seqRef = useRef(0);
 
-  // โหลด log ตามช่วงวันที่ (กัน response เก่าทับด้วย seq)
+  // หน่วง 300ms ก่อนค้นด้วยชื่อ - พิมพ์ต่อเนื่องจะไม่ยิง request ทุกตัวอักษร
+  useEffect(() => {
+    const id = setTimeout(() => { setQ(qInput); setPage(1); }, 300);
+
+    return () => clearTimeout(id);
+  }, [qInput]);
+
+  // เงื่อนไขที่กำลังดูอยู่ - ใช้ทั้งตอนโหลดตารางและตอน export ให้ได้ของชุดเดียวกัน
+  const scope = new URLSearchParams({ from, to, q, role, type }).toString();
+  const filtered = q !== '' || role !== '' || type !== '';
+
+  // ล้างตัวกรอง (ไม่แตะช่วงวันที่ - ผู้ใช้ตั้งใจเลือกช่วงนั้นไว้)
+  const clearFilters = () => { setQInput(''); setRole(''); setType(''); setPage(1); };
+
+  // โหลด log ตามช่วงวันที่ + ตัวกรอง (กัน response เก่าทับด้วย seq)
   const load = useCallback(() => {
     const seq = ++seqRef.current;
     setLoading(true);
     setLoadErr(false);
-    fetch(`${endpoints.data}?from=${from}&to=${to}&page=${page}&perPage=${perPage}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+    fetch(`${endpoints.data}?${scope}&page=${page}&perPage=${perPage}`, { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then((r) => r.json())
       .then((d) => {
         if (seq !== seqRef.current) return;
@@ -58,14 +76,14 @@ export default function ActivityLog({ endpoints }) {
       })
       .finally(() => { if (seq === seqRef.current) setLoading(false); })
       .catch(() => { if (seq === seqRef.current) setLoadErr(true); });
-  }, [endpoints.data, from, to, page, perPage]);
+  }, [endpoints.data, scope, page, perPage]);
 
   useEffect(() => { load(); }, [load]);
 
   // Export CSV - ไม่มีข้อมูล = toast (ตามสเปก) มิฉะนั้นเปิดลิงก์ดาวน์โหลด
   const exportCsv = () => {
-    if (logs.length === 0) { showToast(t('log.no_data_range'), 'warn'); return; }
-    window.location.href = `${endpoints.export}?from=${from}&to=${to}`;
+    if (logs.length === 0) { showToast(filtered ? t('log.no_match') : t('log.no_data_range'), 'warn'); return; }
+    window.location.href = `${endpoints.export}?${scope}`;
   };
 
   const roleBadge = (role, label) => (
@@ -96,6 +114,28 @@ export default function ActivityLog({ endpoints }) {
           <label className="sr-only" htmlFor="al-to">{t('log.date_to_label')}</label>
           <DateTimeField id="al-to" mode="date" value={to} minDate={from} maxDate={todayStr()} onChange={(v) => { setTo(v); setPage(1); }} placeholder={t('log.date_to_label')} className="al-date-input" />
         </div>
+        <input id="al-q" type="search" value={qInput} onChange={(e) => setQInput(e.target.value)}
+          placeholder={t('log.filter_user_placeholder')} aria-label={t('log.filter_user_placeholder')}
+          className="form-input form-input--sm al-q-input" />
+
+        <label className="sr-only" htmlFor="al-role">{t('log.col_role')}</label>
+        <select id="al-role" value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }}
+          className="form-input form-input--sm form-select al-filter-select">
+          <option value="">{t('log.filter_all_roles')}</option>
+          {roleOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+
+        <label className="sr-only" htmlFor="al-type">{t('log.filter_type_label')}</label>
+        <select id="al-type" value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}
+          className="form-input form-input--sm form-select al-filter-select">
+          <option value="">{t('log.filter_all_types')}</option>
+          {typeOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+
+        {filtered && (
+          <button type="button" onClick={clearFilters} className="btn-ghost al-clear-btn">{t('log.clear_filters')}</button>
+        )}
+
         <button onClick={exportCsv} className="btn-primary al-export-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
           {t('log.export_btn')}
@@ -109,7 +149,7 @@ export default function ActivityLog({ endpoints }) {
           ? <SkelCards className="al-mobile-list" count={5} lines={2} />
           : <div className="al-table-wrap"><Table>{tableHead}<SkelRows cols={4} /></Table></div>
       ) : logs.length === 0 ? (
-        <div className="al-empty-card">{t('log.no_data_range')}</div>
+        <div className="al-empty-card">{filtered ? t('log.no_match') : t('log.no_data_range')}</div>
       ) : mobile ? (
         // มือถือ: การ์ด
         <div className="al-mobile-list">
