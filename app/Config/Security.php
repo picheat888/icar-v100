@@ -71,9 +71,8 @@ class Security extends BaseConfig
      *
      * Regenerate CSRF Token on every submission.
      *
-     * false = token คงที่ตลอดเซสชัน - กันหน้า login (HTML ที่ browser cache/bfcache
-     * หรือค้างแท็บไว้) ถือ token เก่าที่ถูกหมุนทิ้งไปแล้ว จนโพสต์ไม่ผ่าน (403 สุ่ม ๆ)
-     * island ยังทำงานเหมือนเดิม (อ่าน token จาก meta/response ที่ตอนนี้คงที่)
+     * false = token คงที่ตลอดเซสชัน - หน้าที่ browser cache ไว้หรือค้างแท็บไว้นาน
+     * ยังถือ token ที่ใช้ได้ ไม่โดนตีกลับ 403
      */
     public bool $regenerate = false;
 
@@ -84,9 +83,8 @@ class Security extends BaseConfig
      *
      * Redirect to previous page with error on failure.
      *
-     * true = ถ้า token ไม่ตรง ให้ redirect กลับหน้าฟอร์มพร้อม flashdata error
-     * (แทนหน้า exception 403 เต็มจอ) - ใช้กับฟอร์ม HTML เท่านั้น; AJAX ของ island
-     * ยัง throw ตามเดิมและ island จัดการ reload เอง (defense-in-depth ด้าน UX)
+     * true = token ไม่ตรงแล้ว redirect กลับหน้าฟอร์มพร้อม flashdata error
+     * มีผลกับฟอร์ม HTML เท่านั้น - AJAX ของ island ได้ exception แล้วจัดการ reload เอง
      *
      * @see https://codeigniter4.github.io/userguide/libraries/security.html#redirection-on-failure
      */

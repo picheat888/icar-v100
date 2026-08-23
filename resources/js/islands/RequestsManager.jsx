@@ -12,6 +12,7 @@ import Spinner from '../lib/Spinner';
 import Alert from '../lib/Alert';
 import Pager from '../lib/Pager';
 import Table from '../lib/Table';
+import DateTimeField from '../lib/DateTimeField';
 import { SkelRows, SkelCards } from '../lib/Skeleton';
 import { useToast } from '../lib/Toast';
 import DonePopup from '../lib/DonePopup';
@@ -505,7 +506,9 @@ export default function RequestsManager({ endpoints }) {
           <option value="all">{t('req.all_statuses')}</option><option value="pending">{t('status.pending')}</option><option value="approved">{t('status.approved')}</option><option value="cancelled">{t('status.rejected')}</option>
         </select>
         {/* กรองตามวันที่ใช้รถ (เฉพาะวันที่ต้องการ) */}
-        <input type="date" value={fDate} onChange={(e) => setFDate(e.target.value)} title={t('req.date_filter_title')} className="form-input form-input--sm rq-filter-select" />
+        <label className="sr-only" htmlFor="rq-fdate">{t('req.date_filter_title')}</label>
+        <DateTimeField id="rq-fdate" mode="date" value={fDate} onChange={setFDate}
+          placeholder={t('req.date_filter_title')} className="rq-filter-select" />
         {fDate && (
           <button onClick={() => setFDate('')} title={t('req.clear_date')} className="form-input form-input--sm rq-filter-select rq-clear-date">{t('req.clear_date')}</button>
         )}

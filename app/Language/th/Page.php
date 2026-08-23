@@ -24,6 +24,4 @@ return [
     'dept_sub'            => 'จัดการรายการแผนก',
     'position'            => 'ตำแหน่ง',
     'position_sub'        => 'จัดการรายการตำแหน่ง',
-    'coming_soon_default_title' => 'หน้านี้',
-    'coming_soon_sub'          => 'หน้านี้กำลังพัฒนา - โครง layout + template พร้อมแล้ว',
 ];

@@ -8,7 +8,7 @@ use CodeIgniter\HTTP\RequestInterface;
 
 /**
  * CSRF ของ CI4 + เก็บค่าที่ผู้ใช้พิมพ์ไว้ตอนตีกลับ
- * ตัวเดิมเรียกแค่ redirect()->back() ฟอร์มจึงว่างเปล่าทุกช่องหลังโดนตีกลับ
+ * parent คืน redirect เปล่า ค่าที่กรอกไว้จึงต้องแนบกลับไปเอง
  */
 class CsrfKeepInput extends CSRF
 {

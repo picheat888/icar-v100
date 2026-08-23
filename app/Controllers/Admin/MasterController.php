@@ -38,7 +38,7 @@ class MasterController extends BaseController
         return trim((string) preg_replace('/\s+/u', ' ', $name));
     }
 
-    // เดิมเป็นหน้า "ข้อมูลหลัก" - แยกเป็นเมนูย่อย แผนก/ตำแหน่ง ใต้จัดการสมาชิก
+    // /admin/master ไม่มีหน้าของตัวเอง - เด้งไปหน้าแผนก
     public function index()
     {
         return redirect()->to(site_url('admin/departments'));

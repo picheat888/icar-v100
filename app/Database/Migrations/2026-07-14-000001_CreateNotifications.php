@@ -7,7 +7,6 @@ use CodeIgniter\Database\Migration;
 /**
  * ตาราง notifications - แจ้งเตือนรายผู้ใช้ (2 สถานะ: seen=badge, read=ไฮไลต์)
  * เก็บ msg_key + params ไม่เก็บข้อความสำเร็จรูป - ประกอบข้อความตอนอ่านตามภาษาผู้อ่าน
- * ไฟล์นี้ถูกแก้ไขหลังถูก migrate ไปแล้วครั้งหนึ่ง - โครงสร้างจริงมาจากการรื้อฐานข้อมูลใหม่ทั้งหมด ไม่ใช่จากการรัน migrate ทับของเดิม
  */
 class CreateNotifications extends Migration
 {

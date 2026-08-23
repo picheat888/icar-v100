@@ -38,7 +38,7 @@ $menus = [
         ['log',        lang('Nav.log'),        site_url('admin/activity-log')],
     ],
     'user' => [
-        // "จองรถ" ย้ายไปเป็นปุ่มมุมบนขวาของหน้าตารางการใช้รถ (Timeline island)
+        // เมนู user ไม่มี "จองรถ" - อยู่เป็นปุ่มมุมบนขวาของหน้าตารางการใช้รถ
         ['timeline',   lang('Nav.calendar'),   site_url('timeline')],
         ['myRequests', lang('Nav.myRequests'), site_url('my-requests')],
     ],
