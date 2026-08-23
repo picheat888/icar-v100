@@ -119,7 +119,7 @@ export default function ActivityLog({ endpoints }) {
                 <span className="al-card-name">{l.actor_name || '-'}</span>
                 {roleBadge(l.role, l.role_label)}
               </div>
-              <div className="al-card-action">{l.action}</div>
+              <div className="al-card-action">{l.message}</div>
               <div className="al-card-time">{logTime(l.created_at)}</div>
             </div>
           ))}
@@ -135,7 +135,7 @@ export default function ActivityLog({ endpoints }) {
                   <td className="al-td al-td-time">{logTime(l.created_at)}</td>
                   <td className="al-td al-td-actor">{l.actor_name || '-'}</td>
                   <td className="al-td">{roleBadge(l.role, l.role_label)}</td>
-                  <td className="al-td">{l.action}</td>
+                  <td className="al-td">{l.message}</td>
                 </tr>
               ))}
             </tbody>

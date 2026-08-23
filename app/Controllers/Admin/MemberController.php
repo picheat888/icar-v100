@@ -109,7 +109,7 @@ class MemberController extends BaseController
             'status'        => 'approved',
         ]);
 
-        log_activity('Added member: ' . $req->getPost('name') . ' (role: ' . (role_labels('en')[$level] ?? $level) . ')');
+        log_activity('member_added', ['name' => (string) $req->getPost('name'), 'role' => $level]);
 
         return $this->ok(lang('Member.added'));
     }
@@ -157,7 +157,7 @@ class MemberController extends BaseController
             site_url('profile'),
         );
 
-        log_activity('Approved member ' . $user->username . ' (role: ' . (role_labels('en')[$level] ?? $level) . ')');
+        log_activity('member_approved', ['name' => $user->username, 'role' => $level]);
 
         return $this->ok(lang('Member.approved'));
     }
@@ -197,7 +197,7 @@ class MemberController extends BaseController
 
         (new NotificationModel())->push($userId, 'member_rejected', 'member_rejected');
 
-        log_activity('Rejected/disabled member ' . ($target->username ?? ('id ' . $userId)));
+        log_activity('member_rejected', ['name' => $target->username ?? ('id ' . $userId)]);
 
         return $this->ok(lang('Member.rejected'));
     }
@@ -340,7 +340,7 @@ class MemberController extends BaseController
             }
         }
 
-        log_activity('Updated member ' . $user->username);
+        log_activity('member_updated', ['name' => $user->username]);
 
         return $this->ok(lang('Member.saved'));
     }

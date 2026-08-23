@@ -53,6 +53,7 @@ class ActivityLogController extends BaseController
         $rows = $model->inRange($from, $to, $perPage, ($page - 1) * $perPage);
         foreach ($rows as &$r) {
             $r['role_label'] = role_labels()[$r['role']] ?? '-';
+            $r['message']    = ActivityLogModel::renderMessage($r);
         }
 
         return $this->response->setJSON([
@@ -87,7 +88,7 @@ class ActivityLogController extends BaseController
                 $r['created_at'],
                 $this->csvSafe($r['actor_name'] ?? '-'),
                 role_labels()[$r['role']] ?? '-',
-                $this->csvSafe($r['action']),
+                $this->csvSafe(ActivityLogModel::renderMessage($r)),
             ]);
         });
 

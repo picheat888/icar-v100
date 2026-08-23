@@ -158,7 +158,7 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('Approved request ' . $b['booking_code']);
+        log_activity('booking_approved', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Request.approved'));
     }
@@ -203,7 +203,7 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $assign['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('Assigned driver to request ' . $b['booking_code']);
+        log_activity('booking_driver_assigned', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Request.driver_assigned'));
     }
@@ -320,7 +320,7 @@ class RequestController extends BaseController
 
         $this->notifyRequester($b, 'booking_rejected', 'booking_rejected', ['code' => $b['booking_code']]);
 
-        log_activity('Rejected request ' . $b['booking_code']);
+        log_activity('booking_rejected', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Request.rejected'));
     }
@@ -353,7 +353,7 @@ class RequestController extends BaseController
             $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
-        log_activity('Confirmed cancellation of request ' . $b['booking_code']);
+        log_activity('booking_cancel_confirmed', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Request.cancel_confirmed'));
     }
@@ -393,7 +393,7 @@ class RequestController extends BaseController
             $this->notifyDriver($b['driver_id'] ? (int) $b['driver_id'] : null, 'job_cancelled', 'job_cancelled', ['code' => $b['booking_code']]);
         }
 
-        log_activity('Cancelled request ' . $b['booking_code'] . ' (by admin)');
+        log_activity('booking_cancelled_by_admin', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Common.request_cancelled'));
     }
@@ -482,7 +482,7 @@ class RequestController extends BaseController
             $this->notifyDriver((int) $data['driver_id'], 'job_new', 'job_new', ['code' => $b['booking_code']]);
         }
 
-        log_activity('Changed vehicle/driver for request ' . $b['booking_code']);
+        log_activity('booking_vehicle_changed', ['code' => $b['booking_code']]);
 
         return $this->ok(lang('Request.saved'));
     }

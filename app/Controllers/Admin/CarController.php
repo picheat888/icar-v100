@@ -197,11 +197,11 @@ class CarController extends BaseController
         if ($id) {
             $cars->update($id, $data);   // ไม่ส่ง image ถ้าไม่ได้อัปใหม่ -> รูปเดิมคงอยู่
             $msg = lang('Car.saved');
-            log_activity('Updated car ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
+            log_activity('car_updated', ['car' => $this->carLabel($model, $plate)]);
         } else {
             $cars->insert($data);
             $msg = lang('Car.added');
-            log_activity('Added car ' . $model . ($plate !== '' ? ' (' . $plate . ')' : ''));
+            log_activity('car_added', ['car' => $this->carLabel($model, $plate)]);
         }
 
         // เปลี่ยน/ลบรูปสำเร็จ -> ลบไฟล์รูปเก่าทิ้ง
@@ -237,7 +237,7 @@ class CarController extends BaseController
         // ลบไฟล์รูปในโฟลเดอร์ทิ้งทันที (ไม่เก็บไฟล์กำพร้าไว้)
         $this->deleteImage($car['image'] ?? null);
 
-        log_activity('Deleted car ' . ($car['model'] ?? '') . (! empty($car['plate']) ? ' (' . $car['plate'] . ')' : ''));
+        log_activity('car_deleted', ['car' => $this->carLabel($car['model'] ?? '', $car['plate'] ?? '')]);
 
         return $this->ok(lang('Car.deleted'));
     }
@@ -266,6 +266,12 @@ class CarController extends BaseController
     }
 
     // ลบไฟล์รูปใน writable/uploads/cars (basename กัน path traversal)
+    // ชื่อรถที่ใช้ในบันทึกกิจกรรม - 'รุ่น (ทะเบียน)' หรือแค่รุ่นถ้าไม่มีทะเบียน
+    private function carLabel(string $model, string $plate): string
+    {
+        return $plate !== '' ? $model . ' (' . $plate . ')' : $model;
+    }
+
     private function deleteImage(?string $name): void
     {
         $name = basename((string) $name);

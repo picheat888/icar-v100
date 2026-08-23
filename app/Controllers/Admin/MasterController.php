@@ -25,6 +25,12 @@ class MasterController extends BaseController
      * จัดรูปชื่อก่อนตรวจ - ตัดอักขระที่มองไม่เห็น (zero-width, format char) แล้วยุบช่องว่าง
      * ทุกชนิดรวมขึ้นบรรทัดใหม่และแท็บให้เหลือช่องเดียว ชื่อที่ตาอ่านว่าเหมือนกันจึงซ้ำกันจริง
      */
+    // คีย์ข้อความบันทึกกิจกรรมของแผนก/ตำแหน่ง เช่น dept_added, position_renamed
+    private function logKey(string $type, string $verb): string
+    {
+        return ($type === 'position' ? 'position' : 'dept') . '_' . $verb;
+    }
+
     private function normalizeName(?string $raw): string
     {
         $name = preg_replace('/[\p{Cf}\x{200B}-\x{200D}\x{FEFF}]/u', '', (string) $raw);
@@ -84,7 +90,6 @@ class MasterController extends BaseController
         $name  = $this->normalizeName($this->request->getPost('name'));
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
-        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'en') : lang('Master.type_dept', [], 'en');
 
         if ($name === '') {
             return $this->fail(lang('Master.err_name_req', [$label]));
@@ -107,7 +112,7 @@ class MasterController extends BaseController
             return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
-        log_activity("Added {$logLabel} {$name}");
+        log_activity($this->logKey($type, 'added'), ['name' => $name]);
 
         return $this->ok(lang('Master.added', [$label]));
     }
@@ -123,9 +128,9 @@ class MasterController extends BaseController
         $name  = $this->normalizeName($this->request->getPost('name'));
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
-        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'en') : lang('Master.type_dept', [], 'en');
 
-        if (! $model->find($id)) {
+        $before = $model->find($id);
+        if (! $before) {
             return $this->fail(lang('Master.err_not_found', [$label]), true);
         }
         if ($name === '') {
@@ -149,7 +154,7 @@ class MasterController extends BaseController
             return $this->fail(lang('Master.err_dupe', [$label]));
         }
 
-        log_activity("Renamed {$logLabel} → {$name}");
+        log_activity($this->logKey($type, 'renamed'), ['name' => $before['name'] ?? '', 'to' => $name]);
 
         return $this->ok(lang('Master.saved', [$label]));
     }
@@ -164,7 +169,6 @@ class MasterController extends BaseController
         $id    = (int) $this->request->getPost('id');
         $model = $this->modelFor($type);
         $label    = $type === 'position' ? lang('Master.type_position') : lang('Master.type_dept');
-        $logLabel = $type === 'position' ? lang('Master.type_position', [], 'en') : lang('Master.type_dept', [], 'en');
 
         $item = $model->find($id);
         if (! $item) {
@@ -180,7 +184,7 @@ class MasterController extends BaseController
 
         $model->delete($id);
 
-        log_activity("Deleted {$logLabel} " . ($item['name'] ?? ''));
+        log_activity($this->logKey($type, 'deleted'), ['name' => $item['name'] ?? '']);
 
         return $this->ok(lang('Master.deleted', [$label]));
     }

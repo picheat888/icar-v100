@@ -13,7 +13,29 @@ class ActivityLogModel extends Model
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
     protected $useTimestamps = true;
-    protected $allowedFields = ['user_id', 'actor_name', 'role', 'action'];
+    protected $allowedFields = ['user_id', 'actor_name', 'role', 'msg_key', 'params', 'action'];
+
+    /**
+     * ประกอบข้อความของ log หนึ่งแถวตามภาษาที่ต้องการ ($locale = null คือภาษาผู้อ่านปัจจุบัน)
+     * แถวที่ไม่มี msg_key (บันทึกไว้ก่อนระบบคีย์) คืนข้อความอังกฤษในคอลัมน์ action ตามเดิม
+     */
+    public static function renderMessage(array $row, ?string $locale = null): string
+    {
+        helper('format');
+        $key = (string) ($row['msg_key'] ?? '');
+
+        if ($key === '') {
+            return (string) ($row['action'] ?? '');
+        }
+
+        $params = json_decode((string) ($row['params'] ?? ''), true) ?: [];
+        // params 'role' เก็บเป็นคีย์บทบาท (admin/user/driver) แปลตอนอ่าน
+        if (isset($params['role'])) {
+            $params['role'] = role_labels($locale)[$params['role']] ?? $params['role'];
+        }
+
+        return lang("Log.{$key}", $params, $locale);
+    }
 
     /**
      * ดึง log ตามช่วงวันที่ [$from 00:00:00, $to 23:59:59] เรียงใหม่สุดก่อน
