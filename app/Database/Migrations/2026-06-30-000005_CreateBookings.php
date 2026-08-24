@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Migration;
 
 /**
- * ตาราง bookings - คำขอจองรถ ครอบคลุมทั้งวงจร ขอ → อนุมัติ/ปฏิเสธ → มอบหมายรถ+คนขับ
+ * ตาราง bookings - คำขอจองรถ ครอบคลุมทั้งวงจร ขอ → อนุมัติ/ปฏิเสธ → มอบหมายรถ+คนขับ → คืนรถ
  */
 class CreateBookings extends Migration
 {
@@ -23,13 +23,14 @@ class CreateBookings extends Migration
             'purpose'          => ['type' => 'TEXT', 'null' => true],
             'map_link'         => ['type' => 'VARCHAR', 'constraint' => 500, 'null' => true],
             'car_id'           => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true],
-            'status'           => ['type' => 'ENUM', 'constraint' => ['pending', 'approved', 'rejected'], 'default' => 'pending'],
+            'status'           => ['type' => 'ENUM', 'constraint' => ['pending', 'approved', 'rejected', 'cancel_requested', 'cancelled', 'completed'], 'default' => 'pending'],
             'driver_type'      => ['type' => 'ENUM', 'constraint' => ['none', 'company', 'external'], 'default' => 'none'],
             'driver_id'        => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true],
             'ext_driver_name'  => ['type' => 'VARCHAR', 'constraint' => 150, 'null' => true],
             'ext_driver_phone' => ['type' => 'VARCHAR', 'constraint' => 30, 'null' => true],
             'ext_driver_seats' => ['type' => 'SMALLINT', 'unsigned' => true, 'null' => true],
             'ext_driver_vehicle' => ['type' => 'VARCHAR', 'constraint' => 150, 'null' => true],
+            'returned_at'      => ['type' => 'DATETIME', 'null' => true],   // เวลาคืนรถจริง
             'admin_note'       => ['type' => 'TEXT', 'null' => true],
             'approved_by'      => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true],
             'approved_at'      => ['type' => 'DATETIME', 'null' => true],

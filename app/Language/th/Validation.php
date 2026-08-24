@@ -9,7 +9,7 @@ return [
     'exact_length'  => '{field}ต้องยาว {param} ตัวอักษรพอดี',
     'matches'       => '{field}ไม่ตรงกับ{param}',
     'differs'       => '{field}ต้องไม่ซ้ำกับ{param}',
-    'regex_match'   => 'รูปแบบของ{field}ไม่ถูกต้อง',
+    'regex_match'   => 'รูปแบบของ {field} ไม่ถูกต้อง',
     'alpha_numeric' => '{field}ใช้ได้เฉพาะตัวอักษรภาษาอังกฤษและตัวเลข',
     'numeric'       => '{field}ต้องเป็นตัวเลขเท่านั้น',
     'integer'       => '{field}ต้องเป็นจำนวนเต็ม',

@@ -27,6 +27,7 @@ class CreateNotifications extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addKey(['user_id', 'seen_at']);
         $this->forge->addKey(['user_id', 'created_at']);
+        $this->forge->addKey(['user_id', 'read_at']);   // นับ badge จากแถวที่ read_at IS NULL
         $this->forge->addForeignKey('user_id', 'users', 'id', 'CASCADE', 'CASCADE');
 
         $this->forge->createTable('notifications', true, ['ENGINE' => 'InnoDB']);
