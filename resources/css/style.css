@@ -1271,9 +1271,18 @@
   }
 }
 
+/* แถบแบรนด์ - สูงและใช้สีเส้นเดียวกับหัวเว็บ เส้นคั่นทั้งสองฝั่งจะได้ต่อกันเป็นเส้นเดียว */
 .nav-brandwrap {
-  padding: 18px 18px 16px;
-  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  height: var(--header-h);
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brandrow {
+  flex: 1;
+  min-width: 0;
 }
 
 .nav-menu {
@@ -1634,7 +1643,7 @@
 /* ----- 2.4 Header ----- */
 .app-header {
   flex: none;
-  height: 64px;
+  height: var(--header-h);
   background: #fff;
   border-bottom: 1px solid var(--border);
   display: flex;
