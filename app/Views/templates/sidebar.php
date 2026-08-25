@@ -61,7 +61,7 @@ $badgeHtml = static function (string $key) use ($badges): string {
         . ($n > 99 ? '99+' : $n) . '</span>';
 };
 ?>
-<aside class="app-sidebar" data-open="false" data-collapsed="false">
+<aside id="app-sidebar" class="app-sidebar" data-open="false" data-collapsed="false">
   <!-- แบรนด์ -->
   <div class="nav-brandwrap">
     <div class="brand brand--sm nav-brandrow">
@@ -74,7 +74,7 @@ $badgeHtml = static function (string $key) use ($badges): string {
   </div>
 
   <!-- เมนู (กรองตาม role) -->
-  <nav class="nav-menu">
+  <nav class="nav-menu" aria-label="<?= esc(lang('Nav.menu'), 'attr') ?>">
     <?php foreach ($items as $item): ?>
       <?php
         $key      = $item[0];
@@ -90,22 +90,27 @@ $badgeHtml = static function (string $key) use ($badges): string {
         <div class="nav-group" data-open="<?= $open ? 'true' : 'false' ?>">
           <div class="nav-parent-row<?= $active === $key ? ' active' : '' ?>">
             <!-- กดที่ชื่อ = ไปหน้ารายการสมาชิกทันที -->
-            <a href="<?= esc($url, 'attr') ?>" class="nav-item<?= $active === $key ? ' active' : '' ?>">
+            <a href="<?= esc($url, 'attr') ?>" class="nav-item<?= $active === $key ? ' active' : '' ?>"<?= $active === $key ? ' aria-current="page"' : '' ?>>
               <?= $icons[$key] ?? '' ?><span class="nav-label"><?= esc($label) ?></span><?= $badgeHtml($key) ?>
             </a>
             <!-- ปุ่มลูกศร = กาง/พับเมนูย่อย -->
-            <button type="button" class="nav-caret-btn nav-label" aria-label="<?= esc(lang('Nav.toggle_submenu'), 'attr') ?>">
+            <button type="button" class="nav-caret-btn nav-label"
+                    aria-label="<?= esc(lang('Nav.toggle_submenu'), 'attr') ?>"
+                    aria-expanded="<?= $open ? 'true' : 'false' ?>"
+                    aria-controls="nav-sub-<?= esc($key, 'attr') ?>">
               <?= icon('chevron-down', 15, 'nav-caret', 2.2) ?>
             </button>
           </div>
-          <div class="nav-sub">
-            <?php foreach ($children as [$ck, $cl, $curl]): ?>
-              <a href="<?= esc($curl, 'attr') ?>" class="nav-subitem<?= $active === $ck ? ' active' : '' ?>"><span class="nav-label"><?= esc($cl) ?></span></a>
-            <?php endforeach; ?>
+          <div class="nav-sub" id="nav-sub-<?= esc($key, 'attr') ?>">
+            <div class="nav-sub-inner">
+              <?php foreach ($children as [$ck, $cl, $curl]): ?>
+                <a href="<?= esc($curl, 'attr') ?>" class="nav-subitem<?= $active === $ck ? ' active' : '' ?>"<?= $active === $ck ? ' aria-current="page"' : '' ?>><span class="nav-label"><?= esc($cl) ?></span></a>
+              <?php endforeach; ?>
+            </div>
           </div>
         </div>
       <?php else: ?>
-        <a href="<?= esc($url, 'attr') ?>" class="nav-item<?= $active === $key ? ' active' : '' ?>">
+        <a href="<?= esc($url, 'attr') ?>" class="nav-item<?= $active === $key ? ' active' : '' ?>"<?= $active === $key ? ' aria-current="page"' : '' ?>>
           <?= $icons[$key] ?? '' ?><span class="nav-label"><?= esc($label) ?></span><?= $badgeHtml($key) ?>
         </a>
       <?php endif; ?>
@@ -120,3 +125,17 @@ $badgeHtml = static function (string $key) use ($badges): string {
     </a>
   </div>
 </aside>
+<script>
+  // คืนสถานะยุบ/ขยายที่ผู้ใช้เลือกไว้ ต้องรันตรงนี้ให้เสร็จก่อนเบราว์เซอร์วาดครั้งแรก
+  (function () {
+    var el = document.getElementById('app-sidebar');
+    try {
+      if (localStorage.getItem('icar.sidebar.collapsed') === 'true'
+          && ! window.matchMedia('(max-width:860px)').matches) {
+        el.setAttribute('data-collapsed', 'true');
+      }
+    } catch (e) {}
+    // เปิด transition หลังคืนสถานะเสร็จ (setTimeout เพราะ rAF ไม่ทำงานตอนแท็บอยู่เบื้องหลัง)
+    setTimeout(function () { el.setAttribute('data-ready', 'true'); }, 0);
+  })();
+</script>

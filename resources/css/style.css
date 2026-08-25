@@ -1261,7 +1261,14 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  transition: width .22s ease;
+}
+
+/* เปิด transition หลังคืนสถานะยุบ/ขยายเสร็จ (data-ready ตั้งใน sidebar.php)
+   จำกัดไว้เฉพาะจอกว้าง - จอแคบ sidebar เป็น drawer ที่เลื่อนด้วย transform แทน */
+@media (min-width: 861px) {
+  .app-sidebar[data-ready="true"] {
+    transition: width .22s ease;
+  }
 }
 
 .nav-brandwrap {
@@ -1287,7 +1294,8 @@
   gap: 11px;
   width: 100%;
   text-align: left;
-  padding: 11px 12px;
+  /* ขวาเว้น 34px เป็นช่องลูกศรเมนูย่อย - เว้นเท่ากันทุกแถวเพื่อให้ badge ตรงคอลัมน์เดียวกัน */
+  padding: 11px 34px 11px 12px;
   border: none;
   border-radius: 8px;
   font-family: inherit;
@@ -1312,12 +1320,27 @@
   font-weight: 600;
 }
 
+/* ไอคอนเมนู - ห้ามถูกบีบ ต้องคงขนาดแม้ที่เหลือไม่พอ */
+.nav-item > svg,
+.nav-logout > svg {
+  flex: none;
+}
+
 /* ชื่อเมนู - ห้ามตกบรรทัด ทุกแถวจะสูงเท่ากันไม่ว่าชื่อยาวแค่ไหน (ยาวเกินตัดด้วย ...) */
 .nav-label {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* กรอบโฟกัสคีย์บอร์ด - ทุกอย่างที่ tab เข้าถึงได้ใน sidebar */
+.nav-item:focus-visible,
+.nav-subitem:focus-visible,
+.nav-logout:focus-visible,
+.nav-caret-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
 }
 
 /* ปุ่มออกจากระบบ (ท้าย sidebar) */
@@ -1346,13 +1369,16 @@
 .nav-parent-row {
   display: flex;
   align-items: center;
-  gap: 2px;
   margin-bottom: 4px;
+  /* จุดอ้างอิงของปุ่มลูกศรที่ลอยชิดขวา */
+  position: relative;
 }
 
 .nav-parent-row .nav-item {
   flex: 1;
   margin-bottom: 0;
+  /* ความกว้างขั้นต่ำต้องเป็น 0 - ไม่งั้นแถวยึดตามชื่อเมนูเต็ม ๆ แล้วดันปุ่มลูกศรล้นออกนอก sidebar */
+  min-width: 0;
 }
 
 /* hover เมนูแม่ = ไฮไลต์เทาคลุมทั้งแถว (ลิงก์+ปุ่มลูกศร) เต็มความกว้าง */
@@ -1388,10 +1414,13 @@
   background: transparent;
 }
 
+/* ลูกศรลอยในช่องขวาที่ .nav-item เว้นไว้ - ไม่กินความกว้างในแถว badge จึงตรงกับแถวอื่น */
 .nav-caret-btn {
-  flex: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: 34px;
-  height: 38px;
   border: none;
   background: transparent;
   color: var(--text-faint);
@@ -1415,12 +1444,27 @@
   transform: rotate(180deg);
 }
 
-.nav-group[data-open="false"] .nav-sub {
-  display: none;
+/* เมนูย่อย - กาง/พับด้วยความสูง grid (0fr <-> 1fr) ให้ไปพร้อมลูกศรที่หมุน */
+.nav-sub {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows .22s ease;
 }
 
-.nav-sub {
-  margin: 2px 0 6px;
+.nav-group[data-open="false"] .nav-sub {
+  grid-template-rows: 0fr;
+}
+
+/* เว้นระยะด้วย padding เพื่อให้ยุบไปกับกล่องตอนพับ (margin จะเหลือช่องว่างค้างไว้) */
+.nav-sub-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 2px 0 6px;
+}
+
+/* พับอยู่ = ถอดออกจากลำดับ tab ด้วย ไม่ใช่แค่มองไม่เห็น */
+.nav-group[data-open="false"] .nav-sub-inner {
+  visibility: hidden;
 }
 
 .nav-subitem {
@@ -1484,9 +1528,46 @@
   width: 74px;
 }
 
-.app-sidebar[data-collapsed="true"] .nav-brandtext,
-.app-sidebar[data-collapsed="true"] .nav-label {
+.app-sidebar[data-collapsed="true"] .nav-brandtext {
   display: none;
+}
+
+/* ชื่อเมนูหายจากจอแต่ต้องยังอยู่ให้ screen reader อ่าน ไม่งั้นเหลือไอคอนที่ไม่มีชื่อ */
+.app-sidebar[data-collapsed="true"] .nav-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ปุ่มลูกศรกับเมนูย่อยไม่มีที่พอในราง 74px */
+.app-sidebar[data-collapsed="true"] .nav-caret-btn,
+.app-sidebar[data-collapsed="true"] .nav-sub {
+  display: none;
+}
+
+/* งานค้างเหลือเป็นจุดมุมไอคอน - ตัวเลขไม่มีที่พอ แต่สัญญาณต้องไม่หาย */
+.app-sidebar[data-collapsed="true"] .nav-item {
+  position: relative;
+}
+
+.app-sidebar[data-collapsed="true"] .nav-badge {
+  position: absolute;
+  top: 6px;
+  right: 14px;
+  min-width: 9px;
+  width: 9px;
+  height: 9px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  border: 2px solid #fff;
 }
 
 .app-sidebar[data-collapsed="true"] .nav-brandrow {
@@ -1497,6 +1578,8 @@
 .app-sidebar[data-collapsed="true"] .nav-logout {
   justify-content: center;
   gap: 0;
+  /* ไม่มีลูกศรในราง - คืนช่องขวาให้ไอคอนอยู่กลางพอดี */
+  padding-right: 12px;
 }
 
 /* ฉากหลังทึบตอนเปิด drawer (จอแคบ) */
@@ -1519,16 +1602,32 @@
     z-index: 130;
     width: 250px;
     transform: translateX(-100%);
-    transition: transform .26s ease;
+    /* ปิดอยู่ = ถอดออกจากลำดับ tab ด้วย (transform อย่างเดียวยัง tab เข้าไปได้)
+       visibility รอจนสไลด์ออกจบก่อนค่อยเปลี่ยน */
+    visibility: hidden;
+    transition: transform .26s ease, visibility 0s linear .26s;
     box-shadow: 0 0 50px rgba(0, 0, 0, .25);
   }
 
   .app-sidebar[data-open="true"] {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform .26s ease, visibility 0s;
   }
 
   .sidebar-backdrop[data-open="true"] {
     display: block;
+  }
+}
+
+/* ตั้งค่าลดการเคลื่อนไหว - sidebar สลับสถานะทันทีไม่ต้องมีจังหวะ */
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar,
+  .app-sidebar[data-ready="true"],
+  .app-sidebar[data-open="true"],
+  .nav-sub,
+  .nav-caret {
+    transition: none;
   }
 }
 
@@ -4485,6 +4584,18 @@
   box-shadow: 0 8px 30px rgba(31, 42, 51, .12);
   z-index: 90;
   overflow: hidden;
+}
+
+/* จอแคบ: ยึดกับ viewport แทนปุ่มกระดิ่ง - ปุ่มอยู่กลาง header กล่องที่ยึด right:0 จะยื่นพ้นขอบซ้าย */
+@media (max-width: 860px) {
+  .nb-dropdown {
+    position: fixed;
+    top: 60px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: none;
+  }
 }
 
 /* หัว dropdown: ชื่อหัวข้อ + ปุ่มอ่านทั้งหมด */

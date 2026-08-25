@@ -24,7 +24,7 @@ const TYPE_ICON = {
   booking_edited:    ['pencil', 'gray'],
 };
 
-// กระดิ่งแจ้งเตือน - badge + dropdown + poll 60วิ + load-more
+// กระดิ่งแจ้งเตือน - badge + dropdown + poll 30วิ + load-more
 export default function NotificationBell({ endpoints }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
@@ -77,11 +77,11 @@ export default function NotificationBell({ endpoints }) {
   // เก็บ open ล่าสุดไว้ใน ref ให้ interval callback อ่านค่าปัจจุบันได้ (กัน stale closure)
   useEffect(() => { openRef.current = open; }, [open]);
 
-  // โหลดครั้งแรก + poll ทุก 60 วิ · ข้ามรอบที่แท็บถูกซ่อนหรือ dropdown เปิดอยู่ (กันดึงรายการใต้มือผู้ใช้)
+  // โหลดครั้งแรก + poll ทุก 30 วิ · ข้ามรอบที่แท็บถูกซ่อนหรือ dropdown เปิดอยู่ (กันดึงรายการใต้มือผู้ใช้)
   useEffect(() => {
     fetchPage(0, false);
     const tick = () => { if (! document.hidden && ! openRef.current) fetchPage(0, false); };
-    const id = setInterval(tick, 60000);
+    const id = setInterval(tick, 30000);
     document.addEventListener('visibilitychange', tick);
 
     return () => { clearInterval(id); document.removeEventListener('visibilitychange', tick); };

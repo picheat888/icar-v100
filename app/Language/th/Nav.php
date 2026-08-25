@@ -22,5 +22,9 @@ return [
     'lang_en'    => 'English',
     // ปุ่มลูกศรกาง/พับเมนูย่อยใน sidebar
     'toggle_submenu' => 'สลับเมนูย่อย',
+    // ชื่อกลุ่มเมนูหลัก - screen reader ใช้แยก nav แต่ละอันในหน้า
+    'menu'           => 'เมนูหลัก',
+    // ปุ่ม hamburger บนหัวเว็บ
+    'toggle_sidebar' => 'ยุบ/ขยายเมนู',
     'guest_name' => 'ผู้ใช้งาน',
 ];

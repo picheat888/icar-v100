@@ -22,7 +22,9 @@ $roleLabel  = $roleLabels[$role] ?? $role;
 <header class="app-header">
   <div class="app-header-left">
     <!-- ปุ่มยุบ/เปิด sidebar -->
-    <button type="button" id="sidebar-toggle" class="icon-box hdr-burger">
+    <button type="button" id="sidebar-toggle" class="icon-box hdr-burger"
+            aria-label="<?= esc(lang('Nav.toggle_sidebar'), 'attr') ?>"
+            aria-controls="app-sidebar" aria-expanded="true">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="app-pagetitle">
