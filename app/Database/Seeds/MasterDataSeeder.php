@@ -18,6 +18,8 @@ class MasterDataSeeder extends Seeder
                         'Forklift (FK)',
                         'Filling (FL)',
                         'General Affair (GA)',
+                        'Human Resources (HR)',
+                        'Information Technology (IT)',
                         'Logistics (LG)',
                         'Maintenance (MN)',
                         'Machine Operations (MO)',
