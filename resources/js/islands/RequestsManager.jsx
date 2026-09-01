@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef, Fragment } from 'react';
-import { fmtDate, fmtDateTime, weekdayName, todayStr, rangeLines, dateTimeRange } from '../lib/date';
+import { fmtDate, fmtDateTime, weekdayName, todayStr, rangeLines } from '../lib/date';
 import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { isPositiveInt } from '../lib/validate';
@@ -18,6 +18,7 @@ import { useToast } from '../lib/Toast';
 import DonePopup from '../lib/DonePopup';
 import { setNavBadge } from '../lib/navBadge';
 import { STATUS_LABEL as REAL_STATUS, ST_CLASS } from '../lib/status';
+import useModalFocus from '../lib/useModalFocus';
 
 // normalize เวลา → 'YYYY-MM-DD HH:MM:SS' (รับทั้งจาก DB และ input datetime-local)
 const padDt = (s) => { s = String(s || '').replace('T', ' '); return s.length === 16 ? s + ':00' : s; };
@@ -48,6 +49,23 @@ const PER_PAGE = 20;
 const toLocalInput = (s) => (s ? String(s).slice(0, 16).replace(' ', 'T') : '');
 // ไอคอนปุ่มในลิ้นชัก: check = ทำจริง · cancel = ปฏิเสธ/ยกเลิก · arrow-left = ถอยกลับ · close = ปิด
 const bIcon = (name) => <Icon name={name} size={16} className="rq-btn-ico" strokeWidth={2.4} />;
+
+// รหัสคำขอใน URL (?open=BK-0001) - ไม่มีคืน null
+function readOpenCode() {
+  return new URLSearchParams(window.location.search).get('open') || null;
+}
+
+// เขียน ?open= ลง URL - mode 'push' (เปิดรายละเอียด ให้ปุ่ม Back ย้อนได้) หรือ 'replace' (แก้เงียบ ๆ ไม่เพิ่มประวัติ)
+function writeOpenCode(code, mode) {
+  const url = new URL(window.location.href);
+  if (code) {
+    url.searchParams.set('open', code);
+  } else {
+    url.searchParams.delete('open');
+  }
+  const state = code ? { rqOpen: code } : {};
+  window.history[mode === 'push' ? 'pushState' : 'replaceState'](state, '', url.toString());
+}
 
 const typeLabel = (bt) => (bt === 'other' ? t('req.car_other') : t('req.car_self'));
 const carText = (b) => (b.car_model ? `${b.car_model}${b.car_plate ? ' · ' + b.car_plate : ''}` : (b.booking_type === 'other' ? t('req.provided_by_admin') : '-'));
@@ -117,6 +135,8 @@ export default function RequestsManager({ endpoints }) {
   const busyRef = useRef(false); // กันดับเบิลคลิกยิงซ้ำ (sync ref, ไม่รอ state update)
   const [narrow, setNarrow] = useState(false);
   const [page, setPage] = useState(1);   // หน้าปัจจุบันของ pagination
+  const panelRef = useRef(null);          // กล่องแผงรายละเอียด - ใช้ขังโฟกัส
+  const [deepCode, setDeepCode] = useState(readOpenCode);   // รหัสจาก URL ที่ยังไม่ได้เปิด
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1024px)');
@@ -141,13 +161,8 @@ export default function RequestsManager({ endpoints }) {
   useEffect(() => { load(); }, [load]);
 
 
-  // ปิด drawer รายละเอียดด้วยปุ่ม Esc (เหมือน M365)
-  useEffect(() => {
-    if (!modal) return;
-    const onKey = (e) => { if (e.key === 'Escape') setModal(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [modal]);
+  // Esc ปิด · Tab วนอยู่ในแผง · ปิดแล้วคืนโฟกัสให้แถวที่กดเปิด
+  useModalFocus(panelRef, () => closeModal(), { enabled: !! modal, focusBox: true });
 
   // กลับมาที่แท็บนี้ -> ดึงข้อมูลใหม่ ให้เห็นสิ่งที่คนอื่นทำระหว่างที่ไม่ได้ดู
   // ข้ามถ้ามีโมดัลเปิดอยู่ (กันข้อมูลใต้มือเปลี่ยนระหว่างกรอก)
@@ -186,7 +201,7 @@ export default function RequestsManager({ endpoints }) {
       // คนอื่นเปลี่ยนสถานะข้อมูลนี้ไปแล้ว -> ปิดโมดัล ดึงข้อมูลใหม่ แล้วบอกด้วย toast
       // (ไม่ค้างกล่องแดงในโมดัล เพราะกดซ้ำก็ไม่มีทางสำเร็จจนกว่าจะเห็นข้อมูลใหม่)
       if (d.conflict) {
-        setModal(null);
+        closeModal();
         load();
         showToast(`${d.message} - ${t('common.conflict_refreshed')}`, 'warn');
         return false;
@@ -252,7 +267,11 @@ export default function RequestsManager({ endpoints }) {
     return map;
   }, [pageRows]);
 
-  const openDetail = (b, mode) => { setModalErr(''); setErrs({}); return setModal({
+  const openDetail = (b, mode, { push = true } = {}) => {
+    if (push) {
+      writeOpenCode(b.booking_code, 'push');
+    }
+    setModalErr(''); setErrs({}); return setModal({
     booking: b,
     rejecting: mode === 'reject',   // เปิดโมดัลเข้าโหมดปฏิเสธทันที (กดปุ่ม "ปฏิเสธ" ในแถว)
     form: {
@@ -261,28 +280,50 @@ export default function RequestsManager({ endpoints }) {
       admin_note: b.admin_note || '',
     },
   }); };
+  // ปิดแผง - ถ้าเราเป็นคน push URL ให้ถอยประวัติ 1 ขั้น (Back กับปุ่มปิดจึงให้ผลเดียวกัน)
+  // เปิดจากลิงก์ตรง ๆ ไม่มีขั้นให้ถอย -> ล้าง ?open= ทิ้งแทน
+  const closeModal = () => {
+    if (window.history.state?.rqOpen) {
+      window.history.back();
+
+      return;
+    }
+    writeOpenCode(null, 'replace');
+    setModal(null);
+  };
+
   // แก้ค่าฟอร์ม + ล้าง error ของช่องที่เพิ่งแก้ทิ้ง
   const setForm = (patch) => {
     setModal((m) => ({ ...m, form: { ...m.form, ...patch } }));
     setErrs((e) => omitErrs(e, Object.keys(patch)));
   };
-  // มาจากลิงก์ ?open=BK-xxxx (เช่นจาก dashboard) -> เปิดคำขอนั้นเลย ไม่ต้องไล่หาในรายการ
-  const openedRef = useRef(false);
+  // เปิดคำขอตามรหัสใน URL (ลิงก์จาก dashboard หรือกดปุ่ม Back/Forward)
   useEffect(() => {
-    if (openedRef.current || loading || rows.length === 0) return;
-    const code = new URLSearchParams(window.location.search).get('open');
-    if (! code) return;
-    openedRef.current = true;
-    // ล้าง query ออกจาก URL กันรีเฟรชแล้วเด้งโมดัลซ้ำ
-    window.history.replaceState({}, '', window.location.pathname);
-    const found = rows.find((b) => b.booking_code === code);
+    if (! deepCode || loading) {
+      return;
+    }
+    const found = rows.find((b) => b.booking_code === deepCode);
+    setDeepCode(null);
     if (found) {
-      openDetail(found);
+      openDetail(found, undefined, { push: false });
     } else {
-      showToast(t('req.open_not_found', { code }), 'warn');
+      // ไม่มีคำขอนี้ในรายการ -> ล้าง ?open= ทิ้งแล้วบอกด้วย toast
+      writeOpenCode(null, 'replace');
+      showToast(t('req.open_not_found', { code: deepCode }), 'warn');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, rows]);
+  }, [deepCode, loading, rows]);
+
+  // ปุ่ม Back/Forward ของเบราว์เซอร์ - ตาม ?open= ใน URL ที่ย้อนไปถึง
+  useEffect(() => {
+    const onPop = () => {
+      setModal(null);
+      setDeepCode(readOpenCode());
+    };
+    window.addEventListener('popstate', onPop);
+
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   // เลือกคนขับ: ถ้าเป็นคนขับบริษัท เติมเบอร์โทร/รถประจำอัตโนมัติ · ถ้าอื่น ๆ ล้างค่า
   const pickDriver = (val) => {
@@ -313,7 +354,7 @@ export default function RequestsManager({ endpoints }) {
     }
     const body = { id: b.id, admin_note: f.admin_note };
     if (b.booking_type === 'other') { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
-    if (await post(endpoints.approve, body, { title: t('req.done_approved'), sub: b.booking_code })) setModal(null);
+    if (await post(endpoints.approve, body, { title: t('req.done_approved'), sub: b.booking_code })) closeModal();
   };
   const doReject = async () => {
     // บังคับกรอกเหตุผลการปฏิเสธ (ห้ามเว้นว่าง)
@@ -324,11 +365,11 @@ export default function RequestsManager({ endpoints }) {
       return;
     }
     setErrs({});
-    if (await post(endpoints.reject, { id: modal.booking.id, admin_note: note }, { title: t('req.done_rejected'), sub: modal.booking.booking_code })) setModal(null);
+    if (await post(endpoints.reject, { id: modal.booking.id, admin_note: note }, { title: t('req.done_rejected'), sub: modal.booking.booking_code })) closeModal();
   };
   // ยืนยันการยกเลิก (คำขอที่ User ขอยกเลิก)
   const doConfirmCancel = async () => {
-    if (await post(endpoints.confirmCancel, { id: modal.booking.id }, { title: t('req.done_cancel_confirmed'), sub: modal.booking.booking_code })) setModal(null);
+    if (await post(endpoints.confirmCancel, { id: modal.booking.id }, { title: t('req.done_cancel_confirmed'), sub: modal.booking.booking_code })) closeModal();
   };
   // มอบหมาย/เปลี่ยนคนขับ ให้คำขอที่อนุมัติแล้ว (รถอื่น ๆ) - เติมกรณีอนุมัติแบบยังไม่มอบหมาย
   const doAssign = async () => {
@@ -341,13 +382,13 @@ export default function RequestsManager({ endpoints }) {
       return;
     }
     setErrs({});
-    const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle };
-    if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) setModal(null);
+    const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle, admin_note: f.admin_note };
+    if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) closeModal();
   };
 
   // Admin ยกเลิกคำขอ (ทุกคำขอที่ยัง active - ปล่อยรถคืน)
   const doCancel = async () => {
-    if (await post(endpoints.cancel, { id: modal.booking.id, admin_note: modal.form.admin_note }, { title: t('req.done_cancelled'), sub: modal.booking.booking_code })) setModal(null);
+    if (await post(endpoints.cancel, { id: modal.booking.id, admin_note: modal.form.admin_note }, { title: t('req.done_cancelled'), sub: modal.booking.booking_code })) closeModal();
   };
   // Admin บันทึกการแก้ไขคำขอ
   const doUpdate = async () => {
@@ -362,11 +403,17 @@ export default function RequestsManager({ endpoints }) {
       }
       setErrs({});
     }
-    const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link };
+    const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link, admin_note: f.admin_note };
     if (b.booking_type === 'self') body.car_id = f.car_id;
     else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
-    if (await post(endpoints.update, body, { title: t('req.done_updated'), sub: b.booking_code })) setModal(null);
+    if (await post(endpoints.update, body, { title: t('req.done_updated'), sub: b.booking_code })) closeModal();
   };
+  // เปิดฟอร์มเปลี่ยนคนขับในที่ (รถอื่นๆ ที่อนุมัติแล้ว) - บันทึกผ่าน assign-driver
+  const startAssign = () => {
+    setErrs({});
+    setModal((m) => ({ ...m, assigning: true }));
+  };
+
   // เข้าโหมดแก้ไข - เติมค่าปัจจุบันของคำขอลงฟอร์ม
   const enterEdit = () => {
     const b = modal.booking;
@@ -386,8 +433,7 @@ export default function RequestsManager({ endpoints }) {
   const editForm = () => {
     const isOther = modal.booking.booking_type === 'other';
     return (
-      <div className="rq-modal-section">
-        <div className="rq-notice rq-notice--info">{t('req.admin_edit_scope')}</div>
+      <>
         {isOther ? driverPicker() : (
           <>
             <label className="form-label">{t('req.car_self_label')}</label>
@@ -396,11 +442,7 @@ export default function RequestsManager({ endpoints }) {
             </select>
           </>
         )}
-        <div className="rq-modal-actions rq-modal-actions--mt18">
-          <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, editing: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
-          <button onClick={doUpdate} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.save')}</button>
-        </div>
-      </div>
+      </>
     );
   };
 
@@ -636,26 +678,40 @@ export default function RequestsManager({ endpoints }) {
         // ยกเลิกการจอง = เฉพาะงานที่อนุมัติแล้ว · pending ใช้ "ปฏิเสธ" · cancel_requested ใช้ "ยืนยันการยกเลิก"
         const canAdminCancel = isApproved;
         const inMode = modal.editing || modal.cancelling || modal.rejecting;
+        // รถอื่นๆ ตอนรออนุมัติ - เลือกคนขับได้จาก picker ในหัวข้อ "รถ & คนขับ" ซึ่งเป็นส่วนหนึ่งของขั้นอนุมัติ
+        const pickerInFlow = isOther && pending;
+        // รถอื่นๆ ที่อนุมัติแล้ว - แก้คนขับผ่าน assign-driver (เขียนเฉพาะฟิลด์คนขับ + แจ้ง "มอบหมายคนขับ")
+        const editsViaAssign = isOther && isApproved;
+        // กำลังแก้ไขอยู่ - ปุ่มยกเลิก/บันทึกไปอยู่แถบท้ายแผง
+        const inEdit = modal.editing || modal.assigning;
+        // มีปุ่มดำเนินการให้กดไหม (ไม่มีปุ่ม "ปิด" แล้ว - ปิดด้วยกากบาทมุมขวาบนหรือ Esc)
+        const hasActions = modal.rejecting || modal.cancelling || pending || isCancelReq || canAdminCancel;
+        // ตอนกรอกเหตุผลปฏิเสธ/ยกเลิกของคำขอรถอื่นๆ ที่ยังไม่อนุมัติ ยังไม่มีรถ/คนขับให้แสดง
+        const showVehicleSec = ! (isOther && pending && (modal.rejecting || modal.cancelling));
         return (
-          <div onClick={() => setModal(null)} className="rq-focus-backdrop">
-            <div onClick={(e) => e.stopPropagation()} className="rq-focus-panel" role="dialog" aria-label={t('req.detail_title', { code: b.booking_code })}>
+          <div onClick={closeModal} className="rq-focus-backdrop">
+            <div ref={panelRef} tabIndex={-1} onClick={(e) => e.stopPropagation()} className="rq-focus-panel" role="dialog" aria-modal="true" aria-label={t('req.detail_title', { code: b.booking_code })}>
 
-              {/* หัว: รหัสคำขอ + สถานะ */}
+              {/* หัว: ไอคอนประเภท + ชื่อ/รหัสคำขอ + สถานะ + ปุ่มปิด */}
               <div className="rq-focus-head">
+                {/* ไอคอนบอกประเภทการจอง - รถขับเอง = รถ, รถอื่นๆ = องค์กรจัดหาให้ */}
+                <div className="icon-box icon-box--teal rq-focus-icon" title={typeLabel(b.booking_type)}>
+                  <Icon name={b.booking_type === 'self' ? 'car' : 'building'} size={20} />
+                </div>
                 <div className="rq-focus-head-main">
-                  <h3 className="rq-focus-code">{b.booking_code}</h3>
-                  <span className="rq-focus-kind">{typeLabel(b.booking_type)}</span>
+                  <h3 className="rq-focus-title">{t('req.detail_heading')}</h3>
+                  <div className="rq-focus-codeline">
+                    <span className="rq-focus-code">{b.booking_code}</span>
+                    <span className="rq-focus-kind">{typeLabel(b.booking_type)}</span>
+                  </div>
                 </div>
                 <span className={`pill pill--sm rq-badge ${ST_CLASS[b.status] || sc}`}>{REAL_STATUS[b.status] || sl}</span>
-                <button onClick={() => setModal(null)} className="modal-close rq-focus-x" aria-label={t('common.close')}>{CloseIcon}</button>
+                <button onClick={closeModal} className="modal-close rq-focus-x" aria-label={t('common.close')}>{CloseIcon}</button>
               </div>
 
               {modalErr && <div className="rq-focus-err"><Alert>{modalErr}</Alert></div>}
 
-              {modal.editing ? (
-                <div className="rq-focus-edit">{editForm()}</div>
-              ) : (
-                <div className="rq-focus-cols">
+              <div className="rq-focus-cols">
 
                   {/* ===== ซ้าย: ข้อมูลที่ผู้ขอส่งมา (อ่านอย่างเดียว) ===== */}
                   <div className="rq-focus-col rq-focus-col--request">
@@ -663,28 +719,46 @@ export default function RequestsManager({ endpoints }) {
                       <span className="rq-focus-coltitle">{t('req.sec_request')}</span>
                     </div>
 
-                    <div className="rq-focus-sec">
+                    {/* กริดเดียวทั้งคอลัมน์ - ป้ายของทั้ง 2 กลุ่มจึงตรงแนวกัน */}
+                    <div className="rq-focus-fields">
                       <div className="rq-focus-sectitle">{t('req.sec_requester')}</div>
-                      <div className="rq-focus-value">{b.requester_name || '-'}</div>
-                      <div className="rq-focus-sub">{b.dept_name || '-'}</div>
-                    </div>
+                      {[
+                        [t('mem.col_full_name'), b.requester_name || '-'],
+                        [t('req.dept_label'), b.dept_name || '-'],
+                        [t('mem.position_label'), b.position_name || '-'],
+                        [t('mem.phone_full_label'), b.requester_phone || '-'],
+                      ].map(([k, v]) => (
+                        <div key={k} className="rq-focus-row">
+                          <div className="rq-focus-flabel">{k}</div>
+                          <div className="rq-focus-value">{v}</div>
+                        </div>
+                      ))}
 
-                    <div className="rq-focus-sec">
                       <div className="rq-focus-sectitle">{t('req.sec_trip')}</div>
-                      <div className="rq-focus-field">
-                        <div className="detail-label">{t('req.col_time_range')}</div>
-                        <div className="rq-focus-value">{dateTimeRange(b.start_at, b.end_at)}</div>
+                      <div className="rq-focus-row">
+                        <div className="rq-focus-flabel">{t('req.passenger_count_label')}</div>
+                        <div className="rq-focus-value">{t('req.people', { n: b.people })}</div>
                       </div>
-                      <div className="rq-focus-field">
-                        <div className="detail-label">{t('req.location_short')}</div>
-                        <div className="rq-focus-value">{b.location}</div>
-                        {b.map_link && (isSafeUrl(b.map_link)
-                          ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link">{t('req.open_in_maps')}</a>
-                          : <span className="rq-map-link rq-map-link--invalid">{t('req.invalid_map_link')}</span>)}
+                      <div className="rq-focus-row">
+                        <div className="rq-focus-flabel">{t('req.location_short')}</div>
+                        <div className="rq-focus-value">
+                          {b.location || '-'}
+                          {b.map_link && (isSafeUrl(b.map_link)
+                            ? <a href={b.map_link} target="_blank" rel="noopener" className="rq-map-link"><Icon name="map-pin" size={13} />{t('req.open_in_maps')}</a>
+                            : <span className="rq-map-link rq-map-link--invalid">{t('req.invalid_map_link')}</span>)}
+                        </div>
                       </div>
-                      <div className="rq-focus-pair">
-                        <div><div className="detail-label">{t('req.passenger_count_label')}</div><div className="rq-focus-value">{t('req.people', { n: b.people })}</div></div>
-                        <div><div className="detail-label">{t('req.purpose_label')}</div><div className="rq-focus-value">{b.purpose || '-'}</div></div>
+                      <div className="rq-focus-row">
+                        <div className="rq-focus-flabel">{t('req.purpose_label')}</div>
+                        <div className="rq-focus-value">{b.purpose || '-'}</div>
+                      </div>
+                      <div className="rq-focus-row">
+                        <div className="rq-focus-flabel">{t('req.start_label')}</div>
+                        <div className="rq-focus-value">{fmtDateTime(b.start_at)}</div>
+                      </div>
+                      <div className="rq-focus-row">
+                        <div className="rq-focus-flabel">{t('req.end_label')}</div>
+                        <div className="rq-focus-value">{fmtDateTime(b.end_at)}</div>
                       </div>
                     </div>
                   </div>
@@ -693,34 +767,69 @@ export default function RequestsManager({ endpoints }) {
                   <div className="rq-focus-col rq-focus-col--decide">
                     <div className="rq-focus-colhead">
                       <span className="rq-focus-coltitle">{t('req.sec_manage')}</span>
-                      {isActive && ! inMode && (
-                        <button onClick={enterEdit} disabled={busy} className="rq-focus-edit-btn">{bIcon('pencil')}{isOther ? t('req.change_driver') : t('req.change_car')}</button>
+                      {isActive && ! inMode && ! modal.assigning && ! pickerInFlow && (
+                        <button onClick={editsViaAssign ? startAssign : enterEdit} disabled={busy} className="rq-focus-edit-btn">{bIcon('pencil')}{t('common.edit')}</button>
                       )}
                     </div>
 
                     {/* รถ & คนขับ */}
+                    {showVehicleSec && (
                     <div className="rq-focus-sec">
                       <div className="rq-focus-sectitle">{t('req.sec_vehicle')}</div>
-                      {! isOther && <div className="rq-focus-value">{b.car_model ? `${b.car_model} (${b.car_plate})` : '-'}</div>}
-                      {isOther && ! inMode && pending && driverPicker()}
-                      {isOther && ! pending && (
-                        driverAssigned(b)
-                          ? <div className="rq-focus-value">{driverAssigned(b)}</div>
-                          : <div className="rq-focus-sub">{t('req.no_driver_yet')}</div>
-                      )}
-                      {/* เติมคนขับให้งานที่อนุมัติแล้วแต่ยังไม่ได้มอบหมาย */}
-                      {isApproved && isOther && ! inMode && (modal.assigning ? (
-                        <div className="rq-focus-assign">
-                          {driverPicker()}
-                          <div className="rq-modal-actions rq-modal-actions--mt6">
-                            <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, assigning: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
-                            <button onClick={doAssign} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('req.save_driver')}</button>
+                      {modal.editing && editForm()}
+                      {! isOther && ! modal.editing && (
+                        <div className="rq-focus-fields">
+                          <div className="rq-focus-row">
+                            <div className="rq-focus-flabel">{t('req.car_label')}</div>
+                            <div className="rq-focus-value">{b.car_model ? `${b.car_model} (${b.car_plate})` : '-'}</div>
                           </div>
                         </div>
-                      ) : (
-                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, assigning: true })); }} className="rq-assign-btn">{driverAssigned(b) ? t('req.change_driver') : t('req.assign_driver')}</button>
-                      ))}
+                      )}
+                      {isOther && ! inMode && pending && driverPicker()}
+                      {/* รถอื่นๆ ที่จัดหาแล้ว - รถ/ที่นั่ง/คนขับ/เบอร์โทร เก็บใน ext_driver_* ทั้งคนขับบริษัทและภายนอก
+                          ตอนแก้ไขไม่ต้องโชว์ ฟอร์มข้างล่างมีค่าเดียวกันให้แก้อยู่แล้ว */}
+                      {isOther && ! pending && ! modal.assigning && ! modal.editing && (
+                        driverAssigned(b) || b.ext_driver_vehicle
+                          ? (
+                            <div className="rq-focus-fields">
+                              <div className="rq-focus-row">
+                                <div className="rq-focus-flabel">{t('req.car_label')}</div>
+                                <div className="rq-focus-value">{b.ext_driver_vehicle || '-'}</div>
+                              </div>
+                              {b.ext_driver_seats && (
+                                <div className="rq-focus-row">
+                                  <div className="rq-focus-flabel">{t('req.seats_label')}</div>
+                                  <div className="rq-focus-value">
+                                    {t('req.seats_count', { n: b.ext_driver_seats })}
+                                    {/* เตือนเฉพาะตอนรถเล็กกว่าจำนวนคน - พอดี/เหลือ ไม่ต้องพูดถึง */}
+                                    {Number(b.ext_driver_seats) < Number(b.people) && (
+                                      <span className="rq-seats-warn"> · {t('req.seats_short', { n: b.people })}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                              <div className="rq-focus-row">
+                                <div className="rq-focus-flabel">{t('tl.driver_label')}</div>
+                                <div className="rq-focus-value">{driverAssigned(b) || '-'}</div>
+                              </div>
+                              {b.ext_driver_phone && (
+                                <div className="rq-focus-row">
+                                  <div className="rq-focus-flabel">{t('req.phone_label')}</div>
+                                  <div className="rq-focus-value">{b.ext_driver_phone}</div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                          : <div className="rq-focus-sub">{t('req.no_driver_yet')}</div>
+                      )}
+                      {/* ฟอร์มเปลี่ยน/มอบหมายคนขับ - เปิดจากปุ่มบนหัวคอลัมน์ */}
+                      {isApproved && isOther && ! inMode && modal.assigning && (
+                        <div className="rq-focus-assign">
+                          {driverPicker()}
+                        </div>
+                      )}
                     </div>
+                    )}
 
                     {/* คืนรถจริง (งานที่จบแล้ว) */}
                     {b.status === 'completed' && b.returned_at && (
@@ -732,11 +841,11 @@ export default function RequestsManager({ endpoints }) {
 
                     {/* หมายเหตุ: กรอกได้เมื่อยังตัดสินใจได้ · อ่านอย่างเดียวเมื่อจบแล้ว */}
                     <div className="rq-focus-sec rq-focus-sec--grow">
-                      <label className="rq-focus-sectitle" htmlFor={pending || modal.rejecting || modal.cancelling ? 'rq-admin_note' : undefined}>
+                      <label className="rq-focus-sectitle" htmlFor={pending || inMode || modal.assigning ? 'rq-admin_note' : undefined}>
                         {modal.rejecting ? t('req.reject_reason_label') : modal.cancelling ? t('req.cancel_reason_label') : pending ? t('req.reply_note_label') : t('req.sec_note')}
                         {(modal.rejecting || modal.cancelling) && <span className="rq-required"> *</span>}
                       </label>
-                      {pending || modal.rejecting || modal.cancelling ? (
+                      {pending || inMode || modal.assigning ? (
                         <>
                           <textarea {...fieldAttrs('rq-admin_note', errs.admin_note)} value={modal.form.admin_note} onChange={(e) => setForm({ admin_note: e.target.value })}
                             placeholder={modal.rejecting ? t('req.reject_reason_placeholder') : t('req.note_to_requester_placeholder')}
@@ -757,28 +866,29 @@ export default function RequestsManager({ endpoints }) {
                       </div>
                     )}
 
-                    {/* ===== ปุ่ม - ชุดเดียวต่อสถานะ ===== */}
-                    <div className="rq-focus-actions">
-                      {modal.rejecting ? (<>
-                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
-                        <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_reject')}</button>
-                      </>) : modal.cancelling ? (<>
-                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
-                        <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
-                      </>) : pending ? (<>
-                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
-                        <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.approve')}</button>
-                      </>) : isCancelReq ? (<>
-                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                        <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel')}</button>
-                      </>) : canAdminCancel ? (<>
-                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                        <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{bIcon('cancel')}{t('req.cancel_booking')}</button>
-                      </>) : (
-                        <button onClick={() => setModal(null)} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('close')}{t('common.close')}</button>
-                      )}
-                    </div>
                   </div>
+                </div>
+
+              {/* แถบท้ายแผง - เต็มความกว้างเหมือนหัวแผง · ปุ่มทุกชุดอยู่ที่นี่ที่เดียว */}
+              {(inEdit || hasActions) && (
+                <div className="rq-focus-foot">
+                  {inEdit ? (<>
+                    <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, editing: false, assigning: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.cancel')}</button>
+                    <button onClick={modal.assigning ? doAssign : doUpdate} disabled={busy || !! driverClash()} className={`rq-modal-btn rq-modal-btn--save ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.save')}</button>
+                  </>) : modal.rejecting ? (<>
+                    <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('common.back')}</button>
+                    <button onClick={doReject} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_reject')}</button>
+                  </>) : modal.cancelling ? (<>
+                    <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: false })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--gray">{bIcon('arrow-left')}{t('req.no_cancel')}</button>
+                    <button onClick={doCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--danger-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel_request')}</button>
+                  </>) : pending ? (<>
+                    <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, rejecting: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('common.reject')}</button>
+                    <button onClick={doApprove} disabled={busy || !!driverClash()} className={`rq-modal-btn rq-modal-btn--approve ${driverClash() ? 'rq-modal-btn--clash' : ''}`}>{busy ? <Spinner /> : bIcon('check')}{t('common.approve')}</button>
+                  </>) : isCancelReq ? (
+                    <button onClick={doConfirmCancel} disabled={busy} className="rq-modal-btn rq-modal-btn--warn-solid">{busy ? <Spinner /> : bIcon('cancel')}{t('req.confirm_cancel')}</button>
+                  ) : (
+                    <button onClick={() => { setErrs({}); setModal((m) => ({ ...m, cancelling: true })); }} disabled={busy} className="rq-modal-btn rq-modal-btn--reject-soft">{bIcon('cancel')}{t('req.cancel_booking')}</button>
+                  )}
                 </div>
               )}
             </div>

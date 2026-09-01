@@ -841,7 +841,7 @@
   margin-bottom: 3px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-faint);
+  color: var(--text-soft);
 }
 
 /* ----- 1.17 Segmented control (แถบสลับ / แท็บ) ----- */
@@ -2716,30 +2716,6 @@
   }
 }
 
-/* ตัวครอบไอคอน - จุดอ้างอิงตำแหน่งให้วงแหวน */
-.icar-alert-icon {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* วงแหวน 2 วง (::before/::after) เหลื่อมจังหวะกันครึ่งรอบ ให้กระเพื่อมต่อเนื่อง */
-.icar-alert-icon::before,
-.icar-alert-icon::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 2px solid currentColor;
-  animation: icar-alert-ripple 1.8s ease-out infinite;
-  pointer-events: none;
-}
-
-.icar-alert-icon::after {
-  animation-delay: .9s;
-}
-
 /* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว - ปิด animation */
 @media (prefers-reduced-motion: reduce) {
   .icar-alert-icon::before,
@@ -2810,11 +2786,11 @@
 }
 
 /* พื้นที่หลัก 2 คอลัมน์ (คำขอ 2fr + สมาชิก 1fr) - ซ้อนกันบนจอเล็ก */
+/* 2 แผงในแถวเดียวกันสูงเท่ากัน (ไม่ใส่ align-items: start ที่ทำให้การ์ดหดตามเนื้อหา) */
 .dash-cols {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 18px;
-  align-items: start;
 }
 
 @media (max-width: 1080px) {
@@ -2888,6 +2864,46 @@
   box-shadow: var(--card-shadow);
 }
 
+/* การ์ดที่กดได้ - เป็น <a> จึงต้องล้างสไตล์ลิงก์ทิ้ง */
+.dash-card--link {
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow .16s ease, border-color .16s ease;
+}
+
+.dash-card--link:hover {
+  border-color: var(--teal-line);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.dash-card--link:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* ลูกศรบอกว่าการ์ดพาไปหน้าอื่น - ชิดขวาในบรรทัดตัวเลข */
+.dash-card--link .dash-card-val {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dash-card--link .dash-go-arrow {
+  flex: none;
+  color: var(--text-faint);
+}
+
+.dash-card--link:hover .dash-go-arrow {
+  color: var(--teal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-card--link {
+    transition: none;
+  }
+}
+
 .dash-card-head {
   display: flex;
   justify-content: space-between;
@@ -2933,6 +2949,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
+}
+
+/* ชื่อแผง + ป้ายจำนวนที่รอดำเนินการ - อยู่ชิดกันด้านซ้าย */
+.dash-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 /* ปุ่มลิงก์ "ดูทั้งหมด" มุมขวาบนแผง */
@@ -3106,69 +3131,6 @@
 .dash-status-badge {
   background: var(--st-bg);
   color: var(--st-fg);
-}
-
-/* ===== Dashboard: แถบเตือนรออนุมัติ (เหนือแผงข้อมูล) ===== */
-.dash-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  border-radius: 12px;
-  padding: 14px 18px;
-  margin-bottom: 14px;
-}
-
-.dash-alert--amber {
-  background: #fdf6e3;
-  border: 1px solid #f0dca0;
-}
-
-.dash-alert--teal {
-  background: #e8f4f3;
-  border: 1px solid #b3ddd9;
-}
-
-.dash-alert-icon {
-  flex: none;
-  margin-top: 1px;
-}
-
-.dash-alert-icon--amber {
-  color: var(--amber);
-}
-
-.dash-alert-icon--teal {
-  color: var(--teal);
-}
-
-.dash-alert-body {
-  min-width: 0;
-}
-
-.dash-alert-title {
-  font-size: 14.5px;
-  font-weight: 700;
-}
-
-.dash-alert-title--amber {
-  color: var(--warn);
-}
-
-.dash-alert-title--teal {
-  color: var(--teal-dark);
-}
-
-.dash-alert-sub {
-  font-size: 13px;
-  margin-top: 2px;
-}
-
-.dash-alert-sub--amber {
-  color: #a5751f;
-}
-
-.dash-alert-sub--teal {
-  color: #2f807c;
 }
 
 /* ===== Dashboard: รายการสมาชิกรออนุมัติ ===== */
@@ -4151,83 +4113,204 @@
 /* ===== DetailModal: โมดัลรายละเอียดการจอง (อ่านอย่างเดียว) ===== */
 /* ฉากหลังเต็มจอ กดปิดได้ */
 .tl-dm-overlay {
+  animation: icar-fade-in .18s ease;
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 32, .45);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 50;
+  z-index: 150;
 }
 
+/* กล่องขาว - แถบ teal ที่ขอบซ้าย, หัวติดบน, เนื้อหาเลื่อนได้ */
 .tl-dm-modal {
+  animation: icar-modal-pop .22s cubic-bezier(.4, 0, .2, 1);
   background: #fff;
-  border-radius: 14px;
+  border-left: 4px solid var(--teal-line);
+  border-radius: 16px;
+  box-shadow: var(--modal-shadow);
   width: 100%;
-  max-width: 460px;
+  max-width: 520px;
   max-height: 90vh;
-  overflow-y: auto;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
+/* กล่องรับโฟกัสตอนเปิดเพื่อให้โปรแกรมอ่านหน้าจออ่านหัวเรื่อง - ไม่ใช่ตัวที่ Tab ถึง จึงไม่ต้องมีกรอบ */
+.tl-dm-modal:focus {
+  outline: none;
+}
+
+/* ผุดขึ้นเล็กน้อยตอนเปิด - ใช้ร่วมกับ .rq-focus-panel */
+@keyframes icar-modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-dm-overlay,
+  .tl-dm-modal {
+    animation: none;
+  }
+}
+
+/* หัวโมดัล - ไอคอน + ชื่อ/รหัส + ป้ายสถานะ + ปุ่มปิด */
 .tl-dm-head {
+  flex: none;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* กล่องไอคอนหัวโมดัล - ใช้ .icon-box กลาง แค่ตั้งขนาด */
+.tl-dm-icon {
+  --icon-size: 42px;
+  --icon-radius: 12px;
+}
+
+/* ชื่อ + รหัสการจอง - หดได้เมื่อจอแคบ */
+.tl-dm-headtext {
+  flex: 1;
+  min-width: 0;
 }
 
 .tl-dm-title {
   font-size: 16px;
   font-weight: 700;
   color: var(--ink-strong);
+  line-height: 1.35;
 }
 
-.tl-dm-close {
-  border: none;
-  background: none;
-  font-size: 22px;
-  color: var(--text-faint);
-  cursor: pointer;
-  line-height: 1;
-}
-
-.tl-dm-statuswrap {
-  margin-bottom: 12px;
+/* รหัสการจอง (BK-0001) */
+.tl-dm-code {
+  margin-top: 1px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: var(--teal-hover);
 }
 
 /* ป้ายสถานะ - สี/พื้นหลังตาม class .st-* (ดู §1.15) */
 .tl-dm-badge {
+  flex: none;
   font-size: 12px;
-  border-radius: 6px;
-  padding: 3px 10px;
+  border-radius: 999px;
+  padding: 4px 11px;
   font-weight: 600;
+  white-space: nowrap;
   background: var(--st-bg);
   color: var(--st-fg);
 }
 
-.tl-dm-rows {
+.tl-dm-close {
+  flex: none;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tl-dm-row {
-  display: flex;
-  gap: 10px;
-  font-size: 13px;
-}
-
-.tl-dm-label {
-  width: 110px;
-  flex-shrink: 0;
+  padding: 4px;
+  border: none;
+  background: none;
   color: var(--text-faint);
+  cursor: pointer;
 }
 
-.tl-dm-value {
+.tl-dm-close:hover {
+  color: var(--text-soft);
+}
+
+/* พื้นที่เนื้อหา - เลื่อนได้เมื่อเนื้อหายาว
+   กริดเดียวทั้งแผง ป้ายทุกกลุ่มจึงตรงแนวกันและกว้างพอดีป้ายที่ยาวที่สุด (ต่างกันตามภาษา) */
+.tl-dm-body {
+  overflow-y: auto;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-content: start;
+  gap: 9px 14px;
+}
+
+/* กลุ่ม/แถวไม่กินพื้นที่เอง - หัวข้อกับป้าย/ค่า เข้าไปเรียงในกริดของ .tl-dm-body โดยตรง */
+.tl-dm-sec,
+.tl-dm-rows,
+.tl-dm-row {
+  display: contents;
+}
+
+/* หัวข้อกลุ่ม + ขีดใต้สั้นสี teal - กินเต็มแถว */
+.tl-dm-sec-title,
+.rq-focus-sectitle,
+.dj-sec-title {
+  grid-column: 1 / -1;
+  position: relative;
+  margin: 0 0 2px;
+  padding-bottom: 7px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+/* เว้นช่วงก่อนหัวข้อกลุ่มถัดไป */
+.tl-dm-sec:not(:first-child) .tl-dm-sec-title {
+  margin-top: 11px;
+}
+
+.tl-dm-sec-title::after,
+.rq-focus-sectitle::after,
+.dj-sec-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 36px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--teal);
+}
+
+.tl-dm-label,
+.rq-focus-flabel,
+.dj-label {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.tl-dm-value,
+.rq-focus-value,
+.dj-value {
+  font-size: 13.5px;
   color: var(--ink-strong);
   word-break: break-word;
+}
+
+/* จอแคบ - ป้ายขึ้นบรรทัดบน ค่าอยู่บรรทัดล่าง */
+@media (max-width: 480px) {
+  .tl-dm-head {
+    flex-wrap: wrap;
+  }
+
+  .tl-dm-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .tl-dm-row {
+    display: block;
+  }
+
+  .tl-dm-label {
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 
 /* ===== DayGrid: ตารางรายวัน (รถขับเอง + รถอื่นๆ) ===== */
@@ -4921,6 +5004,7 @@
 /* ===== Focus panel รายละเอียดคำขอ - กลางจอ 2 คอลัมน์ =====
    ซ้าย = ข้อมูลที่ผู้ขอส่งมา (อ่านอย่างเดียว) · ขวา = สิ่งที่ Admin ตัดสินใจ */
 .rq-focus-backdrop {
+  animation: icar-fade-in .18s ease;
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -4932,6 +5016,7 @@
 }
 
 .rq-focus-panel {
+  animation: icar-modal-pop .22s cubic-bezier(.4, 0, .2, 1);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -4939,8 +5024,20 @@
   max-height: calc(100vh - 48px);
   overflow: hidden;
   background: #fff;
-  border-radius: 14px;
+  border-left: 4px solid var(--teal-line);
+  border-radius: 16px;
   box-shadow: var(--modal-shadow);
+}
+
+.rq-focus-panel:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rq-focus-backdrop,
+  .rq-focus-panel {
+    animation: none;
+  }
 }
 
 /* หัว: รหัสคำขอ + ประเภท + ป้ายสถานะ + ปุ่มปิด */
@@ -4952,23 +5049,42 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* กล่องไอคอนหัวแผง - ใช้ .icon-box กลาง แค่ตั้งขนาด */
+.rq-focus-icon {
+  --icon-size: 42px;
+  --icon-radius: 12px;
+}
+
 .rq-focus-head-main {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
-.rq-focus-code {
+.rq-focus-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--ink-strong);
 }
 
-.rq-focus-kind {
+/* บรรทัดรหัสคำขอ + ประเภท */
+.rq-focus-codeline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 1px;
+}
+
+.rq-focus-code {
   font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: var(--teal-hover);
+}
+
+.rq-focus-kind {
+  font-size: 12.5px;
   color: var(--text-mute);
 }
 
@@ -4978,6 +5094,21 @@
 
 .rq-focus-err {
   padding: 12px 20px 0;
+}
+
+/* แถบท้ายแผง - เต็มความกว้างเหมือนหัวแผง ปุ่มชิดขวา */
+.rq-focus-foot {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.rq-focus-foot .rq-modal-btn {
+  padding: 10px 18px;
 }
 
 /* 2 คอลัมน์ - ฝั่งขวากว้างกว่าเพราะมีช่องกรอกกับปุ่ม */
@@ -5010,11 +5141,11 @@
 }
 
 .rq-focus-coltitle {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .4px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .7px;
   text-transform: uppercase;
-  color: var(--text-mute);
+  color: var(--ink-strong);
 }
 
 /* ปุ่มแก้ไข - อยู่หัวคอลัมน์ซ้าย เพราะแก้ข้อมูลของคำขอ ไม่ใช่การตัดสินใจ */
@@ -5038,38 +5169,78 @@
   color: var(--ink-strong);
 }
 
+/* รายการฟิลด์คอลัมน์คำขอ - กริดเดียวทั้งคอลัมน์ ป้ายกว้างพอดีป้ายที่ยาวที่สุด */
+.rq-focus-fields,
+.dj-fields {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-content: start;
+  gap: 9px 14px;
+}
+
+.rq-focus-row,
+.dj-row {
+  display: contents;
+}
+
+/* เตือนรถนั่งไม่พอ - ต่อท้ายจำนวนที่นั่งในแถวเดียวกัน */
+.rq-seats-warn {
+  font-weight: 600;
+  color: var(--danger-text);
+}
+
+/* หัวข้อกลุ่มในกริด - กินเต็มแถว */
+.rq-focus-fields .rq-focus-sectitle,
+.dj-fields .dj-sec-title {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+}
+
+/* เว้นช่วงก่อนหัวข้อกลุ่มถัดไป */
+.rq-focus-fields .rq-focus-sectitle:not(:first-child),
+.dj-fields .dj-sec-title:not(:first-child) {
+  margin-top: 11px;
+}
+
+/* จอแคบ - ป้ายขึ้นบรรทัดบน ค่าอยู่บรรทัดล่าง */
+@media (max-width: 480px) {
+  .rq-focus-fields,
+  .dj-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .rq-focus-row,
+  .dj-row {
+    display: block;
+  }
+
+  .rq-focus-flabel,
+  .dj-label {
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
 /* กลุ่มข้อมูลย่อยในแต่ละคอลัมน์ */
 .rq-focus-sec {
   margin-bottom: 18px;
+}
+
+/* หัวข้อกลุ่มที่อยู่นอกกริด - บางอันเป็น <label> จึงต้องบังคับ block
+   และระยะห่างล่างมาจาก margin เพราะไม่มี gap ของกริดมาช่วย */
+.rq-focus-sec > .rq-focus-sectitle {
+  display: block;
+  margin-bottom: 11px;
 }
 
 .rq-focus-sec--grow {
   flex: 1;
 }
 
-.rq-focus-sectitle {
-  display: block;
-  margin-bottom: 7px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-soft);
-}
-
-.rq-focus-field {
-  margin-bottom: 12px;
-}
-
-/* 2 ช่องเล็กเรียงคู่ (จำนวนคน / วัตถุประสงค์) */
-.rq-focus-pair {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px 18px;
-}
-
+/* ค่าในแผงคำขออาจเป็นสตริงยาวไม่มีเว้นวรรค (ลิงก์/ทะเบียน) - ตัดคำได้ทุกตำแหน่ง */
 .rq-focus-value {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--text);
   overflow-wrap: anywhere;
 }
 
@@ -5082,26 +5253,6 @@
   margin-top: 10px;
 }
 
-/* ปุ่มท้ายคอลัมน์ขวา - ชิดขวา ตาไล่จบที่นี่ */
-.rq-focus-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-}
-
-.rq-focus-actions .rq-modal-btn {
-  padding: 10px 18px;
-}
-
-/* โหมดแก้ไขคำขอ - ใช้ความกว้างเต็มแผง ไม่แบ่งคอลัมน์ */
-.rq-focus-edit {
-  padding: 18px 20px 20px;
-  overflow-y: auto;
-}
-
 /* จอแคบ: ซ้อนเป็นคอลัมน์เดียว ปุ่มยังอยู่ท้ายสุด */
 @media (max-width: 900px) {
   .rq-focus-backdrop {
@@ -5112,6 +5263,7 @@
   .rq-focus-panel {
     max-width: none;
     max-height: none;
+    border-left: none;
     border-radius: 0;
   }
 
@@ -5132,61 +5284,71 @@
   padding: 20px 24px;
 }
 
-/* ป้ายสถานะบนสุดของเนื้อหา drawer */
-.dj-drawer-status {
-  margin-bottom: 16px;
-}
-
-/* กริดรายละเอียดงาน 2 คอลัมน์ */
-.dj-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 13px 20px;
-}
-
-/* ช่องที่กินเต็มความกว้าง 2 คอลัมน์ */
-.dj-detail-full {
-  grid-column: 1 / -1;
-}
-
-/* ค่าของฟิลด์ในกริดรายละเอียด */
-.dj-detail-value {
-  font-size: 14px;
-  color: var(--text);
-  font-weight: 600;
-  word-break: break-word;
-}
-
-/* ครอบลิงก์/ป้ายแผนที่ */
-.dj-map-wrap {
-  margin-top: 16px;
-}
-
 /* ลิงก์เปิดแผนที่ (URL ปลอดภัย) */
 .dj-map-link {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  margin-top: 6px;
   background: var(--teal-soft);
   color: var(--teal-hover);
-  border-radius: 8px;
-  padding: 9px 15px;
-  font-size: 13.5px;
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 12.5px;
   font-weight: 600;
   text-decoration: none;
 }
 
-/* ป้ายลิงก์แผนที่ไม่ปลอดภัย (ปิดการคลิก) */
-.dj-map-invalid {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+a.dj-map-link:hover {
+  background: var(--teal-line);
+}
+
+/* ลิงก์แผนที่ไม่ปลอดภัย/ไม่ถูกต้อง - สีเทาแทนสี teal */
+.dj-map-link--invalid {
   background: var(--surface);
   color: var(--text-faint);
-  border-radius: 8px;
-  padding: 9px 15px;
-  font-size: 13.5px;
+}
+
+/* หัว drawer - ไอคอน + ชื่อ/รหัสงาน + ป้ายสถานะ + ปุ่มปิด (ชุดเดียวกับแผงอื่น) */
+.dj-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dj-head-icon {
+  --icon-size: 42px;
+  --icon-radius: 12px;
+}
+
+.dj-head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dj-head-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink-strong);
+}
+
+.dj-head-code {
+  margin-top: 1px;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: .3px;
+  color: var(--teal-hover);
+}
+
+/* กล่องรับโฟกัสตอนเปิด - ไม่ใช่ตัวที่ Tab ถึง จึงไม่ต้องมีกรอบ */
+.icar-drawer:focus {
+  outline: none;
 }
 
 /* กล่องหมายเหตุจาก Admin */
@@ -7359,12 +7521,6 @@
 
 /* ===== RequestsManager: โมดัลอนุมัติ/ปฏิเสธ + มอบหมายคนขับ + drawer รายละเอียด (ส่วนที่ 2) ===== */
 
-/* บล็อกฟอร์ม/เนื้อหาย่อยในโมดัล ที่มีเส้นคั่นด้านบน */
-.rq-modal-section {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-
 /* ระยะห่างล่างของช่องกรอกเดี่ยวในฟอร์ม */
 .rq-field-gap {
   margin-bottom: 14px;
@@ -7407,14 +7563,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-}
-
-.rq-modal-actions--mt18 {
-  margin-top: 18px;
-}
-
-.rq-modal-actions--mt6 {
-  margin-top: 6px;
 }
 
 /* ปุ่มฐานในแถวปุ่มจัดการของโมดัล (ยกเลิก/บันทึก/อนุมัติ/ปฏิเสธ/ยืนยัน) */
@@ -7573,18 +7721,24 @@
 }
 
 /* ลิงก์เปิดแผนที่ */
+/* ลิงก์เปิดแผนที่ - ขึ้นบรรทัดใหม่ใต้ชื่อสถานที่ (flex + fit-content = กล่องระดับบล็อกที่กว้างเท่าเนื้อหา) */
 .rq-map-link {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  margin-top: 6px;
   background: var(--teal-soft);
   color: var(--teal-hover);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13.5px;
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 12.5px;
   font-weight: 600;
   text-decoration: none;
-  margin-bottom: 18px;
+}
+
+a.rq-map-link:hover {
+  background: var(--teal-line);
 }
 
 /* ลิงก์แผนที่ไม่ปลอดภัย/ไม่ถูกต้อง - สีเทาแทนสี teal */
@@ -7595,18 +7749,4 @@
 
 .rq-assigned-note b {
   color: var(--teal-hover);
-}
-
-/* ปุ่มมอบหมาย/เปลี่ยนคนขับ (โหมดดูอย่างเดียว) */
-.rq-assign-btn {
-  align-self: flex-start;
-  background: var(--teal-soft);
-  color: var(--teal-hover);
-  border: none;
-  border-radius: 8px;
-  padding: 9px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
 }

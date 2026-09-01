@@ -16,16 +16,18 @@ const STATUS_CLASS = {
 };
 
 // การ์ดสรุปตัวเลข - เงายกลอย + ขอบคม ให้เด่นแยกจากพื้นเทา
-function StatCard({ label, value, sub, icon, iconClass }) {
+// มี href = การ์ดกดได้ พาไปหน้าที่จัดการตัวเลขนั้น
+function StatCard({ label, value, sub, icon, iconClass, href }) {
+  const Tag = href ? 'a' : 'div';
   return (
-    <div className="dash-card">
+    <Tag href={href} className={`dash-card${href ? ' dash-card--link' : ''}`}>
       <div className="dash-card-head">
         <div className="subtext dash-card-label">{label}</div>
         <div className={`icon-box ${iconClass}`}>{icon}</div>
       </div>
-      <div className="dash-card-val">{value}</div>
+      <div className="dash-card-val">{value}{href && goArrow}</div>
       <div className="subtext subtext--faint">{sub}</div>
-    </div>
+    </Tag>
   );
 }
 
@@ -74,10 +76,10 @@ export default function Dashboard({ endpoints, links }) {
 
 
   const cards = [
-    { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconClass: 'dash-icon--amber' },
-    { key: 'pendingMembers', label: t('dash.card_members'), sub: t('dash.card_members_sub'), icon: icons.person, iconClass: 'icon-box--teal' },
-    { key: 'availableCars', label: t('dash.card_cars'), sub: t('dash.card_cars_sub'), icon: icons.car, iconClass: 'icon-box--teal' },
-    { key: 'carsInUse', label: t('dash.card_inuse'), sub: t('dash.card_inuse_sub'), icon: icons.car, iconClass: 'dash-icon--amber' },
+    { key: 'pendingBookings', label: t('dash.card_bookings'), sub: t('dash.card_bookings_sub'), icon: icons.clock, iconClass: 'dash-icon--amber', href: links.requests },
+    { key: 'pendingMembers', label: t('dash.card_members'), sub: t('dash.card_members_sub'), icon: icons.person, iconClass: 'icon-box--teal', href: links.members },
+    { key: 'availableCars', label: t('dash.card_cars'), sub: t('dash.card_cars_sub'), icon: icons.car, iconClass: 'icon-box--teal', href: links.vehicles },
+    { key: 'carsInUse', label: t('dash.card_inuse'), sub: t('dash.card_inuse_sub'), icon: icons.car, iconClass: 'dash-icon--amber', href: links.timeline },
   ];
 
   // จัดกลุ่มคำขอตามวันเริ่ม (ใกล้ถึงก่อน - ตาม order ที่ backend ส่งมา)
@@ -105,20 +107,18 @@ export default function Dashboard({ endpoints, links }) {
         ))}
       </div>
 
-      {/* แถบเตือน - แสดงเฉพาะเมื่อมีรายการรออนุมัติ (แยกคำขอจองรถ / สมาชิก) */}
-      {!loading && counts.pendingBookings > 0 && (
-        <AlertBar tone="amber" title={t('dash.alert_bookings', { n: counts.pendingBookings })} sub={t('dash.alert_bookings_sub')} />
-      )}
-      {!loading && counts.pendingMembers > 0 && (
-        <AlertBar tone="teal" title={t('dash.alert_members', { n: counts.pendingMembers })} sub={t('dash.alert_members_sub')} />
-      )}
 
       {/* 2 คอลัมน์: คำขอล่าสุด (กว้าง) + สมาชิกรออนุมัติ - wrapper ซ้อนบนมือถือ */}
       <div className="dash-cols">
         {/* ===== panel คำขอจองรถ ===== */}
         <div className="dash-panel">
           <div className="dash-panel-head">
-            <h3 className="title title--sm">{t('dash.panel_bookings')}</h3>
+            <div className="dash-panel-title">
+              <h3 className="title title--sm">{t('dash.panel_bookings')}</h3>
+              {!loading && counts.pendingBookings > 0 && (
+                <span className="pill pill--sm pill--amber">{t('dash.badge_pending', { n: counts.pendingBookings })}</span>
+              )}
+            </div>
             <a href={links.requests} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
           {loading ? <SkelList rows={4} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : groups.length === 0 ? <Empty text={t('dash.empty_bookings')} /> : (
@@ -165,7 +165,12 @@ export default function Dashboard({ endpoints, links }) {
         {/* ===== panel สมาชิกรออนุมัติ ===== */}
         <div className="dash-panel">
           <div className="dash-panel-head">
-            <h3 className="title title--sm">{t('dash.panel_members')}</h3>
+            <div className="dash-panel-title">
+              <h3 className="title title--sm">{t('dash.panel_members')}</h3>
+              {!loading && counts.pendingMembers > 0 && (
+                <span className="pill pill--sm pill--amber">{t('dash.badge_pending', { n: counts.pendingMembers })}</span>
+              )}
+            </div>
             <a href={links.members} className="dash-see-all">{t('dash.see_all')}</a>
           </div>
           {loading ? <SkelList rows={3} /> : loadErr ? <Empty text={t('dash.load_err_short')} /> : members.length === 0 ? <Empty text={t('dash.empty_members')} /> : (
@@ -190,22 +195,4 @@ export default function Dashboard({ endpoints, links }) {
 
 function Empty({ text }) {
   return <div className="dash-empty">{text}</div>;
-}
-
-// แถบเตือน - ไอคอน + หัวข้อ + คำอธิบายรอง · โทนสีตาม prop tone (amber/teal)
-function AlertBar({ title, sub, tone = 'amber' }) {
-  const cls = tone === 'teal' ? 'teal' : 'amber';
-  return (
-    <div className={`dash-alert dash-alert--${cls}`}>
-      <div className={`dash-alert-icon dash-alert-icon--${cls}`}>
-        <span className="icar-alert-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-        </span>
-      </div>
-      <div className="dash-alert-body">
-        <div className={`dash-alert-title dash-alert-title--${cls}`}>{title}</div>
-        <div className={`dash-alert-sub dash-alert-sub--${cls}`}>{sub}</div>
-      </div>
-    </div>
-  );
 }

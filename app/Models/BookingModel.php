@@ -145,7 +145,7 @@ class BookingModel extends Model
     {
         $this->sweepExpired();
 
-        return $this->select('bookings.*, p.full_name AS requester_name, d.name AS dept_name')
+        return $this->select('bookings.*, p.full_name AS requester_name, p.phone AS requester_phone, d.name AS dept_name')
             ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
             ->join('departments d', 'd.id = p.department_id', 'left')
             ->where('bookings.status', 'approved')
@@ -158,10 +158,12 @@ class BookingModel extends Model
     // query ตั้งต้นของลิสต์ฝั่ง Admin - join ชื่อผู้ขอ/แผนก/รถ/ชื่อคนขับบริษัท
     private function adminListQuery(): self
     {
-        return $this->select('bookings.*, p.full_name AS requester_name, d.name AS dept_name,
+        return $this->select('bookings.*, p.full_name AS requester_name, p.phone AS requester_phone,
+                d.name AS dept_name, pos.name AS position_name,
                 c.model AS car_model, c.plate AS car_plate, dp.full_name AS driver_name')
             ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
             ->join('departments d', 'd.id = p.department_id', 'left')
+            ->join('positions pos', 'pos.id = p.position_id', 'left')
             ->join('cars c', 'c.id = bookings.car_id', 'left')
             ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left');
     }
@@ -194,7 +196,7 @@ class BookingModel extends Model
     {
         $this->sweepExpired();
 
-        $this->select('bookings.*, p.full_name AS requester_name,
+        $this->select('bookings.*, p.full_name AS requester_name, p.phone AS requester_phone,
                 d.name AS dept_name, pos.name AS position_name,
                 c.model AS car_model, c.plate AS car_plate, dp.full_name AS driver_name')
             ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
@@ -228,6 +230,9 @@ class BookingModel extends Model
         // user เห็นคิวรถของคนอื่นได้ แต่ต้องไม่เห็นสถานที่/วัตถุประสงค์/หมายเหตุภายใน
         if ($role === 'user') {
             foreach ($rows as &$r) {
+                // เบอร์โทรผู้ขอ - user ไม่เห็นทุกกรณี
+                unset($r['requester_phone']);
+
                 // ตัดรายละเอียดเฉพาะคำขอของ "คนอื่น" - คำขอของตัวเองต้องเห็นครบ (สถานที่/วัตถุประสงค์/หมายเหตุ)
                 if ((int) $r['requester_id'] !== $userId) {
                     unset($r['admin_note'], $r['purpose'], $r['location'], $r['map_link']);

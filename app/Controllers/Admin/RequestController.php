@@ -184,6 +184,9 @@ class RequestController extends BaseController
             return $this->fail($assign['__error']);
         }
 
+        // หมายเหตุ Admin - แก้พร้อมกับคนขับได้
+        $assign['admin_note'] = trim((string) $this->request->getPost('admin_note')) ?: null;
+
         // อัปเดตแบบมีเงื่อนไขสถานะ (atomic) - กัน race กับ sweepExpired/cancel
         $bookings->where('id', $id)->where('status', 'approved')->where('booking_type', 'other')->set($assign)->update();
         $affected = db_connect()->affectedRows();
@@ -416,7 +419,10 @@ class RequestController extends BaseController
         $start  = $b['start_at'];
         $end    = $b['end_at'];
         $people = (int) $b['people'];
-        $data   = [];
+        $data   = [
+            // หมายเหตุ Admin - แก้พร้อมกับรถ/คนขับได้
+            'admin_note' => trim((string) $this->request->getPost('admin_note')) ?: null,
+        ];
 
         $lock = null;
         if ($b['booking_type'] === 'self') {

@@ -11,6 +11,8 @@ $props = [
     'links' => [
         'requests' => site_url('admin/requests'),
         'members'  => site_url('admin/members'),
+        'vehicles' => site_url('admin/vehicles'),
+        'timeline' => site_url('admin/timeline'),
     ],
     'csrf' => csrf_hash(),
 ];

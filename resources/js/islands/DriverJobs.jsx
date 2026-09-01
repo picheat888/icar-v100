@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo, Fragment } from 'react';
-import { fmtDate, weekdayName, rangeLines, dateTimeRange } from '../lib/date';
+import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
+import { fmtDate, fmtDateTime, weekdayName, rangeLines } from '../lib/date';
 import { t } from '../lib/i18n';
 import { isSafeUrl } from '../lib/url';
 import { CloseIcon, CalIcon } from '../lib/icons';
+import Icon from '../lib/Icon';
 import Table from '../lib/Table';
+import useModalFocus from '../lib/useModalFocus';
 
 /**
  * งานของฉัน (Driver) - ตาราง (เดสก์ท็อป) / การ์ด (มือถือ) + คลิกแถวเปิด drawer รายละเอียด
@@ -12,6 +14,7 @@ import Table from '../lib/Table';
 export default function DriverJobs({ jobs = [] }) {
   const [detail, setDetail] = useState(null);   // งานที่เปิดดูรายละเอียด
   const [narrow, setNarrow] = useState(false);
+  const boxRef = useRef(null);   // กล่อง drawer - ใช้ขังโฟกัส
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 860px)');
@@ -19,13 +22,8 @@ export default function DriverJobs({ jobs = [] }) {
     mq.addEventListener('change', on); return () => mq.removeEventListener('change', on);
   }, []);
 
-  // ปิด drawer ด้วยปุ่ม Esc
-  useEffect(() => {
-    if (!detail) return;
-    const onKey = (e) => { if (e.key === 'Escape') setDetail(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [detail]);
+  // Esc ปิด · Tab วนอยู่ใน drawer · ปิดแล้วคืนโฟกัสให้แถวที่กดเปิด
+  useModalFocus(boxRef, () => setDetail(null), { enabled: !! detail, focusBox: true });
 
   // จัดกลุ่มงานตามวันใช้รถ (start_at) - วันล่าสุดอยู่บน
   const groups = useMemo(() => {
@@ -111,31 +109,76 @@ export default function DriverJobs({ jobs = [] }) {
         const b = detail;
         return (
           <div onClick={() => setDetail(null)} className="icar-drawer-backdrop">
-            <div onClick={(e) => e.stopPropagation()} className="icar-drawer">
-              <div className="modal-head">
-                <h3 className="modal-title">{t('driver.detail_title', { code: b.booking_code })}</h3>
-                <button onClick={() => setDetail(null)} className="modal-close">{CloseIcon}</button>
+            <div
+              ref={boxRef}
+              tabIndex={-1}
+              onClick={(e) => e.stopPropagation()}
+              className="icar-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${t('driver.detail_heading')} ${b.booking_code}`}
+            >
+              <div className="dj-head">
+                <div className="icon-box icon-box--teal dj-head-icon"><Icon name="car" size={20} /></div>
+                <div className="dj-head-main">
+                  <h3 className="dj-head-title">{t('driver.detail_heading')}</h3>
+                  <div className="dj-head-code">{b.booking_code}</div>
+                </div>
+                <span className="pill pill--sm pill--green">{t('driver.assigned')}</span>
+                <button onClick={() => setDetail(null)} className="modal-close" aria-label={t('common.close')}>{CloseIcon}</button>
               </div>
               <div className="dj-drawer-body">
-                <div className="dj-drawer-status"><span className="pill pill--sm pill--green">{t('driver.assigned')}</span></div>
-                <div className="dj-detail-grid">
-                  <div className="dj-detail-full"><div className="detail-label">{t('driver.destination')}</div><div className="dj-detail-value">{b.location}</div></div>
-                  <div><div className="detail-label">{t('driver.passenger')}</div><div className="dj-detail-value">{b.requester_name || '-'}</div></div>
-                  <div><div className="detail-label">{t('driver.dept_label')}</div><div className="dj-detail-value">{b.dept_name || '-'}</div></div>
-                  <div><div className="detail-label">{t('driver.passenger_count_label')}</div><div className="dj-detail-value">{t('driver.people_count', { n: b.people })}</div></div>
-                  {b.ext_driver_vehicle && <div><div className="detail-label">{t('driver.vehicle_used_label')}</div><div className="dj-detail-value">{b.ext_driver_vehicle}</div></div>}
-                  <div className="dj-detail-full"><div className="detail-label">{t('driver.time_range')}</div><div className="dj-detail-value">{dateTimeRange(b.start_at, b.end_at)}</div></div>
-                  {b.purpose && <div className="dj-detail-full"><div className="detail-label">{t('driver.purpose_label')}</div><div className="dj-detail-value">{b.purpose}</div></div>}
-                </div>
-
-                {/* ลิงก์แผนที่ (กันลิงก์ไม่ปลอดภัย) */}
-                {b.map_link && (
-                  <div className="dj-map-wrap">
-                    {isSafeUrl(b.map_link)
-                      ? <a href={b.map_link} target="_blank" rel="noopener" className="dj-map-link">{t('driver.open_maps')}</a>
-                      : <span className="dj-map-invalid">{t('driver.invalid_map_link')}</span>}
+                <div className="dj-fields">
+                  <div className="dj-sec-title">{t('driver.sec_passenger')}</div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('mem.col_full_name')}</div>
+                    <div className="dj-value">{b.requester_name || '-'}</div>
                   </div>
-                )}
+                  <div className="dj-row">
+                    <div className="dj-label">{t('driver.dept_label')}</div>
+                    <div className="dj-value">{b.dept_name || '-'}</div>
+                  </div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('mem.phone_full_label')}</div>
+                    <div className="dj-value">{b.requester_phone || '-'}</div>
+                  </div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('driver.passenger_count_label')}</div>
+                    <div className="dj-value">{t('driver.people_count', { n: b.people })}</div>
+                  </div>
+
+                  <div className="dj-sec-title">{t('req.sec_trip')}</div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('driver.destination')}</div>
+                    <div className="dj-value">
+                      {b.location || '-'}
+                      {/* ลิงก์แผนที่อยู่ใต้ปลายทางที่มันอ้างถึง (กันลิงก์ไม่ปลอดภัย) */}
+                      {b.map_link && (isSafeUrl(b.map_link)
+                        ? <a href={b.map_link} target="_blank" rel="noopener" className="dj-map-link"><Icon name="map-pin" size={13} />{t('driver.open_maps')}</a>
+                        : <span className="dj-map-link dj-map-link--invalid">{t('driver.invalid_map_link')}</span>)}
+                    </div>
+                  </div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('req.start_label')}</div>
+                    <div className="dj-value">{fmtDateTime(b.start_at)}</div>
+                  </div>
+                  <div className="dj-row">
+                    <div className="dj-label">{t('req.end_label')}</div>
+                    <div className="dj-value">{fmtDateTime(b.end_at)}</div>
+                  </div>
+                  {b.purpose && (
+                    <div className="dj-row">
+                      <div className="dj-label">{t('driver.purpose_label')}</div>
+                      <div className="dj-value">{b.purpose}</div>
+                    </div>
+                  )}
+                  {b.ext_driver_vehicle && (
+                    <div className="dj-row">
+                      <div className="dj-label">{t('driver.vehicle_used_label')}</div>
+                      <div className="dj-value">{b.ext_driver_vehicle}</div>
+                    </div>
+                  )}
+                </div>
 
                 {/* หมายเหตุจาก Admin */}
                 {b.admin_note && <div className="dj-admin-note">{t('driver.admin_note_prefix')}{b.admin_note}</div>}
