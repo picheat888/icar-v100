@@ -17,6 +17,8 @@ return [
     'err_seats_approve'      => 'More passengers than the vehicle has seats ({0} maximum), so it cannot be approved',
     'err_seats_given'        => 'More passengers than the seats entered for this vehicle ({0} maximum)',
     'err_ext_seats'          => 'The number of seats must be a whole number from {0} to {1}',
+    'err_ext_cost'           => 'The cost must be a number with at most 2 decimal places',
+    'err_ext_cost_max'       => 'The cost must not exceed {0} THB',
 
     // Driver
     'err_driver_req'         => 'Select a driver first - a company driver or an external one',

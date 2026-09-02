@@ -213,6 +213,8 @@ class RequestController extends BaseController
 
     // เพดานจำนวนที่นั่งของรถที่ Admin กรอกเอง (คอลัมน์ ext_driver_seats เป็น SMALLINT)
     private const MAX_EXT_SEATS = 999;
+    // เพดานค่าใช้จ่าย - พอดีกับคอลัมน์ DECIMAL(10,2) unsigned
+    private const MAX_EXT_COST = 9999999.99;
 
     // อ่านข้อมูลคนขับจาก POST → คืน array ฟิลด์สำหรับ update (หรือ ['__error'=>ข้อความ] ถ้าไม่ผ่าน)
     // driver = '' (ยังไม่มอบหมาย) | user_id (คนขับบริษัท) | 'external' (กรอกเอง)
@@ -232,6 +234,16 @@ class RequestController extends BaseController
         }
         $veh    = trim((string) $this->request->getPost('ext_vehicle')) ?: null;
 
+        // ค่าใช้จ่ายจริง (บาท) - เว้นว่าง = ไม่ระบุ · ตัด , ที่คนกรอกใส่มาก่อนตรวจรูปแบบ
+        $costRaw = str_replace(',', '', trim((string) $this->request->getPost('ext_cost')));
+        if ($costRaw !== '' && preg_match('/^\d+(\.\d{1,2})?$/', $costRaw) !== 1) {
+            return ['__error' => lang('Request.err_ext_cost')];
+        }
+        $cost = $costRaw === '' ? null : (float) $costRaw;
+        if ($cost !== null && $cost > self::MAX_EXT_COST) {
+            return ['__error' => lang('Request.err_ext_cost_max', [number_format(self::MAX_EXT_COST, 2)])];
+        }
+
         // คนขับภายนอก - กรอกชื่อเอง
         if ($driver === 'external') {
             $name = trim((string) $this->request->getPost('ext_name'));
@@ -250,6 +262,7 @@ class RequestController extends BaseController
                 'ext_driver_phone'   => $phone,
                 'ext_driver_seats'   => $seats,
                 'ext_driver_vehicle' => $veh,
+                'ext_driver_cost'    => $cost,
             ];
         }
 
@@ -271,6 +284,7 @@ class RequestController extends BaseController
                 'ext_driver_phone'   => $phone,
                 'ext_driver_seats'   => $seats,
                 'ext_driver_vehicle' => $veh,
+                'ext_driver_cost'    => null,
             ];
         }
 

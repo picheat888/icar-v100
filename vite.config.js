@@ -26,6 +26,7 @@ export default defineConfig(({ command }) => ({
         'my-requests': 'resources/js/entries/my-requests.jsx',
         'requests-manager': 'resources/js/entries/requests-manager.jsx',
         'timeline': 'resources/js/entries/timeline.jsx',
+        'reports': 'resources/js/entries/reports.jsx',
         'notification-bell': 'resources/js/entries/notification-bell.jsx',
         'force-reset-modal': 'resources/js/entries/force-reset-modal.jsx',
         'activity-log': 'resources/js/entries/activity-log.jsx',

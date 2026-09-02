@@ -56,6 +56,9 @@ $routes->group('admin', ['filter' => 'group:admin'], static function ($routes) {
     // แผนก/ตำแหน่ง (เมนูย่อยใต้จัดการสมาชิก) + JSON endpoint ของ island
     $routes->get('departments', 'Admin\MasterController::departments');
     $routes->get('positions',   'Admin\MasterController::positions');
+    // รายงาน - ค่าใช้จ่ายคนขับภายนอก + สรุปการใช้งานรถ (JSON รับ kind=cost|usage)
+    $routes->get('reports',      'Admin\ReportController::index');
+    $routes->get('reports/data', 'Admin\ReportController::data');
     // ประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) - หน้า + JSON + Export CSV
     $routes->get('activity-log',        'Admin\ActivityLogController::index');
     $routes->get('activity-log/data',   'Admin\ActivityLogController::data');

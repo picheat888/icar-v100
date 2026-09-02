@@ -1643,9 +1643,12 @@
 /* ----- 2.4 Header ----- */
 .app-header {
   flex: none;
+  position: relative;
+  z-index: 2;
   height: var(--header-h);
   background: #fff;
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(17, 24, 39, .06), 0 1px 0 rgba(17, 24, 39, .02);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2773,6 +2776,471 @@
   .icar-drawer-backdrop,
   .icar-drawer {
     animation: none;
+  }
+}
+
+/* ===== โมดูลรายงาน (เมนูรายงานซ้าย + แผงรายงานขวา) ===== */
+.rp-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+/* ----- เมนูรายการรายงาน ----- */
+.rp-menu {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.rp-menu-head {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.rp-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+}
+
+/* ปุ่มเลือกรายงาน - ชื่อบน คำอธิบายล่าง */
+.rp-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rp-menu-item:hover {
+  background: var(--hover-bg);
+}
+
+.rp-menu-item--active {
+  background: var(--teal-soft);
+}
+
+.rp-menu-item:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+}
+
+.rp-menu-name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.rp-menu-item--active .rp-menu-name {
+  color: var(--teal-hover);
+}
+
+.rp-menu-desc {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+}
+
+/* ----- แผงรายงาน ----- */
+.rp-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* แถบกรอง - ช่วงวันที่ + ปุ่มลัด + ขอบเขต */
+.rp-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+}
+
+.rp-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* ดันขอบเขตไปชิดขวาสุดของแถบ */
+.rp-field--end {
+  margin-left: auto;
+}
+
+.rp-bar-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  white-space: nowrap;
+  color: var(--text-soft);
+}
+
+.rp-date {
+  width: 150px;
+}
+
+.rp-dash {
+  font-size: 13px;
+  color: var(--gray-soft);
+}
+
+.rp-scope {
+  min-width: 210px;
+}
+
+/* กลุ่มปุ่มติดกัน (ปุ่มลัดช่วงวันที่ / ส่งออก / แบ่งหน้า) */
+.rp-btngroup {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rp-gbtn {
+  border: none;
+  border-right: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-soft);
+  padding: 8px 13px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.rp-gbtn:last-child {
+  border-right: none;
+}
+
+.rp-gbtn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+
+.rp-gbtn:disabled {
+  color: var(--gray-soft);
+  cursor: default;
+}
+
+.rp-gbtn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: -2px;
+}
+
+/* ปุ่มที่มีไอคอนนำหน้า/ต่อท้าย */
+.rp-gbtn--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rp-gbtn-ico--teal {
+  color: var(--teal-hover);
+}
+
+.rp-gbtn-ico--red {
+  color: var(--danger-text);
+}
+
+/* ----- แถบสถิติ - ช่องเท่ากัน คั่นด้วยเส้น ----- */
+.rp-strip {
+  display: grid;
+  border-bottom: 1px solid var(--line);
+}
+
+.rp-strip--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rp-strip--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.rp-stat {
+  padding: 18px 20px;
+  border-right: 1px solid var(--line);
+}
+
+.rp-stat:last-child {
+  border-right: none;
+}
+
+.rp-stat-label {
+  margin-bottom: 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: var(--text-soft);
+}
+
+.rp-stat-val {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-strong);
+}
+
+.rp-stat-val--teal {
+  color: var(--teal-hover);
+}
+
+/* หน่วย (บาท) ต่อท้ายตัวเลข - เล็กและจางกว่า */
+.rp-stat-unit {
+  margin-left: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mute);
+}
+
+/* ----- หัวตาราง + ปุ่มส่งออก ----- */
+.rp-sechead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rp-sectitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.rp-export {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rp-err {
+  margin: 14px 20px 0;
+}
+
+.rp-skel {
+  padding: 20px;
+}
+
+.rp-empty {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-mute);
+}
+
+/* ----- ตารางรายงาน ----- */
+.rp-tablewrap {
+  overflow-x: auto;
+}
+
+.rp-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.rp-table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  color: var(--th-text);
+  background: #fff;
+  border-bottom: 2px solid var(--border);
+}
+
+.rp-table td {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+}
+
+/* คอลัมน์แรก/สุดท้ายเว้นขอบให้เท่าแถบอื่นในแผง */
+.rp-table th:first-child,
+.rp-table td:first-child {
+  padding-left: 20px;
+}
+
+.rp-table th:last-child,
+.rp-table td:last-child {
+  padding-right: 20px;
+}
+
+.rp-td-code {
+  white-space: nowrap;
+}
+
+.rp-code {
+  color: var(--teal-hover);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rp-code:hover {
+  text-decoration: underline;
+}
+
+.rp-td-sub {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+}
+
+.rp-td-mute {
+  color: var(--text-mute);
+}
+
+.rp-td-time {
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: var(--text-mute);
+}
+
+/* ตัวเลขเงิน - ความกว้างตัวเลขเท่ากัน หลักจึงตรงแนว */
+.rp-td-cost {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--teal-hover);
+}
+
+/* ป้ายสถานะ - reader ของ .st-* (คลาสนั้นจ่ายแค่ custom property) */
+.rp-badge {
+  background: var(--st-bg);
+  color: var(--st-fg);
+}
+
+/* แถวรวมท้ายตาราง */
+.rp-table tfoot td {
+  padding: 14px;
+  background: var(--surface);
+  border-bottom: none;
+}
+
+.rp-foot-label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rp-foot-val {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--teal-hover);
+}
+
+/* ----- แบ่งหน้า ----- */
+.rp-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.rp-perpage {
+  width: 88px;
+}
+
+.rp-range {
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: var(--text-mute);
+}
+
+.rp-pagenav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rp-pagenum {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-mute);
+}
+
+/* จอแคบ - เมนูรายงานขึ้นไปอยู่บน แล้วเรียงปุ่มเป็นแถวเดียว */
+@media (max-width: 900px) {
+  .rp-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rp-menu-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .rp-menu-item {
+    flex: 1 1 200px;
+  }
+
+  .rp-strip--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .rp-stat:nth-child(2) {
+    border-right: none;
+  }
+
+  .rp-stat:nth-child(-n+2) {
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 560px) {
+  .rp-strip--3,
+  .rp-strip--4 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rp-stat {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .rp-field--end {
+    margin-left: 0;
+  }
+
+  .rp-date,
+  .rp-scope {
+    width: 100%;
+    min-width: 0;
   }
 }
 

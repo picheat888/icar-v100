@@ -17,6 +17,8 @@ return [
     'myRequests'          => 'My Requests',
     'myRequests_sub'      => 'Track your booking requests',
     'log'                 => 'Activity Log',
+    'reports'             => 'Reports',
+    'reports_sub'         => 'Summaries by date range',
     'log_sub'             => 'System activity records',
     'myJobs'              => 'My Jobs',
     'myJobs_sub'          => 'Jobs assigned to you',

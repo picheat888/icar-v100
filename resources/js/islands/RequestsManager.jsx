@@ -4,6 +4,7 @@ import { getCsrf, setCsrf } from '../lib/csrf';
 import { t } from '../lib/i18n';
 import { isPositiveInt } from '../lib/validate';
 import { isSafeUrl } from '../lib/url';
+import { fmtMoney, maskMoney, unmaskMoney, caretAfterMask } from '../lib/money';
 import { fieldAttrs, omitErrs } from '../lib/field';
 import FieldError from '../lib/FieldError';
 import { CloseIcon, CalIcon } from '../lib/icons';
@@ -86,6 +87,8 @@ const extPhoneBad = (f) => {
 
 // จำนวนที่นั่งของรถที่กรอกเอง - เว้นว่างได้ ถ้ากรอกต้องเป็นจำนวนเต็ม 0-MAX_EXT_SEATS (กฎเดียวกับฝั่ง server)
 const MAX_EXT_SEATS = 999;
+// เพดานค่าใช้จ่าย - ต้องตรงกับ MAX_EXT_COST ฝั่ง server (คอลัมน์ DECIMAL(10,2))
+const MAX_EXT_COST = 9999999.99;
 
 // ตรวจฟอร์มมอบหมายคนขับ + จำนวนที่นั่ง - คืน { ช่อง: ข้อความ } ว่าง = ผ่าน
 // checkDriver = false ข้ามการตรวจคนขับ/ชื่อ/เบอร์ (คำขอที่ยังไม่อนุมัติ ยังเว้นคนขับได้)
@@ -101,6 +104,15 @@ const formErrors = (f, checkDriver = true) => {
   const s = String(f.ext_seats ?? '').trim();
   if (s !== '' && (! isPositiveInt(s) || Number(s) > MAX_EXT_SEATS)) {
     e.ext_seats = t('req.warn_ext_seats', { min: 0, max: MAX_EXT_SEATS });
+  }
+  // ค่าใช้จ่าย: เว้นว่างได้ ถ้ากรอกต้องเป็นตัวเลข ทศนิยมไม่เกิน 2 ตำแหน่ง และไม่เกินเพดาน
+  const cost = unmaskMoney(f.ext_cost).trim();
+  if (cost !== '') {
+    if (! /^\d+(\.\d{1,2})?$/.test(cost)) {
+      e.ext_cost = t('req.warn_ext_cost');
+    } else if (Number(cost) > MAX_EXT_COST) {
+      e.ext_cost = t('req.warn_ext_cost_max', { max: fmtMoney(MAX_EXT_COST) });
+    }
   }
   return e;
 };
@@ -137,6 +149,16 @@ export default function RequestsManager({ endpoints }) {
   const [page, setPage] = useState(1);   // หน้าปัจจุบันของ pagination
   const panelRef = useRef(null);          // กล่องแผงรายละเอียด - ใช้ขังโฟกัส
   const [deepCode, setDeepCode] = useState(readOpenCode);   // รหัสจาก URL ที่ยังไม่ได้เปิด
+  const costRef  = useRef(null);   // ช่องค่าใช้จ่าย - ต้องคืนตำแหน่งเคอร์เซอร์เองหลังใส่ ,
+  const caretRef = useRef(null);   // ตำแหน่งที่จะคืน (null = ไม่ต้องคืน)
+
+  // คืนตำแหน่งเคอร์เซอร์ในช่องค่าใช้จ่าย - ต้องรอให้ React เขียนค่าใหม่ลง DOM ก่อน
+  useEffect(() => {
+    if (caretRef.current !== null && costRef.current) {
+      costRef.current.setSelectionRange(caretRef.current, caretRef.current);
+      caretRef.current = null;
+    }
+  });
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1024px)');
@@ -277,6 +299,7 @@ export default function RequestsManager({ endpoints }) {
     form: {
       driver: b.driver_type === 'company' ? String(b.driver_id) : (b.driver_type === 'external' ? 'external' : ''),
       ext_name: b.ext_driver_name || '', ext_phone: b.ext_driver_phone || '', ext_seats: b.ext_driver_seats || '', ext_vehicle: b.ext_driver_vehicle || '',
+      ext_cost: maskMoney(b.ext_driver_cost ?? ''),
       admin_note: b.admin_note || '',
     },
   }); };
@@ -334,9 +357,10 @@ export default function RequestsManager({ endpoints }) {
         ext_phone: d.phone || '',
         ext_vehicle: d.car_model ? `${d.car_model}${d.car_plate ? ' / ' + d.car_plate : ''}` : '',
         ext_seats: d.car_seats || '',
+        ext_cost: '',
       });
     } else {
-      setForm({ driver: val, ext_phone: '', ext_vehicle: '', ext_seats: '' });
+      setForm({ driver: val, ext_phone: '', ext_vehicle: '', ext_seats: '', ext_cost: '' });
     }
   };
 
@@ -353,7 +377,7 @@ export default function RequestsManager({ endpoints }) {
       setErrs({});
     }
     const body = { id: b.id, admin_note: f.admin_note };
-    if (b.booking_type === 'other') { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
+    if (b.booking_type === 'other') { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; body.ext_cost = unmaskMoney(f.ext_cost); }
     if (await post(endpoints.approve, body, { title: t('req.done_approved'), sub: b.booking_code })) closeModal();
   };
   const doReject = async () => {
@@ -382,7 +406,7 @@ export default function RequestsManager({ endpoints }) {
       return;
     }
     setErrs({});
-    const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle, admin_note: f.admin_note };
+    const body = { id: modal.booking.id, driver: f.driver, ext_name: f.ext_name, ext_phone: f.ext_phone, ext_seats: f.ext_seats, ext_vehicle: f.ext_vehicle, ext_cost: unmaskMoney(f.ext_cost), admin_note: f.admin_note };
     if (await post(endpoints.assign, body, { title: t('req.done_assigned'), sub: modal.booking.booking_code })) closeModal();
   };
 
@@ -405,7 +429,7 @@ export default function RequestsManager({ endpoints }) {
     }
     const body = { id: b.id, location: f.location, start_at: f.start_at, end_at: f.end_at, people: f.people, purpose: f.purpose, map_link: f.map_link, admin_note: f.admin_note };
     if (b.booking_type === 'self') body.car_id = f.car_id;
-    else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; }
+    else { body.driver = f.driver; body.ext_name = f.ext_name; body.ext_phone = f.ext_phone; body.ext_seats = f.ext_seats; body.ext_vehicle = f.ext_vehicle; body.ext_cost = unmaskMoney(f.ext_cost); }
     if (await post(endpoints.update, body, { title: t('req.done_updated'), sub: b.booking_code })) closeModal();
   };
   // เปิดฟอร์มเปลี่ยนคนขับในที่ (รถอื่นๆ ที่อนุมัติแล้ว) - บันทึกผ่าน assign-driver
@@ -505,7 +529,8 @@ export default function RequestsManager({ endpoints }) {
               <div className="rq-driver-grid">
                 <div><label className="form-label" htmlFor="rq-ext_phone">{t('req.phone_label')}</label><input {...fieldAttrs('rq-ext_phone', errs.ext_phone)} value={modal.form.ext_phone} onChange={(e) => setForm({ ext_phone: onlyDigits10(e.target.value) })} inputMode="numeric" maxLength={10} className={`form-input form-input--sm${errs.ext_phone ? ' is-invalid' : ''}`} /><FieldError id="rq-ext_phone" msg={errs.ext_phone} /></div>
                 <div><label className="form-label" htmlFor="rq-ext_seats">{t('req.seats_label')}</label><input {...fieldAttrs('rq-ext_seats', errs.ext_seats)} type="number" min="0" max={MAX_EXT_SEATS} step="1" inputMode="numeric" value={modal.form.ext_seats} onChange={(e) => setForm({ ext_seats: e.target.value })} className={`form-input form-input--sm${errs.ext_seats ? ' is-invalid' : ''}`} /><FieldError id="rq-ext_seats" msg={errs.ext_seats} /></div>
-                <div className="rq-grid-full"><label className="form-label">{t('req.vehicle_used_label')}</label><input value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
+                <div><label className="form-label" htmlFor="rq-ext_vehicle">{t('req.vehicle_used_label')}</label><input id="rq-ext_vehicle" value={modal.form.ext_vehicle} onChange={(e) => setForm({ ext_vehicle: e.target.value })} placeholder={t('req.vehicle_example_placeholder')} className="form-input form-input--sm" /></div>
+                <div><label className="form-label" htmlFor="rq-ext_cost">{t('req.ext_cost_label')}</label><input {...fieldAttrs('rq-ext_cost', errs.ext_cost)} ref={costRef} value={modal.form.ext_cost} onChange={(e) => { const masked = maskMoney(e.target.value); caretRef.current = caretAfterMask(e.target.value, e.target.selectionStart, masked); setForm({ ext_cost: masked }); }} inputMode="decimal" placeholder={t('req.ext_cost_placeholder')} className={`form-input form-input--sm${errs.ext_cost ? ' is-invalid' : ''}`} /><FieldError id="rq-ext_cost" msg={errs.ext_cost} /></div>
               </div>
             </div>
           </>
@@ -816,6 +841,12 @@ export default function RequestsManager({ endpoints }) {
                                 <div className="rq-focus-row">
                                   <div className="rq-focus-flabel">{t('req.phone_label')}</div>
                                   <div className="rq-focus-value">{b.ext_driver_phone}</div>
+                                </div>
+                              )}
+                              {fmtMoney(b.ext_driver_cost) && (
+                                <div className="rq-focus-row">
+                                  <div className="rq-focus-flabel">{t('req.ext_cost_label')}</div>
+                                  <div className="rq-focus-value">{t('req.cost_baht', { v: fmtMoney(b.ext_driver_cost) })}</div>
                                 </div>
                               )}
                             </div>

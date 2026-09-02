@@ -18,7 +18,7 @@ class BookingModel extends Model
         'booking_code', 'requester_id', 'booking_type', 'location',
         'start_at', 'end_at', 'people', 'purpose', 'map_link', 'car_id',
         'status', 'driver_type', 'driver_id',
-        'ext_driver_name', 'ext_driver_phone', 'ext_driver_seats', 'ext_driver_vehicle',
+        'ext_driver_name', 'ext_driver_phone', 'ext_driver_seats', 'ext_driver_vehicle', 'ext_driver_cost',
         'admin_note', 'approved_by', 'approved_at', 'returned_at',
     ];
 
@@ -127,17 +127,29 @@ class BookingModel extends Model
         return $builder->countAllResults() > 0;
     }
 
+    // ตัดฟิลด์ที่เห็นได้เฉพาะ Admin ออกจากผลลัพธ์ (query ใช้ bookings.* ฟิลด์ใหม่จึงติดมาเอง)
+    // ค่าใช้จ่ายคนขับภายนอก - ผู้ขอ/คนขับไม่ต้องเห็น
+    private function stripAdminOnly(array $rows): array
+    {
+        foreach ($rows as &$r) {
+            unset($r['ext_driver_cost']);
+        }
+        unset($r);
+
+        return $rows;
+    }
+
     // คำขอของผู้ใช้คนหนึ่ง (พร้อมชื่อรุ่นรถ) เรียงใหม่สุดก่อน
     public function listForUser(int $userId): array
     {
         $this->sweepExpired();
 
-        return $this->select('bookings.*, c.model AS car_model, c.plate AS car_plate, c.seats AS car_seats, dp.full_name AS driver_name')
+        return $this->stripAdminOnly($this->select('bookings.*, c.model AS car_model, c.plate AS car_plate, c.seats AS car_seats, dp.full_name AS driver_name')
             ->join('cars c', 'c.id = bookings.car_id', 'left')
             ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left')
             ->where('bookings.requester_id', $userId)
             ->orderBy('bookings.start_at', 'DESC')
-            ->findAll();
+            ->findAll());
     }
 
     // งานของคนขับ - คำขอที่อนุมัติแล้ว + มอบหมายให้คนขับคนนี้ (driver_type=company)
@@ -145,14 +157,14 @@ class BookingModel extends Model
     {
         $this->sweepExpired();
 
-        return $this->select('bookings.*, p.full_name AS requester_name, p.phone AS requester_phone, d.name AS dept_name')
+        return $this->stripAdminOnly($this->select('bookings.*, p.full_name AS requester_name, p.phone AS requester_phone, d.name AS dept_name')
             ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
             ->join('departments d', 'd.id = p.department_id', 'left')
             ->where('bookings.status', 'approved')
             ->where('bookings.driver_type', 'company')
             ->where('bookings.driver_id', $driverUserId)
             ->orderBy('bookings.start_at', 'DESC')
-            ->findAll();
+            ->findAll());
     }
 
     // query ตั้งต้นของลิสต์ฝั่ง Admin - join ชื่อผู้ขอ/แผนก/รถ/ชื่อคนขับบริษัท
@@ -176,6 +188,90 @@ class BookingModel extends Model
         return $this->adminListQuery()
             ->orderBy('bookings.start_at', 'DESC')
             ->findAll();
+    }
+
+    // จำกัดช่วงวันเดินทางของรายงาน - $from/$to = 'YYYY-MM-DD' (ว่าง = ไม่จำกัดด้านนั้น)
+    private function reportRange(string $from, string $to): self
+    {
+        if ($from !== '') {
+            $this->where('bookings.start_at >=', $from . ' 00:00:00');
+        }
+        if ($to !== '') {
+            $this->where('bookings.start_at <=', $to . ' 23:59:59');
+        }
+
+        return $this->where('bookings.deleted_at', null);
+    }
+
+    // ตัวกรองร่วมของรายงานค่าใช้จ่ายคนขับภายนอก
+    // นับเฉพาะงานที่มอบหมายคนขับภายนอกและกรอกค่าใช้จ่ายไว้แล้ว · ยึดวันเริ่มเดินทางเป็นตัวแบ่งช่วง
+    private function extCostQuery(string $from, string $to, array $statuses): self
+    {
+        return $this->reportRange($from, $to)
+            ->where('bookings.driver_type', 'external')
+            ->where('bookings.ext_driver_cost IS NOT NULL')
+            ->whereIn('bookings.status', $statuses);
+    }
+
+    // รายการค่าใช้จ่ายคนขับภายนอกในช่วงที่เลือก (เรียงตามวันเดินทาง)
+    public function externalCostRows(string $from, string $to, array $statuses): array
+    {
+        return $this->extCostQuery($from, $to, $statuses)
+            ->select('bookings.booking_code, bookings.status, bookings.start_at, bookings.end_at,
+                    bookings.location, bookings.ext_driver_name, bookings.ext_driver_vehicle, bookings.ext_driver_cost,
+                    p.full_name AS requester_name, d.name AS dept_name')
+            ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
+            ->join('departments d', 'd.id = p.department_id', 'left')
+            ->orderBy('bookings.start_at', 'ASC')
+            ->findAll();
+    }
+
+    // ยอดรวม + จำนวนงาน + เฉลี่ยต่อรายการ - ให้ SQL รวมให้ ไม่บวกเองฝั่ง PHP/JS
+    public function externalCostSummary(string $from, string $to, array $statuses): array
+    {
+        $row = $this->extCostQuery($from, $to, $statuses)
+            ->select('SUM(bookings.ext_driver_cost) AS total, COUNT(*) AS jobs, AVG(bookings.ext_driver_cost) AS avg_cost')
+            ->get()->getRowArray();
+
+        return [
+            'total' => (float) ($row['total'] ?? 0),
+            'jobs'  => (int) ($row['jobs'] ?? 0),
+            'avg'   => (float) ($row['avg_cost'] ?? 0),
+        ];
+    }
+
+    // รายการคำขอทั้งหมดในช่วงที่เลือก (รายงานสรุปการใช้งานรถ)
+    public function usageRows(string $from, string $to): array
+    {
+        return $this->reportRange($from, $to)
+            ->select('bookings.booking_code, bookings.status, bookings.booking_type, bookings.start_at, bookings.end_at,
+                    bookings.location, bookings.people, bookings.ext_driver_name,
+                    p.full_name AS requester_name, d.name AS dept_name,
+                    c.model AS car_model, c.plate AS car_plate, dp.full_name AS driver_name')
+            ->join('user_profiles p', 'p.user_id = bookings.requester_id', 'left')
+            ->join('departments d', 'd.id = p.department_id', 'left')
+            ->join('cars c', 'c.id = bookings.car_id', 'left')
+            ->join('user_profiles dp', 'dp.user_id = bookings.driver_id', 'left')
+            ->orderBy('bookings.start_at', 'ASC')
+            ->findAll();
+    }
+
+    // นับคำขอแยกตามกลุ่มสถานะในช่วงที่เลือก - นับด้วย SQL รอบเดียว
+    public function usageSummary(string $from, string $to): array
+    {
+        $row = $this->reportRange($from, $to)
+            ->select("COUNT(*) AS total,
+                    SUM(bookings.status = 'pending') AS pending,
+                    SUM(bookings.status IN ('rejected', 'cancelled', 'cancel_requested')) AS rejected,
+                    SUM(bookings.status IN ('approved', 'completed')) AS approved")
+            ->get()->getRowArray();
+
+        return [
+            'total'    => (int) ($row['total'] ?? 0),
+            'pending'  => (int) ($row['pending'] ?? 0),
+            'rejected' => (int) ($row['rejected'] ?? 0),
+            'approved' => (int) ($row['approved'] ?? 0),
+        ];
     }
 
     // คำขอที่วันเดินทางยังไม่ผ่าน (ตั้งแต่ต้นวัน $fromDate) เรียงใกล้ถึงก่อน · $fromDate = 'YYYY-MM-DD'
@@ -230,8 +326,8 @@ class BookingModel extends Model
         // user เห็นคิวรถของคนอื่นได้ แต่ต้องไม่เห็นสถานที่/วัตถุประสงค์/หมายเหตุภายใน
         if ($role === 'user') {
             foreach ($rows as &$r) {
-                // เบอร์โทรผู้ขอ - user ไม่เห็นทุกกรณี
-                unset($r['requester_phone']);
+                // เบอร์โทรผู้ขอ + ค่าใช้จ่ายคนขับ - user ไม่เห็นทุกกรณี
+                unset($r['requester_phone'], $r['ext_driver_cost']);
 
                 // ตัดรายละเอียดเฉพาะคำขอของ "คนอื่น" - คำขอของตัวเองต้องเห็นครบ (สถานที่/วัตถุประสงค์/หมายเหตุ)
                 if ((int) $r['requester_id'] !== $userId) {
@@ -240,9 +336,9 @@ class BookingModel extends Model
             }
             unset($r);
         } elseif ($role === 'driver') {
-            // คนขับไม่ต้องเห็นหมายเหตุภายในของ Admin
+            // คนขับไม่ต้องเห็นหมายเหตุภายในของ Admin + ค่าใช้จ่าย
             foreach ($rows as &$r) {
-                unset($r['admin_note']);
+                unset($r['admin_note'], $r['ext_driver_cost']);
             }
             unset($r);
         }

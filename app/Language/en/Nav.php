@@ -8,6 +8,7 @@ return [
     'cars'       => 'Vehicle Management',
     'myRequests' => 'My Requests',
     'log'        => 'Activity Log',
+    'reports'     => 'Reports',
     'myJobs'     => 'My Jobs',
     'dept'       => 'Departments',
     'position'   => 'Positions',

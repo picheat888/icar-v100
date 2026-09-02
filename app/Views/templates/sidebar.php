@@ -20,6 +20,7 @@ $icons = [
     'vehicles'   => icon('car', 19),
     'master'     => icon('master', 19),
     'log'        => icon('log', 19),
+    'reports'    => icon('file-excel', 19),
 ];
 
 // เมนูแต่ละ role: [key, label, url]
@@ -35,6 +36,7 @@ $menus = [
         ]],
         ['requests',   lang('Nav.bookings'),   site_url('admin/requests')],
         ['vehicles',   lang('Nav.cars'),       site_url('admin/vehicles')],
+        ['reports',    lang('Nav.reports'),    site_url('admin/reports')],
         ['log',        lang('Nav.log'),        site_url('admin/activity-log')],
     ],
     'user' => [
