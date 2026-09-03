@@ -11,6 +11,7 @@
   "bookings":     "lucide:clipboard-check",
   "master":       "lucide:list",
   "log":          "lucide:history",
+  "reports":      "lucide:chart-no-axes-column",
 
   "menu":         "lucide:menu",
   "close":        "lucide:x",

@@ -10,6 +10,7 @@ use CodeIgniter\Shield\Models\UserModel;
 /**
  * ข้อมูลทดลองย้อนหลัง 30 เดือน - ทั้งรถขับเอง คนขับบริษัท และคนขับภายนอกที่มีค่าใช้จ่าย
  * สร้างผู้ขอ/คนขับ/รถ ที่ยังไม่มีให้ก่อน แล้วจึงสร้างคำขอจอง
+ * ล้างคำขอของบัญชี demo ทิ้งก่อนทุกครั้ง รันซ้ำกี่รอบก็ได้ผลเท่าเดิม
  * รัน: php spark db:seed DemoBookingsSeeder
  */
 class DemoBookingsSeeder extends Seeder
@@ -101,6 +102,7 @@ class DemoBookingsSeeder extends Seeder
 
         mt_srand(20260902);   // ผลลัพธ์เหมือนกันทุกครั้งที่รัน
 
+        $removed    = $this->clearPrevious();
         $requesters = $this->ensureUsers(self::REQUESTERS, 'user');
         $drivers    = $this->ensureUsers(self::DRIVERS, 'driver');
         [$selfCars, $otherCars] = $this->ensureCars();
@@ -112,7 +114,24 @@ class DemoBookingsSeeder extends Seeder
         // รหัสคำขอผูกกับ id ตามระบบจริง (BK-xxxx) - เติมหลังรู้ id
         $this->db->query("UPDATE bookings SET booking_code = CONCAT('BK-', LPAD(id, 4, '0')) WHERE booking_code LIKE 'TMP-%'");
 
-        $this->summary($rows);
+        $this->summary($rows, $removed);
+    }
+
+    // ล้างคำขอของบัญชี demo ที่สร้างไว้รอบก่อน - ข้อมูลของผู้ใช้จริงไม่ถูกแตะ
+    private function clearPrevious(): int
+    {
+        $ids = array_column(
+            $this->db->table('users')->select('id')->like('username', 'demo.', 'after')->get()->getResultArray(),
+            'id'
+        );
+
+        if ($ids === []) {
+            return 0;
+        }
+
+        $this->db->table('bookings')->whereIn('requester_id', $ids)->delete();
+
+        return $this->db->affectedRows();
     }
 
     // สร้างบัญชีที่ยังไม่มี แล้วคืน id ทั้งชุด
@@ -348,10 +367,14 @@ class DemoBookingsSeeder extends Seeder
     }
 
     // สรุปผลที่สร้างให้ดูบน CLI
-    private function summary(array $rows): void
+    private function summary(array $rows, int $removed): void
     {
         $ext  = array_filter($rows, static fn ($r) => $r['driver_type'] === 'external');
         $cost = array_sum(array_map(static fn ($r) => (float) $r['ext_driver_cost'], $ext));
+
+        if ($removed > 0) {
+            printf("ล้างข้อมูลทดลองเดิม %d รายการ\n", $removed);
+        }
 
         printf(
             "สร้างคำขอจอง %d รายการ (%d เดือน)\n  - รถขับเอง %d\n  - คนขับบริษัท %d\n  - คนขับภายนอก %d รวมค่าใช้จ่าย %s บาท\n",

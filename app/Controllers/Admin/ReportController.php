@@ -3,6 +3,8 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
+use App\Libraries\CostReport;
+use App\Libraries\Pdf;
 use App\Models\BookingModel;
 
 /**
@@ -56,6 +58,50 @@ class ReportController extends BaseController
             'rows'    => $bookings->externalCostRows($from, $to, $statuses),
             'summary' => $bookings->externalCostSummary($from, $to, $statuses),
         ]);
+    }
+
+    // PDF: รายงานค่าใช้จ่ายคนขับภายนอก - เปิดในแท็บใหม่ ผู้ใช้กดบันทึกเองได้
+    public function costPdf()
+    {
+        $from     = $this->date('from');
+        $to       = $this->date('to');
+        $scope    = $this->scope();
+        $bookings = new BookingModel();
+
+        $rows    = $bookings->externalCostRows($from, $to, self::COST_SCOPES[$scope]);
+        $summary = $bookings->externalCostSummary($from, $to, self::COST_SCOPES[$scope]);
+
+        $scopeText = lang('Report.scope_' . $scope);
+
+        $html = view('admin/reports/cost_pdf', [
+            'rows'      => $rows,
+            'report'    => CostReport::build($rows, $summary),
+            'rangeText' => $this->rangeText($from, $to),
+        ]);
+        $footer = view('admin/reports/_pdf_footer', ['scopeText' => $scopeText]);
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $this->fileName($from, $to) . '"')
+            ->setBody(Pdf::render(Pdf::make(), $html, $footer));
+    }
+
+    // ข้อความช่วงวันที่บนหัวรายงาน - ไม่ระบุด้านใดก็ปล่อยว่างด้านนั้น
+    private function rangeText(string $from, string $to): string
+    {
+        if ($from === '' && $to === '') {
+            return lang('Report.range_all');
+        }
+
+        return trim(thai_date($from) . ' - ' . thai_date($to), ' -') ?: lang('Report.range_all');
+    }
+
+    // ชื่อไฟล์ PDF - มีช่วงวันที่ให้รู้ว่าเป็นรายงานของช่วงไหน
+    private function fileName(string $from, string $to): string
+    {
+        $part = $from !== '' || $to !== '' ? $from . '_' . $to : date('Y-m-d');
+
+        return 'external-driver-cost-' . $part . '.pdf';
     }
 
     // วันที่จาก query ('YYYY-MM-DD') - รูปแบบผิดหรือไม่ส่งมา = ไม่จำกัดด้านนั้น

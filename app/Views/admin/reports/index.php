@@ -2,11 +2,11 @@
 
 <?= $this->section('content') ?>
 <?php
-// props ให้ island: endpoint ข้อมูลรายงาน + ลิงก์เปิดคำขอในหน้าจัดการ + โลโก้บนหัวรายงาน PDF
+// props ให้ island: endpoint ข้อมูลรายงาน + ลิงก์เปิดคำขอในหน้าจัดการ + ลิงก์ PDF ฝั่ง server
 $props = [
     'endpoint'    => site_url('admin/reports/data'),
     'requestLink' => site_url('admin/requests'),
-    'logo'        => base_url('logo-1.png'),
+    'pdfLink'     => site_url('admin/reports/cost-report-pdf'),
 ];
 ?>
 <div id="reports" data-props='<?= esc(json_encode($props), 'attr') ?>'>

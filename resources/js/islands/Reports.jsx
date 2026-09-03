@@ -4,7 +4,6 @@ import { fmtDate, fmtDateTime, ymd, todayStr } from '../lib/date';
 import { fmtMoney } from '../lib/money';
 import { ST_CLASS } from '../lib/status';
 import { downloadCsv, printReport } from '../lib/reportExport';
-import { printCostReport } from '../lib/costReportPdf';
 import { useToast } from '../lib/Toast';
 import Icon from '../lib/Icon';
 import { SkelBox } from '../lib/Skeleton';
@@ -44,9 +43,9 @@ function statusLabel(s) {
 
 /**
  * โมดูลรายงาน (Admin) - เลือกรายงานทางซ้าย + กรองช่วงวันที่ + ส่งออก CSV/PDF
- * props: endpoint (URL JSON), requestLink (หน้าจัดการคำขอ), logo (โลโก้บนหัวรายงาน PDF)
+ * props: endpoint (URL JSON), requestLink (หน้าจัดการคำขอ), pdfLink (PDF รายงานค่าใช้จ่าย)
  */
-export default function Reports({ endpoint, requestLink, logo }) {
+export default function Reports({ endpoint, requestLink, pdfLink }) {
   const [kind, setKind]   = useState('cost');
   const [from, setFrom]   = useState(() => monthBounds(0)[0]);
   const [to, setTo]       = useState(() => monthBounds(0)[1]);
@@ -99,6 +98,15 @@ export default function Reports({ endpoint, requestLink, logo }) {
     setFrom(a);
     setTo(b);
   };
+
+  // 12 เดือนย้อนหลังจนถึงสิ้นเดือนนี้
+  const presetYear = () => {
+    setFrom(monthBounds(-11)[0]);
+    setTo(monthBounds(0)[1]);
+  };
+
+  // ไม่ระบุช่วง = ดึงทุกช่วงเวลา ข้อมูลจะยาวเกินกว่าจะทำเป็น PDF ไหว
+  const allTime = from === '' && to === '';
 
   // ข้อมูลตารางในรูปแบบกลาง - ใช้ทั้งเรนเดอร์และส่งออก
   const cols = isCost
@@ -161,9 +169,11 @@ export default function Reports({ endpoint, requestLink, logo }) {
       return;
     }
 
-    // รายงานค่าใช้จ่ายใช้หน้าพิมพ์แบบมีกราฟ ส่วนรายงานอื่นใช้ตารางมาตรฐาน
+    // รายงานค่าใช้จ่ายสร้าง PDF ที่ server (mPDF) ส่วนรายงานอื่นใช้หน้าพิมพ์ของเบราว์เซอร์
     if (isCost) {
-      if (! printCostReport({ rows, summary, rangeText: rangeText(), scopeText: scopeText(), brand: t('common.brand'), logo })) {
+      const q = new URLSearchParams({ from, to, scope });
+
+      if (! window.open(`${pdfLink}?${q}`, '_blank')) {
         showToast(t('rpt.export_popup_blocked'), 'error');
       }
 
@@ -230,6 +240,7 @@ export default function Reports({ endpoint, requestLink, logo }) {
           <div className="rp-btngroup">
             <button type="button" onClick={() => preset(0)} className="rp-gbtn">{t('rpt.preset_this_month')}</button>
             <button type="button" onClick={() => preset(-1)} className="rp-gbtn">{t('rpt.preset_last_month')}</button>
+            <button type="button" onClick={presetYear} className="rp-gbtn">{t('rpt.preset_12m')}</button>
             <button type="button" onClick={() => { setFrom(''); setTo(''); }} className="rp-gbtn">{t('rpt.preset_all')}</button>
           </div>
 
@@ -265,7 +276,13 @@ export default function Reports({ endpoint, requestLink, logo }) {
               <button type="button" onClick={exportCsv} className="rp-gbtn rp-gbtn--icon">
                 <Icon name="file-csv" size={13} className="rp-gbtn-ico rp-gbtn-ico--teal" />CSV
               </button>
-              <button type="button" onClick={exportPdf} className="rp-gbtn rp-gbtn--icon">
+              <button
+                type="button"
+                onClick={exportPdf}
+                disabled={allTime}
+                title={allTime ? t('rpt.pdf_needs_range') : undefined}
+                className="rp-gbtn rp-gbtn--icon"
+              >
                 <Icon name="file-pdf" size={13} className="rp-gbtn-ico rp-gbtn-ico--red" />PDF
               </button>
             </div>

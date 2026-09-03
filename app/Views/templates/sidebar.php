@@ -20,7 +20,7 @@ $icons = [
     'vehicles'   => icon('car', 19),
     'master'     => icon('master', 19),
     'log'        => icon('log', 19),
-    'reports'    => icon('file-excel', 19),
+    'reports'    => icon('reports', 19),
 ];
 
 // เมนูแต่ละ role: [key, label, url]

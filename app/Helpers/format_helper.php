@@ -25,6 +25,16 @@ if (! function_exists('thai_datetime')) {
     }
 }
 
+if (! function_exists('thai_month')) {
+    // "2026-08-22 ..." -> "08-2026" (ใช้กับแกนกราฟที่รวมยอดรายเดือน)
+    function thai_month(?string $s): string
+    {
+        $p = explode('-', substr((string) $s, 0, 7));
+
+        return count($p) === 2 && $p[0] !== '' ? "{$p[1]}-{$p[0]}" : '';
+    }
+}
+
 if (! function_exists('role_labels')) {
     // ชื่อบทบาทตามภาษาที่เลือก - ส่ง $locale เพื่อบังคับภาษา (ใช้กับข้อความที่เก็บลงฐานข้อมูล)
     function role_labels(?string $locale = null): array
