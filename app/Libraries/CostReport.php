@@ -45,7 +45,7 @@ class CostReport
             'total'  => $total,
             'kpis'   => self::kpis($rows, $summary, $total, $top, count($byDay)),
             'donut'  => ReportChart::donut($deptTop, $total, lang('Report.center_total'), lang('Report.baht')),
-            'legend' => self::legend($deptTop, $total),
+            'legend' => ReportChart::legend($deptTop, $total),
             'bars'   => ReportChart::bars($driverTop, $total, lang('Report.baht')),
             'timeChart' => ReportChart::columns($series, lang('Report.baht'), lang('Report.chart_avg')),
             'timeTitle' => self::timeTitle($daily, $trimmed, count($series)),
@@ -185,23 +185,6 @@ class CostReport
             ['label' => lang('Report.kpi_max'),   'value' => number_format((float) ($top['ext_driver_cost'] ?? 0), 2), 'unit' => lang('Report.baht')],
             ['label' => lang('Report.kpi_days'),  'value' => number_format($days),                           'unit' => lang('Report.unit_days')],
         ];
-    }
-
-    /** คำอธิบายสีข้างโดนัท */
-    private static function legend(array $items, float $total): array
-    {
-        $out = [];
-
-        foreach ($items as $i => $it) {
-            $out[] = [
-                'color' => ReportChart::color($i),
-                'label' => $it['label'],
-                'value' => number_format($it['value'], 2),
-                'pct'   => number_format($total > 0 ? $it['value'] / $total * 100 : 0, 1),
-            ];
-        }
-
-        return $out;
     }
 
     /**

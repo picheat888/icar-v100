@@ -24,10 +24,37 @@ class ReportChart
         return self::COLORS[$i % count(self::COLORS)];
     }
 
+    /**
+     * คำอธิบายสีข้างโดนัท - สีของชิ้นต้องเรียงตรงกับลำดับ $items ที่ส่งเข้า donut()
+     * คีย์ 'color' ของ item ใช้กำหนดสีเองได้ ไม่ใส่ = ไล่ตามจานสีหมวดหมู่
+     * $dec = ตำแหน่งทศนิยมของค่า (0 = จำนวนนับ, 2 = จำนวนเงิน)
+     */
+    public static function legend(array $items, float $total, int $dec = 2): array
+    {
+        $out = [];
+
+        foreach ($items as $i => $it) {
+            $out[] = [
+                'color' => (string) ($it['color'] ?? self::color($i)),
+                'label' => (string) $it['label'],
+                'value' => self::fmt((float) $it['value'], $dec),
+                'pct'   => number_format($total > 0 ? $it['value'] / $total * 100 : 0, 1),
+            ];
+        }
+
+        return $out;
+    }
+
     /** ตัวเลขเงิน 2 ตำแหน่ง คั่นหลักพัน */
     private static function money(float $n): string
     {
         return number_format($n, 2);
+    }
+
+    /** ตัวเลขตามจำนวนตำแหน่งทศนิยมที่รายงานนั้นใช้ - 0 = จำนวนนับ, 2 = จำนวนเงิน */
+    private static function fmt(float $n, int $dec): string
+    {
+        return number_format($n, $dec);
     }
 
     /** ตัวเลขจำนวนเต็มสำหรับแกน */
@@ -92,6 +119,53 @@ class ReportChart
         return $chars * $fontSize * 0.47 + 24;
     }
 
+    /**
+     * ตัดป้ายแกนเป็นหลายบรรทัดให้แต่ละบรรทัดกว้างไม่เกิน $maxW - ไม่เกิน 3 บรรทัด
+     * ชื่อหมวดยาวกว่าช่องของแท่ง ถ้าไม่ตัดจะถูกเว้นทิ้งไปทั้งป้าย
+     * รหัสย่อในวงเล็บได้บรรทัดของตัวเอง เช่น "Quality Control (QC)" -> Quality / Control / (QC)
+     */
+    private static function labelLines(string $label, bool $wrap, float $maxW = 0, float $fs = 7): array
+    {
+        if (! $wrap || $maxW <= 0 || $label === '') {
+            return [$label];
+        }
+
+        $head = $label;
+        $tail = '';
+
+        if (($paren = mb_strpos($label, ' (')) !== false) {
+            $head = mb_substr($label, 0, $paren);
+            $tail = mb_substr($label, $paren + 1);
+        }
+
+        $lines = [];
+        $cur   = '';
+
+        foreach (explode(' ', $head) as $word) {
+            $try = $cur === '' ? $word : $cur . ' ' . $word;
+
+            if ($cur !== '' && self::textWidth($try, $fs) > $maxW) {
+                $lines[] = $cur;
+                $cur     = $word;
+            } else {
+                $cur = $try;
+            }
+        }
+
+        if ($cur !== '') {
+            $lines[] = $cur;
+        }
+
+        if ($tail !== '') {
+            $lines[] = $tail;
+        }
+
+        // เกิน 3 บรรทัดกินความสูงมากเกินไป - ยัดส่วนที่เหลือรวมไว้บรรทัดที่สาม
+        return count($lines) > 3
+            ? array_merge(array_slice($lines, 0, 2), [implode(' ', array_slice($lines, 2))])
+            : $lines;
+    }
+
     /** เปิด/ปิดแท็ก svg */
     private static function wrap(int $w, int $h, string $body): string
     {
@@ -102,8 +176,9 @@ class ReportChart
     /**
      * โดนัท - คืนแต่ห่วงและยอดกลาง (คำอธิบายสีทำเป็น HTML ในหน้ารายงาน)
      * $items = [['label' => .., 'value' => ..], ...] เรียงมากไปน้อยแล้ว
+     * $dec = ตำแหน่งทศนิยมของยอดกลาง (0 = จำนวนนับ, 2 = จำนวนเงิน)
      */
-    public static function donut(array $items, float $total, string $centerLabel, string $unit, int $w = 276): string
+    public static function donut(array $items, float $total, string $centerLabel, string $unit, int $w = 276, int $dec = 2): string
     {
         $cx = $w / 2;
         $cy = $w / 2;
@@ -119,12 +194,13 @@ class ReportChart
         foreach ($items as $i => $it) {
             $frac = $total > 0 ? $it['value'] / $total : 0;
             $end  = $offset + $frac;
+            $col  = (string) ($it['color'] ?? self::color($i));
 
             if ($frac >= 0.9999) {
                 // ชิ้นเดียวเต็มวง - เส้นโค้งหัวจรดท้ายวาดไม่ได้ ใช้วงกลมแทน
                 $arcs .= sprintf(
                     '<circle cx="%.2f" cy="%.2f" r="%.2f" fill="none" stroke="%s" stroke-width="%.1f"/>',
-                    $cx, $cy, $r, self::color($i), $sw
+                    $cx, $cy, $r, $col, $sw
                 );
             } elseif ($frac > 0) {
                 [$x0, $y0] = self::onArc($offset, $cx, $cy, $r);
@@ -132,7 +208,7 @@ class ReportChart
 
                 $arcs .= sprintf(
                     '<path d="M %.2f %.2f A %.2f %.2f 0 %d 1 %.2f %.2f" fill="none" stroke="%s" stroke-width="%.1f"/>',
-                    $x0, $y0, $r, $r, $frac > 0.5 ? 1 : 0, $x1, $y1, self::color($i), $sw
+                    $x0, $y0, $r, $r, $frac > 0.5 ? 1 : 0, $x1, $y1, $col, $sw
                 );
             }
 
@@ -154,7 +230,7 @@ class ReportChart
             . '<text x="%.1f" y="%.1f" text-anchor="middle" font-size="%.1f" font-weight="700" font-family="%s" fill="#1f2a33">%s</text>'
             . '<text x="%.1f" y="%.1f" text-anchor="middle" font-size="%.1f" fill="#7a8794">%s</text>',
             $cx, $cy - $fs * 1.3, $fs * 0.8, self::esc($centerLabel),
-            $cx, $cy + $fs * 0.5, $fs * 1.3, Pdf::FONT_NUM, self::money($total),
+            $cx, $cy + $fs * 0.5, $fs * 1.3, Pdf::FONT_NUM, self::fmt($total, $dec),
             $cx, $cy + $fs * 1.9, $fs * 0.75, self::esc($unit)
         );
 
@@ -237,22 +313,50 @@ class ReportChart
      * แท่งตั้งตามช่วงเวลา - ยอดรวมของแต่ละเดือน/วันเป็นก้อนแยกกัน ไม่ได้ไหลต่อเนื่องกัน
      * ใช้แท่งไม่ใช้เส้น เพราะเส้นทำให้เข้าใจผิดว่าค่าระหว่างจุดมีความหมาย
      * $items เรียงตามเวลาแล้ว label = ช่วงเวลาที่จัดรูปแบบพร้อมแสดง
+     *   คีย์ 'pct' ของ item = ป้ายอัตราเปลี่ยนแปลง วางเหนือตัวเลขของแท่ง (วางได้เฉพาะตอนไม่หมุนป้าย)
+     * $opts: dec = ทศนิยมบนแท่ง · avg = วาดเส้นค่าเฉลี่ย · wrap = ตัดป้ายแกนเป็น 2 บรรทัด
+     *   · thaiLabel = ป้ายแกนเป็นข้อความ ใช้ฟอนต์ไทย (ฟอนต์ตัวเลขวางสระผิดตำแหน่ง)
      */
-    public static function columns(array $items, string $unit, string $avgLabel, int $w = self::BOX_FULL, int $h = 370): string
+    public static function columns(array $items, string $unit, string $avgLabel, int $w = self::BOX_FULL, int $h = 370, array $opts = []): string
     {
+        $dec     = (int) ($opts['dec'] ?? 2);
+        $showAvg = (bool) ($opts['avg'] ?? true);
+        $wrapLbl = (bool) ($opts['wrap'] ?? false);
+        $lblFont = ($opts['thaiLabel'] ?? false) ? Pdf::FONT : Pdf::FONT_NUM;
+
+        $hasPct = false;
+        foreach ($items as $it) {
+            $hasPct = $hasPct || isset($it['pct']);
+        }
+
         $l  = 52;
         $rr = 14;
-        $t  = 26;
-        $b  = 34;
+        // ป้ายอัตราเปลี่ยนแปลงวางซ้อนเหนือตัวเลขของแท่ง ต้องกันที่ด้านบนเพิ่ม
+        $t  = $hasPct ? 38 : 26;
+
+        $n    = max(count($items), 1);
+        $pw   = $w - $l - $rr;
+        $slot = $pw / $n;
+
+        // ป้ายที่ตัดหลายบรรทัดเป็นชื่อหมวด ย่อลงหน่อยเพื่อให้ทุกช่องแสดงได้ครบ
+        $lfs = $wrapLbl ? 7.0 : 8.0;
+
+        // ตัดป้ายแกนก่อน เพราะจำนวนบรรทัดเป็นตัวกำหนดความสูงที่ต้องกันไว้ด้านล่าง
+        $lines    = [];
+        $maxLines = 1;
+
+        foreach ($items as $i => $it) {
+            $lines[$i] = self::labelLines((string) $it['label'], $wrapLbl, $slot - 4, $lfs);
+            $maxLines  = max($maxLines, count($lines[$i]));
+        }
+
+        $b = $wrapLbl ? 20 + $maxLines * ($lfs + 2) : 34;
 
         $max  = max(array_column($items, 'value') ?: [1]);
         $step = self::niceStep($max, 4);
         $axis = ceil($max / $step) * $step;
-        $pw   = $w - $l - $rr;
         $ph   = $h - $t - $b;
-        $n    = max(count($items), 1);
 
-        $slot = $pw / $n;
         $bw   = max(3.0, min(44.0, $slot * 0.6));
         $cx   = static fn (int $i) => $l + $slot * ($i + 0.5);
         $y    = static fn (float $v) => $t + $ph - ($v / $axis) * $ph;
@@ -279,7 +383,7 @@ class ReportChart
         $avg = array_sum(array_column($items, 'value')) / $n;
         $ay  = $y($avg);
 
-        if ($avg > 0) {
+        if ($showAvg && $avg > 0) {
             $body .= sprintf(
                 '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#e8721f" stroke-width="1.2" stroke-dasharray="5 3"/>',
                 $l, $ay, $w - $rr, $ay
@@ -290,15 +394,26 @@ class ReportChart
         // เกณฑ์มาจากความกว้างป้ายจริง - ป้ายรายเดือน (11-2025) แคบกว่ารายวัน (30-06-2026)
         $labelW = 0.0;
 
-        foreach ($items as $it) {
-            $labelW = max($labelW, self::textWidth((string) $it['label'], 8));
+        foreach ($lines as $group) {
+            foreach ($group as $line) {
+                $labelW = max($labelW, self::textWidth($line, $lfs));
+            }
         }
 
-        $every = max(1, (int) ceil($n / max(2, (int) floor($pw / ($labelW + 8)))));
+        // ป้ายที่ตัดบรรทัดแล้วแคบกว่าช่องของแท่งอยู่แล้ว จึงแสดงได้ทุกช่องไม่ต้องเว้น
+        $every = $wrapLbl
+            ? 1
+            : max(1, (int) ceil($n / max(2, (int) floor($pw / ($labelW + 8)))));
 
-        // ป้ายจำนวนเงินแคบกว่าป้ายวันที่ ใช้เกณฑ์ของตัวเอง - แคบกว่านี้ค่อยหมุน 90 องศา
-        $fs     = 7.5;
-        $rotate = $slot < 46;
+        // ป้ายตัวเลขบนแท่งแคบกว่าป้ายแกน วัดจากค่าที่ยาวสุดจริง - แคบกว่านี้ค่อยหมุน 90 องศา
+        $fs   = 7.5;
+        $valW = 0.0;
+
+        foreach ($items as $it) {
+            $valW = max($valW, self::textWidth(self::fmt((float) $it['value'], $dec), $fs));
+        }
+
+        $rotate = $slot < $valW + 8;
 
         foreach ($items as $i => $it) {
             $bh = ($it['value'] / $axis) * $ph;
@@ -314,7 +429,19 @@ class ReportChart
                 $cx($i) - $bw / 2, $top, $bw, $bh
             );
 
-            $money = self::money($it['value']);
+            $money = self::fmt((float) $it['value'], $dec);
+
+            // ป้ายอัตราเปลี่ยนแปลงเหนือตัวเลขของแท่ง - ขึ้นเขียว ลงแดง เท่าเดิมเทา
+            if (isset($it['pct']) && ! $rotate) {
+                $pct = (string) $it['pct'];
+
+                $body .= sprintf(
+                    '<text x="%.1f" y="%.1f" text-anchor="middle" font-size="7" font-weight="700" font-family="%s" fill="%s">%s</text>',
+                    $cx($i), $top - 15, Pdf::FONT_NUM,
+                    str_starts_with($pct, '+') ? '#1f9d55' : (str_starts_with($pct, '-') ? '#c2405a' : '#9aa7b2'),
+                    self::esc($pct)
+                );
+            }
 
             if ($rotate) {
                 // ป้ายยาวเท่าไรวัดจากจำนวนหลัก - ถ้าเหนือแท่งไม่พอ ย้ายไปไว้ในแท่งเป็นตัวขาว
@@ -335,16 +462,18 @@ class ReportChart
             }
 
             if (($n - 1 - $i) % $every === 0) {
-                $body .= sprintf(
-                    '<text x="%.1f" y="%.1f" text-anchor="middle" font-size="8" font-family="%s" fill="#9aa7b2">%s</text>',
-                    $cx($i), $t + $ph + 16, Pdf::FONT_NUM, self::esc($it['label'])
-                );
+                foreach ($lines[$i] as $li => $line) {
+                    $body .= sprintf(
+                        '<text x="%.1f" y="%.1f" text-anchor="middle" font-size="%.1f" font-family="%s" fill="#9aa7b2">%s</text>',
+                        $cx($i), $t + $ph + 16 + $li * ($lfs + 2), $lfs, $lblFont, self::esc($line)
+                    );
+                }
             }
         }
 
         // ป้ายกำกับเส้นเฉลี่ย - วาดหลังสุดพร้อมรองพื้นขาว จะได้อ่านออกไม่ว่ามีอะไรอยู่ข้างหลัง
-        if ($avg > 0) {
-            $money = self::money($avg);
+        if ($showAvg && $avg > 0) {
+            $money = self::fmt($avg, $dec);
             $lw    = self::textWidth($avgLabel, 7.5);
 
             $body .= sprintf(

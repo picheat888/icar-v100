@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Libraries\CostReport;
 use App\Libraries\Pdf;
+use App\Libraries\UsageReport;
 use App\Models\BookingModel;
 
 /**
@@ -82,7 +83,27 @@ class ReportController extends BaseController
 
         return $this->response
             ->setHeader('Content-Type', 'application/pdf')
-            ->setHeader('Content-Disposition', 'inline; filename="' . $this->fileName($from, $to) . '"')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $this->fileName('external-driver-cost', $from, $to) . '"')
+            ->setBody(Pdf::render(Pdf::make(), $html, $footer));
+    }
+
+    // PDF: รายงานสรุปการใช้งานระบบจองรถ - อินโฟกราฟิกหน้าเดียว เปิดในแท็บใหม่
+    public function usagePdf()
+    {
+        $from = $this->date('from');
+        $to   = $this->date('to');
+        $rows = (new BookingModel())->usageRows($from, $to);
+
+        $html = view('admin/reports/usage_pdf', [
+            'rows'      => $rows,
+            'report'    => UsageReport::build($rows),
+            'rangeText' => $this->rangeText($from, $to),
+        ]);
+        $footer = view('admin/reports/_pdf_footer', ['scopeText' => lang('Report.usage_scope')]);
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="' . $this->fileName('usage-summary', $from, $to) . '"')
             ->setBody(Pdf::render(Pdf::make(), $html, $footer));
     }
 
@@ -97,11 +118,11 @@ class ReportController extends BaseController
     }
 
     // ชื่อไฟล์ PDF - มีช่วงวันที่ให้รู้ว่าเป็นรายงานของช่วงไหน
-    private function fileName(string $from, string $to): string
+    private function fileName(string $prefix, string $from, string $to): string
     {
         $part = $from !== '' || $to !== '' ? $from . '_' . $to : date('Y-m-d');
 
-        return 'external-driver-cost-' . $part . '.pdf';
+        return $prefix . '-' . $part . '.pdf';
     }
 
     // วันที่จาก query ('YYYY-MM-DD') - รูปแบบผิดหรือไม่ส่งมา = ไม่จำกัดด้านนั้น

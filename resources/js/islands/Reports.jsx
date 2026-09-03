@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { t } from '../lib/i18n';
-import { fmtDate, fmtDateTime, ymd, todayStr } from '../lib/date';
+import { fmtDateTime, ymd, todayStr } from '../lib/date';
 import { fmtMoney } from '../lib/money';
 import { ST_CLASS } from '../lib/status';
-import { downloadCsv, printReport } from '../lib/reportExport';
+import { downloadCsv } from '../lib/reportExport';
 import { useToast } from '../lib/Toast';
 import Icon from '../lib/Icon';
 import { SkelBox } from '../lib/Skeleton';
@@ -43,9 +43,9 @@ function statusLabel(s) {
 
 /**
  * โมดูลรายงาน (Admin) - เลือกรายงานทางซ้าย + กรองช่วงวันที่ + ส่งออก CSV/PDF
- * props: endpoint (URL JSON), requestLink (หน้าจัดการคำขอ), pdfLink (PDF รายงานค่าใช้จ่าย)
+ * props: endpoint (URL JSON), requestLink (หน้าจัดการคำขอ), pdfLinks (URL PDF ของแต่ละรายงาน)
  */
-export default function Reports({ endpoint, requestLink, pdfLink }) {
+export default function Reports({ endpoint, requestLink, pdfLinks }) {
   const [kind, setKind]   = useState('cost');
   const [from, setFrom]   = useState(() => monthBounds(0)[0]);
   const [to, setTo]       = useState(() => monthBounds(0)[1]);
@@ -86,12 +86,6 @@ export default function Reports({ endpoint, requestLink, pdfLink }) {
     () => rows.slice((page - 1) * perPage, page * perPage),
     [rows, page, perPage],
   );
-
-  // ข้อความช่วงวันที่/ขอบเขต - ใช้บนหัวไฟล์ที่ส่งออก
-  const rangeText = () => (from || to
-    ? `${from ? fmtDate(from) : t('rpt.range_start')} – ${to ? fmtDate(to) : t('rpt.range_end')}`
-    : t('rpt.range_all'));
-  const scopeText = () => SCOPES.find((s) => s.key === scope)?.label() ?? '';
 
   const preset = (offset) => {
     const [a, b] = monthBounds(offset);
@@ -149,9 +143,6 @@ export default function Reports({ endpoint, requestLink, pdfLink }) {
       statusLabel(b.status),
     ]);
 
-  const reportTitle = KINDS.find((k) => k.key === kind).name();
-  const subtitle = isCost ? `${rangeText()} · ${scopeText()}` : rangeText();
-
   const exportCsv = () => {
     if (rows.length === 0) {
       showToast(t('rpt.export_empty'), 'warn');
@@ -169,25 +160,10 @@ export default function Reports({ endpoint, requestLink, pdfLink }) {
       return;
     }
 
-    // รายงานค่าใช้จ่ายสร้าง PDF ที่ server (mPDF) ส่วนรายงานอื่นใช้หน้าพิมพ์ของเบราว์เซอร์
-    if (isCost) {
-      const q = new URLSearchParams({ from, to, scope });
+    // PDF สร้างที่ server ด้วย mPDF - รายงานค่าใช้จ่ายส่งขอบเขตที่นับไปด้วย
+    const q = new URLSearchParams(isCost ? { from, to, scope } : { from, to });
 
-      if (! window.open(`${pdfLink}?${q}`, '_blank')) {
-        showToast(t('rpt.export_popup_blocked'), 'error');
-      }
-
-      return;
-    }
-
-    const foot = isCost
-      ? [
-        { text: t('rpt.foot_total', { n: rows.length }), span: cols.length - 1, align: 'right' },
-        { text: fmtMoney(summary.total) ?? '0.00', align: 'right' },
-      ]
-      : [{ text: t('rpt.foot_usage', { a: summary.approved, p: summary.pending, r: summary.rejected }), span: cols.length }];
-
-    if (! printReport({ brand: t('common.brand'), title: reportTitle, subtitle, cols, rows: rows.map(cellsOf), foot })) {
+    if (! window.open(`${pdfLinks[kind]}?${q}`, '_blank')) {
       showToast(t('rpt.export_popup_blocked'), 'error');
     }
   };

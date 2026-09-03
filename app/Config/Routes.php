@@ -59,7 +59,8 @@ $routes->group('admin', ['filter' => 'group:admin'], static function ($routes) {
     // รายงาน - ค่าใช้จ่ายคนขับภายนอก + สรุปการใช้งานรถ (JSON รับ kind=cost|usage)
     $routes->get('reports',      'Admin\ReportController::index');
     $routes->get('reports/data', 'Admin\ReportController::data');
-    $routes->get('reports/cost-report-pdf', 'Admin\ReportController::costPdf');
+    $routes->get('reports/cost-report-pdf',  'Admin\ReportController::costPdf');
+    $routes->get('reports/usage-report-pdf', 'Admin\ReportController::usagePdf');
     // ประวัติการใช้งาน (เมนูย่อยใต้ข้อมูลหลัก) - หน้า + JSON + Export CSV
     $routes->get('activity-log',        'Admin\ActivityLogController::index');
     $routes->get('activity-log/data',   'Admin\ActivityLogController::data');
