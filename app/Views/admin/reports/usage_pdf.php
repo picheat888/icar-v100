@@ -46,6 +46,12 @@ $n = static fn (string $v): string => Pdf::num($v);
     font-weight: bold;
   }
 
+  /* ที่ว่างให้สระล่างของหัวเรื่องไทยห้อยลงมา - mPDF ไม่รับ padding บน div ต้องใช้บรรทัดเปล่า */
+  .hd-gap {
+    font-size: 5pt;
+    line-height: 1;
+  }
+
   .hd-en {
     font-size: 7pt;
     color: #6b7884;
@@ -207,10 +213,12 @@ $n = static fn (string $v): string => Pdf::num($v);
     text-align: left;
   }
 
+  /* ตัวหนังสือชิดซ้ายเสมอ - เซลล์ที่ครอบตั้ง align=center ไว้เพื่อจัดกราฟ ไม่ใช่ข้อความในตาราง */
   .rk td {
     font-size: 6.8pt;
     padding: 1.7pt 4pt;
     border-bottom: 0.4pt solid #f0f3f5;
+    text-align: left;
   }
 
   .rk tr.alt td {
@@ -280,6 +288,7 @@ $n = static fn (string $v): string => Pdf::num($v);
     </td>
     <td width="50%" align="center">
       <div class="hd-th"><?= esc(lang('Report.usage_title')) ?></div>
+      <div class="hd-gap">&nbsp;</div>
       <?php if ($subTitle = lang('Report.usage_title_en')) : ?>
         <div class="hd-en"><?= esc($subTitle) ?></div>
       <?php endif ?>

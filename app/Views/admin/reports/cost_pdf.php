@@ -46,6 +46,12 @@ $n = static fn (string $v): string => Pdf::num($v);
     font-weight: bold;
   }
 
+  /* ที่ว่างให้สระล่างของหัวเรื่องไทยห้อยลงมา - mPDF ไม่รับ padding บน div ต้องใช้บรรทัดเปล่า */
+  .hd-gap {
+    font-size: 5pt;
+    line-height: 1;
+  }
+
   .hd-en {
     font-size: 7.5pt;
     color: #6b7884;
@@ -241,7 +247,7 @@ $n = static fn (string $v): string => Pdf::num($v);
 
 <table class="hd" width="100%">
   <tr>
-    <td width="26%">
+    <td width="18%">
       <table><tr>
         <td width="34"><img src="<?= FCPATH . 'logo-1.png' ?>" width="30"></td>
         <td>
@@ -250,15 +256,16 @@ $n = static fn (string $v): string => Pdf::num($v);
         </td>
       </tr></table>
     </td>
-    <td width="4%"></td>
-    <td width="40%" align="center">
+    <td width="1%"></td>
+    <td width="56%" align="center">
       <div class="hd-th"><?= esc(lang('Report.cost_title')) ?></div>
+      <div class="hd-gap">&nbsp;</div>
       <?php if ($subTitle = lang('Report.cost_title_en')) : ?>
         <div class="hd-en"><?= esc($subTitle) ?></div>
       <?php endif ?>
     </td>
-    <td width="4%"></td>
-    <td width="26%" align="right">
+    <td width="1%"></td>
+    <td width="24%" align="right">
       <table><tr><td class="chip">
         <div class="chip-label"><?= esc(lang('Report.range_label')) ?></div>
         <div class="chip-val"><?= $n(esc($rangeText)) ?></div>
